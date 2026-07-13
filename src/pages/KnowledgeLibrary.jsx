@@ -76,7 +76,7 @@ export default function KnowledgeLibrary() {
           <div className="mb-3">
             <SKBadgeGroup skCodes={selectedArticle.sk_codes || []} poCodes={selectedArticle.performance_outcomes || []} />
           </div>
-          <div className="prose prose-sm prose-invert max-w-none mb-6">
+          <div className="prose prose-sm max-w-none mb-6">
             <ReactMarkdown
               components={{
                 h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-foreground mt-5 mb-2" {...props} />,

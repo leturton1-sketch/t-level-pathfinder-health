@@ -12,38 +12,30 @@ export default function OverheadLight({ active = true }) {
 
   return (
     <div className="relative flex flex-col items-center pointer-events-none">
-      {/* Strip light fixture */}
-      <div className="relative w-48 h-3 rounded-full bg-slate-700/80 overflow-visible">
+      {/* Metallic strip light fixture */}
+      <div className="relative w-48 h-3 rounded-full bg-slate-400 overflow-visible shadow-md">
         {/* Light tube */}
         <div
-          className={`absolute inset-0 rounded-full transition-all duration-100 ${
-            on ? "bg-gradient-to-r from-amber-100 via-white to-amber-100" : "bg-slate-600"
+          className={`absolute inset-0 rounded-full transition-all duration-300 ${
+            on
+              ? "bg-gradient-to-r from-amber-50 via-white to-amber-50 shadow-[0_0_15px_rgba(255,245,200,0.7)]"
+              : "bg-slate-500"
           }`}
           style={on ? { animation: "flicker-on 1.5s ease-in-out" } : {}}
         />
-        {/* Glow */}
+        {/* Soft glow */}
         {on && (
           <div
             className="absolute inset-0 rounded-full blur-md"
             style={{
-              background: "radial-gradient(ellipse, rgba(255,240,200,0.8) 0%, rgba(255,200,100,0.2) 60%, transparent 100%)",
+              background:
+                "radial-gradient(ellipse, rgba(255,250,230,0.5) 0%, rgba(255,240,200,0.1) 60%, transparent 100%)",
             }}
           />
         )}
       </div>
-      {/* Light cone projecting downward */}
-      {on && (
-        <div
-          className="absolute top-3 w-72 h-96 -z-10 animate-fade-in"
-          style={{
-            background: "linear-gradient(to bottom, rgba(255,240,200,0.15) 0%, rgba(255,230,150,0.05) 50%, transparent 100%)",
-            clipPath: "polygon(40% 0%, 60% 0%, 100% 100%, 0% 100%)",
-            filter: "blur(8px)",
-          }}
-        />
-      )}
       {/* Mounting bracket */}
-      <div className="w-1 h-2 bg-slate-600 -mt-0.5" />
+      <div className="w-1 h-2 bg-slate-500 -mt-0.5" />
     </div>
   );
 }

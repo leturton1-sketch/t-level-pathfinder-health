@@ -4,27 +4,27 @@
 
 @layer base {
   :root {
-    --background: 210 29% 10%;
-    --foreground: 210 20% 95%;
-    --card: 210 20% 14%;
-    --card-foreground: 210 20% 95%;
-    --popover: 210 20% 14%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 187 100% 33%;
+    --background: 210 14% 97%;
+    --foreground: 210 10% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 10% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 10% 20%;
+    --primary: 73 100% 36%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 20% 20%;
-    --secondary-foreground: 210 20% 95%;
-    --muted: 210 20% 18%;
-    --muted-foreground: 210 15% 65%;
-    --accent: 187 100% 33%;
+    --secondary: 210 14% 90%;
+    --secondary-foreground: 210 10% 20%;
+    --muted: 210 14% 93%;
+    --muted-foreground: 210 8% 46%;
+    --accent: 73 100% 36%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 22%;
-    --input: 210 20% 22%;
-    --ring: 187 100% 33%;
-    --clinical-navy: 210 29% 10%;
-    --clinical-teal: 187 100% 33%;
+    --border: 210 14% 86%;
+    --input: 210 14% 86%;
+    --ring: 73 100% 36%;
+    --clinical-navy: 210 14% 95%;
+    --clinical-teal: 73 100% 36%;
     --clinical-amber: 38 92% 50%;
     --clinical-red: 0 72% 51%;
     --clinical-green: 142 71% 45%;
@@ -46,22 +46,22 @@
   }
 }
 
-/* CRT / TV Power-On Boot Animation */
+/* Boot / Power-On Animation — Light Theme */
 @keyframes crt-boot {
-  0% { transform: scaleY(0.005) scaleX(0.2); opacity: 0; filter: brightness(4); }
-  15% { transform: scaleY(0.008) scaleX(0.4); opacity: 1; filter: brightness(4); }
-  30% { transform: scaleY(0.01) scaleX(1); opacity: 1; filter: brightness(3); }
-  50% { transform: scaleY(0.05) scaleX(1); opacity: 1; filter: brightness(2); }
-  75% { transform: scaleY(0.6) scaleX(1); opacity: 1; filter: brightness(1.5); }
-  90% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1.2); }
-  100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); }
+  0% { transform: scaleY(0.005) scaleX(0.2); opacity: 0; }
+  15% { transform: scaleY(0.008) scaleX(0.4); opacity: 1; }
+  30% { transform: scaleY(0.01) scaleX(1); opacity: 1; }
+  50% { transform: scaleY(0.05) scaleX(1); opacity: 1; }
+  75% { transform: scaleY(0.6) scaleX(1); opacity: 1; }
+  90% { transform: scaleY(1) scaleX(1); opacity: 1; }
+  100% { transform: scaleY(1) scaleX(1); opacity: 1; }
 }
 
 @keyframes scanline {
   0% { transform: translateY(-100%); opacity: 0; }
-  10% { opacity: 0.8; }
-  50% { opacity: 0.4; }
-  90% { opacity: 0.2; }
+  10% { opacity: 0.5; }
+  50% { opacity: 0.25; }
+  90% { opacity: 0.1; }
   100% { transform: translateY(100%); opacity: 0; }
 }
 
@@ -86,12 +86,12 @@
 }
 
 @keyframes pulse-amber {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(38 92% 50% / 0.5); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(38 92% 50% / 0.4); }
   50% { box-shadow: 0 0 0 8px hsl(38 92% 50% / 0); }
 }
 
 @keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(0 72% 51% / 0.6); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(0 72% 51% / 0.5); }
   50% { box-shadow: 0 0 0 12px hsl(0 72% 51% / 0); }
 }
 
@@ -125,5 +125,5 @@
 
 .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(210 20% 30%); border-radius: 3px; }
-.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(210 20% 40%); }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(210 14% 80%); border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(210 14% 70%); }

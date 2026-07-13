@@ -192,7 +192,7 @@ export default function AIAssistant({ context = "general" }) {
               }`}
             >
               {msg.role === "assistant" ? (
-                <ReactMarkdown className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5 [&_strong]:text-clinical-teal">
+                <ReactMarkdown className="prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5 [&_strong]:text-clinical-teal">
                   {msg.content}
                 </ReactMarkdown>
               ) : (
