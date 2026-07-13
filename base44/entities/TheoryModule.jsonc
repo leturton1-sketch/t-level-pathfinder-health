@@ -1,0 +1,64 @@
+{
+  "name": "TheoryModule",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "spec_area": {
+      "type": "string",
+      "description": "e.g., Area 1, Area 8"
+    },
+    "volume": {
+      "type": "string",
+      "enum": [
+        "Vol 1",
+        "Vol 2",
+        "Vol 3"
+      ]
+    },
+    "section": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Markdown structured content"
+    },
+    "sk_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "knowledge_checks": {
+      "type": "string",
+      "description": "JSON of quiz questions"
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "estimated_duration": {
+      "type": "number",
+      "default": 10,
+      "description": "Minutes"
+    },
+    "order_index": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "spec_area",
+    "content"
+  ]
+}

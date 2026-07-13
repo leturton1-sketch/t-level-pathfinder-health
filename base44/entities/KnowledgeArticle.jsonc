@@ -1,0 +1,53 @@
+{
+  "name": "KnowledgeArticle",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "clinical_procedure",
+        "legislation",
+        "anatomy_physiology",
+        "pathophysiology",
+        "pharmacology",
+        "governance",
+        "specification",
+        "terminology"
+      ]
+    },
+    "content": {
+      "type": "string",
+      "description": "Markdown content"
+    },
+    "sk_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source": {
+      "type": "string",
+      "description": "e.g., NHS England, clinicalskills.net, T Level Specification, Peer Review"
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "content"
+  ]
+}

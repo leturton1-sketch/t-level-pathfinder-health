@@ -1,125 +1,229 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
-import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { login, changePin, getCurrentUser } from "@/lib/clinicalAuth";
+import BootAnimation from "@/components/BootAnimation";
+import OverheadLight from "@/components/OverheadLight";
+import { Lock, User as UserIcon, Delete, AlertCircle } from "lucide-react";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [booting, setBooting] = useState(true);
+  const [username, setUsername] = useState("");
+  const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPinChange, setShowPinChange] = useState(false);
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [pendingUser, setPendingUser] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  useEffect(() => {
+    const existing = getCurrentUser();
+    if (existing) {
+      setBooting(false);
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const handleLogin = async () => {
+    if (!username.trim() || pin.length !== 4) return;
     setLoading(true);
+    setError("");
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = "/";
+      const user = await login(username, pin);
+      if (user.first_login || pin === "0000") {
+        setPendingUser({ ...user, pin });
+        setShowPinChange(true);
+      } else {
+        navigate("/");
+      }
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
+  const handlePinChange = async () => {
+    if (newPin.length !== 4 || newPin !== confirmPin) {
+      setError("PINs must match and be 4 digits.");
+      return;
+    }
+    try {
+      await changePin(pendingUser.id, newPin);
+      navigate("/");
+    } catch (err) {
+      setError("Failed to update PIN. Please try again.");
+    }
   };
 
-  return (
-    <AuthLayout
-      icon={LogIn}
-      title="Welcome back"
-      subtitle="Log in to your account"
-      footer={
-        <>
-          Don't have an account?{" "}
-          <Link to="/register" className="text-primary font-medium hover:underline">
-            Create one
-          </Link>
-        </>
-      }
-    >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
+  const handlePinDigit = (digit) => {
+    if (pin.length < 4) {
+      setPin(pin + digit);
+    }
+  };
 
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
+  const handlePinDelete = () => {
+    setPin(pin.slice(0, -1));
+  };
+
+  if (booting) {
+    return <BootAnimation onComplete={() => setBooting(false)} />;
+  }
+
+  if (showPinChange) {
+    return (
+      <div className="fixed inset-0 bg-clinical-navy flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-6 animate-fade-in">
+            <div className="inline-block mb-4"><OverheadLight /></div>
+            <h1 className="text-xl font-bold text-foreground">Change Your PIN</h1>
+            <p className="text-sm text-muted-foreground mt-2">For security, please set a new 4-digit PIN.</p>
+          </div>
+
+          <div className="space-y-4 bg-card/60 backdrop-blur-sm rounded-xl border border-border p-6">
+            {error && (
+              <div className="flex items-center gap-2 text-sm text-clinical-red bg-clinical-red/10 rounded-lg p-2">
+                <AlertCircle className="w-4 h-4" /> {error}
+              </div>
+            )}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">New PIN</label>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={newPin}
+                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                className="w-full bg-muted/50 border border-border rounded-lg px-4 py-3 text-center text-2xl tracking-[1em] text-foreground focus:outline-none focus:border-clinical-teal"
+                placeholder="••••"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Confirm PIN</label>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={confirmPin}
+                onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                className="w-full bg-muted/50 border border-border rounded-lg px-4 py-3 text-center text-2xl tracking-[1em] text-foreground focus:outline-none focus:border-clinical-teal"
+                placeholder="••••"
+              />
+            </div>
+            <button
+              onClick={handlePinChange}
+              disabled={newPin.length !== 4 || newPin !== confirmPin}
+              className="w-full py-3 rounded-lg bg-clinical-teal text-white font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
+            >
+              Set New PIN & Continue
+            </button>
+          </div>
         </div>
       </div>
+    );
+  }
 
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
+  return (
+    <div className="fixed inset-0 bg-clinical-navy flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        {/* Overhead light */}
+        <div className="flex justify-center mb-2">
+          <OverheadLight />
         </div>
-      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
+        <div className="text-center mb-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+          <h1 className="text-2xl font-bold text-foreground">ClinicalEdge</h1>
+          <p className="text-sm text-muted-foreground mt-1">T Level Health Learning Platform</p>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Logging in...
-            </>
-          ) : (
-            "Log in"
+
+        <div className="space-y-4 bg-card/60 backdrop-blur-sm rounded-xl border border-border p-6 animate-slide-up" style={{ animationDelay: "0.4s" }}>
+          {error && (
+            <div className="flex items-center gap-2 text-sm text-clinical-red bg-clinical-red/10 rounded-lg p-2">
+              <AlertCircle className="w-4 h-4" /> {error}
+            </div>
           )}
-        </Button>
-      </form>
-    </AuthLayout>
+
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Username</label>
+            <div className="relative">
+              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                className="w-full bg-muted/50 border border-border rounded-lg pl-10 pr-4 py-3 text-foreground focus:outline-none focus:border-clinical-teal"
+                placeholder="Enter your username"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">PIN</label>
+            <div className="flex justify-center gap-3 mb-3">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`w-12 h-14 rounded-lg border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+                    pin.length > i
+                      ? "border-clinical-teal bg-clinical-teal/10 text-clinical-teal"
+                      : "border-border bg-muted/30 text-muted-foreground"
+                  }`}
+                >
+                  {pin.length > i ? "•" : ""}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Numeric keypad */}
+          <div className="grid grid-cols-3 gap-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
+              <button
+                key={digit}
+                onClick={() => handlePinDigit(String(digit))}
+                className="aspect-square rounded-xl border border-border bg-muted/40 text-xl font-bold text-foreground hover:bg-muted/70 hover:border-clinical-teal/40 transition-all active:scale-95"
+              >
+                {digit}
+              </button>
+            ))}
+            <div />
+            <button
+              onClick={() => handlePinDigit("0")}
+              className="aspect-square rounded-xl border border-border bg-muted/40 text-xl font-bold text-foreground hover:bg-muted/70 hover:border-clinical-teal/40 transition-all active:scale-95"
+            >
+              0
+            </button>
+            <button
+              onClick={handlePinDelete}
+              className="aspect-square rounded-xl border border-border bg-muted/40 text-muted-foreground hover:bg-muted/70 transition-all active:scale-95 flex items-center justify-center"
+            >
+              <Delete className="w-5 h-5" />
+            </button>
+          </div>
+
+          <button
+            onClick={handleLogin}
+            disabled={loading || !username.trim() || pin.length !== 4}
+            className="w-full py-3 rounded-lg bg-clinical-teal text-white font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <Lock className="w-4 h-4" />
+                Log In
+              </>
+            )}
+          </button>
+
+          <p className="text-center text-xs text-muted-foreground">
+            Default PIN is 0000 — you'll be prompted to change it on first login.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

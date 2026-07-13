@@ -1,0 +1,77 @@
+{
+  "name": "AppUser",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "title": "Username",
+      "minLength": 3
+    },
+    "pin": {
+      "type": "string",
+      "title": "PIN",
+      "description": "4-digit PIN (default 0000)"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "admin",
+        "tutor",
+        "student",
+        "guest"
+      ],
+      "default": "student"
+    },
+    "full_name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "institution": {
+      "type": "string",
+      "title": "Institution"
+    },
+    "cohort": {
+      "type": "string",
+      "title": "Cohort"
+    },
+    "first_login": {
+      "type": "boolean",
+      "default": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "ai_voice": {
+      "type": "string",
+      "enum": [
+        "river",
+        "honey",
+        "sunny",
+        "storm",
+        "spark"
+      ],
+      "default": "honey"
+    },
+    "ai_persona": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female"
+      ],
+      "default": "female"
+    },
+    "is_protected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Super Admin account cannot be deleted"
+    }
+  },
+  "required": [
+    "username",
+    "pin",
+    "role",
+    "full_name"
+  ]
+}

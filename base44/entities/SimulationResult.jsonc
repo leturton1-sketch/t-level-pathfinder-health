@@ -1,0 +1,55 @@
+{
+  "name": "SimulationResult",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_name": {
+      "type": "string"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "scenario_name": {
+      "type": "string"
+    },
+    "decisions": {
+      "type": "string",
+      "description": "JSON array of decisions made"
+    },
+    "score": {
+      "type": "number",
+      "default": 0
+    },
+    "max_score": {
+      "type": "number",
+      "default": 100
+    },
+    "decision_path": {
+      "type": "string",
+      "description": "JSON of correct vs actual path"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "sk_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "student_id",
+    "scenario_id",
+    "scenario_name"
+  ]
+}

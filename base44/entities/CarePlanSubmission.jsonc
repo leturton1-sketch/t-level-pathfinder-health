@@ -1,0 +1,74 @@
+{
+  "name": "CarePlanSubmission",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "abcde",
+        "smart_goals",
+        "risk_assessment",
+        "news2",
+        "fluid_balance",
+        "handover_sbar",
+        "mdt_referral",
+        "reflective_log",
+        "action_plan"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "JSON of form data"
+    },
+    "linked_scenario": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "reviewed",
+        "revised"
+      ],
+      "default": "draft"
+    },
+    "tutor_feedback": {
+      "type": "string"
+    },
+    "tutor_id": {
+      "type": "string"
+    },
+    "sk_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "student_id",
+    "type",
+    "title",
+    "status"
+  ]
+}

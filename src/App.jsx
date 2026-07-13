@@ -6,7 +6,19 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-// Add page imports here
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Theory from './pages/Theory';
+import TheoryDetail from './pages/TheoryDetail';
+import CarePlanning from './pages/CarePlanning';
+import ABCDEAssessment from './pages/ABCDEAssessment';
+import NEWS2Scoring from './pages/NEWS2Scoring';
+import SMARTGoals from './pages/SMARTGoals';
+import WardSimulation from './pages/WardSimulation';
+import KnowledgeLibrary from './pages/KnowledgeLibrary';
+import UserManagement from './pages/UserManagement';
+import Profile from './pages/Profile';
+import Layout from './components/Layout';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -34,7 +46,20 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/login" element={<Login />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/theory" element={<Theory />} />
+        <Route path="/theory/:moduleId" element={<TheoryDetail />} />
+        <Route path="/care-planning" element={<CarePlanning />} />
+        <Route path="/care-planning/abcde" element={<ABCDEAssessment />} />
+        <Route path="/care-planning/news2" element={<NEWS2Scoring />} />
+        <Route path="/care-planning/smart-goals" element={<SMARTGoals />} />
+        <Route path="/ward-simulation" element={<WardSimulation />} />
+        <Route path="/knowledge-library" element={<KnowledgeLibrary />} />
+        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
