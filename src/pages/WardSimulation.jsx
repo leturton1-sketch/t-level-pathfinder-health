@@ -6,9 +6,10 @@ import { PREBUILT_SCENARIOS } from "@/lib/specData";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import NEWS2Badge from "@/components/NEWS2Badge";
 import Ward3D from "@/components/Ward3D";
+import WardEditPanel from "@/components/WardEditPanel";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
-  Pencil, LayoutGrid, MessageSquare, Settings, ArrowLeft,
+  Pencil, LayoutGrid, MessageSquare, Settings,
 } from "lucide-react";
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
@@ -26,11 +27,16 @@ export default function WardSimulation() {
   const [suite, setSuite] = useState("A");
   const [showScenarioList, setShowScenarioList] = useState(false);
 
+  // Edit mode state
+  const [editMode, setEditMode] = useState(false);
+  const [placedItems, setPlacedItems] = useState([]);
+  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedItemForPlacement, setSelectedItemForPlacement] = useState(null);
+
+  const canEdit = ["super_admin", "admin"].includes(user?.role);
+
   useEffect(() => {
-    if (!isLoggedIn()) {
-      navigate("/login");
-      return;
-    }
+    if (!isLoggedIn()) { navigate("/login"); return; }
     loadScenarios();
   }, [navigate]);
 
@@ -38,11 +44,7 @@ export default function WardSimulation() {
     setLoading(true);
     try {
       const existing = await base44.entities.Scenario.list();
-      if (existing.length > 0) {
-        setScenarios(existing);
-      } else {
-        setScenarios(PREBUILT_SCENARIOS);
-      }
+      setScenarios(existing.length > 0 ? existing : PREBUILT_SCENARIOS);
     } catch {
       setScenarios(PREBUILT_SCENARIOS);
     } finally {
@@ -51,12 +53,93 @@ export default function WardSimulation() {
   };
 
   const patientsForWard = scenarios.map((s) => ({
-    name: s.patient_name,
-    news2_score: s.initial_news2 || 0,
-    bed: s.bed_number,
-    condition: s.patient_condition,
+    name: s.patient_name, news2_score: s.initial_news2 || 0, bed: s.bed_number, condition: s.patient_condition,
   }));
 
+  // Ward layout load/save
+  const loadLayout = async (suiteName) => {
+    try {
+      const existing = await base44.entities.WardLayout.filter({ suite: suiteName });
+      if (existing.length > 0) {
+        setPlacedItems(JSON.parse(existing[0].items || "[]"));
+      } else {
+        setPlacedItems([]);
+      }
+    } catch {
+      const saved = localStorage.getItem(`wardLayout_${suiteName}`);
+      setPlacedItems(saved ? JSON.parse(saved) : []);
+    }
+  };
+
+  const saveLayout = async () => {
+    const suiteToSave = suite === "both" ? "A" : suite;
+    const itemsJson = JSON.stringify(placedItems);
+    try {
+      const existing = await base44.entities.WardLayout.filter({ suite: suiteToSave });
+      if (existing.length > 0) {
+        await base44.entities.WardLayout.update(existing[0].id, { items: itemsJson });
+      } else {
+        await base44.entities.WardLayout.create({ suite: suiteToSave, items: itemsJson, layout_name: "Default" });
+      }
+    } catch {
+      localStorage.setItem(`wardLayout_${suiteToSave}`, itemsJson);
+    }
+  };
+
+  // Edit mode handlers
+  const handleEditToggle = () => {
+    if (editMode) {
+      saveLayout();
+      setEditMode(false);
+      setSelectedItemId(null);
+      setSelectedItemForPlacement(null);
+    } else {
+      const suiteToEdit = suite === "both" ? "A" : suite;
+      if (suite === "both") setSuite("A");
+      loadLayout(suiteToEdit);
+      setActiveScenario(null);
+      setEditMode(true);
+    }
+  };
+
+  const handleItemPlace = (type, x, z) => {
+    const newItem = {
+      id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      type, x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10, rotationY: 0,
+    };
+    setPlacedItems((prev) => [...prev, newItem]);
+    setSelectedItemId(newItem.id);
+    setSelectedItemForPlacement(null);
+  };
+
+  const handleItemMove = (itemId, x, z) => {
+    setPlacedItems((prev) => prev.map((item) =>
+      item.id === itemId ? { ...item, x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 } : item
+    ));
+  };
+
+  const handleItemSelect = (itemId) => {
+    setSelectedItemId(itemId);
+    setSelectedItemForPlacement(null);
+  };
+
+  const handleItemRotate = (direction) => {
+    if (!selectedItemId) return;
+    const angle = Math.PI / 12;
+    setPlacedItems((prev) => prev.map((item) =>
+      item.id === selectedItemId
+        ? { ...item, rotationY: (item.rotationY || 0) + (direction === "left" ? -angle : angle) }
+        : item
+    ));
+  };
+
+  const handleItemDelete = () => {
+    if (!selectedItemId) return;
+    setPlacedItems((prev) => prev.filter((item) => item.id !== selectedItemId));
+    setSelectedItemId(null);
+  };
+
+  // Scenario handlers
   const startScenario = (scenario) => {
     setActiveScenario(scenario);
     setVitals({ ...scenario.initial_vitals });
@@ -66,15 +149,10 @@ export default function WardSimulation() {
   };
 
   const handleBedClick = (bedIdx) => {
-    if (activeScenario) {
-      setShowPatientPanel(true);
-      return;
-    }
-    const patient = patientsForWard[bedIdx];
-    if (patient) {
-      const scenario = scenarios[bedIdx];
-      if (scenario) startScenario(scenario);
-    }
+    if (editMode) return;
+    if (activeScenario) { setShowPatientPanel(true); return; }
+    const scenario = scenarios[bedIdx];
+    if (scenario) startScenario(scenario);
   };
 
   const decisionSteps = activeScenario ? [
@@ -110,16 +188,9 @@ export default function WardSimulation() {
   const handleDecision = (option, stepIdx) => {
     const newDecision = { step: stepIdx, choice: option.label, correct: option.correct, feedback: option.feedback };
     setDecisions([...decisions, newDecision]);
-
     if (option.correct && vitals) {
-      setVitals({
-        ...vitals,
-        rr: Math.max(12, (vitals.rr || 18) - 2),
-        spo2: Math.min(98, (vitals.spo2 || 95) + 3),
-        hr: Math.max(60, (vitals.hr || 80) - 10),
-      });
+      setVitals({ ...vitals, rr: Math.max(12, (vitals.rr || 18) - 2), spo2: Math.min(98, (vitals.spo2 || 95) + 3), hr: Math.max(60, (vitals.hr || 80) - 10) });
     }
-
     if (stepIdx + 1 >= decisionSteps.length) {
       setTimeout(() => setShowDebrief(true), 1500);
     }
@@ -129,10 +200,7 @@ export default function WardSimulation() {
   const maxScore = decisionSteps.length;
 
   const exitScenario = () => {
-    setActiveScenario(null);
-    setDecisions([]);
-    setVitals(null);
-    setShowPatientPanel(false);
+    setActiveScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false);
   };
 
   // Debrief screen
@@ -141,29 +209,23 @@ export default function WardSimulation() {
     return (
       <div className="min-h-screen bg-slate-100 px-4 pt-6 pb-24 max-w-2xl mx-auto">
         <div className="text-center mb-6">
-          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${
-            percentage >= 70 ? "bg-clinical-green/20" : percentage >= 40 ? "bg-clinical-amber/20" : "bg-clinical-red/20"
-          }`}>
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${percentage >= 70 ? "bg-clinical-green/20" : percentage >= 40 ? "bg-clinical-amber/20" : "bg-clinical-red/20"}`}>
             {percentage >= 70 ? <CheckCircle className="w-8 h-8 text-clinical-green" /> : <AlertCircle className="w-8 h-8 text-clinical-amber" />}
           </div>
-          <h1 className="text-xl font-bold text-slate-800">Scenario Complete</h1>
+          <h1 className="text-xl font-heading font-bold text-slate-800">Scenario Complete</h1>
           <p className="text-sm text-slate-500">{activeScenario.name}</p>
-          <div className="text-3xl font-bold text-clinical-teal mt-2">{percentage}%</div>
+          <div className="text-3xl font-heading font-bold text-clinical-teal mt-2">{percentage}%</div>
           <p className="text-xs text-slate-500">{score} of {maxScore} correct decisions</p>
         </div>
-
         <div className="rounded-xl border border-slate-200 bg-white p-4 mb-4 shadow-sm">
-          <h2 className="text-sm font-bold text-slate-800 mb-2">Clinical Debrief</h2>
+          <h2 className="text-sm font-heading font-bold text-slate-800 mb-2">Clinical Debrief</h2>
           <p className="text-sm text-slate-600">{activeScenario.debrief_rationale}</p>
         </div>
-
         <div className="rounded-xl border border-slate-200 bg-white p-4 mb-4 shadow-sm">
-          <h2 className="text-sm font-bold text-slate-800 mb-3">Decision Pathway</h2>
+          <h2 className="text-sm font-heading font-bold text-slate-800 mb-3">Decision Pathway</h2>
           <div className="space-y-2">
             {decisions.map((d, i) => (
-              <div key={i} className={`rounded-lg p-3 text-xs ${
-                d.correct ? "bg-clinical-green/5 border border-clinical-green/20" : "bg-clinical-red/5 border border-clinical-red/20"
-              }`}>
+              <div key={i} className={`rounded-lg p-3 text-xs ${d.correct ? "bg-clinical-green/5 border border-clinical-green/20" : "bg-clinical-red/5 border border-clinical-red/20"}`}>
                 <div className="flex items-center gap-2 mb-1">
                   {d.correct ? <CheckCircle className="w-3.5 h-3.5 text-clinical-green" /> : <X className="w-3.5 h-3.5 text-clinical-red" />}
                   <span className="font-semibold text-slate-800">Step {i + 1}: {d.choice}</span>
@@ -173,18 +235,10 @@ export default function WardSimulation() {
             ))}
           </div>
         </div>
-
-        <div className="mb-4">
-          <SKBadgeGroup skCodes={activeScenario.sk_codes} poCodes={activeScenario.performance_outcomes} />
-        </div>
-
+        <div className="mb-4"><SKBadgeGroup skCodes={activeScenario.sk_codes} poCodes={activeScenario.performance_outcomes} /></div>
         <div className="flex gap-2">
-          <button onClick={() => { setShowDebrief(false); exitScenario(); }} className="flex-1 py-3 rounded-lg border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-50">
-            Back to Ward
-          </button>
-          <button onClick={() => { setShowDebrief(false); exitScenario(); }} className="flex-1 py-3 rounded-lg bg-clinical-teal text-white font-semibold text-sm hover:opacity-90">
-            New Scenario
-          </button>
+          <button onClick={() => { setShowDebrief(false); exitScenario(); }} className="flex-1 py-3 rounded-lg border border-slate-300 text-slate-700 font-heading font-semibold text-sm hover:bg-slate-50">Back to Ward</button>
+          <button onClick={() => { setShowDebrief(false); exitScenario(); }} className="flex-1 py-3 rounded-lg bg-clinical-teal text-white font-heading font-semibold text-sm hover:opacity-90">New Scenario</button>
         </div>
       </div>
     );
@@ -198,7 +252,6 @@ export default function WardSimulation() {
     );
   }
 
-  // Main ward view (always shown — 3D ward with top nav)
   return (
     <div className="fixed inset-0 bg-slate-100 flex flex-col">
       {/* Top navigation bar */}
@@ -209,71 +262,59 @@ export default function WardSimulation() {
             <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
               <Stethoscope className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-sm text-slate-800 hidden sm:inline">ClinicalEdge</span>
+            <span className="font-display text-sm text-slate-800 hidden sm:inline">ClinicalEdge</span>
           </div>
 
-          {/* Center: Suite toggle */}
-          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-            {["A", "B", "both"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setSuite(s)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                  suite === s
-                    ? "bg-slate-800 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {s === "both" ? "Both" : `Suite ${s}`}
-              </button>
-            ))}
-          </div>
+          {/* Center: Suite toggle (hidden in edit mode) */}
+          {!editMode && (
+            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+              {["A", "B", "both"].map((s) => (
+                <button key={s} onClick={() => setSuite(s)}
+                  className={`px-3 py-1.5 text-xs font-heading font-semibold rounded-md transition-all ${suite === s ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"}`}>
+                  {s === "both" ? "Both" : `Suite ${s}`}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Right: Action buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <button className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-              <Pencil className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Edit Ward</span>
-            </button>
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Dashboard</span>
-            </button>
-            <button
-              onClick={() => navigate("/profile")}
-              className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">AI Tutor</span>
-            </button>
-            <button
-              onClick={() => setShowScenarioList(true)}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors border ${
-                showScenarioList
-                  ? "bg-clinical-teal text-white border-clinical-teal"
-                  : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Scenario</span>
-            </button>
+            {canEdit && (
+              <button onClick={handleEditToggle}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${
+                  editMode ? "bg-clinical-teal text-white border-clinical-teal" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"
+                }`}>
+                <Pencil className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">{editMode ? "Save & Exit" : "Edit Ward"}</span>
+              </button>
+            )}
+            {!editMode && (
+              <>
+                <button onClick={() => navigate("/")} className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                  <LayoutGrid className="w-3.5 h-3.5" /><span className="hidden lg:inline">Dashboard</span>
+                </button>
+                <button onClick={() => navigate("/profile")} className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                  <MessageSquare className="w-3.5 h-3.5" /><span className="hidden lg:inline">AI Tutor</span>
+                </button>
+                <button onClick={() => setShowScenarioList(true)}
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${
+                    showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"
+                  }`}>
+                  <Settings className="w-3.5 h-3.5" /><span className="hidden lg:inline">Scenario</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Scenario active indicator */}
-        {activeScenario && (
+        {activeScenario && !editMode && (
           <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-t border-slate-200">
             <div className="flex items-center gap-3">
               <button onClick={exitScenario} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-800">
-                <ArrowLeft className="w-3.5 h-3.5" /> Exit Scenario
+                <X className="w-3.5 h-3.5" /> Exit Scenario
               </button>
-              <div className="text-xs">
-                <span className="text-slate-400">Active: </span>
-                <span className="font-semibold text-slate-800">{activeScenario.name}</span>
-              </div>
+              <div className="text-xs"><span className="text-slate-400">Active: </span><span className="font-semibold text-slate-800">{activeScenario.name}</span></div>
             </div>
             <NEWS2Badge score={activeScenario.initial_news2} size="sm" />
           </div>
@@ -282,51 +323,59 @@ export default function WardSimulation() {
 
       {/* 3D Ward viewport */}
       <div className="flex-1 relative">
-        <Ward3D patients={patientsForWard} onBedClick={handleBedClick} suite={suite} />
+        <Ward3D
+          patients={patientsForWard}
+          onBedClick={handleBedClick}
+          suite={suite}
+          editMode={editMode}
+          placedItems={placedItems}
+          selectedItemId={selectedItemId}
+          selectedItemForPlacement={selectedItemForPlacement}
+          onItemPlace={handleItemPlace}
+          onItemMove={handleItemMove}
+          onItemSelect={handleItemSelect}
+        />
 
-        {/* Hint to tap a bed */}
-        {!activeScenario && (
+        {/* Edit panel */}
+        {editMode && (
+          <WardEditPanel
+            selectedItemForPlacement={selectedItemForPlacement}
+            onSelectItemType={(type) => { setSelectedItemForPlacement(type); setSelectedItemId(null); }}
+            selectedItemId={selectedItemId}
+            onRotate={handleItemRotate}
+            onDelete={handleItemDelete}
+            onExitEdit={handleEditToggle}
+            itemCount={placedItems.length}
+          />
+        )}
+
+        {/* Hint */}
+        {!activeScenario && !editMode && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-white/80 backdrop-blur-sm px-4 py-2 text-xs text-slate-600 border border-slate-200 shadow-sm">
             Tap a bed to begin a scenario →
           </div>
         )}
       </div>
 
-      {/* Patient panel / decision interface */}
-      {activeScenario && showPatientPanel && (
+      {/* Patient panel */}
+      {activeScenario && showPatientPanel && !editMode && (
         <div className="absolute bottom-0 left-0 right-0 z-10 bg-white/95 backdrop-blur-xl rounded-t-2xl border-t border-clinical-teal/30 p-4 max-h-[70vh] overflow-y-auto scrollbar-thin animate-slide-up shadow-2xl">
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-800">{activeScenario.patient_name}</h2>
+                <h2 className="text-base font-heading font-bold text-slate-800">{activeScenario.patient_name}</h2>
                 <span className="text-xs text-slate-500">{activeScenario.patient_age}y · {activeScenario.bed_number}</span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">{activeScenario.patient_condition}</p>
             </div>
-            <button onClick={() => setShowPatientPanel(false)} className="p-1.5 rounded-lg hover:bg-slate-100">
-              <X className="w-4 h-4 text-slate-400" />
-            </button>
+            <button onClick={() => setShowPatientPanel(false)} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
           </div>
-
           <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
-            <div className="rounded-lg bg-slate-50 p-2">
-              <p className="text-slate-400">Comorbidities</p>
-              <p className="text-slate-700">{activeScenario.patient_comorbidities}</p>
-            </div>
-            <div className="rounded-lg bg-slate-50 p-2">
-              <p className="text-slate-400">Medications</p>
-              <p className="text-slate-700">{activeScenario.patient_medications}</p>
-            </div>
-            <div className="rounded-lg bg-slate-50 p-2">
-              <p className="text-slate-400">Allergies</p>
-              <p className="text-slate-700 text-clinical-amber">{activeScenario.patient_allergies}</p>
-            </div>
-            <div className="rounded-lg bg-slate-50 p-2">
-              <p className="text-slate-400">Current NEWS2</p>
-              <div className="mt-0.5"><NEWS2Badge score={activeScenario.initial_news2} size="sm" /></div>
-            </div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-slate-400">Comorbidities</p><p className="text-slate-700">{activeScenario.patient_comorbidities}</p></div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-slate-400">Medications</p><p className="text-slate-700">{activeScenario.patient_medications}</p></div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-slate-400">Allergies</p><p className="text-slate-700 text-clinical-amber">{activeScenario.patient_allergies}</p></div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-slate-400">Current NEWS2</p><div className="mt-0.5"><NEWS2Badge score={activeScenario.initial_news2} size="sm" /></div></div>
           </div>
-
           {vitals && (
             <div className="rounded-lg bg-slate-50 p-2 mb-3">
               <p className="text-xs font-semibold text-slate-400 mb-1">CURRENT VITALS</p>
@@ -338,74 +387,50 @@ export default function WardSimulation() {
               </div>
             </div>
           )}
-
           {currentStep < decisionSteps.length ? (
             <div>
               <p className="text-sm font-semibold text-slate-800 mb-2">{decisionSteps[currentStep].prompt}</p>
               <div className="space-y-2">
                 {decisionSteps[currentStep].options.map((opt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleDecision(opt, currentStep)}
-                    className="w-full text-left rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 hover:border-clinical-teal/50 hover:bg-clinical-teal/5 transition-all"
-                  >
+                  <button key={i} onClick={() => handleDecision(opt, currentStep)}
+                    className="w-full text-left rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 hover:border-clinical-teal/50 hover:bg-clinical-teal/5 transition-all">
                     {opt.label}
                   </button>
                 ))}
               </div>
             </div>
           ) : null}
-
           {decisions.length > 0 && currentStep <= decisionSteps.length && currentStep > 0 && !showDebrief && (
-            <div className={`mt-3 rounded-lg p-3 text-xs ${
-              decisions[decisions.length - 1].correct ? "bg-clinical-green/10 text-clinical-green" : "bg-clinical-red/10 text-clinical-red"
-            }`}>
+            <div className={`mt-3 rounded-lg p-3 text-xs ${decisions[decisions.length - 1].correct ? "bg-clinical-green/10 text-clinical-green" : "bg-clinical-red/10 text-clinical-red"}`}>
               {decisions[decisions.length - 1].feedback}
             </div>
           )}
-
-          <div className="mt-3 pt-3 border-t border-slate-200">
-            <SKBadgeGroup skCodes={activeScenario.sk_codes} poCodes={activeScenario.performance_outcomes} />
-          </div>
+          <div className="mt-3 pt-3 border-t border-slate-200"><SKBadgeGroup skCodes={activeScenario.sk_codes} poCodes={activeScenario.performance_outcomes} /></div>
         </div>
       )}
 
-      {/* Scenario list slide-in panel */}
-      {showScenarioList && (
+      {/* Scenario list slide-in */}
+      {showScenarioList && !editMode && (
         <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowScenarioList(false)}>
           <div className="absolute inset-0 bg-black/20" />
-          <div
-            className="relative w-full sm:max-w-md bg-white h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative w-full sm:max-w-md bg-white h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-              <h2 className="font-bold text-sm text-slate-800">Scenarios</h2>
-              <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-slate-100">
-                <X className="w-4 h-4 text-slate-400" />
-              </button>
+              <h2 className="font-heading font-bold text-sm text-slate-800">Scenarios</h2>
+              <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
             </div>
             <div className="p-3 space-y-3">
               {scenarios.map((scenario, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => startScenario(scenario)}
-                  className="group w-full text-left rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-clinical-teal/40 transition-all p-4"
-                >
+                <button key={idx} onClick={() => startScenario(scenario)}
+                  className="group w-full text-left rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-clinical-teal/40 transition-all p-4">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 ${
-                          scenario.difficulty === "guided" ? "bg-clinical-green/15 text-clinical-green" :
-                          scenario.difficulty === "intermediate" ? "bg-clinical-amber/15 text-clinical-amber" :
-                          "bg-clinical-red/15 text-clinical-red"
-                        }`}>
+                        <span className={`text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 ${scenario.difficulty === "guided" ? "bg-clinical-green/15 text-clinical-green" : scenario.difficulty === "intermediate" ? "bg-clinical-amber/15 text-clinical-amber" : "bg-clinical-red/15 text-clinical-red"}`}>
                           {DIFFICULTY_LABELS[scenario.difficulty]}
                         </span>
-                        <span className="flex items-center gap-1 text-[10px] text-slate-400">
-                          <Clock className="w-3 h-3" /> {scenario.estimated_duration} min
-                        </span>
+                        <span className="flex items-center gap-1 text-[10px] text-slate-400"><Clock className="w-3 h-3" /> {scenario.estimated_duration} min</span>
                       </div>
-                      <h3 className="font-bold text-sm text-slate-800">{scenario.name}</h3>
+                      <h3 className="font-heading font-bold text-sm text-slate-800">{scenario.name}</h3>
                       <p className="text-xs text-slate-500 mt-1">{scenario.description}</p>
                     </div>
                     <NEWS2Badge score={scenario.initial_news2} size="sm" />

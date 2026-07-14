@@ -1,0 +1,26 @@
+{
+  "name": "WardLayout",
+  "type": "object",
+  "properties": {
+    "suite": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B"
+      ],
+      "title": "Suite"
+    },
+    "items": {
+      "type": "string",
+      "description": "JSON array of placed items: [{id, type, x, z, rotationY}]"
+    },
+    "layout_name": {
+      "type": "string",
+      "default": "Default"
+    }
+  },
+  "required": [
+    "suite",
+    "items"
+  ]
+}

@@ -48,9 +48,9 @@ module.exports = {
   			}
   		},
   		fontFamily: {
-  			heading: ['Arial', 'Helvetica', 'sans-serif'],
-  			body: ['Arial', 'Helvetica', 'sans-serif'],
-  			display: ['Arial', 'Helvetica', 'sans-serif'],
+  			heading: ['Saira', 'Arial', 'sans-serif'],
+  			body: ['Inter', 'Arial', 'sans-serif'],
+  			display: ['Russo One', 'Arial', 'sans-serif'],
   			mono: ['var(--font-mono)']
   		}
   	}

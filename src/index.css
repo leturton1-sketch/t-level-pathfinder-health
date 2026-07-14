@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Saira:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -29,9 +30,9 @@
     --clinical-red: 0 72% 51%;
     --clinical-green: 142 71% 45%;
     --radius: 0.5rem;
-    --font-heading: Arial, Helvetica, sans-serif;
-    --font-body: Arial, Helvetica, sans-serif;
-    --font-display: Arial, Helvetica, sans-serif;
+    --font-heading: 'Saira', Arial, sans-serif;
+    --font-body: 'Inter', Arial, sans-serif;
+    --font-display: 'Russo One', Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 }
@@ -42,27 +43,8 @@
   }
   body {
     @apply bg-background text-foreground font-body;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Inter', Arial, sans-serif;
   }
-}
-
-/* Boot / Power-On Animation — Light Theme */
-@keyframes crt-boot {
-  0% { transform: scaleY(0.005) scaleX(0.2); opacity: 0; }
-  15% { transform: scaleY(0.008) scaleX(0.4); opacity: 1; }
-  30% { transform: scaleY(0.01) scaleX(1); opacity: 1; }
-  50% { transform: scaleY(0.05) scaleX(1); opacity: 1; }
-  75% { transform: scaleY(0.6) scaleX(1); opacity: 1; }
-  90% { transform: scaleY(1) scaleX(1); opacity: 1; }
-  100% { transform: scaleY(1) scaleX(1); opacity: 1; }
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); opacity: 0; }
-  10% { opacity: 0.5; }
-  50% { opacity: 0.25; }
-  90% { opacity: 0.1; }
-  100% { transform: translateY(100%); opacity: 0; }
 }
 
 @keyframes flicker-on {
@@ -77,12 +59,6 @@
   55% { opacity: 0.6; }
   65% { opacity: 1; }
   100% { opacity: 1; }
-}
-
-@keyframes light-glow {
-  0% { opacity: 0; transform: scaleY(0.3); }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; transform: scaleY(1); }
 }
 
 @keyframes pulse-amber {
@@ -110,18 +86,13 @@
   to { opacity: 1; }
 }
 
-.animate-crt-boot { animation: crt-boot 1.8s ease-out forwards; }
-.animate-scanline { animation: scanline 1.5s ease-out forwards; }
 .animate-flicker-on { animation: flicker-on 1.5s ease-in-out forwards; }
-.animate-light-glow { animation: light-glow 1.2s ease-out forwards; }
 .animate-pulse-amber { animation: pulse-amber 2s ease-in-out infinite; }
 .animate-pulse-red { animation: pulse-red 1.5s ease-in-out infinite; }
 .animate-slide-up { animation: slide-up 0.4s ease-out forwards; }
 .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
 
-.waveform-bar {
-  animation: waveform-bar 0.6s ease-in-out infinite;
-}
+.waveform-bar { animation: waveform-bar 0.6s ease-in-out infinite; }
 
 .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
