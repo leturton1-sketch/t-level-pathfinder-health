@@ -7,9 +7,10 @@ import { SKBadgeGroup } from "@/components/SKBadge";
 import NEWS2Badge from "@/components/NEWS2Badge";
 import Ward3D from "@/components/Ward3D";
 import WardEditPanel from "@/components/WardEditPanel";
+import { WARD_ITEM_TYPES } from "@/lib/wardItems";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
-  Pencil, LayoutGrid, MessageSquare, Settings,
+  Pencil, LayoutGrid, MessageSquare, Settings, Bell,
 } from "lucide-react";
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
@@ -32,6 +33,9 @@ export default function WardSimulation() {
   const [placedItems, setPlacedItems] = useState([]);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [selectedItemForPlacement, setSelectedItemForPlacement] = useState(null);
+  const [bedDesignation, setBedDesignation] = useState("");
+  const [callBells, setCallBells] = useState({});
+  const [showCallBellPanel, setShowCallBellPanel] = useState(false);
 
   const canEdit = ["super_admin", "admin"].includes(user?.role);
 
@@ -102,14 +106,35 @@ export default function WardSimulation() {
     }
   };
 
-  const handleItemPlace = (type, x, z) => {
+  const handleItemPlace = (type, x, z, rotationY) => {
+    // Smart merging for nurse stations
+    if (type === "nurse_station") {
+      const adjacent = placedItems.find((item) =>
+        item.type === "nurse_station" && !item.expanded &&
+        Math.abs(item.x - x) <= 2 && Math.abs(item.z - z) <= 2
+      );
+      if (adjacent) {
+        setPlacedItems((prev) => prev.map((item) =>
+          item.id === adjacent.id ? { ...item, expanded: true } : item
+        ));
+        setSelectedItemId(adjacent.id);
+        setSelectedItemForPlacement(null);
+        return;
+      }
+    }
+    const designation = type === "bed" ? (bedDesignation || null) : null;
     const newItem = {
       id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      type, x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10, rotationY: 0,
+      type, x, z, rotationY: rotationY || 0, designation,
     };
     setPlacedItems((prev) => [...prev, newItem]);
     setSelectedItemId(newItem.id);
     setSelectedItemForPlacement(null);
+    if (type === "bed") {
+      const prefix = suite === "B" ? "B" : "A";
+      const bedCount = placedItems.filter((i) => i.type === "bed").length + 1;
+      setBedDesignation(`${prefix}${bedCount + 1}`);
+    }
   };
 
   const handleItemMove = (itemId, x, z) => {
@@ -125,7 +150,9 @@ export default function WardSimulation() {
 
   const handleItemRotate = (direction) => {
     if (!selectedItemId) return;
-    const angle = Math.PI / 12;
+    const sel = placedItems.find((i) => i.id === selectedItemId);
+    const isCurtain = sel?.type === "curtain" || sel?.type === "curtain_rail";
+    const angle = isCurtain ? Math.PI / 2 : Math.PI / 12;
     setPlacedItems((prev) => prev.map((item) =>
       item.id === selectedItemId
         ? { ...item, rotationY: (item.rotationY || 0) + (direction === "left" ? -angle : angle) }
@@ -138,6 +165,63 @@ export default function WardSimulation() {
     setPlacedItems((prev) => prev.filter((item) => item.id !== selectedItemId));
     setSelectedItemId(null);
   };
+
+  // Call bell management
+  const toggleCallBell = (designation) => {
+    const newActive = !callBells[designation];
+    setCallBells((prev) => ({ ...prev, [designation]: newActive }));
+    window.dispatchEvent(new CustomEvent("callbell-status", {
+      detail: { bedDesignation: designation, active: newActive },
+    }));
+  };
+
+  const wardBeds = (() => {
+    const beds = [];
+    if (suite === "A" || suite === "both") for (let i = 1; i <= 4; i++) beds.push(`A${i}`);
+    if (suite === "B" || suite === "both") for (let i = 1; i <= 4; i++) beds.push(`B${i}`);
+    return beds;
+  })();
+
+  const selectedItem = placedItems.find((i) => i.id === selectedItemId);
+
+  // AI event listener — processes voice/typed commands from AI assistant
+  useEffect(() => {
+    const handler = (e) => {
+      const { action, itemType, designation, x, z, direction } = e.detail;
+      switch (action) {
+        case "place":
+          if (editMode && itemType) handleItemPlace(itemType, x || 0, z || 0, 0);
+          break;
+        case "delete":
+          if (selectedItemId) handleItemDelete();
+          break;
+        case "rotate":
+          if (selectedItemId) handleItemRotate(direction || "right");
+          break;
+        case "activate_callbell":
+          if (designation && !callBells[designation]) toggleCallBell(designation);
+          break;
+        case "reset_callbell":
+          if (designation && callBells[designation]) toggleCallBell(designation);
+          else if (!designation) Object.keys(callBells).filter((d) => callBells[d]).forEach((d) => toggleCallBell(d));
+          break;
+      }
+    };
+    window.addEventListener("ward-ai-command", handler);
+    return () => window.removeEventListener("ward-ai-command", handler);
+  }, [editMode, selectedItemId, callBells, placedItems]);
+
+  // Dispatch ward state to AI assistant
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("ward-state-update", {
+      detail: {
+        editMode, suite,
+        placedItems: placedItems.map((i) => ({ type: i.type, designation: i.designation, x: i.x, z: i.z })),
+        callBells,
+        availableItemTypes: WARD_ITEM_TYPES.map((t) => t.type),
+      },
+    }));
+  }, [editMode, suite, placedItems, callBells]);
 
   // Scenario handlers
   const startScenario = (scenario) => {
@@ -296,6 +380,13 @@ export default function WardSimulation() {
                 <button onClick={() => navigate("/profile")} className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-medium text-slate-600 hover:bg-slate-50 transition-colors">
                   <MessageSquare className="w-3.5 h-3.5" /><span className="hidden lg:inline">AI Tutor</span>
                 </button>
+                <button onClick={() => setShowCallBellPanel(true)}
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${
+                    showCallBellPanel ? "bg-clinical-amber text-white border-clinical-amber" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"
+                  }`}>
+                  <Bell className="w-3.5 h-3.5" /><span className="hidden lg:inline">Call Bells</span>
+                  {Object.values(callBells).some(Boolean) && <span className="w-1.5 h-1.5 rounded-full bg-clinical-red animate-pulse" />}
+                </button>
                 <button onClick={() => setShowScenarioList(true)}
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${
                     showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"
@@ -340,12 +431,23 @@ export default function WardSimulation() {
         {editMode && (
           <WardEditPanel
             selectedItemForPlacement={selectedItemForPlacement}
-            onSelectItemType={(type) => { setSelectedItemForPlacement(type); setSelectedItemId(null); }}
+            onSelectItemType={(type) => {
+              setSelectedItemForPlacement(type);
+              setSelectedItemId(null);
+              if (type === "bed") {
+                const prefix = suite === "B" ? "B" : "A";
+                const bedCount = placedItems.filter((i) => i.type === "bed").length + 1;
+                setBedDesignation(`${prefix}${bedCount}`);
+              }
+            }}
             selectedItemId={selectedItemId}
             onRotate={handleItemRotate}
             onDelete={handleItemDelete}
             onExitEdit={handleEditToggle}
             itemCount={placedItems.length}
+            bedDesignation={bedDesignation}
+            onDesignationChange={setBedDesignation}
+            selectedItem={selectedItem}
           />
         )}
 
@@ -445,6 +547,42 @@ export default function WardSimulation() {
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Call bell management panel */}
+      {showCallBellPanel && !editMode && (
+        <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowCallBellPanel(false)}>
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="relative w-full sm:max-w-sm bg-white h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+              <h2 className="font-heading font-bold text-sm text-slate-800">Call Bells</h2>
+              <button onClick={() => setShowCallBellPanel(false)} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
+            </div>
+            <div className="p-3 space-y-2">
+              <p className="text-xs text-slate-500 mb-2">Tap a bed to activate or reset its call bell. The AI assistant will verbally announce active call bells periodically until reset.</p>
+              {wardBeds.map((bed) => (
+                <button key={bed} onClick={() => toggleCallBell(bed)}
+                  className={`w-full flex items-center justify-between rounded-lg border p-3 transition-all ${
+                    callBells[bed] ? "border-clinical-amber/40 bg-clinical-amber/10" : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                  }`}>
+                  <div className="flex items-center gap-2">
+                    <Bell className={`w-4 h-4 ${callBells[bed] ? "text-clinical-amber animate-pulse" : "text-slate-400"}`} />
+                    <span className="font-heading font-bold text-sm text-slate-800">Bed {bed}</span>
+                  </div>
+                  <span className={`text-xs font-medium ${callBells[bed] ? "text-clinical-amber" : "text-slate-400"}`}>
+                    {callBells[bed] ? "ACTIVE" : "Idle"}
+                  </span>
+                </button>
+              ))}
+              {Object.values(callBells).some(Boolean) && (
+                <button onClick={() => Object.keys(callBells).filter((d) => callBells[d]).forEach((d) => toggleCallBell(d))}
+                  className="w-full mt-2 py-2 rounded-lg border border-clinical-red/30 bg-clinical-red/5 text-clinical-red text-xs font-heading font-semibold hover:bg-clinical-red/10">
+                  Reset All Call Bells
+                </button>
+              )}
             </div>
           </div>
         </div>

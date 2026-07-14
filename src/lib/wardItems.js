@@ -8,37 +8,55 @@ export const WARD_ITEM_TYPES = [
   { type: "nurse_station", label: "Nurse Station" },
   { type: "sink", label: "Sink" },
   { type: "waste_bin", label: "Waste Bin" },
+  { type: "window", label: "Window" },
+  { type: "door", label: "Door" },
 ];
 
+function createTextTexture(text, w = 128, h = 48, color = "#333", bg = "transparent") {
+  const canvas = document.createElement("canvas");
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (bg !== "transparent") { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+  ctx.fillStyle = color;
+  ctx.font = `bold ${Math.floor(h * 0.6)}px Arial`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(text, w / 2, h / 2);
+  return new THREE.CanvasTexture(canvas);
+}
+
 const M = {
-  bed: new THREE.MeshStandardMaterial({ color: 0xb0b8c0, roughness: 0.4, metalness: 0.5 }),
-  mattress: new THREE.MeshStandardMaterial({ color: 0xf8f8f8, roughness: 0.8 }),
-  pillow: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }),
-  metal: new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.7, roughness: 0.3 }),
-  wood: new THREE.MeshStandardMaterial({ color: 0xd0d5db, roughness: 0.5, metalness: 0.2 }),
-  desk: new THREE.MeshStandardMaterial({ color: 0xd0d5db, roughness: 0.4, metalness: 0.3 }),
-  deskTop: new THREE.MeshStandardMaterial({ color: 0xe0e5eb, roughness: 0.2 }),
-  curtain: new THREE.MeshStandardMaterial({ color: 0xe8e8e8, transparent: true, opacity: 0.3, roughness: 0.1, side: THREE.DoubleSide }),
+  bed: new THREE.MeshStandardMaterial({ color: 0xa8b0b8, roughness: 0.4, metalness: 0.5 }),
+  mattress: new THREE.MeshStandardMaterial({ color: 0xe8e6e0, roughness: 0.8 }),
+  pillow: new THREE.MeshStandardMaterial({ color: 0xedebe5, roughness: 0.8 }),
+  metal: new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.7, roughness: 0.3 }),
+  wood: new THREE.MeshStandardMaterial({ color: 0xc8c5be, roughness: 0.5, metalness: 0.2 }),
+  desk: new THREE.MeshStandardMaterial({ color: 0xcac6bf, roughness: 0.4, metalness: 0.3 }),
+  deskTop: new THREE.MeshStandardMaterial({ color: 0xd8d4cd, roughness: 0.2 }),
+  curtain: new THREE.MeshStandardMaterial({ color: 0xdcd9d3, transparent: true, opacity: 0.3, roughness: 0.1, side: THREE.DoubleSide }),
   yellow: new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.6 }),
   yellowLid: new THREE.MeshStandardMaterial({ color: 0xe6b800, roughness: 0.5 }),
-  porcelain: new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.2 }),
+  porcelain: new THREE.MeshStandardMaterial({ color: 0xe8e6e0, roughness: 0.2 }),
   screen: new THREE.MeshStandardMaterial({ color: 0x2c3e50, emissive: 0x2c3e50, emissiveIntensity: 0.2 }),
+  glass: new THREE.MeshStandardMaterial({ color: 0xa0c4d4, transparent: true, opacity: 0.25, roughness: 0.1, metalness: 0.3 }),
+  wall: new THREE.MeshStandardMaterial({ color: 0xddd9d2, roughness: 0.7 }),
 };
 
-export function createWardItem(type) {
+export function createWardItem(type, options = {}) {
   switch (type) {
-    case "bed": return createBed();
+    case "bed": return createBed(options.designation);
     case "curtain_rail": return createCurtainRail();
     case "curtain": return createCurtain();
     case "chair": return createChair();
-    case "nurse_station": return createNurseStation();
+    case "nurse_station": return options.expanded ? createNurseStationDouble() : createNurseStation();
     case "sink": return createSink();
     case "waste_bin": return createWasteBin();
+    case "window": return createWindow();
+    case "door": return createDoor();
     default: return new THREE.Group();
   }
 }
 
-function createBed() {
+function createBed(designation) {
   const g = new THREE.Group();
   const frame = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.4, 2.5), M.bed);
   frame.position.y = 0.4; frame.castShadow = true; g.add(frame);
@@ -48,6 +66,11 @@ function createBed() {
   pillow.position.set(0, 0.8, -0.8); g.add(pillow);
   const hb = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.8, 0.1), M.bed);
   hb.position.set(0, 0.7, -1.25); g.add(hb);
+  if (designation) {
+    const tex = createTextTexture(designation, 128, 48, "#333", "#ddd9d2");
+    const label = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.22), new THREE.MeshBasicMaterial({ map: tex }));
+    label.position.set(0, 1.15, -1.26); g.add(label);
+  }
   return g;
 }
 
@@ -95,6 +118,17 @@ function createNurseStation() {
   return g;
 }
 
+function createNurseStationDouble() {
+  const g = new THREE.Group();
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(6.5,0.8,1.5), M.desk); desk.position.y=0.6; desk.castShadow=true; g.add(desk);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(6.7,0.08,1.7), M.deskTop); top.position.y=1.04; g.add(top);
+  [-1.5, 1.5].forEach(x => {
+    const mon = new THREE.Mesh(new THREE.BoxGeometry(0.8,0.5,0.04), M.screen); mon.position.set(x,1.5,-0.3); g.add(mon);
+    const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.3,6), M.metal); stand.position.set(x,1.2,-0.3); g.add(stand);
+  });
+  return g;
+}
+
 function createSink() {
   const g = new THREE.Group();
   const stand = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.8,0.5), M.metal); stand.position.y=0.4; g.add(stand);
@@ -108,5 +142,28 @@ function createWasteBin() {
   const g = new THREE.Group();
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.3,0.8,16), M.yellow); body.position.y=0.4; body.castShadow=true; g.add(body);
   const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,0.08,16), M.yellowLid); lid.position.y=0.84; g.add(lid);
+  return g;
+}
+
+function createWindow() {
+  const g = new THREE.Group();
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 0.1), M.wood);
+  frame.position.y = 1.5; g.add(frame);
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.0), M.glass);
+  glass.position.set(0, 1.5, 0.06); g.add(glass);
+  const barH = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.04, 0.04), M.wood);
+  barH.position.set(0, 1.5, 0.08); g.add(barH);
+  const barV = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.0, 0.04), M.wood);
+  barV.position.set(0, 1.5, 0.08); g.add(barV);
+  return g;
+}
+
+function createDoor() {
+  const g = new THREE.Group();
+  const fL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.2, 0.15), M.wood); fL.position.set(-0.5, 1.1, 0); g.add(fL);
+  const fR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.2, 0.15), M.wood); fR.position.set(0.5, 1.1, 0); g.add(fR);
+  const fT = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.1, 0.15), M.wood); fT.position.set(0, 2.15, 0); g.add(fT);
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.0, 0.05), M.wood); door.position.set(-0.05, 1.1, 0); g.add(door);
+  const handle = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), M.metal); handle.position.set(0.35, 1.1, 0.06); g.add(handle);
   return g;
 }
