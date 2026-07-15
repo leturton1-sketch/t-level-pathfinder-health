@@ -93,7 +93,7 @@ export function createTextTexture(text, w = 128, h = 48, color = "#2C3E50", bg =
 const M = {
   bedFrame: new THREE.MeshStandardMaterial({ color: 0xF0F0F0, roughness: 0.4, metalness: 0.3 }),
   mattress: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.8 }),
-  duvet: new THREE.MeshStandardMaterial({ color: 0xECECEC, roughness: 0.7 }),
+  duvet: new THREE.MeshStandardMaterial({ color: 0xC8E6C9, roughness: 0.7 }),
   pillow: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 }),
   rail: new THREE.MeshStandardMaterial({ color: 0xD8D8D8, roughness: 0.3, metalness: 0.7 }),
   metal: new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.7, roughness: 0.3 }),

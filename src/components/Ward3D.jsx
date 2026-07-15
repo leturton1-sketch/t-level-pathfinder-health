@@ -8,13 +8,27 @@ const WARD_D = 16;
 
 function createFloorTexture() {
   const c = document.createElement("canvas");
-  c.width = 256; c.height = 256;
+  c.width = 512; c.height = 512;
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#E8E8E8"; ctx.fillRect(0, 0, 256, 256);
-  ctx.strokeStyle = "rgba(0,0,0,0.06)"; ctx.lineWidth = 1;
-  for (let i = 0; i <= 256; i += 64) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
+  // White metallic base
+  ctx.fillStyle = "#F8F8F8"; ctx.fillRect(0, 0, 512, 512);
+  // Metallic gradient sheen
+  const grad = ctx.createLinearGradient(0, 0, 512, 512);
+  grad.addColorStop(0, "rgba(200,215,230,0.18)");
+  grad.addColorStop(0.5, "rgba(255,255,255,0.05)");
+  grad.addColorStop(1, "rgba(200,215,230,0.18)");
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, 512, 512);
+  // Fine noise for metallic texture
+  for (let i = 0; i < 4000; i++) {
+    const v = Math.random() > 0.5 ? 255 : 210;
+    ctx.fillStyle = `rgba(${v},${v},${v},0.025)`;
+    ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+  }
+  // Tile grid lines
+  ctx.strokeStyle = "rgba(0,0,0,0.04)"; ctx.lineWidth = 1;
+  for (let i = 0; i <= 512; i += 128) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
   }
   const t = new THREE.CanvasTexture(c);
   t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping;
@@ -28,7 +42,7 @@ function buildWard(scene, offset, label, wallsRef) {
   // Floor — pale grey
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(WARD_W, WARD_D),
-    new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.85 })
+    new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.2, metalness: 0.6 })
   );
   floor.rotation.x = -Math.PI / 2; floor.position.set(ox, 0, oz); floor.receiveShadow = true; scene.add(floor);
 
@@ -57,10 +71,10 @@ function buildWard(scene, offset, label, wallsRef) {
     light.position.set(ox + x, 3.3, oz); scene.add(light);
   });
 
-  // Suite label — dark navy text
+  // Suite label — outside the back wall, dark navy text
   const labelTex = createTextTexture(label, 256, 64, "#2C3E50", "#FFFFFF");
-  const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: labelTex }));
-  labelMesh.position.set(ox, 3, oz - WARD_D / 2 + 0.15); scene.add(labelMesh);
+  const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 0.85), new THREE.MeshBasicMaterial({ map: labelTex, side: THREE.DoubleSide }));
+  labelMesh.position.set(ox, 3.2, oz - WARD_D / 2 - 0.2); scene.add(labelMesh);
 
   // Nurse station — pale wood desk + dark grey chair
   const ns = new THREE.Group(); ns.position.set(ox + 6, 0, oz);
@@ -85,9 +99,7 @@ function buildWard(scene, offset, label, wallsRef) {
   const chairBase = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.03, 16), chairMat);
   chairBase.position.set(0, 0.02, 0.7); ns.add(chairBase);
 
-  // Nurse station label
-  const nsLabel = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.35), new THREE.MeshBasicMaterial({ map: createTextTexture("NURSE STATION", 256, 48, "#2C3E50", "transparent"), transparent: true }));
-  nsLabel.position.set(0, 1.35, 0.76); nsLabel.rotation.x = -Math.PI / 2; ns.add(nsLabel);
+
   scene.add(ns);
 }
 
@@ -323,7 +335,7 @@ export default function Ward3D({
         const dot = toCam.dot(wall.userData.normal);
         // dot > 0: camera is outside this wall → transparent (see through)
         // dot < 0: camera is inside → more opaque
-        wall.material.opacity = 0.08 + Math.max(0, -dot) * 0.3;
+        wall.material.opacity = 0.05 + Math.max(0, -dot) * 0.2;
       });
 
       // Camera lerp
