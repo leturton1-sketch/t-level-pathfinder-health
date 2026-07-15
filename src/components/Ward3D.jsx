@@ -1,89 +1,94 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createWardItem, createTextTexture, WARD_BOUNDS, clampToBounds, checkCollision } from "@/lib/wardItems";
+import { createWardItem, createTextTexture, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSET_A, SUITE_OFFSET_B, DEFAULT_PATIENTS } from "@/lib/wardItems";
 
-const WARD_W = 30;
-const WARD_D = 24;
+const WARD_W = 20;
+const WARD_D = 16;
 
 function createFloorTexture() {
   const c = document.createElement("canvas");
   c.width = 256; c.height = 256;
   const ctx = c.getContext("2d");
-  ctx.fillStyle = "#D5D8DD"; ctx.fillRect(0, 0, 256, 256);
-  ctx.strokeStyle = "rgba(0,0,0,0.07)"; ctx.lineWidth = 1;
+  ctx.fillStyle = "#E8E8E8"; ctx.fillRect(0, 0, 256, 256);
+  ctx.strokeStyle = "rgba(0,0,0,0.06)"; ctx.lineWidth = 1;
   for (let i = 0; i <= 256; i += 64) {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
   }
   const t = new THREE.CanvasTexture(c);
   t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(6, 5);
+  t.repeat.set(4, 3);
   return t;
 }
 
-function buildWardStructure(scene) {
-  // Floor
+function buildWard(scene, offset, label, wallsRef) {
+  const { x: ox, z: oz } = offset;
+
+  // Floor — pale grey
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(WARD_W, WARD_D),
     new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.85 })
   );
-  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+  floor.rotation.x = -Math.PI / 2; floor.position.set(ox, 0, oz); floor.receiveShadow = true; scene.add(floor);
 
-  // Walls — white
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f4f7, roughness: 0.9 });
-  const backWall = new THREE.Mesh(new THREE.BoxGeometry(WARD_W, 3.5, 0.2), wallMat);
-  backWall.position.set(0, 1.75, -WARD_D / 2); backWall.receiveShadow = true; scene.add(backWall);
-  const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, WARD_D), wallMat);
-  leftWall.position.set(-WARD_W / 2, 1.75, 0); scene.add(leftWall);
-  const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, WARD_D), wallMat);
-  rightWall.position.set(WARD_W / 2, 1.75, 0); scene.add(rightWall);
+  // Walls — pure white, semi-transparent (opacity updated in animation loop)
+  const wallMat = () => new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.9, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
 
-  // Windows on back wall — high level
-  const frameMat = new THREE.MeshStandardMaterial({ color: 0xe8eaed, roughness: 0.3 });
-  const glassMat = new THREE.MeshStandardMaterial({ color: 0xaaccdd, transparent: true, opacity: 0.2, roughness: 0.1, metalness: 0.3 });
-  [-8, 0, 8].forEach(x => {
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(4, 1.6, 0.22), frameMat);
-    frame.position.set(x, 2.4, -WARD_D / 2 + 0.05); scene.add(frame);
-    const glass = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.3), glassMat);
-    glass.position.set(x, 2.4, -WARD_D / 2 + 0.17); scene.add(glass);
-    const barH = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.04, 0.05), frameMat);
-    barH.position.set(x, 2.4, -WARD_D / 2 + 0.18); scene.add(barH);
-    const barV = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.3, 0.05), frameMat);
-    barV.position.set(x, 2.4, -WARD_D / 2 + 0.18); scene.add(barV);
+  const backWall = new THREE.Mesh(new THREE.BoxGeometry(WARD_W, 3.5, 0.2), wallMat());
+  backWall.position.set(ox, 1.75, oz - WARD_D / 2);
+  backWall.userData = { normal: new THREE.Vector3(0, 0, 1) };
+  scene.add(backWall); wallsRef.current.push(backWall);
+
+  const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, WARD_D), wallMat());
+  leftWall.position.set(ox - WARD_W / 2, 1.75, oz);
+  leftWall.userData = { normal: new THREE.Vector3(1, 0, 0) };
+  scene.add(leftWall); wallsRef.current.push(leftWall);
+
+  const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, WARD_D), wallMat());
+  rightWall.position.set(ox + WARD_W / 2, 1.75, oz);
+  rightWall.userData = { normal: new THREE.Vector3(-1, 0, 0) };
+  scene.add(rightWall); wallsRef.current.push(rightWall);
+
+  // Ceiling lights — long thin fixtures
+  const lightMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xF8F8FF, emissiveIntensity: 0.6, roughness: 0.3 });
+  [-4, 4].forEach(x => {
+    const light = new THREE.Mesh(new THREE.BoxGeometry(8, 0.1, 0.4), lightMat);
+    light.position.set(ox + x, 3.3, oz); scene.add(light);
   });
 
-  // Bay labels
-  const bayATex = createTextTexture("BAY A", 256, 64, "#0066cc", "#f2f4f7");
-  const bayA = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: bayATex }));
-  bayA.position.set(-WARD_W / 2 + 0.15, 2.8, 0); bayA.rotation.y = Math.PI / 2; scene.add(bayA);
-  const bayBTex = createTextTexture("BAY B", 256, 64, "#0066cc", "#f2f4f7");
-  const bayB = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: bayBTex }));
-  bayB.position.set(WARD_W / 2 - 0.15, 2.8, 0); bayB.rotation.y = -Math.PI / 2; scene.add(bayB);
+  // Suite label — dark navy text
+  const labelTex = createTextTexture(label, 256, 64, "#2C3E50", "#FFFFFF");
+  const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: labelTex }));
+  labelMesh.position.set(ox, 3, oz - WARD_D / 2 + 0.15); scene.add(labelMesh);
 
-  // Nurses' station (fixed)
-  const ns = new THREE.Group(); ns.position.set(0, 0, -WARD_D / 2 + 2.5);
-  const deskMat = new THREE.MeshStandardMaterial({ color: 0xe0e4ea, roughness: 0.4, metalness: 0.2 });
-  const desk = new THREE.Mesh(new THREE.BoxGeometry(7, 0.9, 1.8), deskMat);
-  desk.position.y = 0.45; desk.castShadow = true; ns.add(desk);
-  const top = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.08, 2), new THREE.MeshStandardMaterial({ color: 0xf0f2f5, roughness: 0.2 }));
-  top.position.y = 0.92; ns.add(top);
-  [-2, 0, 2].forEach(x => {
-    const mon = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.45, 0.04), new THREE.MeshStandardMaterial({ color: 0x1a2b4a, emissive: 0x1a3a5a, emissiveIntensity: 0.3 }));
-    mon.position.set(x, 1.4, -0.5); ns.add(mon);
-    const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 6), new THREE.MeshStandardMaterial({ color: 0x666, metalness: 0.8 }));
-    stand.position.set(x, 1.1, -0.5); ns.add(stand);
-  });
-  const nsLabel = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 0.4), new THREE.MeshBasicMaterial({ map: createTextTexture("NURSES' STATION", 256, 48, "#1a2b4a", "#e0e4ea") }));
-  nsLabel.position.set(0, 0.6, 1); nsLabel.rotation.x = -Math.PI / 2; ns.add(nsLabel);
+  // Nurse station — pale wood desk + dark grey chair
+  const ns = new THREE.Group(); ns.position.set(ox + 6, 0, oz);
+  const deskMat = new THREE.MeshStandardMaterial({ color: 0xD4C4A8, roughness: 0.5, metalness: 0.1 });
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 1.5), deskMat);
+  desk.position.y = 0.6; desk.castShadow = true; ns.add(desk);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.08, 1.7), new THREE.MeshStandardMaterial({ color: 0xE0D0B8, roughness: 0.3 }));
+  top.position.y = 1.04; ns.add(top);
+  const mon = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.04), new THREE.MeshStandardMaterial({ color: 0x2C3E50, emissive: 0x1a2a3a, emissiveIntensity: 0.2 }));
+  mon.position.set(0, 1.5, -0.3); ns.add(mon);
+  const mStand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.8 }));
+  mStand.position.set(0, 1.2, -0.3); ns.add(mStand);
+
+  // Dark grey office chair
+  const chairMat = new THREE.MeshStandardMaterial({ color: 0x3A3A3A, roughness: 0.6 });
+  const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.5), chairMat);
+  chairSeat.position.set(0, 0.45, 0.7); ns.add(chairSeat);
+  const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.06), chairMat);
+  chairBack.position.set(0, 0.75, 0.93); ns.add(chairBack);
+  const chairPost = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.42, 6), chairMat);
+  chairPost.position.set(0, 0.22, 0.7); ns.add(chairPost);
+  const chairBase = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.03, 16), chairMat);
+  chairBase.position.set(0, 0.02, 0.7); ns.add(chairBase);
+
+  // Nurse station label
+  const nsLabel = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.35), new THREE.MeshBasicMaterial({ map: createTextTexture("NURSE STATION", 256, 48, "#2C3E50", "transparent"), transparent: true }));
+  nsLabel.position.set(0, 1.35, 0.76); nsLabel.rotation.x = -Math.PI / 2; ns.add(nsLabel);
   scene.add(ns);
-
-  // Clean utility corner
-  const utilMat = new THREE.MeshStandardMaterial({ color: 0xdce0e5, roughness: 0.6 });
-  const utilCabinet = new THREE.Mesh(new THREE.BoxGeometry(2, 1.8, 0.6), utilMat);
-  utilCabinet.position.set(-WARD_W / 2 + 1.3, 0.9, WARD_D / 2 - 1.5); scene.add(utilCabinet);
-  const utilLabel = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.3), new THREE.MeshBasicMaterial({ map: createTextTexture("CLEAN UTILITY", 256, 48, "#666", "#dce0e5") }));
-  utilLabel.position.set(-WARD_W / 2 + 1.3, 1.5, WARD_D / 2 - 1.18); utilLabel.rotation.y = 0; scene.add(utilLabel);
 }
 
 function disposeMesh(child) {
@@ -103,6 +108,7 @@ export default function Ward3D({
   const groundRef = useRef(null);
   const itemsMapRef = useRef(new Map());
   const itemsArrayRef = useRef([]);
+  const wallsRef = useRef([]);
   const animFrameRef = useRef(null);
   const cameraTargetRef = useRef(null);
   const dragRef = useRef({ active: false, itemId: null, startX: 0, startY: 0, moved: false });
@@ -111,18 +117,23 @@ export default function Ward3D({
 
   stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, onItemSelect, onItemMove, onItemPlace, onBedClick };
 
-  // Main scene setup
+  // Filter items by visible suite
+  const visibleItems = suite === "A" ? items.filter(i => i.x < 0) : suite === "B" ? items.filter(i => i.x >= 0) : items;
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xeef0f3);
-    scene.fog = new THREE.Fog(0xeef0f3, 40, 80);
+    scene.background = new THREE.Color(0xFAFAFA);
+    scene.fog = new THREE.Fog(0xFAFAFA, 45, 85);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 200);
-    const camPos = { x: 0, y: 14, z: 22 };
+    let camPos, camTarget;
+    if (suite === "A") { camPos = { x: -15, y: 10, z: 16 }; camTarget = { x: -15, y: 0, z: 0 }; }
+    else if (suite === "B") { camPos = { x: 15, y: 10, z: 16 }; camTarget = { x: 15, y: 0, z: 0 }; }
+    else { camPos = { x: 0, y: 16, z: 28 }; camTarget = { x: 0, y: 0, z: 0 }; }
     camera.position.set(camPos.x, camPos.y, camPos.z);
     cameraRef.current = camera;
 
@@ -141,7 +152,7 @@ export default function Ward3D({
     controls.minDistance = 5;
     controls.maxDistance = 50;
     controls.maxPolarAngle = Math.PI / 2.2;
-    controls.target.set(0, 0, 0);
+    controls.target.set(camTarget.x, camTarget.y, camTarget.z);
     if (editMode) {
       controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE };
     } else {
@@ -150,27 +161,28 @@ export default function Ward3D({
     controlsRef.current = controls;
 
     // Soft natural lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const sunLight = new THREE.DirectionalLight(0xfff8e8, 0.6);
-    sunLight.position.set(10, 25, -5); sunLight.castShadow = true;
+    scene.add(new THREE.AmbientLight(0xFFFFFF, 0.55));
+    const sunLight = new THREE.DirectionalLight(0xFFF8F0, 0.5);
+    sunLight.position.set(10, 25, 10); sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 1024; sunLight.shadow.mapSize.height = 1024;
-    sunLight.shadow.radius = 6;
-    scene.add(sunLight);
-    const fillLight = new THREE.DirectionalLight(0xeef2ff, 0.25);
-    fillLight.position.set(-10, 15, 10); scene.add(fillLight);
+    sunLight.shadow.radius = 6; scene.add(sunLight);
+    const fillLight = new THREE.DirectionalLight(0xEEF2FF, 0.2);
+    fillLight.position.set(-10, 15, -10); scene.add(fillLight);
 
-    // Build ward structure
-    buildWardStructure(scene);
+    // Build wards
+    wallsRef.current = [];
+    if (suite === "A" || suite === "both") buildWard(scene, SUITE_OFFSET_A, "Clinical Suite A", wallsRef);
+    if (suite === "B" || suite === "both") buildWard(scene, SUITE_OFFSET_B, "Clinical Suite B", wallsRef);
 
-    // Ground for raycasting (invisible)
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({ visible: false }));
+    // Ground for raycasting
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshBasicMaterial({ visible: false }));
     ground.rotation.x = -Math.PI / 2; ground.position.y = 0; scene.add(ground);
     groundRef.current = ground;
 
     // Grid in edit mode
     if (editMode) {
-      const grid = new THREE.GridHelper(30, 30, 0x0066cc, 0xbbccdd);
-      grid.position.y = 0.01; grid.material.opacity = 0.4; grid.material.transparent = true;
+      const grid = new THREE.GridHelper(50, 50, 0x2C3E50, 0xAABBCC);
+      grid.position.y = 0.01; grid.material.opacity = 0.3; grid.material.transparent = true;
       scene.add(grid);
     }
 
@@ -183,7 +195,6 @@ export default function Ward3D({
       raycaster.setFromCamera(mouse, camera);
     };
 
-    // Pointer down — start potential drag in edit mode
     const onPointerDown = (event) => {
       const st = stateRef.current;
       if (!st.editMode) return;
@@ -199,19 +210,14 @@ export default function Ward3D({
       }
     };
 
-    // Pointer move — drag or hover
     const onPointerMove = (event) => {
       const st = stateRef.current;
       getMouse(event);
-
-      // Check drag threshold
       if (dragRef.current.itemId && !dragRef.current.active) {
         const dx = event.clientX - dragRef.current.startX;
         const dy = event.clientY - dragRef.current.startY;
         if (Math.sqrt(dx * dx + dy * dy) > 5) dragRef.current.active = true;
       }
-
-      // Handle drag
       if (dragRef.current.active) {
         const groundHits = raycaster.intersectObject(ground, false);
         if (groundHits.length > 0) {
@@ -220,15 +226,12 @@ export default function Ward3D({
           if (st.snapToGrid) { x = Math.round(x); z = Math.round(z); }
           const clamped = clampToBounds(x, z);
           if (!checkCollision(dragRef.current.itemId, clamped.x, clamped.z, st.items)) {
-            // Update mesh directly for performance
             const mesh = itemsMapRef.current.get(dragRef.current.itemId);
             if (mesh) mesh.position.set(clamped.x, 0, clamped.z);
           }
         }
         return;
       }
-
-      // Hover (non-edit mode)
       if (!st.editMode) {
         const hits = raycaster.intersectObjects(itemsArrayRef.current, true);
         let bedId = null;
@@ -263,24 +266,20 @@ export default function Ward3D({
       }
     };
 
-    // Pointer up — finalize drag, select, or place
     const onPointerUp = (event) => {
       const st = stateRef.current;
       if (st.editMode) {
         if (dragRef.current.itemId) {
           if (dragRef.current.active) {
-            // Drag ended — commit position
             const mesh = itemsMapRef.current.get(dragRef.current.itemId);
             if (mesh) st.onItemMove?.(dragRef.current.itemId, mesh.position.x, mesh.position.z);
           } else {
-            // Click — select item
             st.onItemSelect?.(dragRef.current.itemId);
           }
           controls.enabled = true;
           dragRef.current = { active: false, itemId: null, startX: 0, startY: 0, moved: false };
           return;
         }
-        // No item pressed — place new item or deselect
         if (st.selectedItemForPlacement) {
           getMouse(event);
           const groundHits = raycaster.intersectObject(ground, false);
@@ -297,15 +296,12 @@ export default function Ward3D({
           st.onItemSelect?.(null);
         }
       } else {
-        // Non-edit: bed click
         getMouse(event);
         const hits = raycaster.intersectObjects(itemsArrayRef.current, true);
         if (hits.length > 0) {
           let obj = hits[0].object;
           while (obj.parent && !obj.userData.itemId) obj = obj.parent;
-          if (obj.userData.itemId) {
-            st.onBedClick?.(obj.userData.itemId);
-          }
+          if (obj.userData.itemId) st.onBedClick?.(obj.userData.itemId);
         }
       }
     };
@@ -314,9 +310,23 @@ export default function Ward3D({
     renderer.domElement.addEventListener("pointermove", onPointerMove);
     renderer.domElement.addEventListener("pointerup", onPointerUp);
 
-    // Animation loop with camera lerp
+    // Animation loop with wall opacity update + camera lerp
+    const camDir = new THREE.Vector3();
+    const toCam = new THREE.Vector3();
     const animate = () => {
       animFrameRef.current = requestAnimationFrame(animate);
+
+      // Update wall opacity based on camera angle
+      camera.getWorldDirection(camDir);
+      wallsRef.current.forEach(wall => {
+        toCam.subVectors(camera.position, wall.position).normalize();
+        const dot = toCam.dot(wall.userData.normal);
+        // dot > 0: camera is outside this wall → transparent (see through)
+        // dot < 0: camera is inside → more opaque
+        wall.material.opacity = 0.08 + Math.max(0, -dot) * 0.3;
+      });
+
+      // Camera lerp
       if (cameraTargetRef.current) {
         camera.position.lerp(cameraTargetRef.current.pos, 0.08);
         controls.target.lerp(cameraTargetRef.current.look, 0.08);
@@ -351,7 +361,10 @@ export default function Ward3D({
   useEffect(() => {
     if (!cameraCommand?.nonce) return;
     if (cameraCommand.type === "reset") {
-      cameraTargetRef.current = { pos: new THREE.Vector3(0, 14, 22), look: new THREE.Vector3(0, 0, 0) };
+      const s = suite;
+      if (s === "A") cameraTargetRef.current = { pos: new THREE.Vector3(-15, 10, 16), look: new THREE.Vector3(-15, 0, 0) };
+      else if (s === "B") cameraTargetRef.current = { pos: new THREE.Vector3(15, 10, 16), look: new THREE.Vector3(15, 0, 0) };
+      else cameraTargetRef.current = { pos: new THREE.Vector3(0, 16, 28), look: new THREE.Vector3(0, 0, 0) };
     } else if (cameraCommand.type === "focus" && cameraCommand.target) {
       const { x, z } = cameraCommand.target;
       cameraTargetRef.current = { pos: new THREE.Vector3(x + 4, 4, z + 4), look: new THREE.Vector3(x, 1, z) };
@@ -359,57 +372,42 @@ export default function Ward3D({
       const { x, z } = cameraCommand.target;
       cameraTargetRef.current = { pos: new THREE.Vector3(x, 10, z), look: new THREE.Vector3(x, 0, 0) };
     }
-  }, [cameraCommand]);
+  }, [cameraCommand, suite]);
 
-  // Diff-based item rendering (no flicker)
+  // Diff-based item rendering
   useEffect(() => {
     if (!sceneRef.current) return;
     const map = itemsMapRef.current;
     const scene = sceneRef.current;
 
-    // Remove selection rings
     map.forEach((mesh) => {
       const ring = mesh.children.find(c => c.name === "selectionRing");
       if (ring) { mesh.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
     });
 
-    if (!editMode && !items.length) { return; }
+    if (!editMode && !visibleItems.length) { return; }
 
-    const currentIds = new Set(items.map(i => i.id));
+    const currentIds = new Set(visibleItems.map(i => i.id));
 
-    // Remove deleted items
     map.forEach((mesh, id) => {
-      if (!currentIds.has(id)) {
-        scene.remove(mesh);
-        mesh.traverse(disposeMesh);
-        map.delete(id);
-      }
+      if (!currentIds.has(id)) { scene.remove(mesh); mesh.traverse(disposeMesh); map.delete(id); }
     });
 
-    // Add/update items
-    items.forEach((item) => {
+    visibleItems.forEach((item) => {
       let mesh = map.get(item.id);
-
-      // Rebuild if options changed
       if (mesh) {
         const old = mesh.userData.itemOptions || {};
-        if (old.designation !== item.designation || old.expanded !== item.expanded) {
-          scene.remove(mesh); mesh.traverse(disposeMesh); map.delete(item.id); mesh = null;
-        }
+        if (old.designation !== item.designation) { scene.remove(mesh); mesh.traverse(disposeMesh); map.delete(item.id); mesh = null; }
       }
-
       if (!mesh) {
-        const options = { designation: item.designation, expanded: item.expanded };
+        const patient = DEFAULT_PATIENTS[item.designation];
+        const options = { designation: item.designation, alert: patient?.status === "red" };
         mesh = createWardItem(item.type, options);
         mesh.userData = { itemId: item.id, itemOptions: options };
-        scene.add(mesh);
-        map.set(item.id, mesh);
+        scene.add(mesh); map.set(item.id, mesh);
       }
-
       mesh.position.set(item.x, 0, item.z);
       mesh.rotation.y = item.rotationY || 0;
-
-      // Selection ring (blue)
       if (item.id === selectedItemId) {
         const ring = new THREE.Mesh(
           new THREE.RingGeometry(0.9, 1.15, 32),
@@ -421,7 +419,7 @@ export default function Ward3D({
     });
 
     itemsArrayRef.current = Array.from(map.values());
-  }, [items, selectedItemId, editMode]);
+  }, [visibleItems, selectedItemId, editMode]);
 
   return (
     <div className="relative w-full h-full">
@@ -429,7 +427,7 @@ export default function Ward3D({
       <div className="absolute top-3 left-3 text-xs text-slate-600 bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 pointer-events-none border border-slate-200">
         {editMode
           ? "EDIT MODE · Drag items to reposition · Right-click drag to orbit · Scroll to zoom"
-          : "Drag to orbit · Right-click to pan · Scroll to zoom · Click a bed to view patient"}
+          : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
       </div>
     </div>
   );

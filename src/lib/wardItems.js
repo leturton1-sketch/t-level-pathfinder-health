@@ -1,6 +1,8 @@
 import * as THREE from "three";
 
-export const WARD_BOUNDS = { minX: -14, maxX: 14, minZ: -11, maxZ: 11 };
+export const WARD_BOUNDS = { minX: -25, maxX: 25, minZ: -8, maxZ: 8 };
+export const SUITE_OFFSET_A = { x: -15, z: 0 };
+export const SUITE_OFFSET_B = { x: 15, z: 0 };
 
 export const WARD_ITEM_TYPES = [
   { type: "bed", label: "Hospital Bed" },
@@ -18,9 +20,11 @@ export const DEFAULT_PATIENTS = {
   A1: { name: "Margaret Thompson", age: 78, pronouns: "she/her", condition: "Post-operative recovery — hip replacement (Day 2)", news2: 2, status: "green", allergies: "Penicillin (severe)", observations: { rr: 16, spo2: 97, sbp: 128, hr: 76, temp: 36.8 }, tasks: ["Hourly observations", "Pain assessment", "Mobilise with physio"] },
   A2: { name: "James Wilson", age: 65, pronouns: "he/him", condition: "Community-acquired pneumonia", news2: 6, status: "amber", allergies: "No known allergies", observations: { rr: 22, spo2: 93, sbp: 110, hr: 95, temp: 38.4 }, tasks: ["IV antibiotics — due 14:00", "Sputum culture", "Increase fluid intake"] },
   A3: { name: "Available Bed", age: null, pronouns: null, condition: "Bed available — prepared for admission", news2: 0, status: "green", allergies: null, observations: null, tasks: ["Bed made and ready", "Awaiting admission"] },
+  A4: { name: "Dorothy Clarke", age: 69, pronouns: "she/her", condition: "Post-operative — cholecystectomy (Day 1)", news2: 3, status: "green", allergies: "No known allergies", observations: { rr: 15, spo2: 98, sbp: 125, hr: 72, temp: 36.9 }, tasks: ["Pain assessment", "Wound site check", "Fluid balance"] },
   B1: { name: "Patricia Chen", age: 54, pronouns: "she/her", condition: "Diabetic ketoacidosis — insulin infusion", news2: 8, status: "red", allergies: "Latex", observations: { rr: 24, spo2: 91, sbp: 95, hr: 112, temp: 37.2 }, tasks: ["Insulin infusion review", "Blood glucose hourly", "Fluid balance chart"] },
   B2: { name: "Robert Davies", age: 71, pronouns: "he/him", condition: "C. difficile infection — isolation precautions", news2: 4, status: "purple", allergies: "No known allergies", observations: { rr: 18, spo2: 96, sbp: 118, hr: 82, temp: 37.6 }, tasks: ["Stool chart", "Fluid balance", "Infection control precautions"] },
   B3: { name: "Available Bed", age: null, pronouns: null, condition: "Bed available — prepared for admission", news2: 0, status: "green", allergies: null, observations: null, tasks: ["Bed made and ready", "Awaiting admission"] },
+  B4: { name: "Michael Brennan", age: 62, pronouns: "he/him", condition: "Acute pancreatitis — conservative management", news2: 5, status: "amber", allergies: "Codeine", observations: { rr: 20, spo2: 95, sbp: 105, hr: 88, temp: 38.1 }, tasks: ["NBM status review", "IV fluid assessment", "Pain score"] },
 };
 
 export const STATUS_CONFIG = {
@@ -34,53 +38,46 @@ export function generateDefaultItems() {
   const items = [];
   let c = 0;
   const id = () => `item_default_${c++}`;
-  [-5, 0, 5].forEach((z, i) => {
-    const n = i + 1;
-    items.push({ id: id(), type: "bed", x: -10, z, rotationY: -Math.PI / 2, designation: `A${n}` });
-    items.push({ id: id(), type: "bedside_cabinet", x: -8, z: z + 0.8, rotationY: 0 });
-    items.push({ id: id(), type: "observation_monitor", x: -12, z: z + 0.8, rotationY: 0 });
-    items.push({ id: id(), type: "overbed_table", x: -8.5, z: z - 0.5, rotationY: 0 });
-    items.push({ id: id(), type: "bed", x: 10, z, rotationY: Math.PI / 2, designation: `B${n}` });
-    items.push({ id: id(), type: "bedside_cabinet", x: 8, z: z + 0.8, rotationY: 0 });
-    items.push({ id: id(), type: "observation_monitor", x: 12, z: z + 0.8, rotationY: Math.PI });
-    items.push({ id: id(), type: "overbed_table", x: 8.5, z: z - 0.5, rotationY: 0 });
+  const suiteConfigs = [
+    { prefix: "A", offset: -15 },
+    { prefix: "B", offset: 15 },
+  ];
+  suiteConfigs.forEach(({ prefix, offset }) => {
+    const bedPositions = [
+      { x: -4, z: -3, num: 1 },
+      { x: 1, z: -3, num: 2 },
+      { x: -4, z: 3, num: 3 },
+      { x: 1, z: 3, num: 4 },
+    ];
+    bedPositions.forEach(({ x, z, num }) => {
+      items.push({ id: id(), type: "bed", x: offset + x, z, rotationY: 0, designation: `${prefix}${num}` });
+      items.push({ id: id(), type: "bedside_cabinet", x: offset + x + 1.8, z: z + 0.3, rotationY: 0 });
+      items.push({ id: id(), type: "observation_monitor", x: offset + x - 1.8, z: z + 0.3, rotationY: 0 });
+    });
+    items.push({ id: id(), type: "curtain", x: offset - 1.5, z: 0, rotationY: 0 });
+    items.push({ id: id(), type: "curtain", x: offset + 2.5, z: 0, rotationY: 0 });
+    items.push({ id: id(), type: "iv_stand", x: offset - 5, z: -4, rotationY: 0 });
+    items.push({ id: id(), type: "chair", x: offset - 2, z: -4.5, rotationY: Math.PI });
+    items.push({ id: id(), type: "waste_bin", x: offset - 5, z: 6, rotationY: 0 });
   });
-  items.push({ id: id(), type: "curtain", x: -9, z: -2.5, rotationY: Math.PI / 2 });
-  items.push({ id: id(), type: "curtain", x: -9, z: 2.5, rotationY: Math.PI / 2 });
-  items.push({ id: id(), type: "curtain", x: 9, z: -2.5, rotationY: Math.PI / 2 });
-  items.push({ id: id(), type: "curtain", x: 9, z: 2.5, rotationY: Math.PI / 2 });
-  items.push({ id: id(), type: "iv_stand", x: -11, z: -6, rotationY: 0 });
-  items.push({ id: id(), type: "iv_stand", x: 11, z: 1, rotationY: 0 });
-  items.push({ id: id(), type: "chair", x: -7, z: -4, rotationY: -Math.PI / 2 });
-  items.push({ id: id(), type: "chair", x: 7, z: 4, rotationY: Math.PI / 2 });
-  items.push({ id: id(), type: "waste_bin", x: -7, z: 9, rotationY: 0 });
-  items.push({ id: id(), type: "waste_bin", x: 7, z: 9, rotationY: 0 });
-  items.push({ id: id(), type: "sink", x: -12, z: 9, rotationY: 0 });
   return items;
 }
 
 export function getItemLabel(item) {
-  if (item.designation) return `${item.designation}`;
+  if (item.designation) return item.designation;
   const t = WARD_ITEM_TYPES.find(t => t.type === item.type);
   return t?.label || item.type;
 }
 
 export function checkCollision(itemId, x, z, items, minDist = 1.5) {
-  return items.some(item =>
-    item.id !== itemId &&
-    Math.abs(item.x - x) < minDist &&
-    Math.abs(item.z - z) < minDist
-  );
+  return items.some(item => item.id !== itemId && Math.abs(item.x - x) < minDist && Math.abs(item.z - z) < minDist);
 }
 
 export function clampToBounds(x, z) {
-  return {
-    x: Math.max(WARD_BOUNDS.minX, Math.min(WARD_BOUNDS.maxX, x)),
-    z: Math.max(WARD_BOUNDS.minZ, Math.min(WARD_BOUNDS.maxZ, z)),
-  };
+  return { x: Math.max(WARD_BOUNDS.minX, Math.min(WARD_BOUNDS.maxX, x)), z: Math.max(WARD_BOUNDS.minZ, Math.min(WARD_BOUNDS.maxZ, z)) };
 }
 
-export function createTextTexture(text, w = 128, h = 48, color = "#1a2b4a", bg = "transparent") {
+export function createTextTexture(text, w = 128, h = 48, color = "#2C3E50", bg = "transparent") {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
   const ctx = c.getContext("2d");
@@ -92,28 +89,30 @@ export function createTextTexture(text, w = 128, h = 48, color = "#1a2b4a", bg =
   return new THREE.CanvasTexture(c);
 }
 
+// Colors matched to reference image
 const M = {
-  bedFrame: new THREE.MeshStandardMaterial({ color: 0x4a5a6a, roughness: 0.4, metalness: 0.6 }),
-  mattress: new THREE.MeshStandardMaterial({ color: 0xf5f8fb, roughness: 0.8 }),
-  duvet: new THREE.MeshStandardMaterial({ color: 0xd6e4f0, roughness: 0.7 }),
-  pillow: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }),
-  rail: new THREE.MeshStandardMaterial({ color: 0x6a7a8a, roughness: 0.3, metalness: 0.7 }),
-  metal: new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.7, roughness: 0.3 }),
-  cabinet: new THREE.MeshStandardMaterial({ color: 0xe0e4ea, roughness: 0.5, metalness: 0.2 }),
-  cabinetTop: new THREE.MeshStandardMaterial({ color: 0xf0f2f5, roughness: 0.3 }),
-  screen: new THREE.MeshStandardMaterial({ color: 0x1a2b4a, emissive: 0x1a3a5a, emissiveIntensity: 0.3 }),
-  screenGreen: new THREE.MeshStandardMaterial({ color: 0x2a5a3a, emissive: 0x4caf50, emissiveIntensity: 0.4 }),
-  curtain: new THREE.MeshStandardMaterial({ color: 0xc4d0de, transparent: true, opacity: 0.35, roughness: 0.1, side: THREE.DoubleSide }),
-  wood: new THREE.MeshStandardMaterial({ color: 0xc8c5be, roughness: 0.5, metalness: 0.2 }),
-  yellow: new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.6 }),
-  porcelain: new THREE.MeshStandardMaterial({ color: 0xeef2f5, roughness: 0.2 }),
+  bedFrame: new THREE.MeshStandardMaterial({ color: 0xF0F0F0, roughness: 0.4, metalness: 0.3 }),
+  mattress: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.8 }),
+  duvet: new THREE.MeshStandardMaterial({ color: 0xECECEC, roughness: 0.7 }),
+  pillow: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 }),
+  rail: new THREE.MeshStandardMaterial({ color: 0xD8D8D8, roughness: 0.3, metalness: 0.7 }),
+  metal: new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.7, roughness: 0.3 }),
+  cabinet: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.5, metalness: 0.1 }),
+  cabinetTop: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.3 }),
+  screenBody: new THREE.MeshStandardMaterial({ color: 0x2C3E50, roughness: 0.4 }),
+  screenAlert: new THREE.MeshStandardMaterial({ color: 0xFFD6D6, emissive: 0xFFD6D6, emissiveIntensity: 0.5 }),
+  screenNormal: new THREE.MeshStandardMaterial({ color: 0xD6F5D6, emissive: 0x88DD88, emissiveIntensity: 0.3 }),
+  curtain: new THREE.MeshStandardMaterial({ color: 0xF8F6F0, transparent: true, opacity: 0.3, roughness: 0.1, side: THREE.DoubleSide }),
+  wood: new THREE.MeshStandardMaterial({ color: 0xC8C5BE, roughness: 0.5, metalness: 0.2 }),
+  yellow: new THREE.MeshStandardMaterial({ color: 0xFFCC00, roughness: 0.6 }),
+  porcelain: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.2 }),
 };
 
 export function createWardItem(type, options = {}) {
   switch (type) {
     case "bed": return createBed(options.designation);
     case "bedside_cabinet": return createCabinet();
-    case "observation_monitor": return createMonitor();
+    case "observation_monitor": return createMonitor(options.alert);
     case "iv_stand": return createIVStand();
     case "curtain": return createCurtain();
     case "chair": return createChair();
@@ -134,16 +133,16 @@ function createBed(designation) {
   duvet.position.set(0, 0.85, 0.3); g.add(duvet);
   const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.12, 0.5), M.pillow);
   pillow.position.set(0, 0.86, -0.8); g.add(pillow);
-  const hb = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.9, 0.08), M.bedFrame);
-  hb.position.set(0, 0.9, -1.2); g.add(hb);
+  const hb = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.7, 0.08), M.bedFrame);
+  hb.position.set(0, 0.8, -1.2); g.add(hb);
   [-0.9, 0.9].forEach(x => {
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 2), M.rail);
-    rail.position.set(x, 0.85, 0); g.add(rail);
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 2), M.rail);
+    rail.position.set(x, 0.82, 0); g.add(rail);
   });
   if (designation) {
-    const tex = createTextTexture(designation, 128, 48, "#1a2b4a", "#ffffff");
+    const tex = createTextTexture(designation, 128, 48, "#2C3E50", "#FFFFFF");
     const label = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.2), new THREE.MeshBasicMaterial({ map: tex }));
-    label.position.set(0, 1.35, -1.19); g.add(label);
+    label.position.set(0, 1.2, -1.19); g.add(label);
   }
   return g;
 }
@@ -159,15 +158,15 @@ function createCabinet() {
   return g;
 }
 
-function createMonitor() {
+function createMonitor(alert = false) {
   const g = new THREE.Group();
   const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.4, 6), M.metal);
   stand.position.y = 0.7; g.add(stand);
   const base = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.04, 16), M.metal);
   base.position.y = 0.02; g.add(base);
-  const screen = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.38, 0.04), M.screen);
+  const screen = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.38, 0.04), M.screenBody);
   screen.position.set(0, 1.5, 0); g.add(screen);
-  const display = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.3), M.screenGreen);
+  const display = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.3), alert ? M.screenAlert : M.screenNormal);
   display.position.set(0, 1.5, 0.025); g.add(display);
   return g;
 }
@@ -180,8 +179,6 @@ function createIVStand() {
   base.position.y = 0.02; g.add(base);
   const hook = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.015, 8, 16, Math.PI), M.metal);
   hook.position.set(0, 1.8, 0); hook.rotation.x = Math.PI / 2; g.add(hook);
-  const bag = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.06), new THREE.MeshStandardMaterial({ color: 0xddeeff, transparent: true, opacity: 0.6 }));
-  bag.position.set(0, 1.65, 0); g.add(bag);
   return g;
 }
 

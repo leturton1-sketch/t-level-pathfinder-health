@@ -188,7 +188,9 @@ export default function WardSimulation() {
 
   // --- Item handlers ---
   const handleItemPlace = (type, x, z) => {
-    const designation = type === "bed" ? `${suite === "B" ? "B" : "A"}${items.filter(i => i.type === "bed").length + 1}` : null;
+    const suitePrefix = x >= 0 ? "B" : "A";
+    const bedCount = items.filter(i => i.type === "bed" && (suitePrefix === "B" ? i.x >= 0 : i.x < 0)).length;
+    const designation = type === "bed" ? `${suitePrefix}${bedCount + 1}` : null;
     const newItem = { id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, type, x, z, rotationY: 0, designation };
     modifyItems([...items, newItem]);
     setSelectedItemId(newItem.id);
@@ -274,8 +276,8 @@ export default function WardSimulation() {
 
   const focusSuite = (s) => {
     setSuite(s);
-    if (s === "A") setCameraCommand({ type: "suite", target: { x: -10, z: 12 }, nonce: Date.now() });
-    else if (s === "B") setCameraCommand({ type: "suite", target: { x: 10, z: 12 }, nonce: Date.now() });
+    if (s === "A") setCameraCommand({ type: "suite", target: { x: -15, z: 16 }, nonce: Date.now() });
+    else if (s === "B") setCameraCommand({ type: "suite", target: { x: 15, z: 16 }, nonce: Date.now() });
     else setCameraCommand({ type: "reset", nonce: Date.now() });
   };
 
@@ -413,7 +415,7 @@ export default function WardSimulation() {
             {["A", "B", "both"].map(s => (
               <button key={s} onClick={() => focusSuite(s)}
                 className={`px-3 py-1.5 text-xs font-heading font-semibold rounded-md transition-all ${suite === s ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"}`}>
-                {s === "both" ? "Full Ward" : `Bay ${s}`}
+                {s === "both" ? "Full Ward" : `Suite ${s}`}
               </button>
             ))}
           </div>
