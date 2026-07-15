@@ -6,13 +6,14 @@
       "type": "string",
       "enum": [
         "A",
-        "B"
+        "B",
+        "ward"
       ],
       "title": "Suite"
     },
     "items": {
       "type": "string",
-      "description": "JSON array of placed items: [{id, type, x, z, rotationY}]"
+      "description": "JSON array of placed items: [{id, type, x, z, rotationY, designation, expanded}]"
     },
     "layout_name": {
       "type": "string",
