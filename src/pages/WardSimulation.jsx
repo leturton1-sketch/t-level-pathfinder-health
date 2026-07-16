@@ -405,7 +405,7 @@ export default function WardSimulation() {
               <Stethoscope className="w-5 h-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <span className="font-display text-sm text-slate-800 block leading-none">NursiCore</span>
+              <span className="font-display text-sm text-slate-800 block leading-none">ClinicalEdge</span>
               <span className="text-[8px] text-slate-400 uppercase tracking-wider">T-Level Academy</span>
             </div>
           </div>

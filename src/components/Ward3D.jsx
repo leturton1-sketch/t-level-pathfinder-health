@@ -76,31 +76,7 @@ function buildWard(scene, offset, label, wallsRef) {
   const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 0.85), new THREE.MeshBasicMaterial({ map: labelTex, side: THREE.DoubleSide }));
   labelMesh.position.set(ox, 3.2, oz - WARD_D / 2 - 0.2); scene.add(labelMesh);
 
-  // Nurse station — pale wood desk + dark grey chair
-  const ns = new THREE.Group(); ns.position.set(ox + 6, 0, oz);
-  const deskMat = new THREE.MeshStandardMaterial({ color: 0xD4C4A8, roughness: 0.5, metalness: 0.1 });
-  const desk = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 1.5), deskMat);
-  desk.position.y = 0.6; desk.castShadow = true; ns.add(desk);
-  const top = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.08, 1.7), new THREE.MeshStandardMaterial({ color: 0xE0D0B8, roughness: 0.3 }));
-  top.position.y = 1.04; ns.add(top);
-  const mon = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.04), new THREE.MeshStandardMaterial({ color: 0x2C3E50, emissive: 0x1a2a3a, emissiveIntensity: 0.2 }));
-  mon.position.set(0, 1.5, -0.3); ns.add(mon);
-  const mStand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.8 }));
-  mStand.position.set(0, 1.2, -0.3); ns.add(mStand);
-
-  // Dark grey office chair
-  const chairMat = new THREE.MeshStandardMaterial({ color: 0x3A3A3A, roughness: 0.6 });
-  const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.5), chairMat);
-  chairSeat.position.set(0, 0.45, 0.7); ns.add(chairSeat);
-  const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.06), chairMat);
-  chairBack.position.set(0, 0.75, 0.93); ns.add(chairBack);
-  const chairPost = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.42, 6), chairMat);
-  chairPost.position.set(0, 0.22, 0.7); ns.add(chairPost);
-  const chairBase = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.03, 16), chairMat);
-  chairBase.position.set(0, 0.02, 0.7); ns.add(chairBase);
-
-
-  scene.add(ns);
+  
 }
 
 function disposeMesh(child) {
