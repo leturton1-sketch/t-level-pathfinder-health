@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createWardItem, createTextTexture, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSET_A, SUITE_OFFSET_B, DEFAULT_PATIENTS } from "@/lib/wardItems";
+import WardItemDropdown from "@/components/WardItemDropdown";
 
 const WARD_W = 20;
 const WARD_D = 16;
@@ -10,22 +11,21 @@ function createFloorTexture() {
   const c = document.createElement("canvas");
   c.width = 512; c.height = 512;
   const ctx = c.getContext("2d");
-  // White metallic base
-  ctx.fillStyle = "#F8F8F8"; ctx.fillRect(0, 0, 512, 512);
-  // Metallic gradient sheen
+  // Ivory/off-white high-gloss base
+  ctx.fillStyle = "#FBFAF6"; ctx.fillRect(0, 0, 512, 512);
+  // Polished gloss gradient sheen
   const grad = ctx.createLinearGradient(0, 0, 512, 512);
-  grad.addColorStop(0, "rgba(200,215,230,0.18)");
-  grad.addColorStop(0.5, "rgba(255,255,255,0.05)");
-  grad.addColorStop(1, "rgba(200,215,230,0.18)");
+  grad.addColorStop(0, "rgba(245,242,232,0.2)");
+  grad.addColorStop(0.5, "rgba(255,255,255,0.12)");
+  grad.addColorStop(1, "rgba(245,242,232,0.2)");
   ctx.fillStyle = grad; ctx.fillRect(0, 0, 512, 512);
-  // Fine noise for metallic texture
-  for (let i = 0; i < 4000; i++) {
-    const v = Math.random() > 0.5 ? 255 : 210;
-    ctx.fillStyle = `rgba(${v},${v},${v},0.025)`;
+  // Subtle polished noise
+  for (let i = 0; i < 2000; i++) {
+    ctx.fillStyle = `rgba(255,253,248,0.02)`;
     ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
   }
-  // Tile grid lines
-  ctx.strokeStyle = "rgba(0,0,0,0.04)"; ctx.lineWidth = 1;
+  // Very subtle tile lines
+  ctx.strokeStyle = "rgba(0,0,0,0.015)"; ctx.lineWidth = 1;
   for (let i = 0; i <= 512; i += 128) {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
@@ -39,10 +39,10 @@ function createFloorTexture() {
 function buildWard(scene, offset, label, wallsRef) {
   const { x: ox, z: oz } = offset;
 
-  // Floor — pale grey
+  // Floor — high-gloss polished ivory
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(WARD_W, WARD_D),
-    new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.2, metalness: 0.6 })
+    new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.1, metalness: 0.2 })
   );
   floor.rotation.x = -Math.PI / 2; floor.position.set(ox, 0, oz); floor.receiveShadow = true; scene.add(floor);
 
@@ -71,13 +71,7 @@ function buildWard(scene, offset, label, wallsRef) {
     light.position.set(ox + x, 3.3, oz); scene.add(light);
   });
 
-  // Suite label — outside the back wall, dark navy text
-  const labelTex = createTextTexture(label, 256, 64, "#2C3E50", "#FFFFFF");
-  const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 0.85), new THREE.MeshBasicMaterial({ map: labelTex, side: THREE.DoubleSide }));
-  labelMesh.position.set(ox, 3.2, oz - WARD_D / 2 - 0.2); scene.add(labelMesh);
-
-  
-}
+  }
 
 function disposeMesh(child) {
   if (child.isMesh) { child.geometry?.dispose(); }
@@ -86,7 +80,7 @@ function disposeMesh(child) {
 export default function Ward3D({
   items = [], editMode = false, selectedItemId = null, snapToGrid = true,
   selectedItemForPlacement = null, suite = "both", cameraCommand = null,
-  onItemSelect, onItemMove, onItemPlace, onBedClick,
+  onItemSelect, onItemMove, onItemPlace, onBedClick, onSelectItemType,
 }) {
   const containerRef = useRef(null);
   const rendererRef = useRef(null);
@@ -117,6 +111,10 @@ export default function Ward3D({
     scene.fog = new THREE.Fog(0xFAFAFA, 45, 85);
     sceneRef.current = scene;
 
+    // Clear stale item meshes from previous scene so they re-create in the new one
+    itemsMapRef.current.clear();
+    itemsArrayRef.current = [];
+
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 200);
     let camPos, camTarget;
     if (suite === "A") { camPos = { x: -15, y: 10, z: 16 }; camTarget = { x: -15, y: 0, z: 0 }; }
@@ -137,9 +135,8 @@ export default function Ward3D({
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.enablePan = true;
-    controls.minDistance = 5;
-    controls.maxDistance = 50;
-    controls.maxPolarAngle = Math.PI / 2.2;
+    controls.minDistance = 3;
+    controls.maxDistance = 80;
     controls.target.set(camTarget.x, camTarget.y, camTarget.z);
     if (editMode) {
       controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE };
@@ -412,10 +409,18 @@ export default function Ward3D({
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
-      <div className="absolute top-3 left-3 text-xs text-slate-600 bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 pointer-events-none border border-slate-200">
-        {editMode
-          ? "EDIT MODE · Drag items to reposition · Right-click drag to orbit · Scroll to zoom"
-          : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
+      <div className="absolute top-3 left-3 flex items-center gap-2">
+        <div className="text-xs text-slate-600 bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 pointer-events-none border border-slate-200 whitespace-nowrap">
+          {editMode
+            ? "EDIT MODE · Drag items · Scroll to zoom"
+            : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
+        </div>
+        {editMode && (
+          <WardItemDropdown
+            selectedItemForPlacement={selectedItemForPlacement}
+            onSelectItemType={onSelectItemType}
+          />
+        )}
       </div>
     </div>
   );

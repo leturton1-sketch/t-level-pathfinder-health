@@ -488,6 +488,7 @@ export default function WardSimulation() {
           onItemMove={handleItemMove}
           onItemPlace={handleItemPlace}
           onBedClick={handleBedClick}
+          onSelectItemType={(type) => { setSelectedItemForPlacement(type); setSelectedItemId(null); }}
         />
 
         {/* Edit panel (left) */}
