@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createWardItem, createTextTexture, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSET_A, SUITE_OFFSET_B, DEFAULT_PATIENTS } from "@/lib/wardItems";
+import { createWardItem, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSET_A, SUITE_OFFSET_B, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import WardItemDropdown from "@/components/WardItemDropdown";
 
 const WARD_W = 20;

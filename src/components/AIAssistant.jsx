@@ -63,7 +63,15 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
         const announce = async () => {
           const text = `Assistance is required at bed ${bedDesignation}.`;
           if (!mutedRef.current) {
-            await playElevenLabs(text, settingsRef.current.apiKey, settingsRef.current.voiceId, settingsRef.current.volume);
+            const { apiKey, voiceId, volume } = settingsRef.current;
+            const success = await playElevenLabs(text, apiKey, voiceId, volume);
+            if (!success && "speechSynthesis" in window) {
+              const u = new SpeechSynthesisUtterance(text);
+              u.rate = 0.95;
+              u.pitch = user?.ai_persona === "male" ? 0.7 : 1.1;
+              u.volume = volume;
+              window.speechSynthesis.speak(u);
+            }
           }
           setMessages((prev) => [...prev, { role: "assistant", content: `🔔 **${text}**` }]);
         };
