@@ -66,6 +66,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
             const { apiKey, voiceId, volume } = settingsRef.current;
             const success = await playElevenLabs(text, apiKey, voiceId, volume);
             if (!success && "speechSynthesis" in window) {
+              await new Promise(r => setTimeout(r, 150));
               const u = new SpeechSynthesisUtterance(text);
               u.rate = 0.95;
               u.pitch = user?.ai_persona === "male" ? 0.7 : 1.1;
@@ -111,6 +112,8 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
         if (listeningRef.current) setState("listening"); else setState("idle");
       });
       if (success) return;
+      // ElevenLabs failed — brief delay so speechSynthesis recovers after cancel()
+      await new Promise(r => setTimeout(r, 150));
     }
     // Fallback to browser TTS
     if ("speechSynthesis" in window) {

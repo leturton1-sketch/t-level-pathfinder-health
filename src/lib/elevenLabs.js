@@ -36,8 +36,8 @@ export async function elevenLabsTTS(text, apiKey, voiceId, volume = 1) {
 }
 
 export async function playElevenLabs(text, apiKey, voiceId, volume, onEnd) {
-  stopSpeaking();
   if (!apiKey || !voiceId) return false;
+  stopSpeaking();
   const url = await elevenLabsTTS(text, apiKey, voiceId, volume);
   if (!url) return false;
   currentAudio = new Audio(url);
