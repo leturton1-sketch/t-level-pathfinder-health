@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createWardItem, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSET_A, SUITE_OFFSET_B, DEFAULT_PATIENTS } from "@/lib/wardItems";
+import { createWardItem, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import WardItemDropdown from "@/components/WardItemDropdown";
 
 const WARD_W = 20;
@@ -100,7 +100,11 @@ export default function Ward3D({
   stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, onItemSelect, onItemMove, onItemPlace, onBedClick };
 
   // Filter items by visible suite
-  const visibleItems = suite === "A" ? items.filter(i => i.x < 0) : suite === "B" ? items.filter(i => i.x >= 0) : items;
+  const visibleItems = suite === "A" ? items.filter(i => i.x < -15)
+    : suite === "B" ? items.filter(i => i.x >= -15 && i.x < 15 && i.z < 15)
+    : suite === "C" ? items.filter(i => i.x >= 15)
+    : suite === "D" ? items.filter(i => i.z >= 15)
+    : items;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -108,7 +112,7 @@ export default function Ward3D({
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xFAFAFA);
-    scene.fog = new THREE.Fog(0xFAFAFA, 45, 85);
+    scene.fog = new THREE.Fog(0xFAFAFA, 80, 160);
     sceneRef.current = scene;
 
     // Clear stale item meshes from previous scene so they re-create in the new one
@@ -116,10 +120,15 @@ export default function Ward3D({
     itemsArrayRef.current = [];
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 200);
-    let camPos, camTarget;
-    if (suite === "A") { camPos = { x: -15, y: 10, z: 16 }; camTarget = { x: -15, y: 0, z: 0 }; }
-    else if (suite === "B") { camPos = { x: 15, y: 10, z: 16 }; camTarget = { x: 15, y: 0, z: 0 }; }
-    else { camPos = { x: 0, y: 16, z: 28 }; camTarget = { x: 0, y: 0, z: 0 }; }
+    const SUITE_CAMERAS = {
+      A: { pos: { x: -30, y: 10, z: 16 }, target: { x: -30, y: 0, z: 0 } },
+      B: { pos: { x: 0, y: 10, z: 16 }, target: { x: 0, y: 0, z: 0 } },
+      C: { pos: { x: 30, y: 10, z: 16 }, target: { x: 30, y: 0, z: 0 } },
+      D: { pos: { x: 0, y: 10, z: 41 }, target: { x: 0, y: 0, z: 25 } },
+      all: { pos: { x: 0, y: 35, z: 55 }, target: { x: 0, y: 0, z: 12 } },
+    };
+    const cam = SUITE_CAMERAS[suite] || SUITE_CAMERAS.all;
+    const camPos = cam.pos, camTarget = cam.target;
     camera.position.set(camPos.x, camPos.y, camPos.z);
     cameraRef.current = camera;
 
@@ -136,7 +145,7 @@ export default function Ward3D({
     controls.dampingFactor = 0.08;
     controls.enablePan = true;
     controls.minDistance = 3;
-    controls.maxDistance = 80;
+    controls.maxDistance = 120;
     controls.target.set(camTarget.x, camTarget.y, camTarget.z);
     if (editMode) {
       controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE };
@@ -156,17 +165,17 @@ export default function Ward3D({
 
     // Build wards
     wallsRef.current = [];
-    if (suite === "A" || suite === "both") buildWard(scene, SUITE_OFFSET_A, "Clinical Suite A", wallsRef);
-    if (suite === "B" || suite === "both") buildWard(scene, SUITE_OFFSET_B, "Clinical Suite B", wallsRef);
+    const suitesToBuild = suite === "all" ? ["A", "B", "C", "D"] : [suite];
+    suitesToBuild.forEach(s => buildWard(scene, SUITE_OFFSETS[s], SUITE_LABELS[s], wallsRef));
 
     // Ground for raycasting
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshBasicMaterial({ visible: false }));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshBasicMaterial({ visible: false }));
     ground.rotation.x = -Math.PI / 2; ground.position.y = 0; scene.add(ground);
     groundRef.current = ground;
 
     // Grid in edit mode
     if (editMode) {
-      const grid = new THREE.GridHelper(50, 50, 0x2C3E50, 0xAABBCC);
+      const grid = new THREE.GridHelper(100, 100, 0x2C3E50, 0xAABBCC);
       grid.position.y = 0.01; grid.material.opacity = 0.3; grid.material.transparent = true;
       scene.add(grid);
     }
@@ -346,16 +355,20 @@ export default function Ward3D({
   useEffect(() => {
     if (!cameraCommand?.nonce) return;
     if (cameraCommand.type === "reset") {
-      const s = suite;
-      if (s === "A") cameraTargetRef.current = { pos: new THREE.Vector3(-15, 10, 16), look: new THREE.Vector3(-15, 0, 0) };
-      else if (s === "B") cameraTargetRef.current = { pos: new THREE.Vector3(15, 10, 16), look: new THREE.Vector3(15, 0, 0) };
-      else cameraTargetRef.current = { pos: new THREE.Vector3(0, 16, 28), look: new THREE.Vector3(0, 0, 0) };
+      const SUITE_CAM_RESET = {
+        A: { pos: new THREE.Vector3(-30, 10, 16), look: new THREE.Vector3(-30, 0, 0) },
+        B: { pos: new THREE.Vector3(0, 10, 16), look: new THREE.Vector3(0, 0, 0) },
+        C: { pos: new THREE.Vector3(30, 10, 16), look: new THREE.Vector3(30, 0, 0) },
+        D: { pos: new THREE.Vector3(0, 10, 41), look: new THREE.Vector3(0, 0, 25) },
+        all: { pos: new THREE.Vector3(0, 35, 55), look: new THREE.Vector3(0, 0, 12) },
+      };
+      cameraTargetRef.current = SUITE_CAM_RESET[suite] || SUITE_CAM_RESET.all;
     } else if (cameraCommand.type === "focus" && cameraCommand.target) {
       const { x, z } = cameraCommand.target;
       cameraTargetRef.current = { pos: new THREE.Vector3(x + 4, 4, z + 4), look: new THREE.Vector3(x, 1, z) };
     } else if (cameraCommand.type === "suite" && cameraCommand.target) {
-      const { x, z } = cameraCommand.target;
-      cameraTargetRef.current = { pos: new THREE.Vector3(x, 10, z), look: new THREE.Vector3(x, 0, 0) };
+      const { x, z, lookZ = 0 } = cameraCommand.target;
+      cameraTargetRef.current = { pos: new THREE.Vector3(x, 10, z), look: new THREE.Vector3(x, 0, lookZ) };
     }
   }, [cameraCommand, suite]);
 

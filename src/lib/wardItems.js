@@ -1,8 +1,12 @@
 import * as THREE from "three";
 
-export const WARD_BOUNDS = { minX: -25, maxX: 25, minZ: -8, maxZ: 8 };
-export const SUITE_OFFSET_A = { x: -15, z: 0 };
-export const SUITE_OFFSET_B = { x: 15, z: 0 };
+export const WARD_BOUNDS = { minX: -45, maxX: 45, minZ: -10, maxZ: 35 };
+export const SUITE_OFFSET_A = { x: -30, z: 0 };
+export const SUITE_OFFSET_B = { x: 0, z: 0 };
+export const SUITE_OFFSET_C = { x: 30, z: 0 };
+export const SUITE_OFFSET_D = { x: 0, z: 25 };
+export const SUITE_OFFSETS = { A: SUITE_OFFSET_A, B: SUITE_OFFSET_B, C: SUITE_OFFSET_C, D: SUITE_OFFSET_D };
+export const SUITE_LABELS = { A: "Clinical Suite A", B: "Clinical Suite B", C: "Skills Room", D: "Theory Room" };
 
 export const WARD_ITEM_TYPES = [
   { type: "bed", label: "Hospital Bed" },
@@ -14,13 +18,16 @@ export const WARD_ITEM_TYPES = [
   { type: "overbed_table", label: "Over-bed Table" },
   { type: "waste_bin", label: "Waste Bin" },
   { type: "sink", label: "Sink" },
+  { type: "nurses_station", label: "Nurses' Station" },
+  { type: "tv", label: "Wall TV / Screen" },
+  { type: "table", label: "Table" },
+  { type: "countertop", label: "Countertop" },
 ];
 
 export const DEFAULT_PATIENTS = {
   A1: { name: "Margaret Thompson", age: 78, pronouns: "she/her", condition: "Post-operative recovery — hip replacement (Day 2)", news2: 2, status: "green", allergies: "Penicillin (severe)", observations: { rr: 16, spo2: 97, sbp: 128, hr: 76, temp: 36.8 }, tasks: ["Hourly observations", "Pain assessment", "Mobilise with physio"] },
   A2: { name: "James Wilson", age: 65, pronouns: "he/him", condition: "Community-acquired pneumonia", news2: 6, status: "amber", allergies: "No known allergies", observations: { rr: 22, spo2: 93, sbp: 110, hr: 95, temp: 38.4 }, tasks: ["IV antibiotics — due 14:00", "Sputum culture", "Increase fluid intake"] },
-  A3: { name: "Available Bed", age: null, pronouns: null, condition: "Bed available — prepared for admission", news2: 0, status: "green", allergies: null, observations: null, tasks: ["Bed made and ready", "Awaiting admission"] },
-  A4: { name: "Dorothy Clarke", age: 69, pronouns: "she/her", condition: "Post-operative — cholecystectomy (Day 1)", news2: 3, status: "green", allergies: "No known allergies", observations: { rr: 15, spo2: 98, sbp: 125, hr: 72, temp: 36.9 }, tasks: ["Pain assessment", "Wound site check", "Fluid balance"] },
+  A3: { name: "Dorothy Clarke", age: 69, pronouns: "she/her", condition: "Post-operative — cholecystectomy (Day 1)", news2: 3, status: "green", allergies: "No known allergies", observations: { rr: 15, spo2: 98, sbp: 125, hr: 72, temp: 36.9 }, tasks: ["Pain assessment", "Wound site check", "Fluid balance"] },
   B1: { name: "Patricia Chen", age: 54, pronouns: "she/her", condition: "Diabetic ketoacidosis — insulin infusion", news2: 8, status: "red", allergies: "Latex", observations: { rr: 24, spo2: 91, sbp: 95, hr: 112, temp: 37.2 }, tasks: ["Insulin infusion review", "Blood glucose hourly", "Fluid balance chart"] },
   B2: { name: "Robert Davies", age: 71, pronouns: "he/him", condition: "C. difficile infection — isolation precautions", news2: 4, status: "purple", allergies: "No known allergies", observations: { rr: 18, spo2: 96, sbp: 118, hr: 82, temp: 37.6 }, tasks: ["Stool chart", "Fluid balance", "Infection control precautions"] },
   B3: { name: "Available Bed", age: null, pronouns: null, condition: "Bed available — prepared for admission", news2: 0, status: "green", allergies: null, observations: null, tasks: ["Bed made and ready", "Awaiting admission"] },
@@ -38,28 +45,56 @@ export function generateDefaultItems() {
   const items = [];
   let c = 0;
   const id = () => `item_default_${c++}`;
-  const suiteConfigs = [
-    { prefix: "A", offset: -15 },
-    { prefix: "B", offset: 15 },
-  ];
-  suiteConfigs.forEach(({ prefix, offset }) => {
-    const bedPositions = [
-      { x: -4, z: -3, num: 1 },
-      { x: 1, z: -3, num: 2 },
-      { x: -4, z: 3, num: 3 },
-      { x: 1, z: 3, num: 4 },
-    ];
-    bedPositions.forEach(({ x, z, num }) => {
-      items.push({ id: id(), type: "bed", x: offset + x, z, rotationY: 0, designation: `${prefix}${num}` });
-      items.push({ id: id(), type: "bedside_cabinet", x: offset + x + 1.8, z: z + 0.3, rotationY: 0 });
-      items.push({ id: id(), type: "observation_monitor", x: offset + x - 1.8, z: z + 0.3, rotationY: 0 });
-    });
-    items.push({ id: id(), type: "curtain", x: offset - 1.5, z: 0, rotationY: 0 });
-    items.push({ id: id(), type: "curtain", x: offset + 2.5, z: 0, rotationY: 0 });
-    items.push({ id: id(), type: "iv_stand", x: offset - 5, z: -4, rotationY: 0 });
-    items.push({ id: id(), type: "chair", x: offset - 2, z: -4.5, rotationY: Math.PI });
-    items.push({ id: id(), type: "waste_bin", x: offset - 5, z: 6, rotationY: 0 });
+
+  const addBed = (x, z, designation, rotY = 0) => {
+    items.push({ id: id(), type: "bed", x, z, rotationY: rotY, designation });
+    items.push({ id: id(), type: "bedside_cabinet", x: x + 1.8 * Math.cos(rotY), z: z + 1.8 * Math.sin(rotY), rotationY: rotY });
+    items.push({ id: id(), type: "observation_monitor", x: x - 1.8 * Math.cos(rotY), z: z - 1.8 * Math.sin(rotY), rotationY: rotY });
+  };
+
+  // === Room A (Clinical Suite A) — offset (-30, 0) ===
+  // 2 beds horizontal top-left, 1 bed below, nurses' station at bottom, TV on top wall
+  const oA = SUITE_OFFSET_A;
+  addBed(oA.x - 5, oA.z - 4, "A1");
+  addBed(oA.x - 2, oA.z - 4, "A2");
+  addBed(oA.x - 3.5, oA.z + 0.5, "A3");
+  items.push({ id: id(), type: "nurses_station", x: oA.x - 3.5, z: oA.z + 5, rotationY: 0 });
+  items.push({ id: id(), type: "tv", x: oA.x - 3.5, z: oA.z - 7.5, rotationY: 0 });
+  items.push({ id: id(), type: "waste_bin", x: oA.x - 8, z: oA.z + 6, rotationY: 0 });
+  items.push({ id: id(), type: "chair", x: oA.x - 3.5, z: oA.z + 3, rotationY: Math.PI });
+
+  // === Room B (Clinical Suite B) — offset (0, 0) ===
+  // 4 beds stacked vertically along the right wall
+  const oB = SUITE_OFFSET_B;
+  [-5.5, -1.8, 1.8, 5.5].forEach((zOff, i) => {
+    addBed(oB.x + 5, oB.z + zOff, `B${i + 1}`);
   });
+  items.push({ id: id(), type: "waste_bin", x: oB.x - 8, z: oB.z + 6, rotationY: 0 });
+  items.push({ id: id(), type: "iv_stand", x: oB.x - 3, z: oB.z - 4, rotationY: 0 });
+
+  // === Room C (Skills Room) — offset (30, 0) ===
+  // Sink on top wall, 2 tables in center, L-shaped countertop in bottom-right
+  const oC = SUITE_OFFSET_C;
+  items.push({ id: id(), type: "sink", x: oC.x, z: oC.z - 6.5, rotationY: 0 });
+  items.push({ id: id(), type: "table", x: oC.x - 3, z: oC.z, rotationY: 0 });
+  items.push({ id: id(), type: "table", x: oC.x + 3, z: oC.z, rotationY: 0 });
+  items.push({ id: id(), type: "countertop", x: oC.x + 4, z: oC.z + 5, rotationY: 0 });
+  items.push({ id: id(), type: "chair", x: oC.x - 3, z: oC.z + 2, rotationY: Math.PI });
+  items.push({ id: id(), type: "chair", x: oC.x + 3, z: oC.z + 2, rotationY: Math.PI });
+  items.push({ id: id(), type: "chair", x: oC.x - 3, z: oC.z - 2, rotationY: 0 });
+  items.push({ id: id(), type: "chair", x: oC.x + 3, z: oC.z - 2, rotationY: 0 });
+
+  // === Room D (Theory Room) — offset (0, 25) ===
+  // 2 large tables side-by-side in center, TV on right wall
+  const oD = SUITE_OFFSET_D;
+  items.push({ id: id(), type: "table", x: oD.x - 3, z: oD.z, rotationY: 0 });
+  items.push({ id: id(), type: "table", x: oD.x + 3, z: oD.z, rotationY: 0 });
+  items.push({ id: id(), type: "tv", x: oD.x + 9, z: oD.z, rotationY: -Math.PI / 2 });
+  items.push({ id: id(), type: "chair", x: oD.x - 3, z: oD.z + 2, rotationY: Math.PI });
+  items.push({ id: id(), type: "chair", x: oD.x + 3, z: oD.z + 2, rotationY: Math.PI });
+  items.push({ id: id(), type: "chair", x: oD.x - 3, z: oD.z - 2, rotationY: 0 });
+  items.push({ id: id(), type: "chair", x: oD.x + 3, z: oD.z - 2, rotationY: 0 });
+
   return items;
 }
 
@@ -119,6 +154,10 @@ export function createWardItem(type, options = {}) {
     case "overbed_table": return createOverbedTable();
     case "waste_bin": return createWasteBin();
     case "sink": return createSink();
+    case "nurses_station": return createNursesStation();
+    case "tv": return createTV();
+    case "table": return createTable();
+    case "countertop": return createCountertop();
     default: return new THREE.Group();
   }
 }
@@ -237,5 +276,59 @@ function createSink() {
   basin.position.y = 0.86; g.add(basin);
   const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.25, 8), M.metal);
   faucet.position.set(0, 1.05, -0.15); g.add(faucet);
+  return g;
+}
+
+function createNursesStation() {
+  const g = new THREE.Group();
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.06, 1.2), M.cabinetTop);
+  desk.position.y = 0.75; desk.castShadow = true; g.add(desk);
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.6, 0.05), M.cabinet);
+  panel.position.set(0, 0.4, 0.6); g.add(panel);
+  [[-1.4, -0.5], [1.4, -0.5], [-1.4, 0.5], [1.4, 0.5]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.73, 0.08), M.metal);
+    leg.position.set(x, 0.365, z); g.add(leg);
+  });
+  const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 6), M.metal);
+  stand.position.set(0, 0.88, -0.2); g.add(stand);
+  const screen = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.03), M.screenBody);
+  screen.position.set(0, 1.1, -0.2); g.add(screen);
+  const display = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.28), M.screenNormal);
+  display.position.set(0, 1.1, -0.185); g.add(display);
+  return g;
+}
+
+function createTV() {
+  const g = new THREE.Group();
+  const mount = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, 0.08), M.metal);
+  mount.position.y = 2.6; g.add(mount);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.3, 0.08), M.screenBody);
+  frame.position.y = 2.2; frame.castShadow = true; g.add(frame);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.15), M.screenNormal);
+  screen.position.set(0, 2.2, 0.045); g.add(screen);
+  return g;
+}
+
+function createTable() {
+  const g = new THREE.Group();
+  const top = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 1.1), M.wood);
+  top.position.y = 0.75; top.castShadow = true; g.add(top);
+  [[-1, -0.45], [1, -0.45], [-1, 0.45], [1, 0.45]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.73, 0.08), M.metal);
+    leg.position.set(x, 0.365, z); g.add(leg);
+  });
+  return g;
+}
+
+function createCountertop() {
+  const g = new THREE.Group();
+  const longTop = new THREE.Mesh(new THREE.BoxGeometry(4, 0.06, 0.8), M.cabinetTop);
+  longTop.position.set(0, 0.9, -0.6); longTop.castShadow = true; g.add(longTop);
+  const shortTop = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.06, 2.4), M.cabinetTop);
+  shortTop.position.set(1.6, 0.9, 0.4); shortTop.castShadow = true; g.add(shortTop);
+  const longCab = new THREE.Mesh(new THREE.BoxGeometry(4, 0.85, 0.75), M.cabinet);
+  longCab.position.set(0, 0.45, -0.6); g.add(longCab);
+  const shortCab = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.85, 2.4), M.cabinet);
+  shortCab.position.set(1.6, 0.45, 0.4); g.add(shortCab);
   return g;
 }

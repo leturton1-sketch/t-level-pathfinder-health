@@ -1,4 +1,4 @@
-import { Bed, Archive, Activity, Droplets, Blinds, Armchair, Table, Trash2, Droplet } from "lucide-react";
+import { Bed, Archive, Activity, Droplets, Blinds, Armchair, Table, Trash2, Droplet, Monitor, Tv, LayoutGrid } from "lucide-react";
 import { WARD_ITEM_TYPES } from "@/lib/wardItems";
 
 const ICON_MAP = {
@@ -11,6 +11,10 @@ const ICON_MAP = {
   overbed_table: Table,
   waste_bin: Trash2,
   sink: Droplet,
+  nurses_station: Monitor,
+  tv: Tv,
+  table: Table,
+  countertop: LayoutGrid,
 };
 
 export default function WardEditPanel({

@@ -29,7 +29,7 @@ export default function WardSimulation() {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [selectedItemForPlacement, setSelectedItemForPlacement] = useState(null);
   const [snapToGrid, setSnapToGrid] = useState(true);
-  const [suite, setSuite] = useState("both");
+  const [suite, setSuite] = useState("all");
   const [cameraCommand, setCameraCommand] = useState({ type: "reset", nonce: 0 });
   const [saveStatus, setSaveStatus] = useState("");
 
@@ -276,9 +276,17 @@ export default function WardSimulation() {
 
   const focusSuite = (s) => {
     setSuite(s);
-    if (s === "A") setCameraCommand({ type: "suite", target: { x: -15, z: 16 }, nonce: Date.now() });
-    else if (s === "B") setCameraCommand({ type: "suite", target: { x: 15, z: 16 }, nonce: Date.now() });
-    else setCameraCommand({ type: "reset", nonce: Date.now() });
+    if (s === "all") {
+      setCameraCommand({ type: "reset", nonce: Date.now() });
+    } else {
+      const targets = {
+        A: { x: -30, z: 16 },
+        B: { x: 0, z: 16 },
+        C: { x: 30, z: 16 },
+        D: { x: 0, z: 41, lookZ: 25 },
+      };
+      setCameraCommand({ type: "suite", target: targets[s], nonce: Date.now() });
+    }
   };
 
   // --- Bed click ---
@@ -412,10 +420,10 @@ export default function WardSimulation() {
 
           {/* Suite selector */}
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-            {["A", "B", "both"].map(s => (
+            {["A", "B", "C", "D", "all"].map(s => (
               <button key={s} onClick={() => focusSuite(s)}
-                className={`px-3 py-1.5 text-xs font-heading font-semibold rounded-md transition-all ${suite === s ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"}`}>
-                {s === "both" ? "Full Ward" : `Suite ${s}`}
+                className={`px-2.5 py-1.5 text-xs font-heading font-semibold rounded-md transition-all ${suite === s ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"}`}>
+                {s === "all" ? "Full Academy" : s === "C" ? "Skills" : s === "D" ? "Theory" : `Suite ${s}`}
               </button>
             ))}
           </div>
