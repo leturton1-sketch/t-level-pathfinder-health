@@ -5,7 +5,7 @@ import CentreLight from "@/components/CentreLight";
 import TLevelLogo from "@/components/TLevelLogo";
 import {
   LayoutDashboard, BookOpen, FileText, Sparkles, Stethoscope,
-  Thermometer, Wrench, Settings,
+  Thermometer, Wrench, Settings, FlaskConical,
 } from "lucide-react";
 
 const MODULES = [
@@ -14,6 +14,7 @@ const MODULES = [
   { title: "T-Level Specification", desc: "View the official T-Level Health standards and clinical competency criteria.", icon: FileText, color: "green", to: "/knowledge-library" },
   { title: "AI Tutor", desc: "Get personalized help, ask clinical questions, and practice scenarios with AI.", icon: Sparkles, color: "purple", to: "/profile" },
   { title: "Ward Simulation", desc: "Enter the 3D interactive virtual hospital ward to practice clinical skills.", icon: Stethoscope, color: "coral", to: "/ward-simulation" },
+  { title: "Clinical Skills Lab", desc: "Interactive anatomy atlas, PPE training, hazard hunts, and science flashcards.", icon: FlaskConical, color: "blue", to: "/interactive-learning" },
   { title: "Care Planning Suite", desc: "Complete ABCDE assessments, NEWS2 scoring, and SMART care goals.", icon: Thermometer, color: "orange", to: "/care-planning" },
   { title: "User Management", desc: "Manage staff and student accounts, cohorts, and access permissions.", icon: Wrench, color: "slate", to: "/user-management", adminOnly: true },
   { title: "System Settings", desc: "Manage your profile, change active roles, and configure application preferences.", icon: Settings, color: "slate", to: "/profile" },
@@ -25,6 +26,7 @@ const COLOR_STYLES = {
   coral: { icon: "text-rose-500", bg: "bg-rose-50", border: "hover:border-rose-300", shadow: "hover:shadow-rose-100" },
   orange: { icon: "text-orange-500", bg: "bg-orange-50", border: "hover:border-orange-300", shadow: "hover:shadow-orange-100" },
   slate: { icon: "text-slate-600", bg: "bg-slate-100", border: "hover:border-slate-400", shadow: "hover:shadow-slate-200" },
+  blue: { icon: "text-blue-600", bg: "bg-blue-50", border: "hover:border-blue-300", shadow: "hover:shadow-blue-100" },
 };
 
 export default function Dashboard() {
