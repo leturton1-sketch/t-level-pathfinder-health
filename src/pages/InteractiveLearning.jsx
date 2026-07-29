@@ -1,21 +1,31 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2, Monitor, Clipboard, Network } from "lucide-react";
 import { LEARNING_MODULES } from "@/lib/learningData";
 import InteractiveAtlas from "@/components/learning/InteractiveAtlas";
 import PPESequencer from "@/components/learning/PPESequencer";
 import HazardHunt from "@/components/learning/HazardHunt";
 import PathophysiologyMatcher from "@/components/learning/PathophysiologyMatcher";
 import SciHealthDeck from "@/components/learning/SciHealthDeck";
+import MockEPR from "@/components/learning/MockEPR";
+import CarePlanPersona from "@/components/learning/CarePlanPersona";
+import OrgChartMDT from "@/components/learning/OrgChartMDT";
 
-const MODULE_ICONS = { Body: PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical };
-const MODULE_COMPONENTS = { atlas: InteractiveAtlas, ppe: PPESequencer, hazard: HazardHunt, patho: PathophysiologyMatcher, sciencedeck: SciHealthDeck };
+const MODULE_ICONS = { Body: PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Monitor, Clipboard, Network };
+const MODULE_COMPONENTS = {
+  atlas: InteractiveAtlas, ppe: PPESequencer, hazard: HazardHunt,
+  patho: PathophysiologyMatcher, sciencedeck: SciHealthDeck,
+  mockepr: MockEPR, carepersona: CarePlanPersona, orgchart: OrgChartMDT,
+};
 const MODULE_COLORS = {
   atlas: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200", icon: "bg-rose-100" },
   ppe: { bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200", icon: "bg-amber-100" },
   hazard: { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-200", icon: "bg-orange-100" },
   patho: { bg: "bg-violet-50", text: "text-violet-600", border: "border-violet-200", icon: "bg-violet-100" },
   sciencedeck: { bg: "bg-teal-50", text: "text-teal-600", border: "border-teal-200", icon: "bg-teal-100" },
+  mockepr: { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", icon: "bg-slate-200" },
+  carepersona: { bg: "bg-fuchsia-50", text: "text-fuchsia-600", border: "border-fuchsia-200", icon: "bg-fuchsia-100" },
+  orgchart: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200", icon: "bg-blue-100" },
 };
 
 export default function InteractiveLearning() {
