@@ -20,28 +20,28 @@ export const SK_CODES = {
 };
 
 export const PERFORMANCE_OUTCOMES = {
-  "PO1": "Working in the health and science sector (Area 1)",
-  "PO2": "Healthcare sector structure and provision (Area 2)",
-  "PO3": "Health, safety and environmental regulations (Area 3)",
-  "PO4": "Principles of good scientific and clinical practice (Area 4)",
-  "PO5": "Safeguarding in healthcare (Area 5)",
-  "PO6": "Person-centred care (Area 6)",
-  "PO7": "Infection prevention and control (Area 7)",
-  "PO8": "Anatomy, physiology and disease (Areas 8-9)",
-  "PO9": "Supporting healthcare — Adult Nursing OS",
-  "PO10": "Clinical governance and legislation compliance",
+  "PO1": "Core Area 1 — The Healthcare Sector",
+  "PO2": "Core Area 2 — Health, Safety & Environmental Regulations",
+  "PO3": "Core Area 3 — Managing Information & Data",
+  "PO4": "Core Area 4 — Good Scientific & Clinical Practice",
+  "PO5": "Core Area 5 — Providing Person-Centred Care",
+  "PO6": "Core Area 6 — Health & Wellbeing",
+  "PO7": "Core Area 7 — Safeguarding",
+  "PO8": "Core Areas 8–9 — Science Concepts in Health",
+  "PO9": "OS Part A — Supporting Healthcare (Mandatory Core)",
+  "PO10": "OS Part B — Supporting the Adult Nursing Team",
 };
 
 export const SPEC_AREAS = [
-  { code: "Area 1", title: "Working in Health and Science", volume: "Vol 1" },
-  { code: "Area 2", title: "The Healthcare Sector", volume: "Vol 2" },
-  { code: "Area 3", title: "Health, Safety and Environmental Regulations", volume: "Vol 2" },
-  { code: "Area 4", title: "Principles of Good Scientific and Clinical Practice", volume: "Vol 2" },
-  { code: "Area 5", title: "Safeguarding", volume: "Vol 2" },
-  { code: "Area 6", title: "Person-Centred Care", volume: "Vol 2" },
-  { code: "Area 7", title: "Infection Prevention and Control", volume: "Vol 2" },
-  { code: "Area 8", title: "Cellular Biology and Biochemistry", volume: "Vol 3" },
-  { code: "Area 9", title: "Human Pathophysiology and Homeostasis", volume: "Vol 3" },
+  { code: "Area 1", title: "The Healthcare Sector", volume: "Core Paper 1" },
+  { code: "Area 2", title: "Health, Safety & Environmental Regulations", volume: "Core Paper 1" },
+  { code: "Area 3", title: "Managing Information & Data", volume: "Core Paper 1" },
+  { code: "Area 4", title: "Good Scientific & Clinical Practice", volume: "Core Paper 1" },
+  { code: "Area 5", title: "Providing Person-Centred Care", volume: "Core Paper 1" },
+  { code: "Area 6", title: "Health & Wellbeing", volume: "Core Paper 1" },
+  { code: "Area 7", title: "Safeguarding", volume: "Core Paper 1" },
+  { code: "Area 8", title: "Core Science Concepts", volume: "Core Paper 2" },
+  { code: "Area 9", title: "Further Science Concepts in Health", volume: "Core Paper 2" },
 ];
 
 export const THEORY_MODULES = [
