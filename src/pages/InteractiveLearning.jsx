@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2, Monitor, Clipboard, Network } from "lucide-react";
+import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2, Monitor, Clipboard, Network, ListChecks, HeartPulse, Scale } from "lucide-react";
 import { LEARNING_MODULES } from "@/lib/learningData";
 import InteractiveAtlas from "@/components/learning/InteractiveAtlas";
 import PPESequencer from "@/components/learning/PPESequencer";
@@ -10,12 +10,16 @@ import SciHealthDeck from "@/components/learning/SciHealthDeck";
 import MockEPR from "@/components/learning/MockEPR";
 import CarePlanPersona from "@/components/learning/CarePlanPersona";
 import OrgChartMDT from "@/components/learning/OrgChartMDT";
+import SOPMaster from "@/components/learning/SOPMaster";
+import PublicHealthAdvisor from "@/components/learning/PublicHealthAdvisor";
+import DutyOfCandour from "@/components/learning/DutyOfCandour";
 
-const MODULE_ICONS = { Body: PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Monitor, Clipboard, Network };
+const MODULE_ICONS = { Body: PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Monitor, Clipboard, Network, ListChecks, HeartPulse, Scale };
 const MODULE_COMPONENTS = {
   atlas: InteractiveAtlas, ppe: PPESequencer, hazard: HazardHunt,
   patho: PathophysiologyMatcher, sciencedeck: SciHealthDeck,
   mockepr: MockEPR, carepersona: CarePlanPersona, orgchart: OrgChartMDT,
+  sopmaster: SOPMaster, publichealth: PublicHealthAdvisor, dutyofcandour: DutyOfCandour,
 };
 const MODULE_COLORS = {
   atlas: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200", icon: "bg-rose-100" },
@@ -26,6 +30,9 @@ const MODULE_COLORS = {
   mockepr: { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", icon: "bg-slate-200" },
   carepersona: { bg: "bg-fuchsia-50", text: "text-fuchsia-600", border: "border-fuchsia-200", icon: "bg-fuchsia-100" },
   orgchart: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200", icon: "bg-blue-100" },
+  sopmaster: { bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200", icon: "bg-emerald-100" },
+  publichealth: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200", icon: "bg-rose-100" },
+  dutyofcandour: { bg: "bg-indigo-50", text: "text-indigo-600", border: "border-indigo-200", icon: "bg-indigo-100" },
 };
 
 export default function InteractiveLearning() {
