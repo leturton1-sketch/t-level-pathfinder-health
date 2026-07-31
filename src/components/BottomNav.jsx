@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User } from "lucide-react";
+import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3 } from "lucide-react";
 import { getCurrentUser, canManageUsers } from "@/lib/clinicalAuth";
 
 export default function BottomNav() {
@@ -12,6 +12,7 @@ export default function BottomNav() {
     { icon: BookOpen, label: "Theory", path: "/theory" },
     { icon: ClipboardList, label: "Care Plans", path: "/care-planning" },
     { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
+    { icon: BarChart3, label: "Progress", path: "/performance" },
     { icon: User, label: "Profile", path: "/profile" },
   ];
 

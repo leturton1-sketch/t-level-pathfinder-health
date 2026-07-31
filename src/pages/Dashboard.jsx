@@ -5,11 +5,12 @@ import CentreLight from "@/components/CentreLight";
 import TLevelLogo from "@/components/TLevelLogo";
 import {
   LayoutDashboard, BookOpen, FileText, Sparkles, Stethoscope,
-  Thermometer, Wrench, Settings, FlaskConical,
+  Thermometer, Wrench, Settings, FlaskConical, BarChart3,
 } from "lucide-react";
 
 const MODULES = [
   { title: "Learning Dashboard", desc: "Track your progress, view completed modules, and upcoming simulations.", icon: LayoutDashboard, color: "purple", to: "/profile" },
+  { title: "Performance", desc: "Visualize competency progress across all Pearson areas and knowledge checks.", icon: BarChart3, color: "blue", to: "/performance" },
   { title: "Learning Modules", desc: "Access core T-Level health curriculum, start new lessons, and take assessments.", icon: BookOpen, color: "green", to: "/theory" },
   { title: "T-Level Specification", desc: "View the official T-Level Health standards and clinical competency criteria.", icon: FileText, color: "green", to: "/knowledge-library" },
   { title: "AI Tutor", desc: "Get personalized help, ask clinical questions, and practice scenarios with AI.", icon: Sparkles, color: "purple", to: "/profile" },

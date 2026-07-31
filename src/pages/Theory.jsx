@@ -36,7 +36,7 @@ export default function Theory() {
       setLoading(false);
     }
 
-    // Load completion from localStorage
+    // Load completion from localStorage (keyed by spec area)
     const progress = JSON.parse(localStorage.getItem("theory_progress") || "{}");
     setCompletedIds(new Set(Object.keys(progress).filter((k) => progress[k])));
   };
@@ -78,7 +78,7 @@ export default function Theory() {
       {/* Module list */}
       <div className="space-y-3">
         {modules.map((module, idx) => {
-          const isComplete = completedIds.has(module.id);
+          const isComplete = completedIds.has(module.spec_area);
           const area = getAreaInfo(module.spec_area);
           return (
             <button

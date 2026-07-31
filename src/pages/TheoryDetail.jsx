@@ -44,9 +44,18 @@ export default function TheoryDetail() {
 
   const handleComplete = () => {
     const progress = JSON.parse(localStorage.getItem("theory_progress") || "{}");
-    progress[moduleId] = true;
+    if (module?.spec_area) progress[module.spec_area] = true;
     localStorage.setItem("theory_progress", JSON.stringify(progress));
     navigate("/theory");
+  };
+
+  const handleSubmitQuiz = () => {
+    setQuizSubmitted(true);
+    if (module?.spec_area) {
+      const scores = JSON.parse(localStorage.getItem("theory_quiz_scores") || "{}");
+      scores[module.spec_area] = { score: quizScore, total: quizQuestions.length, pct: Math.round((quizScore / quizQuestions.length) * 100) };
+      localStorage.setItem("theory_quiz_scores", JSON.stringify(scores));
+    }
   };
 
   // Knowledge check questions — stored per module (20 per volume), specData fallback
@@ -193,7 +202,7 @@ export default function TheoryDetail() {
         <div className="flex gap-2">
           {!quizSubmitted ? (
             <button
-              onClick={() => setQuizSubmitted(true)}
+              onClick={handleSubmitQuiz}
               disabled={Object.keys(quizAnswers).length < quizQuestions.length}
               className="flex-1 py-3 rounded-lg border border-clinical-teal/40 text-clinical-teal font-semibold text-sm disabled:opacity-40 hover:bg-clinical-teal/10 transition-all"
             >

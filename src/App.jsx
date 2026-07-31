@@ -17,6 +17,7 @@ import SMARTGoals from './pages/SMARTGoals';
 import WardSimulation from './pages/WardSimulation';
 import KnowledgeLibrary from './pages/KnowledgeLibrary';
 import InteractiveLearning from './pages/InteractiveLearning';
+import Performance from './pages/Performance';
 import UserManagement from './pages/UserManagement';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
@@ -59,6 +60,7 @@ const AuthenticatedApp = () => {
         <Route path="/ward-simulation" element={<WardSimulation />} />
         <Route path="/knowledge-library" element={<KnowledgeLibrary />} />
         <Route path="/interactive-learning" element={<InteractiveLearning />} />
+        <Route path="/performance" element={<Performance />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
