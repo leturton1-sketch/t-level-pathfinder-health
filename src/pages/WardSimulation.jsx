@@ -354,6 +354,29 @@ export default function WardSimulation() {
   const score = decisions.filter(d => d.correct).length;
   const exitScenario = () => { setActiveScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false); };
 
+  // Persist the simulation result when the debrief is reached — triggers the tutor email and feeds the performance dashboard
+  const debriefSavedRef = useRef(false);
+  useEffect(() => {
+    if (showDebrief && activeScenario && !debriefSavedRef.current) {
+      debriefSavedRef.current = true;
+      const maxScore = decisionSteps.length;
+      base44.entities.SimulationResult.create({
+        student_id: user?.id,
+        student_name: user?.full_name,
+        scenario_id: activeScenario.id,
+        scenario_name: activeScenario.name,
+        decisions: JSON.stringify(decisions),
+        score,
+        max_score: maxScore,
+        decision_path: JSON.stringify({ correct: score, total: maxScore }),
+        completed: true,
+        sk_codes: activeScenario.sk_codes || [],
+        performance_outcomes: activeScenario.performance_outcomes || [],
+      }).catch(() => {});
+    }
+    if (!showDebrief) debriefSavedRef.current = false;
+  }, [showDebrief, activeScenario, decisions, score, decisionSteps.length]);
+
   const selectedItem = items.find(i => i.id === selectedItemId);
 
   // --- Debrief screen ---

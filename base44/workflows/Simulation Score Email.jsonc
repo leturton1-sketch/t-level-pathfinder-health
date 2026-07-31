@@ -1,0 +1,41 @@
+{
+  "description": "Emails the tutor when a student completes a ward simulation",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "simulation_score_email",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "send_email": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "notifySubmission",
+            "args": {
+              "entity_name": "SimulationResult",
+              "record_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Email score",
+            "description": "Send simulation score notification to tutor"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "SimulationResult"
+    }
+  },
+  "name": "Simulation Score Email"
+}

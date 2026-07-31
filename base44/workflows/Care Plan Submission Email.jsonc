@@ -1,0 +1,41 @@
+{
+  "name": "Care Plan Submission Email",
+  "description": "Emails the tutor when a student submits a care plan for review",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "CarePlanSubmission",
+      "events": [
+        "create"
+      ]
+    },
+    "condition": "${ .trigger.data.status == \"submitted\" }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "care_plan_submission_email",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "send_email": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "notifySubmission",
+            "args": {
+              "entity_name": "CarePlanSubmission",
+              "record_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Email submission",
+            "description": "Send care plan notification to tutor"
+          }
+        }
+      }
+    ]
+  }
+}
