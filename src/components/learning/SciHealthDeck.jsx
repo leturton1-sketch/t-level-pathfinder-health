@@ -108,6 +108,7 @@ export default function SciHealthDeck() {
             {/* Back face (quiz) - shown when flipped */}
             {flipped && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+                style={{ transform: "rotateY(180deg)" }}
                 className="absolute inset-0 rounded-2xl border border-slate-200 overflow-hidden bg-white">
                 <div className="bg-gradient-to-br from-slate-700 to-slate-800 p-4">
                   <div className="flex items-center gap-2 mb-2">
