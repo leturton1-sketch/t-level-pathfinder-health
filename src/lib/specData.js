@@ -44,7 +44,10 @@ export const SPEC_AREAS = [
   { code: "Area 9", title: "Further Science Concepts in Health", volume: "Core Paper 2" },
 ];
 
-export const THEORY_MODULES = [
+// THEORY_MODULES now live in theoryContent.js (full 9-area coverage with knowledge checks)
+export { THEORY_MODULES } from "@/lib/theoryContent";
+
+const _LEGACY_THEORY_MODULES = [
   {
     title: "The Healthcare Sector",
     spec_area: "Area 1",

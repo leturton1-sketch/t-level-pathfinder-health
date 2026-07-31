@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn } from "@/lib/clinicalAuth";
 import { THEORY_MODULES } from "@/lib/specData";
+import { getKnowledgeChecks } from "@/lib/theoryContent";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import ReactMarkdown from "react-markdown";
 import { ArrowLeft, Clock, CheckCircle, BookMarked, ChevronRight, AlertCircle } from "lucide-react";
@@ -48,24 +49,14 @@ export default function TheoryDetail() {
     navigate("/theory");
   };
 
-  // Embedded quiz (auto-generated based on module content)
-  const quizQuestions = module ? [
+  // Knowledge check questions — stored per module (20 per volume), specData fallback
+  const quizQuestions = module ? (getKnowledgeChecks(module).length > 0 ? getKnowledgeChecks(module) : [
     {
       question: `Which specification area does "${module.title}" belong to?`,
       options: [module.spec_area, "Area 1", "Area 5", "Area 9"],
       correct: module.spec_area,
     },
-    {
-      question: "What is the primary purpose of the T Level Health qualification?",
-      options: [
-        "To prepare students aged 16–19 for a career in the health sector",
-        "To replace GCSEs entirely",
-        "To provide a university degree",
-        "To train doctors only",
-      ],
-      correct: "To prepare students aged 16–19 for a career in the health sector",
-    },
-  ] : [];
+  ]) : [];
 
   const handleQuizAnswer = (qIdx, answer) => {
     setQuizAnswers({ ...quizAnswers, [qIdx]: answer });
