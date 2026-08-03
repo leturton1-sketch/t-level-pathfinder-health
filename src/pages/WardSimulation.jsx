@@ -9,6 +9,8 @@ import Ward3D from "@/components/Ward3D";
 import WardEditPanel from "@/components/WardEditPanel";
 import WardPropertiesPanel from "@/components/WardPropertiesPanel";
 import PatientPanel from "@/components/PatientPanel";
+import WardPatientPanel from "@/components/WardPatientPanel";
+import { getPatientForBed, WARD_PATIENTS } from "@/lib/wardPatients";
 import { WARD_ITEM_TYPES, generateDefaultItems, DEFAULT_PATIENTS, getItemLabel } from "@/lib/wardItems";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
@@ -306,7 +308,7 @@ export default function WardSimulation() {
     window.dispatchEvent(new CustomEvent("callbell-status", { detail: { bedDesignation: designation, active: newActive } }));
   };
 
-  const wardBeds = Object.keys(DEFAULT_PATIENTS);
+  const wardBeds = [...new Set([...Object.keys(DEFAULT_PATIENTS), ...WARD_PATIENTS.map(p => p.bedDesignation)])];
 
   // --- Scenario ---
   const startScenario = (scenario) => {
@@ -323,6 +325,31 @@ export default function WardSimulation() {
     if (!selectedBed) return;
     const scenario = getScenarioForBed(selectedBed) || scenarios[0];
     if (scenario) startScenario(scenario);
+  };
+
+  const handleBeginPatientScenario = (wardPatient) => {
+    // Build a scenario object from the ward patient data
+    const scenario = {
+      id: `ward_${wardPatient.id}`,
+      name: `${wardPatient.name} — ${wardPatient.condition.split(",")[0]}`,
+      description: wardPatient.admission_reason,
+      patient_name: wardPatient.name,
+      patient_age: wardPatient.age,
+      patient_condition: wardPatient.condition,
+      patient_comorbidities: wardPatient.comorbidities,
+      patient_medications: wardPatient.medications,
+      patient_allergies: wardPatient.allergies,
+      bed_number: `Bed ${wardPatient.bedDesignation}`,
+      initial_vitals: wardPatient.initial_vitals,
+      initial_news2: wardPatient.initial_news2,
+      sk_codes: ["SK1", "SK2", "SK4", "SK5"],
+      performance_outcomes: ["PO4", "PO9"],
+      debrief_rationale: wardPatient.debrief_rationale,
+      difficulty: wardPatient.initial_news2 >= 7 ? "independent" : wardPatient.initial_news2 >= 3 ? "intermediate" : "guided",
+      estimated_duration: 20,
+    };
+    setShowPatientPanel(false);
+    startScenario(scenario);
   };
 
   const decisionSteps = activeScenario ? [
@@ -549,16 +576,24 @@ export default function WardSimulation() {
           />
         )}
 
-        {/* Patient panel */}
+        {/* Patient panel — celebrity ward patient if available, legacy panel otherwise */}
         {showPatientPanel && selectedBed && !editMode && (
-          <PatientPanel
-            bedDesignation={selectedBed}
-            onClose={() => { setShowPatientPanel(false); setSelectedBed(null); }}
-            onViewPatient={() => {}}
-            onRecordObservations={() => navigateAway("/care-planning/news2")}
-            onBeginTask={handleBeginTask}
-            hasScenario={!!getScenarioForBed(selectedBed) || scenarios.length > 0}
-          />
+          getPatientForBed(selectedBed) ? (
+            <WardPatientPanel
+              bedDesignation={selectedBed}
+              onClose={() => { setShowPatientPanel(false); setSelectedBed(null); }}
+              onBeginScenario={handleBeginPatientScenario}
+            />
+          ) : (
+            <PatientPanel
+              bedDesignation={selectedBed}
+              onClose={() => { setShowPatientPanel(false); setSelectedBed(null); }}
+              onViewPatient={() => {}}
+              onRecordObservations={() => navigateAway("/care-planning/news2")}
+              onBeginTask={handleBeginTask}
+              hasScenario={!!getScenarioForBed(selectedBed) || scenarios.length > 0}
+            />
+          )
         )}
 
         {/* Hint */}
