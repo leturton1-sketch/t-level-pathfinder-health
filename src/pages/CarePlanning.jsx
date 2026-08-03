@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn } from "@/lib/clinicalAuth";
 import { SKBadgeGroup } from "@/components/SKBadge";
-import { ClipboardList, Stethoscope, Target, ShieldAlert, Droplet, FileText, Users, RefreshCw, ChevronRight } from "lucide-react";
+import { ClipboardList, Stethoscope, Target, ShieldAlert, Droplet, FileText, Users, RefreshCw, ChevronRight, Sparkles } from "lucide-react";
 
 const TOOLS = [
+  { id: "shared", title: "Shared Care Plan Workspace", icon: Sparkles, description: "Real-time clinical target auto-profiler, celebrity SBAR database & Pearson formative scoring", skCodes: ["SK3", "SK6", "SK9"], poCodes: ["PO4", "PO5", "PO9"], to: "/care-planning/shared", accent: "clinical-teal", featured: true },
   { id: "abcde", title: "ABCDE Assessment", icon: Stethoscope, description: "Systematic airway, breathing, circulation, disability, exposure assessment", skCodes: ["SK2", "SK17"], poCodes: ["PO4", "PO9"], to: "/care-planning/abcde", accent: "clinical-teal" },
   { id: "news2", title: "NEWS2 Scoring", icon: ClipboardList, description: "National Early Warning Score calculator with auto-escalation", skCodes: ["SK1", "SK17"], poCodes: ["PO4", "PO9"], to: "/care-planning/news2", accent: "clinical-amber" },
   { id: "smart", title: "SMART Goals", icon: Target, description: "Specific, Measurable, Achievable, Relevant, Time-bound care goals", skCodes: ["SK3", "SK9"], poCodes: ["PO6", "PO9"], to: "/care-planning/smart-goals", accent: "clinical-green" },
@@ -47,7 +48,7 @@ export default function CarePlanning() {
           <button
             key={tool.id}
             onClick={() => navigate(tool.to)}
-            className={`group text-left rounded-xl border p-4 transition-all animate-slide-up ${accentMap[tool.accent]}`}
+            className={`group text-left rounded-xl border p-4 transition-all animate-slide-up ${accentMap[tool.accent]} ${tool.featured ? "sm:col-span-2 border-clinical-teal/50 bg-clinical-teal/5 ring-1 ring-clinical-teal/20" : ""}`}
             style={{ animationDelay: `${idx * 40}ms` }}
           >
             <div className="flex items-start justify-between mb-2">
