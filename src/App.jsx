@@ -20,6 +20,7 @@ import InteractiveLearning from './pages/InteractiveLearning';
 import Performance from './pages/Performance';
 import UserManagement from './pages/UserManagement';
 import Profile from './pages/Profile';
+import VoiceAssistant from './pages/VoiceAssistant';
 import Layout from './components/Layout';
 
 const AuthenticatedApp = () => {
@@ -63,6 +64,7 @@ const AuthenticatedApp = () => {
         <Route path="/performance" element={<Performance />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/voice-assistant" element={<VoiceAssistant />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

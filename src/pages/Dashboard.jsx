@@ -5,7 +5,7 @@ import CentreLight from "@/components/CentreLight";
 import TLevelLogo from "@/components/TLevelLogo";
 import {
   LayoutDashboard, BookOpen, FileText, Sparkles, Stethoscope,
-  Thermometer, Wrench, Settings, FlaskConical, BarChart3,
+  Thermometer, Wrench, Settings, FlaskConical, BarChart3, Bot,
 } from "lucide-react";
 
 const MODULES = [
@@ -14,6 +14,7 @@ const MODULES = [
   { title: "Learning Modules", desc: "Access core T-Level health curriculum, start new lessons, and take assessments.", icon: BookOpen, color: "green", to: "/theory" },
   { title: "T-Level Specification", desc: "View the official T-Level Health standards and clinical competency criteria.", icon: FileText, color: "green", to: "/knowledge-library" },
   { title: "AI Tutor", desc: "Get personalized help, ask clinical questions, and practice scenarios with AI.", icon: Sparkles, color: "purple", to: "/profile" },
+  { title: "AI Voice Assistant", desc: "Chat with a natural-sounding voice assistant and customise voice settings.", icon: Bot, color: "blue", to: "/voice-assistant" },
   { title: "Ward Simulation", desc: "Enter the 3D interactive virtual hospital ward to practice clinical skills.", icon: Stethoscope, color: "coral", to: "/ward-simulation" },
   { title: "Clinical Skills Lab", desc: "Interactive anatomy atlas, PPE training, hazard hunts, and science flashcards.", icon: FlaskConical, color: "blue", to: "/interactive-learning" },
   { title: "Care Planning Suite", desc: "Complete ABCDE assessments, NEWS2 scoring, and SMART care goals.", icon: Thermometer, color: "orange", to: "/care-planning" },
