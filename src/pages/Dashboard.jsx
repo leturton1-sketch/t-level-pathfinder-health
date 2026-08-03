@@ -18,6 +18,7 @@ const MODULES = [
   { title: "Ward Simulation", desc: "Enter the 3D interactive virtual hospital ward to practice clinical skills.", icon: Stethoscope, color: "coral", to: "/ward-simulation" },
   { title: "Clinical Skills Lab", desc: "Interactive anatomy atlas, PPE training, hazard hunts, and science flashcards.", icon: FlaskConical, color: "blue", to: "/interactive-learning" },
   { title: "Care Planning Suite", desc: "Complete ABCDE assessments, NEWS2 scoring, and SMART care goals.", icon: Thermometer, color: "orange", to: "/care-planning" },
+  { title: "Scenario Authoring", desc: "Clone or build custom simulation scenarios with celebrity patient profiles and vitals.", icon: Stethoscope, color: "coral", to: "/scenario-authoring", adminOnly: true },
   { title: "User Management", desc: "Manage staff and student accounts, cohorts, and access permissions.", icon: Wrench, color: "slate", to: "/user-management", adminOnly: true },
   { title: "System Settings", desc: "Manage your profile, change active roles, and configure application preferences.", icon: Settings, color: "slate", to: "/profile" },
 ];

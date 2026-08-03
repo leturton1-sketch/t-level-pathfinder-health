@@ -20,6 +20,7 @@ import KnowledgeLibrary from './pages/KnowledgeLibrary';
 import InteractiveLearning from './pages/InteractiveLearning';
 import Performance from './pages/Performance';
 import UserManagement from './pages/UserManagement';
+import ScenarioAuthoring from './pages/ScenarioAuthoring';
 import Profile from './pages/Profile';
 import VoiceAssistant from './pages/VoiceAssistant';
 import Layout from './components/Layout';
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
         <Route path="/interactive-learning" element={<InteractiveLearning />} />
         <Route path="/performance" element={<Performance />} />
         <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/scenario-authoring" element={<ScenarioAuthoring />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/voice-assistant" element={<VoiceAssistant />} />
       </Route>
