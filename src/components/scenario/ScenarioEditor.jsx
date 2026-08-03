@@ -86,7 +86,8 @@ function VitalsField({ icon: Icon, label, value, onChange, inputType = "number",
   );
 }
 
-export default function ScenarioEditor({ initialScenario, onSave, onCancel }) {
+export default function ScenarioEditor({ initialScenario, onSave, onCancel, entityName = "Scenario" }) {
+  const isTemplate = entityName === "ScenarioTemplate";
   const [draft, setDraft] = useState(() => {
     if (initialScenario) {
       return {
@@ -152,9 +153,9 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel }) {
       };
       let saved;
       if (isEditing) {
-        saved = await base44.entities.Scenario.update(initialScenario.id, payload);
+        saved = await base44.entities[entityName].update(initialScenario.id, payload);
       } else {
-        saved = await base44.entities.Scenario.create(payload);
+        saved = await base44.entities[entityName].create(payload);
       }
       onSave?.(saved);
     } catch (e) {
@@ -171,7 +172,7 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel }) {
         <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
             {isEditing ? <Copy className="w-4 h-4 text-clinical-teal" /> : <Sparkles className="w-4 h-4 text-clinical-teal" />}
-            <h2 className="font-heading font-bold text-sm text-slate-800">{isEditing ? "Edit Scenario" : "New Scenario"}</h2>
+            <h2 className="font-heading font-bold text-sm text-slate-800">{isEditing ? `Edit ${isTemplate ? "Template" : "Scenario"}` : `New ${isTemplate ? "Template" : "Scenario"}`}</h2>
           </div>
           <button onClick={onCancel} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
         </div>
@@ -352,7 +353,7 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel }) {
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-heading font-semibold hover:bg-slate-50">Cancel</button>
           <button onClick={handleSave} disabled={saving}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-clinical-teal text-white text-xs font-heading font-semibold hover:opacity-90 disabled:opacity-50">
-            <Save className="w-3.5 h-3.5" /> {saving ? "Saving…" : isEditing ? "Update Scenario" : "Create Scenario"}
+            <Save className="w-3.5 h-3.5" /> {saving ? "Saving…" : isEditing ? `Update ${isTemplate ? "Template" : "Scenario"}` : `Create ${isTemplate ? "Template" : "Scenario"}`}
           </button>
         </div>
       </div>

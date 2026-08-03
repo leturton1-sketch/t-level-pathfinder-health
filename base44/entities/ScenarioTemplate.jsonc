@@ -1,0 +1,124 @@
+{
+  "name": "ScenarioTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "guided",
+        "intermediate",
+        "independent"
+      ],
+      "default": "guided"
+    },
+    "estimated_duration": {
+      "type": "number",
+      "default": 15,
+      "description": "Minutes"
+    },
+    "patient_name": {
+      "type": "string"
+    },
+    "patient_age": {
+      "type": "number"
+    },
+    "patient_condition": {
+      "type": "string"
+    },
+    "patient_comorbidities": {
+      "type": "string"
+    },
+    "patient_medications": {
+      "type": "string"
+    },
+    "patient_allergies": {
+      "type": "string"
+    },
+    "bed_number": {
+      "type": "string",
+      "default": "Bed 1"
+    },
+    "initial_vitals": {
+      "type": "object",
+      "properties": {
+        "rr": {
+          "type": "number"
+        },
+        "spo2": {
+          "type": "number"
+        },
+        "supplemental_o2": {
+          "type": "boolean"
+        },
+        "sbp": {
+          "type": "number"
+        },
+        "hr": {
+          "type": "number"
+        },
+        "avpu": {
+          "type": "string"
+        },
+        "temp": {
+          "type": "number"
+        }
+      }
+    },
+    "initial_news2": {
+      "type": "number",
+      "default": 0
+    },
+    "decision_tree": {
+      "type": "string",
+      "description": "JSON branching decision nodes"
+    },
+    "sk_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "debrief_rationale": {
+      "type": "string"
+    },
+    "assigned_cohorts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "deterioration",
+        "infection_control",
+        "fluid_management",
+        "falls_risk",
+        "post_op",
+        "admission",
+        "discharge"
+      ]
+    },
+    "creator_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "patient_name",
+    "patient_condition"
+  ]
+}
