@@ -12,6 +12,7 @@ import PatientPanel from "@/components/PatientPanel";
 import WardPatientPanel from "@/components/WardPatientPanel";
 import { getPatientForBed, WARD_PATIENTS } from "@/lib/wardPatients";
 import { WARD_ITEM_TYPES, generateDefaultItems, DEFAULT_PATIENTS, getItemLabel } from "@/lib/wardItems";
+import { useWardNarration } from "@/hooks/useWardNarration";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
   Pencil, LayoutGrid, MessageSquare, Settings, Bell, Camera, AlertTriangle,
@@ -53,6 +54,9 @@ export default function WardSimulation() {
   // Call bells
   const [callBells, setCallBells] = useState({});
   const [showCallBellPanel, setShowCallBellPanel] = useState(false);
+
+  // Clinical narration during simulation
+  const narration = useWardNarration();
 
   // Confirmation dialog
   const [confirmAction, setConfirmAction] = useState(null);
@@ -317,6 +321,9 @@ export default function WardSimulation() {
     setDecisions([]);
     setShowPatientPanel(false);
     setShowScenarioList(false);
+    // Narrate the opening clinical prompt
+    const prompt = `${scenario.patient_name} is in ${scenario.bed_number}. ${scenario.patient_condition}. What is your first action?`;
+    setTimeout(() => narration.speak(prompt), 400);
   };
 
   const getScenarioForBed = (bed) => scenarios.find(s => s.bed_number?.includes(bed) || bed?.includes(s.bed_number));
@@ -376,10 +383,11 @@ export default function WardSimulation() {
   const handleDecision = (option, stepIdx) => {
     setDecisions([...decisions, { step: stepIdx, choice: option.label, correct: option.correct, feedback: option.feedback }]);
     if (option.correct && vitals) setVitals({ ...vitals, rr: Math.max(12, vitals.rr - 2), spo2: Math.min(98, vitals.spo2 + 3) });
+    narration.speak(option.feedback);
     if (stepIdx + 1 >= decisionSteps.length) setTimeout(() => setShowDebrief(true), 1500);
   };
   const score = decisions.filter(d => d.correct).length;
-  const exitScenario = () => { setActiveScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false); };
+  const exitScenario = () => { setActiveScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false); narration.stop(); };
 
   // Persist the simulation result when the debrief is reached — triggers the tutor email and feeds the performance dashboard
   const debriefSavedRef = useRef(false);
@@ -387,6 +395,7 @@ export default function WardSimulation() {
     if (showDebrief && activeScenario && !debriefSavedRef.current) {
       debriefSavedRef.current = true;
       const maxScore = decisionSteps.length;
+      const pct = Math.round((score / maxScore) * 100);
       base44.entities.SimulationResult.create({
         student_id: user?.id,
         student_name: user?.full_name,
@@ -400,6 +409,8 @@ export default function WardSimulation() {
         sk_codes: activeScenario.sk_codes || [],
         performance_outcomes: activeScenario.performance_outcomes || [],
       }).catch(() => {});
+      // Narrate the debrief headline
+      setTimeout(() => narration.speak(`Scenario complete. You scored ${pct} percent. ${activeScenario.debrief_rationale}`), 300);
     }
     if (!showDebrief) debriefSavedRef.current = false;
   }, [showDebrief, activeScenario, decisions, score, decisionSteps.length]);
