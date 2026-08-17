@@ -11,30 +11,31 @@
     --tl-purple: 258 48% 57%;      /* #7B61C4 */
     --tl-navy: 222 47% 11%;        /* #0D1526 */
 
-    --background: 220 20% 97%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 16 87% 66%;
+    /* Dark T Level theme — black/navy bg, white writing, red primary */
+    --background: 222 47% 8%;          /* near-black navy #0A1120 */
+    --foreground: 0 0% 100%;           /* white */
+    --card: 222 40% 13%;               /* dark surface, lighter than bg */
+    --card-foreground: 0 0% 100%;      /* white */
+    --popover: 222 40% 13%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 13 93% 53%;            /* T Level red #F03D1C */
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 8% 46%;
-    --accent: 16 87% 66%;
+    --secondary: 222 30% 18%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 222 30% 16%;
+    --muted-foreground: 220 12% 70%;  /* light grey — readable on dark */
+    --accent: 16 87% 66%;             /* T Level salmon — supplement */
     --accent-foreground: 0 0% 100%;
-    --destructive: 13 93% 53%;
+    --destructive: 13 93% 53%;        /* T Level red */
     --destructive-foreground: 0 0% 98%;
-    --border: 220 14% 88%;
-    --input: 220 14% 88%;
-    --ring: 16 87% 66%;
-    --clinical-navy: 222 47% 11%;
-    --clinical-teal: 16 87% 66%;
-    --clinical-amber: 38 92% 50%;
-    --clinical-red: 13 93% 53%;
-    --clinical-green: 142 71% 45%;
+    --border: 220 20% 24%;            /* visible border on dark */
+    --input: 220 20% 22%;
+    --ring: 13 93% 53%;               /* red focus ring */
+    --clinical-navy: 222 47% 8%;
+    --clinical-teal: 13 93% 53%;       /* red — primary accent everywhere */
+    --clinical-amber: 38 92% 50%;      /* supplement — warnings */
+    --clinical-red: 13 93% 53%;        /* T Level red */
+    --clinical-green: 142 71% 45%;    /* supplement — low-risk/success */
     --radius: 0.5rem;
     --font-heading: 'Saira', Arial, sans-serif;
     --font-body: 'Inter', Arial, sans-serif;
