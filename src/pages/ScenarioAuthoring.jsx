@@ -44,13 +44,13 @@ export default function ScenarioAuthoring() {
   // Access denied screen
   if (!authorized) {
     return (
-      <div className="min-h-screen bg-clinical-navy flex items-center justify-center px-4">
-        <div className="max-w-sm w-full rounded-2xl bg-white border border-clinical-red/30 shadow-xl p-6 text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="max-w-sm w-full rounded-2xl bg-card border border-clinical-red/30 shadow-xl p-6 text-center">
           <div className="w-14 h-14 rounded-full bg-clinical-red/10 flex items-center justify-center mx-auto mb-3">
             <Lock className="w-7 h-7 text-clinical-red" />
           </div>
-          <h1 className="font-heading font-bold text-lg text-slate-800 mb-1">Access Restricted</h1>
-          <p className="text-sm text-slate-500 mb-4">
+          <h1 className="font-heading font-bold text-lg text-foreground mb-1">Access Restricted</h1>
+          <p className="text-sm text-muted-foreground mb-4">
             Scenario authoring is only available to tutors, admins, and super admins.
           </p>
           <button onClick={() => navigate("/")} className="w-full py-2.5 rounded-lg bg-clinical-teal text-white text-sm font-heading font-semibold hover:opacity-90">
@@ -90,15 +90,15 @@ export default function ScenarioAuthoring() {
   };
 
   return (
-    <div className="min-h-screen bg-clinical-navy pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+      <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border shadow-sm">
         <div className="max-w-4xl mx-auto px-3 py-2.5 sm:px-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 shrink-0">←</button>
+              <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground shrink-0">←</button>
               <Shield className="w-5 h-5 text-clinical-teal shrink-0" />
-              <h1 className="font-heading font-bold text-sm sm:text-base text-slate-800 truncate">Scenario Authoring Tool</h1>
+              <h1 className="font-heading font-bold text-sm sm:text-base text-foreground truncate">Scenario Authoring Tool</h1>
               <span className="hidden sm:inline-flex items-center gap-1 rounded-md bg-clinical-teal/10 px-2 py-0.5 text-[10px] font-heading font-semibold text-clinical-teal">
                 <Lock className="w-2.5 h-2.5" /> {user?.role}
               </span>
@@ -116,16 +116,16 @@ export default function ScenarioAuthoring() {
         <section>
           <div className="flex items-center gap-1.5 mb-2">
             <Stethoscope className="w-4 h-4 text-clinical-teal" />
-            <h2 className="text-sm font-heading font-bold text-slate-800">Authored Scenarios</h2>
-            <span className="text-[10px] text-slate-400">({dbScenarios.length})</span>
+            <h2 className="text-sm font-heading font-bold text-foreground">Authored Scenarios</h2>
+            <span className="text-[10px] text-muted-foreground">({dbScenarios.length})</span>
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-10">
               <div className="w-6 h-6 border-2 border-clinical-teal/30 border-t-clinical-teal rounded-full animate-spin" />
             </div>
           ) : dbScenarios.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white/50 p-6 text-center">
-              <p className="text-xs text-slate-500">No authored scenarios yet. Clone a prebuilt one or create a new one to get started.</p>
+            <div className="rounded-xl border border-dashed border-border bg-muted p-6 text-center">
+              <p className="text-xs text-muted-foreground">No authored scenarios yet. Clone a prebuilt one or create a new one to get started.</p>
             </div>
           ) : (
             <div className="space-y-2.5">
@@ -139,9 +139,9 @@ export default function ScenarioAuthoring() {
         {/* Prebuilt scenarios (clone source) */}
         <section>
           <div className="flex items-center gap-1.5 mb-2">
-            <Copy className="w-4 h-4 text-slate-500" />
-            <h2 className="text-sm font-heading font-bold text-slate-800">Prebuilt Scenarios</h2>
-            <span className="text-[10px] text-slate-400">Clone to customise</span>
+            <Copy className="w-4 h-4 text-muted-foreground" />
+            <h2 className="text-sm font-heading font-bold text-foreground">Prebuilt Scenarios</h2>
+            <span className="text-[10px] text-muted-foreground">Clone to customise</span>
           </div>
           <div className="space-y-2.5">
             {PREBUILT_SCENARIOS.map((sc, idx) => (
@@ -163,16 +163,16 @@ export default function ScenarioAuthoring() {
       {/* Delete confirmation */}
       {confirmDelete && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade-in" onClick={() => setConfirmDelete(null)}>
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-[90%]" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-xl shadow-2xl p-6 max-w-sm w-[90%]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-3">
               <AlertTriangle className="w-6 h-6 text-clinical-amber" />
-              <h2 className="font-heading font-bold text-slate-800">Delete Scenario?</h2>
+              <h2 className="font-heading font-bold text-foreground">Delete Scenario?</h2>
             </div>
-            <p className="text-sm text-slate-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Are you sure you want to delete "{confirmDelete.name}"? This action cannot be undone.
             </p>
             <div className="flex gap-2">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-heading font-semibold hover:bg-slate-50">Cancel</button>
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-2.5 rounded-lg border border-border text-slate-700 text-sm font-heading font-semibold hover:bg-muted">Cancel</button>
               <button onClick={handleDelete} className="flex-1 py-2.5 rounded-lg bg-clinical-red text-white text-sm font-heading font-semibold hover:opacity-90">Delete</button>
             </div>
           </div>
@@ -184,12 +184,12 @@ export default function ScenarioAuthoring() {
 
 function ScenarioCard({ scenario, prebuilt, onEdit, onClone, onDelete }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-3.5 shadow-sm">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {prebuilt ? (
-              <span className="text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 bg-slate-100 text-slate-500">Prebuilt</span>
+              <span className="text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 bg-muted text-muted-foreground">Prebuilt</span>
             ) : (
               <span className="text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 bg-clinical-teal/15 text-clinical-teal">Custom</span>
             )}
@@ -199,30 +199,30 @@ function ScenarioCard({ scenario, prebuilt, onEdit, onClone, onDelete }) {
               "bg-clinical-red/15 text-clinical-red"}`}>
               {scenario.difficulty}
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-400"><Clock className="w-3 h-3" /> {scenario.estimated_duration} min</span>
+            <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock className="w-3 h-3" /> {scenario.estimated_duration} min</span>
           </div>
-          <h3 className="font-heading font-bold text-sm text-slate-800">{scenario.name}</h3>
-          <p className="text-xs text-slate-500 mt-0.5 leading-snug">{scenario.description}</p>
+          <h3 className="font-heading font-bold text-sm text-foreground">{scenario.name}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{scenario.description}</p>
         </div>
         <NEWS2Badge score={scenario.initial_news2} size="sm" />
       </div>
-      <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
+      <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-2">
         <span className="flex items-center gap-1"><User className="w-3 h-3" /> {scenario.patient_name}</span>
         <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {scenario.bed_number}</span>
       </div>
       <div className="flex items-center justify-between">
         <SKBadgeGroup skCodes={scenario.sk_codes} poCodes={scenario.performance_outcomes} />
         <div className="flex items-center gap-1">
-          <button onClick={onClone} className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2 py-1 text-[10px] font-heading font-semibold text-slate-600 hover:bg-slate-50">
+          <button onClick={onClone} className="flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] font-heading font-semibold text-muted-foreground hover:bg-muted">
             <Copy className="w-3 h-3" /> Clone
           </button>
           {!prebuilt && onEdit && (
-            <button onClick={onEdit} className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2 py-1 text-[10px] font-heading font-semibold text-slate-600 hover:bg-slate-50">
+            <button onClick={onEdit} className="flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] font-heading font-semibold text-muted-foreground hover:bg-muted">
               <Pencil className="w-3 h-3" /> Edit
             </button>
           )}
           {!prebuilt && onDelete && (
-            <button onClick={onDelete} className="flex items-center gap-1 rounded-md border border-clinical-red/30 bg-white px-2 py-1 text-[10px] font-heading font-semibold text-clinical-red hover:bg-clinical-red/5">
+            <button onClick={onDelete} className="flex items-center gap-1 rounded-md border border-clinical-red/30 bg-card px-2 py-1 text-[10px] font-heading font-semibold text-clinical-red hover:bg-clinical-red/5">
               <Trash2 className="w-3 h-3" />
             </button>
           )}

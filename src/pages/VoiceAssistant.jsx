@@ -10,7 +10,7 @@ import AudioVisualizer from "@/components/voice/AudioVisualizer";
 import VoiceSettings from "@/components/voice/VoiceSettings";
 
 const STATUS = {
-  idle: { label: "Idle", color: "text-slate-400", dot: "bg-slate-400" },
+  idle: { label: "Idle", color: "text-muted-foreground", dot: "bg-muted-foreground" },
   listening: { label: "Listening", color: "text-clinical-teal", dot: "bg-clinical-teal animate-pulse" },
   thinking: { label: "Thinking", color: "text-clinical-amber", dot: "bg-clinical-amber animate-pulse" },
   speaking: { label: "Speaking", color: "text-clinical-green", dot: "bg-clinical-green animate-pulse" },
@@ -100,47 +100,47 @@ export default function VoiceAssistant() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 pb-28">
+    <div className="min-h-screen bg-background pb-28">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <div className="sticky top-0 z-20 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-slate-100" aria-label="Back">
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
+          <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-muted" aria-label="Back">
+            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
           <div className="w-10 h-10 rounded-full bg-clinical-teal/15 flex items-center justify-center shrink-0">
             <Bot className="w-5 h-5 text-clinical-teal" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-heading font-bold text-slate-800">AI Voice Assistant</h1>
+            <h1 className="text-sm font-heading font-bold text-foreground">AI Voice Assistant</h1>
             <div className="flex items-center gap-1.5 text-xs">
               <span className={`w-2 h-2 rounded-full ${STATUS[status].dot}`} />
               <span className={STATUS[status].color}>{STATUS[status].label}</span>
             </div>
           </div>
-          <button onClick={toggleMute} className="p-2 rounded-lg hover:bg-slate-100" title="Mute" aria-label="Mute">
-            {synth.prefs.muted ? <VolumeX className="w-5 h-5 text-clinical-red" /> : <Volume2 className="w-5 h-5 text-slate-600" />}
+          <button onClick={toggleMute} className="p-2 rounded-lg hover:bg-muted" title="Mute" aria-label="Mute">
+            {synth.prefs.muted ? <VolumeX className="w-5 h-5 text-clinical-red" /> : <Volume2 className="w-5 h-5 text-muted-foreground" />}
           </button>
-          <button onClick={() => setSettingsOpen(true)} className="p-2 rounded-lg hover:bg-slate-100" title="Voice settings" aria-label="Voice settings">
-            <Settings2 className="w-5 h-5 text-slate-600" />
+          <button onClick={() => setSettingsOpen(true)} className="p-2 rounded-lg hover:bg-muted" title="Voice settings" aria-label="Voice settings">
+            <Settings2 className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4">
         {/* Visualizer panel */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-4 text-center">
+        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 mb-4 text-center">
           <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-clinical-teal/20 to-clinical-teal/5 flex items-center justify-center mb-3">
             <Sparkles className="w-9 h-9 text-clinical-teal" />
           </div>
           <AudioVisualizer state={status} />
-          <p className="text-xs text-slate-500 mt-2">{STATUS[status].label}</p>
+          <p className="text-xs text-muted-foreground mt-2">{STATUS[status].label}</p>
         </div>
 
         {/* Messages */}
         <div className="space-y-3">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "bg-clinical-teal text-white rounded-br-sm" : "bg-white border border-slate-200 text-slate-800 rounded-bl-sm"}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "bg-clinical-teal text-white rounded-br-sm" : "bg-card border border-border text-foreground rounded-bl-sm"}`}>
                 {m.role === "assistant"
                   ? <ReactMarkdown className="prose prose-sm max-w-none [&_p]:my-0">{m.content}</ReactMarkdown>
                   : <p>{m.content}</p>}
@@ -152,10 +152,10 @@ export default function VoiceAssistant() {
       </div>
 
       {/* Input bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-md border-t border-slate-200">
+      <div className="fixed bottom-0 left-0 right-0 z-20 bg-card/90 backdrop-blur-md border-t border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2">
           <button onClick={toggleMic}
-            className={`p-2.5 rounded-xl transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-slate-100 text-slate-500 hover:text-clinical-teal"}`}
+            className={`p-2.5 rounded-xl transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-muted text-muted-foreground hover:text-clinical-teal"}`}
             aria-label="Microphone">
             <Mic className="w-5 h-5" />
           </button>
@@ -164,10 +164,10 @@ export default function VoiceAssistant() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Type or speak…"
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-clinical-teal/50"
+            className="flex-1 bg-muted border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-clinical-teal/50"
           />
           <button onClick={() => synth.stop()} disabled={status !== "speaking"}
-            className="p-2.5 rounded-xl bg-slate-100 text-slate-500 disabled:opacity-30" aria-label="Stop speaking">
+            className="p-2.5 rounded-xl bg-muted text-muted-foreground disabled:opacity-30" aria-label="Stop speaking">
             <Square className="w-5 h-5" />
           </button>
           <button onClick={() => handleSend()} disabled={!input.trim()}

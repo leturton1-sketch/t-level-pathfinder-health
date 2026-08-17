@@ -69,11 +69,11 @@ export default function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-clinical-navy px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
       {/* Profile header */}
       <div className="flex items-center gap-4 mb-6">
         <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${
-          user?.role === "super_admin" ? "bg-purple-500/20 text-purple-300" :
+          user?.role === "super_admin" ? "bg-purple-500/20 text-purple-600" :
           user?.role === "admin" ? "bg-clinical-teal/20 text-clinical-teal" :
           user?.role === "tutor" ? "bg-clinical-green/20 text-clinical-green" :
           "bg-clinical-teal/20 text-clinical-teal"
@@ -95,7 +95,7 @@ export default function Profile() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3 mb-6">
         {stats.map((stat, idx) => (
-          <div key={idx} className="rounded-xl border border-border bg-card/60 p-4 animate-slide-up" style={{ animationDelay: `${idx * 50}ms` }}>
+          <div key={idx} className="rounded-xl border border-border bg-card p-4 animate-slide-up" style={{ animationDelay: `${idx * 50}ms` }}>
             <div className="flex items-center justify-between mb-2"><stat.icon className={`w-5 h-5 ${stat.color}`} /></div>
             <div className="text-2xl font-bold text-foreground">{stat.value}</div>
             <div className="text-xs text-muted-foreground">{stat.label}</div>
@@ -104,7 +104,7 @@ export default function Profile() {
       </div>
 
       {/* Competency matrix */}
-      <div className="rounded-xl border border-border bg-card/60 p-4 mb-4">
+      <div className="rounded-xl border border-border bg-card p-4 mb-4">
         <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-clinical-teal" />Competency Matrix</h2>
         <p className="text-xs text-muted-foreground mb-3">Skill codes mapped to T Level Performance Outcomes</p>
         <div className="space-y-1.5">
@@ -122,7 +122,7 @@ export default function Profile() {
       </div>
 
       {/* AI Assistant preferences */}
-      <div className="rounded-xl border border-border bg-card/60 p-4 mb-4">
+      <div className="rounded-xl border border-border bg-card p-4 mb-4">
         <h2 className="text-sm font-bold text-foreground mb-3">AI Clinical Assistant Preferences</h2>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -141,7 +141,7 @@ export default function Profile() {
 
       {/* ElevenLabs Voice Settings (admin/tutor only) */}
       {canEdit && (
-        <div className="rounded-xl border border-clinical-teal/30 bg-card/60 p-4 mb-4">
+        <div className="rounded-xl border border-clinical-teal/30 bg-card p-4 mb-4">
           <h2 className="text-sm font-bold text-foreground mb-1 flex items-center gap-2">
             <Volume2 className="w-4 h-4 text-clinical-teal" />
             ElevenLabs Voice Settings
@@ -152,13 +152,13 @@ export default function Profile() {
               <label className="text-xs text-muted-foreground mb-1 block">ElevenLabs API Key</label>
               <input type="password" value={elevenLabsKey} onChange={(e) => setElevenLabsKey(e.target.value)}
                 placeholder="Enter your ElevenLabs API key"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-clinical-teal/50" />
+                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Voice ID (Yorkshire Male)</label>
               <input type="text" value={elevenLabsVoiceId} onChange={(e) => setElevenLabsVoiceId(e.target.value)}
                 placeholder="e.g. TxGEJRHbtfZRdBPUuh8N"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-clinical-teal/50" />
+                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal" />
               <p className="text-[10px] text-muted-foreground mt-1">Find Yorkshire accent voices at elevenlabs.io/app/voice-library — search "Yorkshire" or "South Yorkshire".</p>
             </div>
             <div>
@@ -175,7 +175,7 @@ export default function Profile() {
       )}
 
       {/* Recent activity */}
-      <div className="rounded-xl border border-border bg-card/60 p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-clinical-teal" />Recent Activity</h2>
         <div className="space-y-2">
           {results.slice(0, 3).map((r, i) => (

@@ -67,14 +67,14 @@ export default function Performance() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-clinical-navy">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="w-8 h-8 border-2 border-clinical-teal/30 border-t-clinical-teal rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-clinical-navy px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
@@ -91,7 +91,7 @@ export default function Performance() {
       {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {stats.map((stat, idx) => (
-          <div key={idx} className="rounded-xl border border-border bg-card/60 p-3.5 animate-slide-up" style={{ animationDelay: `${idx * 50}ms` }}>
+          <div key={idx} className="rounded-xl border border-border bg-card p-3.5 animate-slide-up" style={{ animationDelay: `${idx * 50}ms` }}>
             <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
             <div className="text-xl font-bold text-foreground">{stat.value}</div>
             <div className="text-[10px] text-muted-foreground">{stat.label}</div>
@@ -100,14 +100,14 @@ export default function Performance() {
       </div>
 
       {/* Competency radar */}
-      <div className="rounded-xl border border-border bg-card/60 p-4 mb-4">
+      <div className="rounded-xl border border-border bg-card p-4 mb-4">
         <h2 className="text-sm font-bold text-foreground mb-1">Competency Overview</h2>
         <p className="text-xs text-muted-foreground mb-2">Progress across all 9 spec areas (knowledge check % or completion)</p>
         <CompetencyRadar data={areaData} />
       </div>
 
       {/* Knowledge check chart */}
-      <div className="rounded-xl border border-border bg-card/60 p-4 mb-4">
+      <div className="rounded-xl border border-border bg-card p-4 mb-4">
         <h2 className="text-sm font-bold text-foreground mb-1">Knowledge Check Scores</h2>
         <p className="text-xs text-muted-foreground mb-2">Per-area quiz results (% correct)</p>
         <KnowledgeCheckChart data={areaData.filter((a) => a.quiz)} />
@@ -127,14 +127,14 @@ export default function Performance() {
       </div>
 
       {/* SK / PO coverage */}
-      <div className="rounded-xl border border-border bg-card/60 p-4 mb-4">
+      <div className="rounded-xl border border-border bg-card p-4 mb-4">
         <h2 className="text-sm font-bold text-foreground mb-1">Competency Coverage</h2>
         <p className="text-xs text-muted-foreground mb-3">Skills & performance outcomes evidenced through simulations, care plans and theory</p>
         <SKCoverageMatrix coveredSK={coveredSK} coveredPO={coveredPO} />
       </div>
 
       {/* Activity summary */}
-      <div className="rounded-xl border border-border bg-card/60 p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-clinical-teal" />Recent Activity</h2>
         <div className="space-y-2">
           {results.slice(0, 3).map((r, i) => (

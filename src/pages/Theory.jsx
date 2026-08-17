@@ -45,14 +45,14 @@ export default function Theory() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-clinical-navy">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="w-8 h-8 border-2 border-clinical-teal/30 border-t-clinical-teal rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-clinical-navy px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-clinical-teal" />
@@ -64,11 +64,11 @@ export default function Theory() {
       </div>
 
       {/* Spec areas overview */}
-      <div className="mb-6 rounded-xl border border-border bg-card/40 p-3">
+      <div className="mb-6 rounded-xl border border-border bg-card p-3">
         <p className="text-xs font-semibold text-muted-foreground mb-2">CURRICULUM AREAS</p>
         <div className="flex flex-wrap gap-1.5">
           {SPEC_AREAS.map((area) => (
-            <span key={area.code} className="text-[10px] rounded-md bg-muted/60 border border-border px-2 py-0.5 text-muted-foreground">
+            <span key={area.code} className="text-[10px] rounded-md bg-muted border border-border px-2 py-0.5 text-muted-foreground">
               {area.code}
             </span>
           ))}
@@ -84,7 +84,7 @@ export default function Theory() {
             <button
               key={module.id}
               onClick={() => navigate(`/theory/${module.id}`, { state: { module } })}
-              className="group w-full text-left rounded-xl border border-border bg-card/60 hover:bg-card/80 hover:border-clinical-teal/40 transition-all p-4 animate-slide-up"
+              className="group w-full text-left rounded-xl border border-border bg-card hover:bg-card hover:border-clinical-teal/40 transition-all p-4 animate-slide-up"
               style={{ animationDelay: `${idx * 50}ms` }}
             >
               <div className="flex items-start justify-between gap-3">

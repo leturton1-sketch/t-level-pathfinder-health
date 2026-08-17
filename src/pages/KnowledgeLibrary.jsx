@@ -58,8 +58,8 @@ export default function KnowledgeLibrary() {
 
   if (selectedArticle) {
     return (
-      <div className="min-h-screen bg-clinical-navy">
-        <div className="sticky top-0 z-20 bg-clinical-navy/90 backdrop-blur-md border-b border-border">
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border">
           <div className="flex items-center gap-3 px-4 py-3 max-w-3xl mx-auto">
             <button onClick={() => setSelectedArticle(null)} className="p-1.5 rounded-lg hover:bg-muted">
               <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -69,7 +69,7 @@ export default function KnowledgeLibrary() {
         </div>
         <div className="px-4 pt-4 pb-24 max-w-3xl mx-auto">
           <div className="mb-3">
-            <span className="text-[10px] font-semibold uppercase text-muted-foreground bg-muted/40 rounded px-2 py-0.5">
+            <span className="text-[10px] font-semibold uppercase text-muted-foreground bg-muted rounded px-2 py-0.5">
               {selectedArticle.source}
             </span>
           </div>
@@ -91,7 +91,7 @@ export default function KnowledgeLibrary() {
             </ReactMarkdown>
           </div>
           {selectedArticle.references && selectedArticle.references.length > 0 && (
-            <div className="rounded-xl border border-border bg-card/40 p-3">
+            <div className="rounded-xl border border-border bg-card p-3">
               <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1">
                 <BookMarked className="w-3 h-3" /> REFERENCES
               </p>
@@ -110,7 +110,7 @@ export default function KnowledgeLibrary() {
   }
 
   return (
-    <div className="min-h-screen bg-clinical-navy px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
       <div className="mb-4">
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Library className="w-5 h-5 text-clinical-teal" />
@@ -129,7 +129,7 @@ export default function KnowledgeLibrary() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search articles, procedures, conditions…"
-          className="w-full bg-muted/40 border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal"
+          className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal"
         />
       </div>
 
@@ -142,7 +142,7 @@ export default function KnowledgeLibrary() {
             className={`text-xs rounded-lg px-3 py-1.5 whitespace-nowrap font-semibold transition-all ${
               category === cat.value
                 ? "bg-clinical-teal text-white"
-                : "bg-muted/40 text-muted-foreground border border-border"
+                : "bg-muted text-muted-foreground border border-border"
             }`}
           >
             {cat.label}
@@ -161,7 +161,7 @@ export default function KnowledgeLibrary() {
             <button
               key={idx}
               onClick={() => setSelectedArticle(article)}
-              className="group w-full text-left rounded-xl border border-border bg-card/60 hover:bg-card/80 hover:border-clinical-teal/40 transition-all p-3 animate-slide-up"
+              className="group w-full text-left rounded-xl border border-border bg-card hover:bg-card hover:border-clinical-teal/40 transition-all p-3 animate-slide-up"
               style={{ animationDelay: `${idx * 30}ms` }}
             >
               <div className="flex items-start justify-between gap-2">

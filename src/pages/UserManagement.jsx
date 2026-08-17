@@ -13,11 +13,11 @@ const ROLE_LABELS = {
 };
 
 const ROLE_COLORS = {
-  super_admin: "bg-purple-500/15 text-purple-300 border-purple-500/30",
+  super_admin: "bg-purple-500/15 text-purple-600 border-purple-500/30",
   admin: "bg-clinical-teal/15 text-clinical-teal border-clinical-teal/30",
   tutor: "bg-clinical-green/15 text-clinical-green border-clinical-green/30",
-  student: "bg-muted/40 text-muted-foreground border-border",
-  guest: "bg-muted/20 text-muted-foreground border-border",
+  student: "bg-muted text-muted-foreground border-border",
+  guest: "bg-muted text-muted-foreground border-border",
 };
 
 export default function UserManagement() {
@@ -117,7 +117,7 @@ export default function UserManagement() {
   );
 
   return (
-    <div className="min-h-screen bg-clinical-navy px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
       <div className="mb-4">
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Users className="w-5 h-5 text-clinical-teal" />
@@ -137,7 +137,7 @@ export default function UserManagement() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search users…"
-            className="w-full bg-muted/40 border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal"
+            className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal"
           />
         </div>
         <button
@@ -158,20 +158,20 @@ export default function UserManagement() {
           {filtered.map((u) => (
             <div
               key={u.id}
-              className="flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3 animate-fade-in"
+              className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 animate-fade-in"
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                u.role === "super_admin" ? "bg-purple-500/20 text-purple-300" :
+                u.role === "super_admin" ? "bg-purple-500/20 text-purple-600" :
                 u.role === "admin" ? "bg-clinical-teal/20 text-clinical-teal" :
                 u.role === "tutor" ? "bg-clinical-green/20 text-clinical-green" :
-                "bg-muted/40 text-muted-foreground"
+                "bg-muted text-muted-foreground"
               }`}>
                 {u.full_name?.charAt(0)?.toUpperCase() || "U"}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm text-foreground truncate">{u.full_name}</span>
-                  {u.is_protected && <Shield className="w-3.5 h-3.5 text-purple-300 shrink-0" />}
+                  {u.is_protected && <Shield className="w-3.5 h-3.5 text-purple-600 shrink-0" />}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span>@{u.username}</span>
@@ -226,7 +226,7 @@ export default function UserManagement() {
                   value={newUser.full_name}
                   onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
                   placeholder="e.g., Jane Smith"
-                  className="w-full bg-muted/50 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
                 />
               </div>
               <div>
@@ -236,7 +236,7 @@ export default function UserManagement() {
                   value={newUser.username}
                   onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
                   placeholder="e.g., jsmith"
-                  className="w-full bg-muted/50 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
                 />
               </div>
               <div>
@@ -244,7 +244,7 @@ export default function UserManagement() {
                 <select
                   value={newUser.role}
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                  className="w-full bg-muted/50 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
                 >
                   <option value="student">Student</option>
                   {isAdmin() && <option value="tutor">Lecturer</option>}
@@ -258,10 +258,10 @@ export default function UserManagement() {
                   value={newUser.cohort}
                   onChange={(e) => setNewUser({ ...newUser, cohort: e.target.value })}
                   placeholder="e.g., 2026 Cohort A"
-                  className="w-full bg-muted/50 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
                 />
               </div>
-              <div className="rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
+              <div className="rounded-lg bg-muted p-2 text-xs text-muted-foreground">
                 PIN will be set to <span className="font-bold text-foreground">0000</span> — user will be prompted to change on first login.
               </div>
               <button
