@@ -1,25 +1,35 @@
-export default function TLevelLogo({ size = "md", dark = false }) {
-  const sizes = {
-    sm: { icon: "w-4 h-4", text: "text-sm", badge: "text-[7px] px-1.5 py-0.5" },
-    md: { icon: "w-5 h-5", text: "text-lg", badge: "text-[8px] px-2 py-0.5" },
-    lg: { icon: "w-7 h-7", text: "text-2xl", badge: "text-[9px] px-2.5 py-1" },
-  };
-  const s = sizes[size] || sizes.md;
-  const textColor = dark ? "text-white" : "text-slate-800";
+/**
+ * TLevelLogo — uses official T Level uploaded assets.
+ * variant: "salmon" (default), "red", "white", "strapline"
+ * dark: true forces white version on dark backgrounds
+ */
+const LOGOS = {
+  white: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/4852697b2_TLevel-Logo-White.png",
+  whiteStrapline: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/e326bdc6f_TLevel-Logo-WhiteWithStrapline.png",
+  salmon: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8fa0bc1b2_TLevel-Logo-SalmonWithStrapline.png",
+  salmonNoStrap: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/2b3a2d224_TLevel-Logo-Strapline.png",
+  red: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/2919fffdc_TLevel-Logo-RedWithStrapline.png",
+  redNoStrap: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/9a14e3242_TLevel-Logo-Red.png",
+  black: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8acde0e8c_TLevel-Logo-BlackWithStrapline.png",
+};
 
+const SIZE_MAP = {
+  xs: "h-6",
+  sm: "h-8",
+  md: "h-10",
+  lg: "h-14",
+  xl: "h-20",
+};
+
+export default function TLevelLogo({ size = "md", variant = "salmon", dark = false, className = "" }) {
+  const src = dark ? LOGOS.white : LOGOS[variant] || LOGOS.salmon;
+  const h = SIZE_MAP[size] || SIZE_MAP.md;
   return (
-    <div className="flex flex-col items-start gap-1">
-      <div className="flex items-center gap-1.5">
-        <svg viewBox="0 0 24 24" className={`${s.icon} fill-red-600`} xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2 L7 10 L10.5 10 L10.5 22 L13.5 22 L13.5 10 L17 10 Z" />
-        </svg>
-        <span className={`font-display italic font-bold ${s.text} ${textColor} tracking-wide leading-none`}>
-          T-LEVEL ACADEMY
-        </span>
-      </div>
-      <span className={`bg-red-600 text-white ${s.badge} font-bold rounded-sm tracking-wider uppercase leading-none`}>
-        Learn Today, Lead Tomorrow
-      </span>
-    </div>
+    <img
+      src={src}
+      alt="T Levels"
+      className={`${h} w-auto object-contain ${className}`}
+      draggable={false}
+    />
   );
 }

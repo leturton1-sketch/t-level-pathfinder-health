@@ -5,29 +5,35 @@
 
 @layer base {
   :root {
-    --background: 210 14% 97%;
-    --foreground: 210 10% 20%;
+    /* T Level brand palette */
+    --tl-salmon: 16 87% 66%;       /* #F4845F */
+    --tl-red: 13 93% 53%;          /* #F03D1C */
+    --tl-purple: 258 48% 57%;      /* #7B61C4 */
+    --tl-navy: 222 47% 11%;        /* #0D1526 */
+
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 210 10% 20%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 210 10% 20%;
-    --primary: 73 100% 36%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 16 87% 66%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 14% 90%;
-    --secondary-foreground: 210 10% 20%;
-    --muted: 210 14% 93%;
-    --muted-foreground: 210 8% 46%;
-    --accent: 73 100% 36%;
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 8% 46%;
+    --accent: 16 87% 66%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    --destructive: 13 93% 53%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 14% 86%;
-    --input: 210 14% 86%;
-    --ring: 73 100% 36%;
-    --clinical-navy: 210 14% 95%;
-    --clinical-teal: 73 100% 36%;
+    --border: 220 14% 88%;
+    --input: 220 14% 88%;
+    --ring: 16 87% 66%;
+    --clinical-navy: 222 47% 11%;
+    --clinical-teal: 16 87% 66%;
     --clinical-amber: 38 92% 50%;
-    --clinical-red: 0 72% 51%;
+    --clinical-red: 13 93% 53%;
     --clinical-green: 142 71% 45%;
     --radius: 0.5rem;
     --font-heading: 'Saira', Arial, sans-serif;
