@@ -430,11 +430,11 @@ export default function WardSimulation() {
           <p className="text-sm text-muted-foreground">{activeScenario.name}</p>
           <div className="text-3xl font-heading font-bold text-clinical-teal mt-2">{pct}%</div>
         </div>
-        <div className="rounded-xl border border-white/10 bg-card p-4 mb-4 shadow-sm">
+        <div className="rounded-xl border border-black/5 bg-card p-4 mb-4 shadow-sm">
           <h2 className="text-sm font-heading font-bold text-foreground mb-2">Clinical Debrief</h2>
           <p className="text-sm text-muted-foreground">{activeScenario.debrief_rationale}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-card p-4 mb-4 shadow-sm">
+        <div className="rounded-xl border border-black/5 bg-card p-4 mb-4 shadow-sm">
           <h2 className="text-sm font-heading font-bold text-foreground mb-3">Decision Pathway</h2>
           <div className="space-y-2">
             {decisions.map((d, i) => (
@@ -473,7 +473,7 @@ export default function WardSimulation() {
         </div>
       </div>
       {/* Top navigation bar */}
-      <div className="z-20 bg-card border-b border-white/10 shadow-sm">
+      <div className="z-20 bg-card border-b border-black/5 shadow-sm">
         <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 gap-2">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
@@ -498,29 +498,29 @@ export default function WardSimulation() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={resetCamera} className="flex items-center gap-1.5 rounded-lg bg-card border border-white/10 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40 transition-colors" aria-label="Reset camera">
+            <button onClick={resetCamera} className="flex items-center gap-1.5 rounded-lg bg-card border border-black/5 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40 transition-colors" aria-label="Reset camera">
               <Camera className="w-3.5 h-3.5" /><span className="hidden lg:inline">Reset View</span>
             </button>
             {canEdit && (
               <button onClick={handleEditToggle}
-                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${editMode ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-white/10 text-muted-foreground hover:bg-secondary/40"}`}>
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${editMode ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-black/5 text-muted-foreground hover:bg-secondary/40"}`}>
                 <Pencil className="w-3.5 h-3.5" /><span className="hidden lg:inline">{editMode ? "Save & Exit" : "Edit Ward"}</span>
               </button>
             )}
             {!editMode && (
               <>
-                <button onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-white/10 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
+                <button onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-black/5 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <LayoutGrid className="w-3.5 h-3.5" /><span className="hidden lg:inline">Dashboard</span>
                 </button>
-                <button onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-card border border-white/10 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
+                <button onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-card border border-black/5 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <MessageSquare className="w-3.5 h-3.5" /><span className="hidden lg:inline">AI Tutor</span>
                 </button>
                 <button onClick={() => setShowScenarioList(true)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-white/10 text-muted-foreground hover:bg-secondary/40"}`}>
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-black/5 text-muted-foreground hover:bg-secondary/40"}`}>
                   <Settings className="w-3.5 h-3.5" /><span className="hidden lg:inline">Scenarios</span>
                 </button>
                 <button onClick={() => setShowCallBellPanel(true)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showCallBellPanel ? "bg-clinical-amber text-white border-clinical-amber" : "bg-card border-white/10 text-muted-foreground hover:bg-secondary/40"}`}>
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showCallBellPanel ? "bg-clinical-amber text-white border-clinical-amber" : "bg-card border-black/5 text-muted-foreground hover:bg-secondary/40"}`}>
                   <Bell className="w-3.5 h-3.5" />
                   {Object.values(callBells).some(Boolean) && <span className="w-1.5 h-1.5 rounded-full bg-clinical-red animate-pulse" />}
                 </button>
@@ -531,7 +531,7 @@ export default function WardSimulation() {
 
         {/* Scenario indicator */}
         {activeScenario && !editMode && (
-          <div className="flex items-center justify-between px-4 py-2 bg-secondary/40 border-t border-white/10">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary/40 border-t border-black/5">
             <div className="flex items-center gap-3">
               <button onClick={exitScenario} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /> Exit Scenario</button>
               <div className="text-xs"><span className="text-muted-foreground">Active: </span><span className="font-semibold text-foreground">{activeScenario.name}</span></div>
@@ -542,7 +542,7 @@ export default function WardSimulation() {
 
         {/* Save status */}
         {saveStatus && (
-          <div className="flex items-center justify-center gap-1.5 py-1 bg-secondary/40 border-t border-white/10">
+          <div className="flex items-center justify-center gap-1.5 py-1 bg-secondary/40 border-t border-black/5">
             <span className={`text-[10px] font-medium ${saveStatus.includes("Unable") ? "text-clinical-red" : saveStatus.includes("Saving") ? "text-muted-foreground" : "text-clinical-green"}`}>
               {saveStatus.includes("Saving") ? "● " : saveStatus.includes("Unable") ? "⚠ " : "✓ "}{saveStatus}
             </span>
@@ -617,7 +617,7 @@ export default function WardSimulation() {
 
         {/* Hint */}
         {!activeScenario && !editMode && !showPatientPanel && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-card/80 backdrop-blur-sm px-4 py-2 text-xs text-muted-foreground border border-white/10 shadow-sm">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-card/80 backdrop-blur-sm px-4 py-2 text-xs text-muted-foreground border border-black/5 shadow-sm">
             Click a bed to view patient details →
           </div>
         )}
@@ -637,7 +637,7 @@ export default function WardSimulation() {
                 : "Are you sure you want to reset the layout to defaults? All current placements will be lost."}
             </p>
             <div className="flex gap-2">
-              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 rounded-lg border border-white/10 text-foreground text-sm font-heading font-semibold hover:bg-secondary/40">Cancel</button>
+              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 rounded-lg border border-black/5 text-foreground text-sm font-heading font-semibold hover:bg-secondary/40">Cancel</button>
               <button onClick={confirmAction_yes} className="flex-1 py-2.5 rounded-lg bg-clinical-red text-white text-sm font-heading font-semibold hover:opacity-90">Confirm</button>
             </div>
           </div>
@@ -649,14 +649,14 @@ export default function WardSimulation() {
         <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowScenarioList(false)}>
           <div className="absolute inset-0 bg-black/20" />
           <div className="relative w-full sm:max-w-md bg-card h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-card border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <div className="sticky top-0 bg-card border-b border-black/5 px-4 py-3 flex items-center justify-between">
               <h2 className="font-heading font-bold text-sm text-foreground">Scenarios</h2>
               <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="p-3 space-y-3">
               {scenarios.map((scenario, idx) => (
                 <button key={idx} onClick={() => startScenario(scenario)}
-                  className="group w-full text-left rounded-xl border border-white/10 bg-card hover:bg-secondary/40 hover:border-clinical-teal/40 transition-all p-4">
+                  className="group w-full text-left rounded-xl border border-black/5 bg-card hover:bg-secondary/40 hover:border-clinical-teal/40 transition-all p-4">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -688,7 +688,7 @@ export default function WardSimulation() {
         <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowCallBellPanel(false)}>
           <div className="absolute inset-0 bg-black/20" />
           <div className="relative w-full sm:max-w-sm bg-card h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-card border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <div className="sticky top-0 bg-card border-b border-black/5 px-4 py-3 flex items-center justify-between">
               <h2 className="font-heading font-bold text-sm text-foreground">Call Bells</h2>
               <button onClick={() => setShowCallBellPanel(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
@@ -696,7 +696,7 @@ export default function WardSimulation() {
               <p className="text-xs text-muted-foreground mb-2">Tap a bed to activate or reset its call bell. The AI assistant will verbally announce active call bells periodically until reset.</p>
               {wardBeds.map(bed => (
                 <button key={bed} onClick={() => toggleCallBell(bed)}
-                  className={`w-full flex items-center justify-between rounded-lg border p-3 transition-all ${callBells[bed] ? "border-clinical-amber/40 bg-clinical-amber/10" : "border-white/10 bg-secondary/40 hover:bg-secondary/60"}`}>
+                  className={`w-full flex items-center justify-between rounded-lg border p-3 transition-all ${callBells[bed] ? "border-clinical-amber/40 bg-clinical-amber/10" : "border-black/5 bg-secondary/40 hover:bg-secondary/60"}`}>
                   <div className="flex items-center gap-2">
                     <Bell className={`w-4 h-4 ${callBells[bed] ? "text-clinical-amber animate-pulse" : "text-muted-foreground"}`} />
                     <span className="font-heading font-bold text-sm text-foreground">Bed {bed}</span>

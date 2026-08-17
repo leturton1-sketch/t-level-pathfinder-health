@@ -19,7 +19,7 @@ module.exports = {
   			muted: { DEFAULT: 'hsl(var(--muted))', foreground: 'hsl(var(--muted-foreground))' },
   			accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
   			destructive: { DEFAULT: 'hsl(var(--destructive))', foreground: 'hsl(var(--destructive-foreground))' },
-  			border: 'hsl(var(--border) / 0.09)',
+  			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
         clinical: {
@@ -34,6 +34,8 @@ module.exports = {
           red: '#F03D1C',
           purple: '#7B61C4',
           navy: '#141820',
+          lavender: '#A78BFA',
+          mint: '#34D399',
         },
   			chart: {
   				'1': 'hsl(73 100% 36%)',

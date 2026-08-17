@@ -11,29 +11,29 @@
     --tl-purple: 258 48% 57%;      /* #7B61C4 */
     --tl-navy: 220 23% 10%;        /* #141820 */
 
-    /* Titanium Slate Dashboard theme */
-    --background: 220 23% 10%;         /* #141820 mid-dark slate */
-    --foreground: 0 0% 100%;           /* white */
-    --card: 222 23% 15%;               /* #1E2330 lighter slate panel */
-    --card-foreground: 0 0% 100%;      /* white */
-    --popover: 222 23% 15%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 13 93% 53%;            /* T Level red #F03D1C */
+    /* Soft Cloud light theme */
+    --background: 215 33% 97%;         /* #F6F8FB soft blue-tinted white */
+    --foreground: 215 25% 27%;         /* #334155 slate body text */
+    --card: 0 0% 100%;                 /* #FFFFFF pure white */
+    --card-foreground: 215 25% 27%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+    --primary: 13 93% 53%;             /* T Level red #F03D1C */
     --primary-foreground: 0 0% 100%;
-    --secondary: 223 23% 19%;         /* #252B3B */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 222 20% 18%;
-    --muted-foreground: 221 14% 60%;  /* cool grey #8A93A6 */
-    --accent: 16 87% 66%;             /* T Level salmon #F4845F */
+    --secondary: 220 23% 96%;          /* #EEF2F7 light */
+    --secondary-foreground: 215 25% 27%;
+    --muted: 220 20% 94%;              /* #E8EDF3 */
+    --muted-foreground: 215 16% 47%;   /* #64748B slate-500 */
+    --accent: 16 87% 66%;              /* T Level salmon #F4845F */
     --accent-foreground: 0 0% 100%;
-    --destructive: 13 93% 53%;        /* T Level red */
+    --destructive: 13 93% 53%;         /* T Level red */
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 100%;              /* white — alpha applied in tailwind config */
-    --input: 222 20% 22%;
-    --ring: 13 93% 53%;               /* red focus ring */
-    --clinical-navy: 220 23% 10%;     /* #141820 */
-    --clinical-teal: 13 93% 53%;      /* red — primary accent everywhere */
-    --clinical-amber: 38 92% 50%;     /* #F59E0B — warnings */
+    --border: 220 16% 85%;             /* #D6DCE5 light slate */
+    --input: 220 20% 92%;
+    --ring: 13 93% 53%;                /* red focus ring */
+    --clinical-navy: 220 23% 10%;      /* #141820 — kept for 3D ward scene */
+    --clinical-teal: 13 93% 53%;       /* red — primary accent everywhere */
+    --clinical-amber: 38 92% 50%;      /* #F59E0B — warnings */
     --clinical-red: 13 93% 53%;        /* T Level red */
     --clinical-green: 142 71% 45%;    /* #22C55E — success */
     --radius: 0.75rem;

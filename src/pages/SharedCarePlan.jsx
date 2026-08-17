@@ -125,7 +125,7 @@ export default function SharedCarePlan() {
   return (
     <div className="min-h-screen bg-background pb-28">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-white/10 shadow-sm">
+      <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-black/5 shadow-sm">
         <div className="max-w-5xl mx-auto px-3 py-2.5 sm:px-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
@@ -144,14 +144,14 @@ export default function SharedCarePlan() {
 
       <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-4 space-y-4">
         {/* Case selector */}
-        <div className="rounded-xl border border-white/10 bg-card p-3 shadow-sm">
+        <div className="rounded-xl border border-black/5 bg-card p-3 shadow-sm">
           <label className="text-[11px] font-heading font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Active Celebrity Patient Case</label>
           <div className="flex flex-wrap gap-2">
             {SBAR_PATIENTS.map((p) => (
               <button
                 key={p.id}
                 onClick={() => handleCaseChange(p.id)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-heading font-semibold border transition-all ${caseId === p.id ? "bg-clinical-teal text-white border-clinical-teal shadow-sm" : "bg-card text-muted-foreground border-white/10 hover:border-clinical-teal/40"}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-heading font-semibold border transition-all ${caseId === p.id ? "bg-clinical-teal text-white border-clinical-teal shadow-sm" : "bg-card text-muted-foreground border-black/5 hover:border-clinical-teal/40"}`}
               >
                 {p.name}
               </button>
@@ -165,7 +165,7 @@ export default function SharedCarePlan() {
         </div>
 
         {/* SBAR handover database toggle */}
-        <div className="rounded-xl border border-white/10 bg-card shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-black/5 bg-card shadow-sm overflow-hidden">
           <button
             onClick={() => setShowSBAR((v) => !v)}
             className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors"
@@ -178,7 +178,7 @@ export default function SharedCarePlan() {
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) => { e.stopPropagation(); setVoiceOn((v) => !v); }}
-                className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-heading font-semibold border ${voiceOn ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card text-muted-foreground border-white/10"}`}
+                className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-heading font-semibold border ${voiceOn ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card text-muted-foreground border-black/5"}`}
               >
                 <Volume2 className="w-3 h-3" /> {voiceOn ? "VOICE ON" : "VOICE OFF"}
               </button>
@@ -207,7 +207,7 @@ export default function SharedCarePlan() {
         {/* Text entry workspace */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {TEXT_SECTIONS.map((sec) => (
-            <div key={sec.key} className="rounded-xl border border-white/10 bg-card p-3 shadow-sm">
+            <div key={sec.key} className="rounded-xl border border-black/5 bg-card p-3 shadow-sm">
               <div className="flex items-center gap-1.5 mb-2">
                 <sec.icon className="w-4 h-4 text-muted-foreground" />
                 <label className="text-xs font-heading font-bold text-foreground">{sec.label}</label>
@@ -217,7 +217,7 @@ export default function SharedCarePlan() {
                 onChange={(e) => handleChange(sec.key, e.target.value)}
                 placeholder={sec.placeholder}
                 rows={6}
-                className="w-full rounded-lg border border-white/10 bg-muted/40 p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal/50 focus:bg-card resize-y scrollbar-thin"
+                className="w-full rounded-lg border border-black/5 bg-muted/40 p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal/50 focus:bg-card resize-y scrollbar-thin"
               />
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] text-muted-foreground">{(texts[sec.key] || "").length} characters</span>
@@ -250,14 +250,14 @@ export default function SharedCarePlan() {
         <div className="flex items-center gap-2">
           <button
             onClick={resetAll}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs font-heading font-semibold text-muted-foreground hover:bg-muted/40"
+            className="flex items-center gap-1.5 rounded-lg border border-black/5 bg-card px-3 py-2 text-xs font-heading font-semibold text-muted-foreground hover:bg-muted/40"
           >
             <RefreshCw className="w-3.5 h-3.5" /> Reset
           </button>
           <button
             onClick={() => persist("draft")}
             disabled={saving}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-card px-3 py-2 text-xs font-heading font-semibold text-muted-foreground hover:bg-muted/40 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg border border-black/5 bg-card px-3 py-2 text-xs font-heading font-semibold text-muted-foreground hover:bg-muted/40 disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" /> Save Draft
           </button>

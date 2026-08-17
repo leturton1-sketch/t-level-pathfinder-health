@@ -4,7 +4,7 @@ import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import {
   LayoutDashboard, BookOpen, FileText, Sparkles, Stethoscope,
-  Thermometer, Wrench, Settings, FlaskConical, BarChart3, Bot,
+  Thermometer, Settings, FlaskConical, BarChart3, Bot,
   ChevronRight, Activity, GraduationCap, Users,
 } from "lucide-react";
 
@@ -52,11 +52,11 @@ export default function Dashboard() {
       <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-end mb-6 sm:mb-8">
-          <TLevelLogo size="md" dark variant="white" />
+          <TLevelLogo size="md" variant="color" />
         </div>
 
         {/* Hero banner */}
-        <div className="rounded-2xl overflow-hidden mb-6 sm:mb-8 shadow-2xl" style={{ background: "linear-gradient(135deg, #F4845F 0%, #F03D1C 100%)" }}>
+        <div className="rounded-3xl overflow-hidden mb-6 sm:mb-8 shadow-xl" style={{ background: "linear-gradient(135deg, #F4845F 0%, #F03D1C 100%)" }}>
           <div className="px-6 py-8 sm:px-10 sm:py-10 relative">
             <div className="absolute right-4 top-4 opacity-10 select-none pointer-events-none">
               <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/eb340c16e_TLevel-Logo-TLWhite.png"
@@ -72,7 +72,7 @@ export default function Dashboard() {
                 Gain hands-on clinical competency and prepare for a premium career in healthcare.
               </p>
               {user && (
-                <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur rounded-lg px-3 py-1.5">
+                <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur rounded-full px-3 py-1.5">
                   <GraduationCap className="w-4 h-4 text-white" />
                   <span className="text-white text-xs font-heading font-semibold capitalize">
                     {user.full_name || user.username} · {user.role}
@@ -91,10 +91,10 @@ export default function Dashboard() {
               <button
                 key={idx}
                 onClick={() => navigate(module.to)}
-                className="group relative bg-card rounded-2xl border border-white/10 p-5 text-left transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl animate-slide-up"
+                className="group relative bg-card rounded-3xl border border-black/5 p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-black/10 hover:shadow-xl animate-slide-up"
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#F4845F] to-[#F03D1C] flex items-center justify-center mb-3 shadow-lg transition-transform group-hover:scale-110">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F4845F] to-[#F03D1C] flex items-center justify-center mb-3 shadow-md transition-transform group-hover:scale-110">
                   <module.icon className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="font-heading font-bold text-sm text-foreground mb-1 leading-snug">{module.title}</h3>
@@ -106,9 +106,9 @@ export default function Dashboard() {
         </div>
 
         {/* Footer brand strip */}
-        <div className="mt-8 border-t border-white/10 pt-4 flex items-center justify-between">
+        <div className="mt-8 border-t border-black/5 pt-4 flex items-center justify-between">
           <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/e326bdc6f_TLevel-Logo-WhiteWithStrapline.png"
-            alt="T Levels" className="h-6 w-auto opacity-60" />
+            alt="T Levels" className="h-6 w-auto opacity-70" />
           <span className="text-[10px] text-muted-foreground font-heading tracking-widest uppercase">ClinicalEdge Platform</span>
         </div>
       </div>

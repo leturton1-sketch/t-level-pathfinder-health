@@ -68,7 +68,7 @@ export default function Login() {
     setPin(pin.slice(0, -1));
   };
 
-  const bgStyle = { background: "linear-gradient(135deg, #141820 0%, #1E2330 100%)" };
+  const bgStyle = { background: "linear-gradient(135deg, #F6F8FB 0%, #EEF2F7 100%)" };
 
   if (checking) {
     return (
@@ -83,12 +83,12 @@ export default function Login() {
       <div className="fixed inset-0 flex items-center justify-center p-6" style={bgStyle}>
         <div className="w-full max-w-sm">
           <div className="text-center mb-6 animate-fade-in">
-            <div className="flex justify-center mb-4"><TLevelLogo size="md" dark /></div>
-            <h1 className="text-xl font-heading font-bold text-white">Change Your PIN</h1>
+            <div className="flex justify-center mb-4"><TLevelLogo size="md" /></div>
+            <h1 className="text-xl font-heading font-bold text-foreground">Change Your PIN</h1>
             <p className="text-sm text-muted-foreground mt-2">For security, please set a new 4-digit PIN.</p>
           </div>
 
-          <div className="space-y-4 bg-white/5 backdrop-blur rounded-2xl border border-white/10 p-6">
+          <div className="space-y-4 bg-white rounded-3xl border border-black/5 shadow-xl p-6">
             {error && (
               <div className="flex items-center gap-2 text-sm text-[#F03D1C] bg-[#F03D1C]/10 rounded-lg p-2">
                 <AlertCircle className="w-4 h-4" /> {error}
@@ -102,7 +102,7 @@ export default function Login() {
                 maxLength={4}
                 value={newPin}
                 onChange={(e) => setNewPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-center text-2xl tracking-[1em] text-white focus:outline-none focus:border-[#F4845F]"
+                className="w-full bg-slate-100 border border-black/10 rounded-xl px-4 py-3 text-center text-2xl tracking-[1em] text-foreground focus:outline-none focus:border-[#F4845F] focus:bg-white"
                 placeholder="••••"
               />
             </div>
@@ -114,14 +114,14 @@ export default function Login() {
                 maxLength={4}
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-center text-2xl tracking-[1em] text-white focus:outline-none focus:border-[#F4845F]"
+                className="w-full bg-slate-100 border border-black/10 rounded-xl px-4 py-3 text-center text-2xl tracking-[1em] text-foreground focus:outline-none focus:border-[#F4845F] focus:bg-white"
                 placeholder="••••"
               />
             </div>
             <button
               onClick={handlePinChange}
               disabled={newPin.length !== 4 || newPin !== confirmPin}
-              className="w-full py-3 rounded-lg text-white font-heading font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
+              className="w-full py-3 rounded-xl text-white font-heading font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
               style={{ background: "linear-gradient(135deg, #F4845F, #F03D1C)" }}
             >
               Set New PIN & Continue
@@ -135,19 +135,19 @@ export default function Login() {
   return (
     <div className="fixed inset-0 flex items-center justify-center p-6" style={bgStyle}>
       {/* Decorative BG mark */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none">
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none select-none">
         <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/eb340c16e_TLevel-Logo-TLWhite.png" alt="" className="w-96 h-auto" />
       </div>
 
       <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8 animate-fade-in">
           <div className="flex justify-center mb-4">
-            <TLevelLogo size="lg" dark />
+            <TLevelLogo size="lg" />
           </div>
           <p className="text-sm text-muted-foreground font-body">T Level Health Learning Platform</p>
         </div>
 
-        <div className="space-y-4 bg-white/5 backdrop-blur rounded-2xl border border-white/10 p-6 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+        <div className="space-y-4 bg-white rounded-3xl border border-black/5 shadow-xl p-6 animate-slide-up" style={{ animationDelay: "0.2s" }}>
           {error && (
             <div className="flex items-center gap-2 text-sm text-[#F03D1C] bg-[#F03D1C]/10 rounded-lg p-2">
               <AlertCircle className="w-4 h-4" /> {error}
@@ -163,7 +163,7 @@ export default function Login() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-muted-foreground focus:outline-none focus:border-[#F4845F]"
+                className="w-full bg-slate-100 border border-black/10 rounded-xl pl-10 pr-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#F4845F] focus:bg-white"
                 placeholder="Enter your username"
                 autoFocus
               />
@@ -176,10 +176,10 @@ export default function Login() {
               {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className={`w-12 h-14 rounded-lg border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+                  className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
                     pin.length > i
                       ? "border-[#F4845F] bg-[#F4845F]/20 text-[#F4845F]"
-                      : "border-white/20 bg-white/5 text-muted-foreground"
+                      : "border-black/10 bg-slate-100 text-muted-foreground"
                   }`}
                 >
                   {pin.length > i ? "•" : ""}
@@ -193,7 +193,7 @@ export default function Login() {
               <button
                 key={digit}
                 onClick={() => handlePinDigit(String(digit))}
-                className="aspect-square rounded-xl border border-white/15 bg-white/5 text-xl font-heading font-bold text-white hover:bg-white/15 hover:border-[#F4845F]/50 transition-all active:scale-95"
+                className="aspect-square rounded-2xl border border-black/10 bg-slate-100 text-xl font-heading font-bold text-foreground hover:bg-slate-200 hover:border-[#F4845F]/50 transition-all active:scale-95"
               >
                 {digit}
               </button>
@@ -201,13 +201,13 @@ export default function Login() {
             <div />
             <button
               onClick={() => handlePinDigit("0")}
-              className="aspect-square rounded-xl border border-white/15 bg-white/5 text-xl font-heading font-bold text-white hover:bg-white/15 hover:border-[#F4845F]/50 transition-all active:scale-95"
+              className="aspect-square rounded-2xl border border-black/10 bg-slate-100 text-xl font-heading font-bold text-foreground hover:bg-slate-200 hover:border-[#F4845F]/50 transition-all active:scale-95"
             >
               0
             </button>
             <button
               onClick={handlePinDelete}
-              className="aspect-square rounded-xl border border-white/15 bg-white/5 text-muted-foreground hover:bg-white/15 transition-all active:scale-95 flex items-center justify-center"
+              className="aspect-square rounded-2xl border border-black/10 bg-slate-100 text-muted-foreground hover:bg-slate-200 transition-all active:scale-95 flex items-center justify-center"
             >
               <Delete className="w-5 h-5" />
             </button>
@@ -216,7 +216,7 @@ export default function Login() {
           <button
             onClick={handleLogin}
             disabled={loading || !username.trim() || pin.length !== 4}
-            className="w-full py-3 rounded-lg text-white font-heading font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl text-white font-heading font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             style={{ background: "linear-gradient(135deg, #F4845F, #F03D1C)" }}
           >
             {loading ? (

@@ -38,27 +38,29 @@ export default function BottomNav() {
   else nav = adminNav;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#0F1218]" style={{ backdropFilter: "blur(12px)" }}>
-      <div className="flex items-center justify-around px-2 py-1.5 max-w-2xl mx-auto">
-        {nav.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <item.icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
-              <span className="text-[10px] font-heading font-medium">{item.label}</span>
-              {isActive && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </nav>
+    <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-3 pointer-events-none">
+      <nav className="pointer-events-auto mx-auto max-w-md bg-white/95 backdrop-blur rounded-2xl shadow-lg border border-black/5 px-2 py-1.5">
+        <div className="flex items-center justify-around">
+          {nav.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <item.icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
+                <span className="text-[10px] font-heading font-medium">{item.label}</span>
+                {isActive && (
+                  <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 }
