@@ -11,25 +11,25 @@
     --tl-purple: 258 48% 57%;      /* #7B61C4 */
     --tl-navy: 220 23% 10%;        /* #141820 */
 
-    /* Soft Cloud light theme */
-    --background: 215 33% 97%;         /* #F6F8FB soft blue-tinted white */
-    --foreground: 215 25% 27%;         /* #334155 slate body text */
-    --card: 0 0% 100%;                 /* #FFFFFF pure white */
-    --card-foreground: 215 25% 27%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    /* Warm Paper light theme */
+    --background: 40 33% 98%;          /* #FBFAF7 warm off-white */
+    --foreground: 30 20% 14%;          /* #2A2520 warm dark brown */
+    --card: 40 25% 94%;                /* #F4F1EC cream */
+    --card-foreground: 30 20% 14%;
+    --popover: 40 25% 96%;
+    --popover-foreground: 30 20% 14%;
     --primary: 13 93% 53%;             /* T Level red #F03D1C */
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 23% 96%;          /* #EEF2F7 light */
-    --secondary-foreground: 215 25% 27%;
-    --muted: 220 20% 94%;              /* #E8EDF3 */
-    --muted-foreground: 215 16% 47%;   /* #64748B slate-500 */
+    --secondary: 40 18% 90%;           /* #E8E2D8 warm light */
+    --secondary-foreground: 30 20% 14%;
+    --muted: 40 20% 92%;               /* #EDE7DC */
+    --muted-foreground: 30 10% 42%;    /* #6B6760 warm grey */
     --accent: 16 87% 66%;              /* T Level salmon #F4845F */
     --accent-foreground: 0 0% 100%;
     --destructive: 13 93% 53%;         /* T Level red */
     --destructive-foreground: 0 0% 98%;
-    --border: 220 16% 85%;             /* #D6DCE5 light slate */
-    --input: 220 20% 92%;
+    --border: 40 16% 86%;              /* #E8E2D8 warm hairline */
+    --input: 40 18% 90%;
     --ring: 13 93% 53%;                /* red focus ring */
     --clinical-navy: 220 23% 10%;      /* #141820 — kept for 3D ward scene */
     --clinical-teal: 13 93% 53%;       /* red — primary accent everywhere */
