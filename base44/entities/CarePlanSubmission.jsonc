@@ -63,6 +63,21 @@
     "reviewed_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "ehr_drug_chart_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student read the EHR Drug Chart tab before submitting"
+    },
+    "ehr_nursing_notes_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student read the EHR Nursing Notes tab before submitting"
+    },
+    "ehr_lab_results_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student read the EHR Lab Results tab before submitting"
     }
   },
   "required": [

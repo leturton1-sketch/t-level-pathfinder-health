@@ -114,6 +114,18 @@
     },
     "creator_id": {
       "type": "string"
+    },
+    "ehr_drug_chart": {
+      "type": "string",
+      "description": "JSON array of prescription objects overriding static EHR drug chart"
+    },
+    "ehr_nursing_notes": {
+      "type": "string",
+      "description": "JSON array of note objects overriding static EHR nursing notes"
+    },
+    "ehr_lab_results": {
+      "type": "string",
+      "description": "JSON object overriding static EHR lab results"
     }
   },
   "required": [

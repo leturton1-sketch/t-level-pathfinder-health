@@ -10,8 +10,9 @@ import { scanEntry, TARGET_ORDER } from "@/lib/clinicalTargets";
 import { pearsonGrade, pearsonGradeColor } from "@/lib/pearsonGrading";
 import {
   ClipboardList, Users, FileText, ShieldAlert, Target, RefreshCw,
-  ChevronDown, ChevronUp, Volume2, Save, Send, CheckCircle2, GraduationCap,
+  ChevronDown, ChevronUp, Volume2, Save, Send, CheckCircle2, GraduationCap, AlertTriangle,
 } from "lucide-react";
+import { getActiveEhrPatient, getUnreadTabs, getComplianceFields, applyEhrPenalty } from "@/lib/ehrCompliance";
 
 const TEXT_SECTIONS = [
   { key: "handover", label: "Handover Notes (SBAR)", icon: FileText, placeholder: "Document your SBAR handover: Situation, Background, Assessment, Recommendation…" },
@@ -31,6 +32,7 @@ export default function SharedCarePlan() {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [ehrWarning, setEhrWarning] = useState("");
   const saveTimerRef = useRef(null);
 
   useEffect(() => {
@@ -72,17 +74,35 @@ export default function SharedCarePlan() {
   const persist = async (status) => {
     const patient = SBAR_PATIENTS.find((p) => p.id === caseId);
     setSaving(true);
+    setEhrWarning("");
+
+    let finalScore = pearsonScore;
+    let compliance = {};
+
+    if (status === "submitted") {
+      const ehrPatientId = getActiveEhrPatient();
+      if (ehrPatientId) {
+        const { score, penalty, unreadTabs } = applyEhrPenalty(ehrPatientId, pearsonScore);
+        finalScore = score;
+        compliance = getComplianceFields(ehrPatientId);
+        if (unreadTabs.length > 0) {
+          setEhrWarning(`You submitted without reading ${unreadTabs.join(", ")} — this has been noted. Pearson score reduced by ${penalty} points (${pearsonScore}% → ${finalScore}%).`);
+        }
+      }
+    }
+
     try {
       await base44.entities.CarePlanSubmission.create({
         student_id: user?.id,
         student_name: user?.full_name,
         type: "handover_sbar",
         title: `Shared Care Plan — ${patient?.name || caseId}`,
-        content: JSON.stringify({ caseId, texts, pearsonScore, establishedCount: result.establishedCount }),
+        content: JSON.stringify({ caseId, texts, pearsonScore: finalScore, rawScore: pearsonScore, establishedCount: result.establishedCount }),
         linked_scenario: patient?.name,
         status,
         sk_codes: ["SK3", "SK6", "SK9", "SK11"],
         performance_outcomes: ["PO4", "PO5", "PO9"],
+        ...compliance,
       });
       setSavedMsg(status === "submitted" ? "Submitted — your tutor will be notified." : "Draft saved.");
       if (status === "submitted") setSubmitted(true);
@@ -249,6 +269,12 @@ export default function SharedCarePlan() {
             <Send className="w-3.5 h-3.5" /> {submitted ? "Submitted" : "Submit to Tutor"}
           </button>
         </div>
+        {ehrWarning && (
+          <div className="rounded-lg border border-clinical-amber bg-clinical-amber/10 px-3 py-2.5 flex items-start gap-2 animate-fade-in">
+            <AlertTriangle className="w-4 h-4 text-clinical-amber shrink-0 mt-0.5" />
+            <p className="text-xs text-clinical-amber font-medium">{ehrWarning}</p>
+          </div>
+        )}
         {savedMsg && (
           <div className="text-center text-xs text-slate-500 font-medium animate-fade-in">{savedMsg}</div>
         )}

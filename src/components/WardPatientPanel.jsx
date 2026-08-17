@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, User, Heart, AlertTriangle, ClipboardList, ChevronRight, ChevronDown,
   Shield, Activity, MessageSquare, BookOpen, CheckCircle, AlertCircle,
-  Thermometer, Droplets, Wind, Zap,
+  Thermometer, Droplets, Wind, Zap, FileText,
 } from "lucide-react";
 import { WARD_PATIENTS, getPatientForBed, news2Band } from "@/lib/wardPatients";
+import EHRModal from "@/components/ehr/EHRModal";
 
 const VITAL_CONFIG = [
   { key: "rr", label: "RR", unit: "br/min", icon: Wind, normal: [12, 20] },
@@ -31,11 +32,12 @@ function VitalCell({ config, value }) {
   );
 }
 
-export default function WardPatientPanel({ bedDesignation, onClose, onBeginScenario }) {
+export default function WardPatientPanel({ bedDesignation, onClose, onBeginScenario, onLaunchTool }) {
   const patient = getPatientForBed(bedDesignation);
   const [tab, setTab] = useState("overview");
   const [consentGiven, setConsentGiven] = useState(false);
   const [consentExpanded, setConsentExpanded] = useState(false);
+  const [showEHR, setShowEHR] = useState(false);
 
   if (!patient) {
     return (
@@ -238,20 +240,37 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
       </div>
 
       {/* Footer actions */}
-      <div className="border-t border-slate-200 bg-white p-3 flex gap-2">
-        <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 text-xs font-heading font-semibold hover:bg-slate-50">
-          Close
-        </button>
+      <div className="border-t border-slate-200 bg-white p-3 space-y-2">
         <button
-          onClick={() => { if (consentGiven) onBeginScenario?.(patient); }}
-          disabled={!consentGiven}
-          className="flex-1 py-2.5 rounded-xl bg-clinical-teal text-white text-xs font-heading font-semibold hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-1.5"
-          title={!consentGiven ? "Obtain patient consent first" : ""}
+          onClick={() => setShowEHR(true)}
+          className="w-full py-2.5 rounded-xl bg-slate-800 text-white text-xs font-heading font-semibold hover:bg-slate-700 flex items-center justify-center gap-1.5"
         >
-          <ClipboardList className="w-3.5 h-3.5" />
-          {consentGiven ? "Begin Assessment" : "Consent Required"}
+          <FileText className="w-3.5 h-3.5" /> Open Electronic Health Record
         </button>
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 text-xs font-heading font-semibold hover:bg-slate-50">
+            Close
+          </button>
+          <button
+            onClick={() => { if (consentGiven) onBeginScenario?.(patient); }}
+            disabled={!consentGiven}
+            className="flex-1 py-2.5 rounded-xl bg-clinical-teal text-white text-xs font-heading font-semibold hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-1.5"
+            title={!consentGiven ? "Obtain patient consent first" : ""}
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            {consentGiven ? "Begin Assessment" : "Consent Required"}
+          </button>
+        </div>
       </div>
+
+      {/* EHR Modal */}
+      {showEHR && (
+        <EHRModal
+          patient={patient}
+          onClose={() => setShowEHR(false)}
+          onLaunchTool={onLaunchTool}
+        />
+      )}
     </div>
   );
 }

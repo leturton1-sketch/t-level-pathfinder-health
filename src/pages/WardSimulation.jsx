@@ -594,6 +594,7 @@ export default function WardSimulation() {
               bedDesignation={selectedBed}
               onClose={() => { setShowPatientPanel(false); setSelectedBed(null); }}
               onBeginScenario={handleBeginPatientScenario}
+              onLaunchTool={(path) => navigateAway(path)}
             />
           ) : (
             <PatientPanel

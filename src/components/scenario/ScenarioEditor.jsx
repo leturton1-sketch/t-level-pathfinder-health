@@ -7,7 +7,7 @@ import { SBAR_PATIENTS } from "@/lib/sbarDatabase";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 import {
   User, Heart, Activity, Thermometer, Wind, Droplet, Brain, Save,
-  X, Sparkles, Copy, AlertCircle,
+  X, Sparkles, Copy, AlertCircle, FileText, ChevronRight, ChevronDown,
 } from "lucide-react";
 
 const DIFFICULTIES = [
@@ -38,6 +38,7 @@ const EMPTY = {
   debrief_rationale: "",
   sk_codes: [], performance_outcomes: [],
   category: "deterioration",
+  ehr_drug_chart: "", ehr_nursing_notes: "", ehr_lab_results: "",
 };
 
 /** Merged celebrity profile list for the picker. */
@@ -100,6 +101,7 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
+  const [showEHR, setShowEHR] = useState(false);
   const user = getCurrentUser();
 
   const isEditing = !!initialScenario?.id;
@@ -346,6 +348,45 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
           {draft.sk_codes?.length > 0 || draft.performance_outcomes?.length > 0 ? (
             <SKBadgeGroup skCodes={draft.sk_codes} poCodes={draft.performance_outcomes} />
           ) : null}
+
+          {/* EHR Records (templates only) */}
+          {isTemplate && (
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3 space-y-2.5">
+              <button className="w-full flex items-center justify-between" onClick={() => setShowEHR(!showEHR)}>
+                <div className="flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-xs font-heading font-bold text-slate-700">EHR Records (Optional Overrides)</span>
+                </div>
+                {showEHR ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+              </button>
+              {showEHR && (
+                <div className="space-y-2.5">
+                  <p className="text-[10px] text-slate-500 leading-relaxed">Customise the EHR shown for this template. Leave blank to use default patient data. Enter valid JSON.</p>
+                  <div>
+                    <label className="text-[11px] font-heading font-semibold text-slate-500 mb-1 block">Drug Chart (JSON array)</label>
+                    <textarea value={draft.ehr_drug_chart || ""} onChange={(e) => update({ ehr_drug_chart: e.target.value })}
+                      placeholder='[{"drug":"Paracetamol","dose":"1g","route":"PO","frequency":"QDS","startDate":"01/01/2026","prescriber":"Dr Smith","admin":[{"time":"06:00","status":"given"}]}]'
+                      rows={3}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-mono text-slate-700 focus:outline-none focus:border-clinical-teal/50 resize-y scrollbar-thin" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-heading font-semibold text-slate-500 mb-1 block">Nursing Notes (JSON array)</label>
+                    <textarea value={draft.ehr_nursing_notes || ""} onChange={(e) => update({ ehr_nursing_notes: e.target.value })}
+                      placeholder='[{"type":"admission","timestamp":"2026-01-01T09:00","author":"Dr Smith","content":"..."}]'
+                      rows={3}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-mono text-slate-700 focus:outline-none focus:border-clinical-teal/50 resize-y scrollbar-thin" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-heading font-semibold text-slate-500 mb-1 block">Lab Results (JSON object)</label>
+                    <textarea value={draft.ehr_lab_results || ""} onChange={(e) => update({ ehr_lab_results: e.target.value })}
+                      placeholder='{"haematology":[{"label":"Haemoglobin (Hb)","value":135}],"abg":[],"biochemistry":[]}'
+                      rows={3}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-mono text-slate-700 focus:outline-none focus:border-clinical-teal/50 resize-y scrollbar-thin" />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}

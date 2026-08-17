@@ -5,7 +5,8 @@ import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { calculateNEWS2, NEWS2_PARAMS } from "@/lib/news2";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import NEWS2Badge from "@/components/NEWS2Badge";
-import { ArrowLeft, Save, Send, Info } from "lucide-react";
+import { ArrowLeft, Save, Send, Info, AlertTriangle } from "lucide-react";
+import { getActiveEhrPatient, getUnreadTabs, getComplianceFields } from "@/lib/ehrCompliance";
 
 export default function NEWS2Scoring() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function NEWS2Scoring() {
   const [vitals, setVitals] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [ehrWarning, setEhrWarning] = useState("");
 
   useEffect(() => {
     if (!isLoggedIn()) navigate("/login");
@@ -37,6 +39,23 @@ export default function NEWS2Scoring() {
 
   const handleSave = async (submit = false) => {
     setSaving(true);
+    setEhrWarning("");
+
+    let compliance = {};
+    let navDelay = 0;
+
+    if (submit) {
+      const ehrPatientId = getActiveEhrPatient();
+      if (ehrPatientId) {
+        const unread = getUnreadTabs(ehrPatientId);
+        compliance = getComplianceFields(ehrPatientId);
+        if (unread.length > 0) {
+          setEhrWarning(`You submitted without reading ${unread.join(", ")} — this has been noted.`);
+          navDelay = 2500;
+        }
+      }
+    }
+
     try {
       await base44.entities.CarePlanSubmission.create({
         student_id: user.id,
@@ -47,15 +66,16 @@ export default function NEWS2Scoring() {
         status: submit ? "submitted" : "draft",
         sk_codes: ["SK1", "SK17"],
         performance_outcomes: ["PO4", "PO9"],
+        ...compliance,
       });
       setSaved(true);
-      if (submit) navigate("/care-planning");
+      if (submit) setTimeout(() => navigate("/care-planning"), navDelay);
     } catch {
       const drafts = JSON.parse(localStorage.getItem("careplan_drafts") || "[]");
       drafts.push({ type: "news2", data: { vitals, result }, timestamp: Date.now(), submitted: submit });
       localStorage.setItem("careplan_drafts", JSON.stringify(drafts));
       setSaved(true);
-      if (submit) navigate("/care-planning");
+      if (submit) setTimeout(() => navigate("/care-planning"), navDelay);
     } finally {
       setSaving(false);
     }
@@ -180,6 +200,13 @@ export default function NEWS2Scoring() {
             <Send className="w-4 h-4" /> Submit for Review
           </button>
         </div>
+
+        {ehrWarning && (
+          <div className="mt-3 rounded-lg border border-clinical-amber bg-clinical-amber/10 px-3 py-2.5 flex items-start gap-2 animate-fade-in">
+            <AlertTriangle className="w-4 h-4 text-clinical-amber shrink-0 mt-0.5" />
+            <p className="text-xs text-clinical-amber font-medium">{ehrWarning}</p>
+          </div>
+        )}
       </div>
     </div>
   );

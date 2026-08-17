@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { SKBadgeGroup } from "@/components/SKBadge";
-import { ArrowLeft, Save, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, Send, CheckCircle, AlertCircle, AlertTriangle } from "lucide-react";
+import { getActiveEhrPatient, getUnreadTabs, getComplianceFields } from "@/lib/ehrCompliance";
 
 const GOAL_FIELDS = [
   {
@@ -49,6 +50,7 @@ export default function SMARTGoals() {
   const [goals, setGoals] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [ehrWarning, setEhrWarning] = useState("");
 
   useEffect(() => {
     if (!isLoggedIn()) navigate("/login");
@@ -68,6 +70,23 @@ export default function SMARTGoals() {
 
   const handleSave = async (submit = false) => {
     setSaving(true);
+    setEhrWarning("");
+
+    let compliance = {};
+    let navDelay = 0;
+
+    if (submit) {
+      const ehrPatientId = getActiveEhrPatient();
+      if (ehrPatientId) {
+        const unread = getUnreadTabs(ehrPatientId);
+        compliance = getComplianceFields(ehrPatientId);
+        if (unread.length > 0) {
+          setEhrWarning(`You submitted without reading ${unread.join(", ")} — this has been noted.`);
+          navDelay = 2500;
+        }
+      }
+    }
+
     try {
       await base44.entities.CarePlanSubmission.create({
         student_id: user.id,
@@ -78,15 +97,16 @@ export default function SMARTGoals() {
         status: submit ? "submitted" : "draft",
         sk_codes: ["SK3", "SK9"],
         performance_outcomes: ["PO6", "PO9"],
+        ...compliance,
       });
       setSaved(true);
-      if (submit) navigate("/care-planning");
+      if (submit) setTimeout(() => navigate("/care-planning"), navDelay);
     } catch {
       const drafts = JSON.parse(localStorage.getItem("careplan_drafts") || "[]");
       drafts.push({ type: "smart_goals", data: goals, timestamp: Date.now(), submitted: submit });
       localStorage.setItem("careplan_drafts", JSON.stringify(drafts));
       setSaved(true);
-      if (submit) navigate("/care-planning");
+      if (submit) setTimeout(() => navigate("/care-planning"), navDelay);
     } finally {
       setSaving(false);
     }
@@ -176,6 +196,12 @@ export default function SMARTGoals() {
         </div>
         {!allComplete && (
           <p className="text-center text-xs text-muted-foreground mt-2">Complete all SMART fields to enable submission</p>
+        )}
+        {ehrWarning && (
+          <div className="mt-3 rounded-lg border border-clinical-amber bg-clinical-amber/10 px-3 py-2.5 flex items-start gap-2 animate-fade-in">
+            <AlertTriangle className="w-4 h-4 text-clinical-amber shrink-0 mt-0.5" />
+            <p className="text-xs text-clinical-amber font-medium">{ehrWarning}</p>
+          </div>
         )}
       </div>
     </div>
