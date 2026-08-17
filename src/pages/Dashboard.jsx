@@ -52,11 +52,11 @@ export default function Dashboard() {
       <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-end mb-6 sm:mb-8">
-          <TLevelLogo size="md" variant="color" />
+          <TLevelLogo size="md" />
         </div>
 
         {/* Hero banner */}
-        <div className="rounded-3xl overflow-hidden mb-6 sm:mb-8 shadow-xl" style={{ background: "linear-gradient(135deg, #F4845F 0%, #F03D1C 100%)" }}>
+        <div className="rounded-3xl overflow-hidden mb-6 sm:mb-8 shadow-xl" style={{ background: "linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)" }}>
           <div className="px-6 py-8 sm:px-10 sm:py-10 relative">
             <div className="absolute right-4 top-4 opacity-10 select-none pointer-events-none">
               <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/eb340c16e_TLevel-Logo-TLWhite.png"
@@ -86,7 +86,7 @@ export default function Dashboard() {
         {/* Module grid */}
         <div className="mb-3">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#F4845F] to-[#F03D1C]" />
+            <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#14B8A6] to-[#0F766E]" />
             <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest">Select a module to launch</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -97,7 +97,7 @@ export default function Dashboard() {
                 className="group relative bg-card rounded-3xl border border-border p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-border hover:shadow-xl animate-slide-up"
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F4845F] to-[#F03D1C] flex items-center justify-center mb-3 shadow-md transition-transform group-hover:scale-110">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#14B8A6] to-[#0F766E] flex items-center justify-center mb-3 shadow-md transition-transform group-hover:scale-110">
                   <module.icon className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="font-heading font-bold text-sm text-foreground mb-1 leading-snug">{module.title}</h3>
@@ -110,8 +110,7 @@ export default function Dashboard() {
 
         {/* Footer brand strip */}
         <div className="mt-8 border-t border-border pt-4 flex items-center justify-between">
-          <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/e326bdc6f_TLevel-Logo-WhiteWithStrapline.png"
-            alt="T Levels" className="h-6 w-auto opacity-70" />
+          <TLevelLogo size="sm" />
           <span className="text-[10px] text-muted-foreground font-heading tracking-widest uppercase">ClinicalEdge Platform</span>
         </div>
       </div>

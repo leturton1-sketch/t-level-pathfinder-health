@@ -23,10 +23,10 @@ module.exports = {
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
         clinical: {
-          navy: '#141820',
-          teal: '#F03D1C',
+          navy: '#1E293B',
+          teal: '#0F766E',
           amber: '#F59E0B',
-          red: '#F03D1C',
+          red: '#DC2626',
           green: '#22C55E',
         },
         tl: {
