@@ -421,29 +421,29 @@ export default function WardSimulation() {
   if (showDebrief && activeScenario) {
     const pct = Math.round((score / decisionSteps.length) * 100);
     return (
-      <div className="min-h-screen bg-slate-100 px-4 pt-6 pb-24 max-w-2xl mx-auto">
+      <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-2xl mx-auto">
         <div className="text-center mb-6">
           <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${pct >= 70 ? "bg-clinical-green/20" : "bg-clinical-amber/20"}`}>
             {pct >= 70 ? <CheckCircle className="w-8 h-8 text-clinical-green" /> : <AlertCircle className="w-8 h-8 text-clinical-amber" />}
           </div>
-          <h1 className="text-xl font-heading font-bold text-slate-800">Scenario Complete</h1>
-          <p className="text-sm text-slate-500">{activeScenario.name}</p>
+          <h1 className="text-xl font-heading font-bold text-foreground">Scenario Complete</h1>
+          <p className="text-sm text-muted-foreground">{activeScenario.name}</p>
           <div className="text-3xl font-heading font-bold text-clinical-teal mt-2">{pct}%</div>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 mb-4 shadow-sm">
-          <h2 className="text-sm font-heading font-bold text-slate-800 mb-2">Clinical Debrief</h2>
-          <p className="text-sm text-slate-600">{activeScenario.debrief_rationale}</p>
+        <div className="rounded-xl border border-white/10 bg-card p-4 mb-4 shadow-sm">
+          <h2 className="text-sm font-heading font-bold text-foreground mb-2">Clinical Debrief</h2>
+          <p className="text-sm text-muted-foreground">{activeScenario.debrief_rationale}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 mb-4 shadow-sm">
-          <h2 className="text-sm font-heading font-bold text-slate-800 mb-3">Decision Pathway</h2>
+        <div className="rounded-xl border border-white/10 bg-card p-4 mb-4 shadow-sm">
+          <h2 className="text-sm font-heading font-bold text-foreground mb-3">Decision Pathway</h2>
           <div className="space-y-2">
             {decisions.map((d, i) => (
               <div key={i} className={`rounded-lg p-3 text-xs ${d.correct ? "bg-clinical-green/5 border border-clinical-green/20" : "bg-clinical-red/5 border border-clinical-red/20"}`}>
                 <div className="flex items-center gap-2 mb-1">
                   {d.correct ? <CheckCircle className="w-3.5 h-3.5 text-clinical-green" /> : <X className="w-3.5 h-3.5 text-clinical-red" />}
-                  <span className="font-semibold text-slate-800">Step {i + 1}: {d.choice}</span>
+                  <span className="font-semibold text-foreground">Step {i + 1}: {d.choice}</span>
                 </div>
-                <p className="text-slate-500">{d.feedback}</p>
+                <p className="text-muted-foreground">{d.feedback}</p>
               </div>
             ))}
           </div>
@@ -457,33 +457,40 @@ export default function WardSimulation() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="w-8 h-8 border-2 border-clinical-teal/30 border-t-clinical-teal rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-100 flex flex-col">
+    <div className="fixed inset-0 bg-background flex flex-col">
+      {/* Status bar */}
+      <div className="bg-primary text-white">
+        <div className="flex items-center justify-between px-4 py-1 max-w-6xl mx-auto text-[10px] font-heading tracking-wider uppercase">
+          <span>Ward Simulation · Live</span>
+          <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Monitoring</span>
+        </div>
+      </div>
       {/* Top navigation bar */}
-      <div className="z-20 bg-white border-b border-slate-200 shadow-sm">
+      <div className="z-20 bg-card border-b border-white/10 shadow-sm">
         <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 gap-2">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
               <Stethoscope className="w-5 h-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <span className="font-display text-sm text-slate-800 block leading-none">ClinicalEdge</span>
-              <span className="text-[8px] text-slate-400 uppercase tracking-wider">T-Level Academy</span>
+              <span className="font-display text-sm text-foreground block leading-none">ClinicalEdge</span>
+              <span className="text-[8px] text-muted-foreground uppercase tracking-wider">T-Level Academy</span>
             </div>
           </div>
 
           {/* Suite selector */}
-          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-background rounded-lg p-1">
             {["A", "B", "C", "D", "all"].map(s => (
               <button key={s} onClick={() => focusSuite(s)}
-                className={`px-2.5 py-1.5 text-xs font-heading font-semibold rounded-md transition-all ${suite === s ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-200"}`}>
+                className={`px-2.5 py-1.5 text-xs font-heading font-semibold rounded-md transition-all ${suite === s ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:bg-secondary/60"}`}>
                 {s === "all" ? "Full Academy" : s === "C" ? "Skills" : s === "D" ? "Theory" : `Suite ${s}`}
               </button>
             ))}
@@ -491,29 +498,29 @@ export default function WardSimulation() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={resetCamera} className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-medium text-slate-600 hover:bg-slate-50 transition-colors" aria-label="Reset camera">
+            <button onClick={resetCamera} className="flex items-center gap-1.5 rounded-lg bg-card border border-white/10 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40 transition-colors" aria-label="Reset camera">
               <Camera className="w-3.5 h-3.5" /><span className="hidden lg:inline">Reset View</span>
             </button>
             {canEdit && (
               <button onClick={handleEditToggle}
-                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${editMode ? "bg-clinical-teal text-white border-clinical-teal" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${editMode ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-white/10 text-muted-foreground hover:bg-secondary/40"}`}>
                 <Pencil className="w-3.5 h-3.5" /><span className="hidden lg:inline">{editMode ? "Save & Exit" : "Edit Ward"}</span>
               </button>
             )}
             {!editMode && (
               <>
-                <button onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-medium text-slate-600 hover:bg-slate-50">
+                <button onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-white/10 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <LayoutGrid className="w-3.5 h-3.5" /><span className="hidden lg:inline">Dashboard</span>
                 </button>
-                <button onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-medium text-slate-600 hover:bg-slate-50">
+                <button onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-card border border-white/10 px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <MessageSquare className="w-3.5 h-3.5" /><span className="hidden lg:inline">AI Tutor</span>
                 </button>
                 <button onClick={() => setShowScenarioList(true)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-white/10 text-muted-foreground hover:bg-secondary/40"}`}>
                   <Settings className="w-3.5 h-3.5" /><span className="hidden lg:inline">Scenarios</span>
                 </button>
                 <button onClick={() => setShowCallBellPanel(true)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showCallBellPanel ? "bg-clinical-amber text-white border-clinical-amber" : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showCallBellPanel ? "bg-clinical-amber text-white border-clinical-amber" : "bg-card border-white/10 text-muted-foreground hover:bg-secondary/40"}`}>
                   <Bell className="w-3.5 h-3.5" />
                   {Object.values(callBells).some(Boolean) && <span className="w-1.5 h-1.5 rounded-full bg-clinical-red animate-pulse" />}
                 </button>
@@ -524,10 +531,10 @@ export default function WardSimulation() {
 
         {/* Scenario indicator */}
         {activeScenario && !editMode && (
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-t border-slate-200">
+          <div className="flex items-center justify-between px-4 py-2 bg-secondary/40 border-t border-white/10">
             <div className="flex items-center gap-3">
-              <button onClick={exitScenario} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-800"><X className="w-3.5 h-3.5" /> Exit Scenario</button>
-              <div className="text-xs"><span className="text-slate-400">Active: </span><span className="font-semibold text-slate-800">{activeScenario.name}</span></div>
+              <button onClick={exitScenario} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /> Exit Scenario</button>
+              <div className="text-xs"><span className="text-muted-foreground">Active: </span><span className="font-semibold text-foreground">{activeScenario.name}</span></div>
             </div>
             <NEWS2Badge score={activeScenario.initial_news2} size="sm" />
           </div>
@@ -535,8 +542,8 @@ export default function WardSimulation() {
 
         {/* Save status */}
         {saveStatus && (
-          <div className="flex items-center justify-center gap-1.5 py-1 bg-slate-50 border-t border-slate-200">
-            <span className={`text-[10px] font-medium ${saveStatus.includes("Unable") ? "text-clinical-red" : saveStatus.includes("Saving") ? "text-slate-500" : "text-clinical-green"}`}>
+          <div className="flex items-center justify-center gap-1.5 py-1 bg-secondary/40 border-t border-white/10">
+            <span className={`text-[10px] font-medium ${saveStatus.includes("Unable") ? "text-clinical-red" : saveStatus.includes("Saving") ? "text-muted-foreground" : "text-clinical-green"}`}>
               {saveStatus.includes("Saving") ? "● " : saveStatus.includes("Unable") ? "⚠ " : "✓ "}{saveStatus}
             </span>
           </div>
@@ -610,7 +617,7 @@ export default function WardSimulation() {
 
         {/* Hint */}
         {!activeScenario && !editMode && !showPatientPanel && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-white/80 backdrop-blur-sm px-4 py-2 text-xs text-slate-600 border border-slate-200 shadow-sm">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-card/80 backdrop-blur-sm px-4 py-2 text-xs text-muted-foreground border border-white/10 shadow-sm">
             Click a bed to view patient details →
           </div>
         )}
@@ -619,18 +626,18 @@ export default function WardSimulation() {
       {/* Confirmation dialog */}
       {confirmAction && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade-in" onClick={() => setConfirmAction(null)}>
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-[90%]" onClick={e => e.stopPropagation()}>
+          <div className="bg-card rounded-xl shadow-2xl p-6 max-w-sm w-[90%]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-3">
               <AlertTriangle className="w-6 h-6 text-clinical-amber" />
-              <h2 className="font-heading font-bold text-slate-800">{confirmAction.type === "delete" ? "Delete Item?" : "Reset Layout?"}</h2>
+              <h2 className="font-heading font-bold text-foreground">{confirmAction.type === "delete" ? "Delete Item?" : "Reset Layout?"}</h2>
             </div>
-            <p className="text-sm text-slate-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {confirmAction.type === "delete"
                 ? "Are you sure you want to delete this item? This action cannot be undone (except via Undo)."
                 : "Are you sure you want to reset the layout to defaults? All current placements will be lost."}
             </p>
             <div className="flex gap-2">
-              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-heading font-semibold hover:bg-slate-50">Cancel</button>
+              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 rounded-lg border border-white/10 text-foreground text-sm font-heading font-semibold hover:bg-secondary/40">Cancel</button>
               <button onClick={confirmAction_yes} className="flex-1 py-2.5 rounded-lg bg-clinical-red text-white text-sm font-heading font-semibold hover:opacity-90">Confirm</button>
             </div>
           </div>
@@ -641,33 +648,33 @@ export default function WardSimulation() {
       {showScenarioList && !editMode && (
         <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowScenarioList(false)}>
           <div className="absolute inset-0 bg-black/20" />
-          <div className="relative w-full sm:max-w-md bg-white h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-              <h2 className="font-heading font-bold text-sm text-slate-800">Scenarios</h2>
-              <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
+          <div className="relative w-full sm:max-w-md bg-card h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-card border-b border-white/10 px-4 py-3 flex items-center justify-between">
+              <h2 className="font-heading font-bold text-sm text-foreground">Scenarios</h2>
+              <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="p-3 space-y-3">
               {scenarios.map((scenario, idx) => (
                 <button key={idx} onClick={() => startScenario(scenario)}
-                  className="group w-full text-left rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-clinical-teal/40 transition-all p-4">
+                  className="group w-full text-left rounded-xl border border-white/10 bg-card hover:bg-secondary/40 hover:border-clinical-teal/40 transition-all p-4">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 ${scenario.difficulty === "guided" ? "bg-clinical-green/15 text-clinical-green" : scenario.difficulty === "intermediate" ? "bg-clinical-amber/15 text-clinical-amber" : "bg-clinical-red/15 text-clinical-red"}`}>{DIFFICULTY_LABELS[scenario.difficulty]}</span>
-                        <span className="flex items-center gap-1 text-[10px] text-slate-400"><Clock className="w-3 h-3" /> {scenario.estimated_duration} min</span>
+                        <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock className="w-3 h-3" /> {scenario.estimated_duration} min</span>
                       </div>
-                      <h3 className="font-heading font-bold text-sm text-slate-800">{scenario.name}</h3>
-                      <p className="text-xs text-slate-500 mt-1">{scenario.description}</p>
+                      <h3 className="font-heading font-bold text-sm text-foreground">{scenario.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">{scenario.description}</p>
                     </div>
                     <NEWS2Badge score={scenario.initial_news2} size="sm" />
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
                     <span className="flex items-center gap-1"><User className="w-3 h-3" /> {scenario.patient_name}</span>
                     <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {scenario.bed_number}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <SKBadgeGroup skCodes={scenario.sk_codes} poCodes={scenario.performance_outcomes} />
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-clinical-teal" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-clinical-teal" />
                   </div>
                 </button>
               ))}
@@ -680,21 +687,21 @@ export default function WardSimulation() {
       {showCallBellPanel && !editMode && (
         <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowCallBellPanel(false)}>
           <div className="absolute inset-0 bg-black/20" />
-          <div className="relative w-full sm:max-w-sm bg-white h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-              <h2 className="font-heading font-bold text-sm text-slate-800">Call Bells</h2>
-              <button onClick={() => setShowCallBellPanel(false)} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
+          <div className="relative w-full sm:max-w-sm bg-card h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-card border-b border-white/10 px-4 py-3 flex items-center justify-between">
+              <h2 className="font-heading font-bold text-sm text-foreground">Call Bells</h2>
+              <button onClick={() => setShowCallBellPanel(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="p-3 space-y-2">
-              <p className="text-xs text-slate-500 mb-2">Tap a bed to activate or reset its call bell. The AI assistant will verbally announce active call bells periodically until reset.</p>
+              <p className="text-xs text-muted-foreground mb-2">Tap a bed to activate or reset its call bell. The AI assistant will verbally announce active call bells periodically until reset.</p>
               {wardBeds.map(bed => (
                 <button key={bed} onClick={() => toggleCallBell(bed)}
-                  className={`w-full flex items-center justify-between rounded-lg border p-3 transition-all ${callBells[bed] ? "border-clinical-amber/40 bg-clinical-amber/10" : "border-slate-200 bg-slate-50 hover:bg-slate-100"}`}>
+                  className={`w-full flex items-center justify-between rounded-lg border p-3 transition-all ${callBells[bed] ? "border-clinical-amber/40 bg-clinical-amber/10" : "border-white/10 bg-secondary/40 hover:bg-secondary/60"}`}>
                   <div className="flex items-center gap-2">
-                    <Bell className={`w-4 h-4 ${callBells[bed] ? "text-clinical-amber animate-pulse" : "text-slate-400"}`} />
-                    <span className="font-heading font-bold text-sm text-slate-800">Bed {bed}</span>
+                    <Bell className={`w-4 h-4 ${callBells[bed] ? "text-clinical-amber animate-pulse" : "text-muted-foreground"}`} />
+                    <span className="font-heading font-bold text-sm text-foreground">Bed {bed}</span>
                   </div>
-                  <span className={`text-xs font-medium ${callBells[bed] ? "text-clinical-amber" : "text-slate-400"}`}>{callBells[bed] ? "ACTIVE" : "Idle"}</span>
+                  <span className={`text-xs font-medium ${callBells[bed] ? "text-clinical-amber" : "text-muted-foreground"}`}>{callBells[bed] ? "ACTIVE" : "Idle"}</span>
                 </button>
               ))}
             </div>

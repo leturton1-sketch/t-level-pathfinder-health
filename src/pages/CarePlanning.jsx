@@ -32,7 +32,7 @@ export default function CarePlanning() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-clinical-navy px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <ClipboardList className="w-5 h-5 text-clinical-teal" />

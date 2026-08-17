@@ -68,7 +68,7 @@ export default function Login() {
     setPin(pin.slice(0, -1));
   };
 
-  const bgStyle = { background: "linear-gradient(135deg, #0D1526 0%, #1a2540 100%)" };
+  const bgStyle = { background: "linear-gradient(135deg, #141820 0%, #1E2330 100%)" };
 
   if (checking) {
     return (
@@ -85,7 +85,7 @@ export default function Login() {
           <div className="text-center mb-6 animate-fade-in">
             <div className="flex justify-center mb-4"><TLevelLogo size="md" dark /></div>
             <h1 className="text-xl font-heading font-bold text-white">Change Your PIN</h1>
-            <p className="text-sm text-slate-400 mt-2">For security, please set a new 4-digit PIN.</p>
+            <p className="text-sm text-muted-foreground mt-2">For security, please set a new 4-digit PIN.</p>
           </div>
 
           <div className="space-y-4 bg-white/5 backdrop-blur rounded-2xl border border-white/10 p-6">
@@ -95,7 +95,7 @@ export default function Login() {
               </div>
             )}
             <div>
-              <label className="text-xs text-slate-400 mb-1 block font-heading">New PIN</label>
+              <label className="text-xs text-muted-foreground mb-1 block font-heading">New PIN</label>
               <input
                 type="password"
                 inputMode="numeric"
@@ -107,7 +107,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="text-xs text-slate-400 mb-1 block font-heading">Confirm PIN</label>
+              <label className="text-xs text-muted-foreground mb-1 block font-heading">Confirm PIN</label>
               <input
                 type="password"
                 inputMode="numeric"
@@ -144,7 +144,7 @@ export default function Login() {
           <div className="flex justify-center mb-4">
             <TLevelLogo size="lg" dark />
           </div>
-          <p className="text-sm text-slate-400 font-body">T Level Health Learning Platform</p>
+          <p className="text-sm text-muted-foreground font-body">T Level Health Learning Platform</p>
         </div>
 
         <div className="space-y-4 bg-white/5 backdrop-blur rounded-2xl border border-white/10 p-6 animate-slide-up" style={{ animationDelay: "0.2s" }}>
@@ -155,15 +155,15 @@ export default function Login() {
           )}
 
           <div>
-            <label className="text-xs text-slate-400 mb-1 block font-heading">Username</label>
+            <label className="text-xs text-muted-foreground mb-1 block font-heading">Username</label>
             <div className="relative">
-              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-[#F4845F]"
+                className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder:text-muted-foreground focus:outline-none focus:border-[#F4845F]"
                 placeholder="Enter your username"
                 autoFocus
               />
@@ -171,7 +171,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="text-xs text-slate-400 mb-1 block font-heading">PIN</label>
+            <label className="text-xs text-muted-foreground mb-1 block font-heading">PIN</label>
             <div className="flex justify-center gap-3 mb-3">
               {[0, 1, 2, 3].map((i) => (
                 <div
@@ -179,7 +179,7 @@ export default function Login() {
                   className={`w-12 h-14 rounded-lg border-2 flex items-center justify-center text-2xl font-bold transition-all ${
                     pin.length > i
                       ? "border-[#F4845F] bg-[#F4845F]/20 text-[#F4845F]"
-                      : "border-white/20 bg-white/5 text-slate-600"
+                      : "border-white/20 bg-white/5 text-muted-foreground"
                   }`}
                 >
                   {pin.length > i ? "•" : ""}
@@ -207,7 +207,7 @@ export default function Login() {
             </button>
             <button
               onClick={handlePinDelete}
-              className="aspect-square rounded-xl border border-white/15 bg-white/5 text-slate-400 hover:bg-white/15 transition-all active:scale-95 flex items-center justify-center"
+              className="aspect-square rounded-xl border border-white/15 bg-white/5 text-muted-foreground hover:bg-white/15 transition-all active:scale-95 flex items-center justify-center"
             >
               <Delete className="w-5 h-5" />
             </button>
@@ -229,7 +229,7 @@ export default function Login() {
             )}
           </button>
 
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-muted-foreground">
             Default PIN is 0000 — you'll be prompted to change it on first login.
           </p>
         </div>

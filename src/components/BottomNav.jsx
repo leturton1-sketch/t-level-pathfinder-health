@@ -38,8 +38,7 @@ export default function BottomNav() {
   else nav = adminNav;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10"
-      style={{ background: "linear-gradient(180deg, rgba(13,21,38,0.97) 0%, #0D1526 100%)", backdropFilter: "blur(12px)" }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-[#0F1218]" style={{ backdropFilter: "blur(12px)" }}>
       <div className="flex items-center justify-around px-2 py-1.5 max-w-2xl mx-auto">
         {nav.map((item) => {
           const isActive = location.pathname === item.path;
@@ -48,13 +47,13 @@ export default function BottomNav() {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${
-                isActive ? "text-[#F4845F]" : "text-slate-500 hover:text-slate-300"
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <item.icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
               <span className="text-[10px] font-heading font-medium">{item.label}</span>
               {isActive && (
-                <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-[#F4845F]" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary" />
               )}
             </button>
           );

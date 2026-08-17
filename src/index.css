@@ -9,34 +9,34 @@
     --tl-salmon: 16 87% 66%;       /* #F4845F */
     --tl-red: 13 93% 53%;          /* #F03D1C */
     --tl-purple: 258 48% 57%;      /* #7B61C4 */
-    --tl-navy: 222 47% 11%;        /* #0D1526 */
+    --tl-navy: 220 23% 10%;        /* #141820 */
 
-    /* Dark T Level theme — black/navy bg, white writing, red primary */
-    --background: 222 47% 8%;          /* near-black navy #0A1120 */
+    /* Titanium Slate Dashboard theme */
+    --background: 220 23% 10%;         /* #141820 mid-dark slate */
     --foreground: 0 0% 100%;           /* white */
-    --card: 222 40% 13%;               /* dark surface, lighter than bg */
+    --card: 222 23% 15%;               /* #1E2330 lighter slate panel */
     --card-foreground: 0 0% 100%;      /* white */
-    --popover: 222 40% 13%;
+    --popover: 222 23% 15%;
     --popover-foreground: 0 0% 100%;
     --primary: 13 93% 53%;            /* T Level red #F03D1C */
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 30% 18%;
+    --secondary: 223 23% 19%;         /* #252B3B */
     --secondary-foreground: 0 0% 100%;
-    --muted: 222 30% 16%;
-    --muted-foreground: 220 12% 70%;  /* light grey — readable on dark */
-    --accent: 16 87% 66%;             /* T Level salmon — supplement */
+    --muted: 222 20% 18%;
+    --muted-foreground: 221 14% 60%;  /* cool grey #8A93A6 */
+    --accent: 16 87% 66%;             /* T Level salmon #F4845F */
     --accent-foreground: 0 0% 100%;
     --destructive: 13 93% 53%;        /* T Level red */
     --destructive-foreground: 0 0% 98%;
-    --border: 220 20% 24%;            /* visible border on dark */
-    --input: 220 20% 22%;
+    --border: 0 0% 100%;              /* white — alpha applied in tailwind config */
+    --input: 222 20% 22%;
     --ring: 13 93% 53%;               /* red focus ring */
-    --clinical-navy: 222 47% 8%;
-    --clinical-teal: 13 93% 53%;       /* red — primary accent everywhere */
-    --clinical-amber: 38 92% 50%;      /* supplement — warnings */
+    --clinical-navy: 220 23% 10%;     /* #141820 */
+    --clinical-teal: 13 93% 53%;      /* red — primary accent everywhere */
+    --clinical-amber: 38 92% 50%;     /* #F59E0B — warnings */
     --clinical-red: 13 93% 53%;        /* T Level red */
-    --clinical-green: 142 71% 45%;    /* supplement — low-risk/success */
-    --radius: 0.5rem;
+    --clinical-green: 142 71% 45%;    /* #22C55E — success */
+    --radius: 0.75rem;
     --font-heading: 'Saira', Arial, sans-serif;
     --font-body: 'Inter', Arial, sans-serif;
     --font-display: 'Russo One', Arial, sans-serif;
@@ -103,5 +103,5 @@
 
 .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(210 14% 80%); border-radius: 3px; }
-.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: hsl(210 14% 70%); }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #2A3244; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #3A4458; }
