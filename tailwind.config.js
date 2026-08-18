@@ -22,8 +22,8 @@ module.exports = {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
-        clinical: { navy: '#1E293B', teal: '#0F766E', amber: '#F59E0B', red: '#DC2626', green: '#22C55E' },
-        tl: { salmon: '#F4845F', red: '#F03D1C', purple: '#7B61C4', navy: '#141820', lavender: '#A78BFA', mint: '#34D399' },
+        clinical: { navy: '#1E293B', teal: '#FF4528', amber: '#F59E0B', red: '#DC2626', green: '#22C55E' },
+        tl: { salmon: '#FFA07A', red: '#FF4528', purple: '#766AA3', navy: '#141820', lavender: '#A78BFA', mint: '#34D399' },
   			chart: { '1': 'hsl(73 100% 36%)', '2': 'hsl(142 71% 45%)', '3': 'hsl(38 92% 50%)', '4': 'hsl(280 65% 60%)', '5': 'hsl(340 75% 55%)' },
   			sidebar: { DEFAULT: 'hsl(var(--background))', foreground: 'hsl(var(--foreground))', primary: 'hsl(var(--primary))', 'primary-foreground': 'hsl(var(--primary-foreground))', accent: 'hsl(var(--muted))', 'accent-foreground': 'hsl(var(--foreground))', border: 'hsl(var(--border))', ring: 'hsl(var(--ring))' }
   		},

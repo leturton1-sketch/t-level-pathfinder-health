@@ -43,7 +43,7 @@ export default function StripLight3D({ className = "" }) {
     // Emissive tube
     const tubeMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      emissive: 0x5eead4,
+      emissive: 0xff8a5c,
       emissiveIntensity: 0,
       roughness: 0.3,
     });
@@ -52,7 +52,7 @@ export default function StripLight3D({ className = "" }) {
     scene.add(tube);
 
     // Light cast
-    const stripLight = new THREE.PointLight(0x5eead4, 0, 14, 2);
+    const stripLight = new THREE.PointLight(0xff8a5c, 0, 14, 2);
     stripLight.position.set(0, 0.2, 0.5);
     scene.add(stripLight);
 

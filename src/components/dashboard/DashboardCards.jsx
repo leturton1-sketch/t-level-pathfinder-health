@@ -20,7 +20,7 @@ export function WhiteboardCard({ icon: Icon, title, onNavigate, loading, childre
     <button onClick={onNavigate} className="group w-full text-left rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col h-full">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0F766E] flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FFA07A] to-[#FF4528] flex items-center justify-center shadow-sm">
             <Icon className="w-5 h-5 text-white" />
           </div>
           <h3 className="font-heading font-bold text-sm text-foreground">{title}</h3>
@@ -64,7 +64,7 @@ export function LearningCard({ onNavigate }) {
         <span className="text-[10px] text-muted-foreground">modules complete</span>
       </div>
       <div className="h-1.5 rounded-full bg-secondary overflow-hidden mb-2">
-        <div className="h-full bg-gradient-to-r from-[#14B8A6] to-[#0F766E]" style={{ width: `${pct}%` }} />
+        <div className="h-full bg-gradient-to-r from-[#FFA07A] to-[#FF4528]" style={{ width: `${pct}%` }} />
       </div>
       <div className="space-y-1">
         {modules.slice(0, 3).map((m, i) => (
@@ -125,8 +125,8 @@ export function CarePlanningCard({ onNavigate, userId }) {
       <div className="h-16">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={byType}>
-            <Bar dataKey="count" fill="#0F766E" radius={[3, 3, 0, 0]} />
-            <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgba(15,118,110,0.06)" }} />
+            <Bar dataKey="count" fill="#FF4528" radius={[3, 3, 0, 0]} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgba(255,69,40,0.06)" }} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -177,7 +177,7 @@ export function PerformanceCard({ onNavigate, userId }) {
       <div className="h-16">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-            <Line type="monotone" dataKey="score" stroke="#0F766E" strokeWidth={2} dot={{ r: 2, fill: "#0F766E" }} />
+            <Line type="monotone" dataKey="score" stroke="#FF4528" strokeWidth={2} dot={{ r: 2, fill: "#FF4528" }} />
             <Tooltip contentStyle={TOOLTIP_STYLE} />
           </LineChart>
         </ResponsiveContainer>

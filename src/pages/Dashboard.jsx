@@ -82,7 +82,7 @@ export default function Dashboard() {
       {/* Live module whiteboard */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#14B8A6] to-[#0F766E]" />
+          <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#FFA07A] to-[#FF4528]" />
           <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest">Live Module Whiteboard</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -101,7 +101,7 @@ export default function Dashboard() {
                   onClick={() => navigate(m.to)}
                   className="group flex items-center gap-2 rounded-xl border border-border bg-card p-3 hover:border-clinical-teal/40 hover:shadow-md transition-all"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#14B8A6] to-[#0F766E] flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FFA07A] to-[#FF4528] flex items-center justify-center shrink-0">
                     <m.icon className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-xs font-heading font-semibold text-foreground truncate">{m.title}</span>

@@ -6,9 +6,9 @@
 @layer base {
   :root {
     /* T Level brand palette */
-    --tl-salmon: 16 87% 66%;       /* #F4845F */
-    --tl-red: 13 93% 53%;          /* #F03D1C */
-    --tl-purple: 258 48% 57%;      /* #7B61C4 */
+    --tl-salmon: 17 100% 74%;     /* #FFA07A */
+    --tl-red: 8 100% 58%;          /* #FF4528 */
+    --tl-purple: 253 24% 53%;      /* #766AA3 */
     --tl-navy: 220 23% 10%;        /* #141820 */
 
     /* Arctic Slate light theme */
@@ -18,21 +18,21 @@
     --card-foreground: 217 33% 17%;
     --popover: 0 0% 100%;
     --popover-foreground: 217 33% 17%;
-    --primary: 173 75% 26%;            /* #0F766E teal-700 — structural accent */
+    --primary: 8 100% 58%;             /* #FF4528 T Level orange-red — primary accent */
     --primary-foreground: 0 0% 100%;
     --secondary: 214 20% 91%;          /* #E2E8F0 slate-200 */
     --secondary-foreground: 217 33% 17%;
     --muted: 214 20% 93%;              /* #E8EDF3 cool light */
     --muted-foreground: 215 25% 31%;   /* #475569 slate-600 — readable */
-    --accent: 174 72% 56%;             /* #2DD4BF teal-400 — secondary accent */
+    --accent: 17 100% 74%;             /* #FFA07A T Level salmon — highlight accent */
     --accent-foreground: 217 33% 17%;
     --destructive: 0 72% 51%;          /* #DC2626 red-600 — alerts only */
     --destructive-foreground: 0 0% 100%;
     --border: 214 20% 87%;             /* #D8DEE6 cool hairline */
     --input: 214 20% 91%;
-    --ring: 173 75% 26%;               /* teal focus ring */
+    --ring: 8 100% 58%;                /* #FF4528 orange-red focus ring */
     --clinical-navy: 217 33% 17%;      /* #1E293B dark slate — 3D ward scene */
-    --clinical-teal: 217 91% 60%;      /* #0F766E teal — primary structural color */
+    --clinical-teal: 8 100% 58%;        /* #FF4528 T Level orange-red — primary accent */
     --clinical-amber: 38 92% 50%;      /* #F59E0B — notifications / warnings */
     --clinical-red: 0 72% 51%;         /* #DC2626 — alerts */
     --clinical-green: 142 71% 45%;    /* #22C55E — success */

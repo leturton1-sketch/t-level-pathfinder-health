@@ -6,7 +6,7 @@ export function SKBadge({ code }) {
   return (
     <span
       title={desc}
-      className="inline-flex items-center rounded-md bg-clinical-teal/15 border border-clinical-teal/30 px-2 py-0.5 text-xs font-semibold text-clinical-teal cursor-help"
+      className="inline-flex items-center rounded-md bg-tl-purple/15 border border-tl-purple/30 px-2 py-0.5 text-xs font-semibold text-tl-purple cursor-help"
     >
       {code}
     </span>

@@ -8,7 +8,7 @@ export default function CompetencyRadar({ data }) {
         <PolarGrid stroke="hsl(210 14% 80%)" />
         <PolarAngleAxis dataKey="label" tick={{ fontSize: 10, fill: "hsl(210 8% 40%)" }} />
         <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 8, fill: "hsl(210 8% 60%)" }} angle={90} />
-        <Radar dataKey="progress" stroke="hsl(73 100% 36%)" strokeWidth={2} fill="hsl(73 100% 36%)" fillOpacity={0.35} />
+        <Radar dataKey="progress" stroke="hsl(8 100% 58%)" strokeWidth={2} fill="hsl(8 100% 58%)" fillOpacity={0.35} />
       </RadarChart>
     </ResponsiveContainer>
   );
