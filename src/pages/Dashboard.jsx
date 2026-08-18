@@ -1,40 +1,46 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
+import StripLight3D from "@/components/dashboard/StripLight3D";
 import {
-  LayoutDashboard, BookOpen, FileText, Sparkles, Stethoscope,
-  Thermometer, Settings, FlaskConical, BarChart3, Bot,
-  ChevronRight, Activity, GraduationCap, Users,
-} from "lucide-react";
+  LearningCard, WardCard, CarePlanningCard, KnowledgeCard,
+  PerformanceCard, InteractiveCard,
+} from "@/components/dashboard/DashboardCards";
+import { Search, Sparkles, Bot, Users, Settings, Activity, Stethoscope } from "lucide-react";
 
-const MODULES = [
-  { title: "Learning Dashboard", desc: "Track progress, completed modules, and upcoming simulations.", icon: LayoutDashboard, to: "/profile" },
-  { title: "Performance", desc: "Visualise competency across all Pearson areas and knowledge checks.", icon: BarChart3, to: "/performance" },
-  { title: "Learning Modules", desc: "Access core T Level curriculum, start lessons, and take assessments.", icon: BookOpen, to: "/theory" },
-  { title: "T Level Specification", desc: "Official T Level Health standards and clinical competency criteria.", icon: FileText, to: "/knowledge-library" },
-  { title: "AI Tutor", desc: "Personalised clinical help, question practice, and scenario coaching.", icon: Sparkles, to: "/profile" },
-  { title: "AI Voice Assistant", desc: "Natural voice assistant with customisable voice settings.", icon: Bot, to: "/voice-assistant" },
-  { title: "Ward Simulation", desc: "3D interactive virtual hospital ward for clinical skills practice.", icon: Stethoscope, to: "/ward-simulation" },
-  { title: "Clinical Skills Lab", desc: "Anatomy atlas, PPE training, hazard hunts and science flashcards.", icon: FlaskConical, to: "/interactive-learning" },
-  { title: "Care Planning Suite", desc: "ABCDE assessments, NEWS2 scoring and SMART care goals.", icon: Thermometer, to: "/care-planning" },
-  { title: "Scenario Templates", desc: "Build reusable patient scenario templates for simulation exercises.", icon: Activity, to: "/scenario-templates", adminOnly: true },
-  { title: "Scenario Authoring", desc: "Clone or build custom scenarios with celebrity patient profiles.", icon: Stethoscope, to: "/scenario-authoring", adminOnly: true },
-  { title: "User Management", desc: "Manage staff and student accounts, cohorts, and permissions.", icon: Users, to: "/user-management", adminOnly: true },
-  { title: "System Settings", desc: "Manage your profile, roles, and application preferences.", icon: Settings, to: "/profile" },
+const ADMIN_MODULES = [
+  { title: "Scenario Templates", to: "/scenario-templates", icon: Activity },
+  { title: "Scenario Authoring", to: "/scenario-authoring", icon: Stethoscope },
+  { title: "User Management", to: "/user-management", icon: Users },
+  { title: "AI Tutor", to: "/profile", icon: Sparkles },
+  { title: "AI Voice Assistant", to: "/voice-assistant", icon: Bot },
+  { title: "Settings", to: "/profile", icon: Settings },
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!isLoggedIn()) navigate("/login");
   }, [navigate]);
 
-  const visibleModules = MODULES.filter(
-    (m) => !m.adminOnly || ["super_admin", "admin", "tutor"].includes(user?.role)
-  );
+  const isAdmin = ["super_admin", "admin", "tutor"].includes(user?.role);
+
+  const cards = useMemo(() => [
+    { key: "learning", title: "Learning", el: <LearningCard onNavigate={() => navigate("/theory")} /> },
+    { key: "ward", title: "Ward Simulation", el: <WardCard onNavigate={() => navigate("/ward-simulation")} /> },
+    { key: "care", title: "Care Planning", el: <CarePlanningCard userId={user?.id} onNavigate={() => navigate("/care-planning")} /> },
+    { key: "knowledge", title: "Knowledge", el: <KnowledgeCard onNavigate={() => navigate("/knowledge-library")} /> },
+    { key: "performance", title: "Performance", el: <PerformanceCard userId={user?.id} onNavigate={() => navigate("/performance")} /> },
+    { key: "interactive", title: "Interactive", el: <InteractiveCard onNavigate={() => navigate("/interactive-learning")} /> },
+  ], [navigate, user?.id]);
+
+  const q = search.toLowerCase();
+  const filtered = cards.filter((c) => c.title.toLowerCase().includes(q));
+  const filteredAdmin = ADMIN_MODULES.filter((m) => m.title.toLowerCase().includes(q));
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,72 +49,68 @@ export default function Dashboard() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-1 flex items-center justify-between text-[10px] font-heading tracking-wider uppercase">
           <span>ClinicalEdge · T Level Health</span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            System Online
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> System Online
           </span>
         </div>
       </div>
 
-      <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10 max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-end mb-6 sm:mb-8">
-          <TLevelLogo size="md" />
-        </div>
-
-        {/* Hero banner */}
-        <div className="rounded-3xl overflow-hidden mb-6 sm:mb-8 shadow-xl" style={{ background: "linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)" }}>
-          <div className="px-6 py-8 sm:px-10 sm:py-10 relative">
-            <div className="absolute right-4 top-4 opacity-10 select-none pointer-events-none">
-              <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/eb340c16e_TLevel-Logo-TLWhite.png"
-                alt="" className="h-32 w-auto" />
-            </div>
-            <div className="relative z-10 max-w-2xl">
-              <p className="text-white/80 text-xs font-heading uppercase tracking-widest mb-2">ClinicalEdge · T Level Health</p>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display text-white leading-tight mb-3">
-                The Next Level<br />of Clinical Education
+      {/* Whiteboard header with 3D overhead strip light */}
+      <div className="bg-card border-b border-border">
+        <StripLight3D className="w-full h-[90px] sm:h-[110px]" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 pt-2 pb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] font-heading uppercase tracking-widest text-muted-foreground mb-1">ClinicalEdge Monitor</p>
+              <h1 className="text-xl sm:text-2xl font-display text-foreground">
+                Welcome back, {user?.full_name?.split(" ")[0] || "Student"}
               </h1>
-              <p className="text-white/80 text-sm leading-relaxed font-body">
-                Combining rigorous classroom learning with deep industry experience.
-                Gain hands-on clinical competency and prepare for a premium career in healthcare.
-              </p>
-              {user && (
-                <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur rounded-full px-3 py-1.5">
-                  <GraduationCap className="w-4 h-4 text-white" />
-                  <span className="text-white text-xs font-heading font-semibold capitalize">
-                    {user.full_name || user.username} · {user.role}
-                  </span>
-                </div>
-              )}
+            </div>
+            <TLevelLogo size="md" />
+          </div>
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search modules, tools, articles…"
+              className="w-full bg-secondary border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Live module whiteboard */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#14B8A6] to-[#0F766E]" />
+          <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest">Live Module Whiteboard</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {filtered.map((c) => (
+            <div key={c.key} className="animate-slide-up">{c.el}</div>
+          ))}
+        </div>
+
+        {isAdmin && filteredAdmin.length > 0 && (
+          <div className="mt-8">
+            <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest mb-3">Administration & Tools</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              {filteredAdmin.map((m, i) => (
+                <button
+                  key={i}
+                  onClick={() => navigate(m.to)}
+                  className="group flex items-center gap-2 rounded-xl border border-border bg-card p-3 hover:border-clinical-teal/40 hover:shadow-md transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#14B8A6] to-[#0F766E] flex items-center justify-center shrink-0">
+                    <m.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-xs font-heading font-semibold text-foreground truncate">{m.title}</span>
+                </button>
+              ))}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Module grid */}
-        <div className="mb-3">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#14B8A6] to-[#0F766E]" />
-            <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest">Select a module to launch</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {visibleModules.map((module, idx) => (
-              <button
-                key={idx}
-                onClick={() => navigate(module.to)}
-                className="group relative bg-card rounded-3xl border border-border p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-border hover:shadow-xl animate-slide-up"
-                style={{ animationDelay: `${idx * 40}ms` }}
-              >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#14B8A6] to-[#0F766E] flex items-center justify-center mb-3 shadow-md transition-transform group-hover:scale-110">
-                  <module.icon className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-heading font-bold text-sm text-foreground mb-1 leading-snug">{module.title}</h3>
-                <p className="text-xs text-muted-foreground leading-tight line-clamp-2 mb-2">{module.desc}</p>
-                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer brand strip */}
         <div className="mt-8 border-t border-border pt-4 flex items-center justify-between">
           <TLevelLogo size="sm" />
           <span className="text-[10px] text-muted-foreground font-heading tracking-widest uppercase">ClinicalEdge Platform</span>
