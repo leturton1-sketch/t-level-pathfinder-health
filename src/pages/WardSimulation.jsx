@@ -15,7 +15,7 @@ import { WARD_ITEM_TYPES, generateDefaultItems, DEFAULT_PATIENTS, getItemLabel }
 import { useWardNarration } from "@/hooks/useWardNarration";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
-  Pencil, LayoutGrid, MessageSquare, Settings, Bell, Camera, AlertTriangle,
+  Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle,
 } from "lucide-react";
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
@@ -50,10 +50,6 @@ export default function WardSimulation() {
   const [vitals, setVitals] = useState(null);
   const [decisions, setDecisions] = useState([]);
   const [showDebrief, setShowDebrief] = useState(false);
-
-  // Call bells
-  const [callBells, setCallBells] = useState({});
-  const [showCallBellPanel, setShowCallBellPanel] = useState(false);
 
   // Clinical narration during simulation
   const narration = useWardNarration();
@@ -138,11 +134,10 @@ export default function WardSimulation() {
       detail: {
         editMode, suite,
         placedItems: items.map(i => ({ type: i.type, designation: i.designation, x: i.x, z: i.z })),
-        callBells,
         availableItemTypes: WARD_ITEM_TYPES.map(t => t.type),
       },
     }));
-  }, [editMode, suite, items, callBells]);
+  }, [editMode, suite, items]);
 
   // AI command listener
   useEffect(() => {
@@ -150,18 +145,11 @@ export default function WardSimulation() {
       const { action, itemType, designation } = e.detail;
       switch (action) {
         case "place": if (editMode && itemType) handleItemPlace(itemType, 0, 0); break;
-        case "reset_callbell":
-          if (designation && callBells[designation]) toggleCallBell(designation);
-          else Object.keys(callBells).filter(d => callBells[d]).forEach(d => toggleCallBell(d));
-          break;
-        case "activate_callbell":
-          if (designation && !callBells[designation]) toggleCallBell(designation);
-          break;
       }
     };
     window.addEventListener("ward-ai-command", handler);
     return () => window.removeEventListener("ward-ai-command", handler);
-  }, [editMode, callBells, items]);
+  }, [editMode, items]);
 
   // --- History management ---
   const modifyItems = (newItems) => {
@@ -304,15 +292,6 @@ export default function WardSimulation() {
     setShowPatientPanel(true);
     setCameraCommand({ type: "focus", target: { x: item.x, z: item.z }, nonce: Date.now() });
   };
-
-  // --- Call bell ---
-  const toggleCallBell = (designation) => {
-    const newActive = !callBells[designation];
-    setCallBells(prev => ({ ...prev, [designation]: newActive }));
-    window.dispatchEvent(new CustomEvent("callbell-status", { detail: { bedDesignation: designation, active: newActive } }));
-  };
-
-  const wardBeds = [...new Set([...Object.keys(DEFAULT_PATIENTS), ...WARD_PATIENTS.map(p => p.bedDesignation)])];
 
   // --- Scenario ---
   const startScenario = (scenario) => {
@@ -519,11 +498,6 @@ export default function WardSimulation() {
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-border text-muted-foreground hover:bg-secondary/40"}`}>
                   <Settings className="w-3.5 h-3.5" /><span className="hidden lg:inline">Scenarios</span>
                 </button>
-                <button onClick={() => setShowCallBellPanel(true)}
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showCallBellPanel ? "bg-clinical-amber text-white border-clinical-amber" : "bg-card border-border text-muted-foreground hover:bg-secondary/40"}`}>
-                  <Bell className="w-3.5 h-3.5" />
-                  {Object.values(callBells).some(Boolean) && <span className="w-1.5 h-1.5 rounded-full bg-clinical-red animate-pulse" />}
-                </button>
               </>
             )}
           </div>
@@ -683,31 +657,6 @@ export default function WardSimulation() {
         </div>
       )}
 
-      {/* Call bell panel */}
-      {showCallBellPanel && !editMode && (
-        <div className="absolute inset-0 z-30 flex justify-end animate-fade-in" onClick={() => setShowCallBellPanel(false)}>
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="relative w-full sm:max-w-sm bg-card h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-              <h2 className="font-heading font-bold text-sm text-foreground">Call Bells</h2>
-              <button onClick={() => setShowCallBellPanel(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
-            </div>
-            <div className="p-3 space-y-2">
-              <p className="text-xs text-muted-foreground mb-2">Tap a bed to activate or reset its call bell. The AI assistant will verbally announce active call bells periodically until reset.</p>
-              {wardBeds.map(bed => (
-                <button key={bed} onClick={() => toggleCallBell(bed)}
-                  className={`w-full flex items-center justify-between rounded-lg border p-3 transition-all ${callBells[bed] ? "border-clinical-amber/40 bg-clinical-amber/10" : "border-border bg-secondary/40 hover:bg-secondary/60"}`}>
-                  <div className="flex items-center gap-2">
-                    <Bell className={`w-4 h-4 ${callBells[bed] ? "text-clinical-amber animate-pulse" : "text-muted-foreground"}`} />
-                    <span className="font-heading font-bold text-sm text-foreground">Bed {bed}</span>
-                  </div>
-                  <span className={`text-xs font-medium ${callBells[bed] ? "text-clinical-amber" : "text-muted-foreground"}`}>{callBells[bed] ? "ACTIVE" : "Idle"}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

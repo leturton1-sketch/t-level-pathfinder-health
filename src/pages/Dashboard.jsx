@@ -2,118 +2,111 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
-import StripLight3D from "@/components/dashboard/StripLight3D";
-import {
-  LearningCard, WardCard, CarePlanningCard, KnowledgeCard,
-  PerformanceCard, InteractiveCard,
-} from "@/components/dashboard/DashboardCards";
-import { Search, Sparkles, Bot, Users, Settings, Activity, Stethoscope } from "lucide-react";
+import PatientList from "@/components/dashboard/PatientList";
+import LiveWardWidget from "@/components/dashboard/LiveWardWidget";
+import PatientBannerWidget from "@/components/dashboard/PatientBannerWidget";
+import NEWS2LiveWidget from "@/components/dashboard/NEWS2LiveWidget";
+import RiskAssessmentWidget from "@/components/dashboard/RiskAssessmentWidget";
+import WardStatsWidget from "@/components/dashboard/WardStatsWidget";
+import { initialBoard, admitIncoming, INCOMING_PATIENTS } from "@/lib/wardBoard";
+import { Activity, Clock, Stethoscope, Users, Sparkles, Bot, Sliders } from "lucide-react";
 
-const ADMIN_MODULES = [
-  { title: "Scenario Templates", to: "/scenario-templates", icon: Activity },
-  { title: "Scenario Authoring", to: "/scenario-authoring", icon: Stethoscope },
-  { title: "User Management", to: "/user-management", icon: Users },
-  { title: "AI Tutor", to: "/profile", icon: Sparkles },
-  { title: "AI Voice Assistant", to: "/voice-assistant", icon: Bot },
-  { title: "Settings", to: "/profile", icon: Settings },
+const ADMIN_TOOLS = [
+  { to: "/scenario-authoring", label: "Scenario Authoring", icon: Stethoscope },
+  { to: "/scenario-templates", label: "Templates", icon: Sliders },
+  { to: "/user-management", label: "Users", icon: Users },
+  { to: "/profile", label: "AI Tutor", icon: Sparkles },
+  { to: "/voice-assistant", label: "Voice Assistant", icon: Bot },
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const [search, setSearch] = useState("");
+  const [now, setNow] = useState(() => Date.now());
+  const [patients, setPatients] = useState(() => initialBoard(Date.now()));
+  const [incoming, setIncoming] = useState(INCOMING_PATIENTS);
+  const [selectedId, setSelectedId] = useState(() => patients[0]?.id);
 
-  useEffect(() => {
-    if (!isLoggedIn()) navigate("/login");
-  }, [navigate]);
+  useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
+
+  const selected = useMemo(() => patients.find((p) => p.id === selectedId) || patients[0], [patients, selectedId]);
+
+  const handleAdmit = (p) => {
+    const admitted = admitIncoming(p, Date.now());
+    setPatients((prev) => [...prev, admitted]);
+    setIncoming((prev) => prev.filter((x) => x.id !== p.id));
+    setSelectedId(admitted.id);
+  };
+
+  const handleDischarge = (p) => {
+    setPatients((prev) => prev.filter((x) => x.id !== p.id));
+    setSelectedId(null);
+  };
 
   const isAdmin = ["super_admin", "admin", "tutor"].includes(user?.role);
-
-  const cards = useMemo(() => [
-    { key: "learning", title: "Learning", el: <LearningCard onNavigate={() => navigate("/theory")} /> },
-    { key: "ward", title: "Ward Simulation", el: <WardCard onNavigate={() => navigate("/ward-simulation")} /> },
-    { key: "care", title: "Care Planning", el: <CarePlanningCard userId={user?.id} onNavigate={() => navigate("/care-planning")} /> },
-    { key: "knowledge", title: "Knowledge", el: <KnowledgeCard onNavigate={() => navigate("/knowledge-library")} /> },
-    { key: "performance", title: "Performance", el: <PerformanceCard userId={user?.id} onNavigate={() => navigate("/performance")} /> },
-    { key: "interactive", title: "Interactive", el: <InteractiveCard onNavigate={() => navigate("/interactive-learning")} /> },
-  ], [navigate, user?.id]);
-
-  const q = search.toLowerCase();
-  const filtered = cards.filter((c) => c.title.toLowerCase().includes(q));
-  const filteredAdmin = ADMIN_MODULES.filter((m) => m.title.toLowerCase().includes(q));
+  const clock = new Date(now).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Status bar */}
-      <div className="bg-primary text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-1 flex items-center justify-between text-[10px] font-heading tracking-wider uppercase">
-          <span>ClinicalEdge · T Level Health</span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> System Online
-          </span>
-        </div>
-      </div>
-
-      {/* Whiteboard header with 3D overhead strip light */}
-      <div className="bg-card border-b border-border">
-        <StripLight3D className="w-full h-[90px] sm:h-[110px]" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 pt-2 pb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-[10px] font-heading uppercase tracking-widest text-muted-foreground mb-1">ClinicalEdge Monitor</p>
-              <h1 className="text-xl sm:text-2xl font-display text-foreground">
-                Welcome back, {user?.full_name?.split(" ")[0] || "Student"}
-              </h1>
+    <div className="min-h-screen bg-background pb-24">
+      {/* NHS-style system header */}
+      <div className="bg-gradient-to-r from-sky-600 to-sky-500 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shrink-0 shadow-inner">
+              <Activity className="w-5 h-5 text-white" />
             </div>
-            <TLevelLogo size="md" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-heading uppercase tracking-widest text-white/80 truncate">ClinicalEdge Patient Management System</p>
+              <h1 className="text-sm sm:text-base font-heading font-bold truncate">Ward Board · Admit · Discharge · Update</h1>
+            </div>
           </div>
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search modules, tools, articles…"
-              className="w-full bg-secondary border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal"
-            />
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-white/90">
+              <Clock className="w-3.5 h-3.5" />
+              <span className="font-mono">{clock}</span>
+              <span className="text-white/50">·</span>
+              <span>{date}</span>
+            </div>
+            <TLevelLogo size="sm" dark />
           </div>
         </div>
       </div>
 
-      {/* Live module whiteboard */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-[#FFA07A] to-[#FF4528]" />
-          <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest">Live Module Whiteboard</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {filtered.map((c) => (
-            <div key={c.key} className="animate-slide-up">{c.el}</div>
-          ))}
-        </div>
-
-        {isAdmin && filteredAdmin.length > 0 && (
-          <div className="mt-8">
-            <p className="text-xs text-muted-foreground font-heading uppercase tracking-widest mb-3">Administration & Tools</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-              {filteredAdmin.map((m, i) => (
-                <button
-                  key={i}
-                  onClick={() => navigate(m.to)}
-                  className="group flex items-center gap-2 rounded-xl border border-border bg-card p-3 hover:border-clinical-teal/40 hover:shadow-md transition-all"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FFA07A] to-[#FF4528] flex items-center justify-center shrink-0">
-                    <m.icon className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-xs font-heading font-semibold text-foreground truncate">{m.title}</span>
-                </button>
-              ))}
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
+          {/* Left: patient list */}
+          <div className="lg:sticky lg:top-4 lg:self-start">
+            <PatientList patients={patients} selectedId={selected?.id} onSelect={setSelectedId} now={now} />
           </div>
-        )}
 
-        <div className="mt-8 border-t border-border pt-4 flex items-center justify-between">
-          <TLevelLogo size="sm" />
-          <span className="text-[10px] text-muted-foreground font-heading tracking-widest uppercase">ClinicalEdge Platform</span>
+          {/* Right: live widget grid */}
+          <div className="space-y-4">
+            <PatientBannerWidget patient={selected} now={now} onDischarge={handleDischarge} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NEWS2LiveWidget patient={selected} />
+              <RiskAssessmentWidget patient={selected} now={now} incoming={incoming} onAdmit={handleAdmit} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <LiveWardWidget patients={patients} selectedId={selected?.id} onSelect={setSelectedId} />
+              <WardStatsWidget patients={patients} incoming={incoming} now={now} />
+            </div>
+
+            {isAdmin && (
+              <div className="rounded-2xl border border-sky-200/70 bg-card p-3 shadow-sm">
+                <p className="text-[10px] font-heading font-bold text-muted-foreground uppercase tracking-wide mb-2">Admin & Tools</p>
+                <div className="flex flex-wrap gap-2">
+                  {ADMIN_TOOLS.map((t) => (
+                    <button key={t.to} onClick={() => navigate(t.to)}
+                      className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-heading font-semibold text-foreground hover:bg-sky-50 hover:border-sky-300 transition-colors">
+                      <t.icon className="w-3.5 h-3.5 text-clinical-teal" /> {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

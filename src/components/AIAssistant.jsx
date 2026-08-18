@@ -27,7 +27,6 @@ export default function AIAssistant({ context = "general" }) {
   const mutedRef = useRef(false);
   const settingsRef = useRef({ apiKey: "", voiceId: "", volume: 1 });
   const wardStateRef = useRef(null);
-  const callBellTimersRef = useRef({});
   const user = getCurrentUser();
 
   // Load ElevenLabs settings
@@ -47,7 +46,6 @@ export default function AIAssistant({ context = "general" }) {
   const systemPrompt = `You are the ClinicalEdge AI Clinical Assistant, supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. The user's name is ${user?.full_name || "Student"}. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
 
 WARD MANAGEMENT: In edit mode you can help place items (bed, bedside_cabinet, observation_monitor, iv_stand, curtain, chair, overbed_table, waste_bin, sink). Bed designations: A1-A4 (Suite A), B1-B4 (Suite B).
-CALL BELLS: You can activate/reset call bells. When active, you announce periodically until reset.
 Include a ward_action object for ward commands, otherwise set action to "none".`;
 
   useEffect(() => {
@@ -56,45 +54,13 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     return () => window.removeEventListener("ward-state-update", handler);
   }, []);
 
-  useEffect(() => {
-    const handler = (e) => {
-      const { bedDesignation, active } = e.detail;
-      if (active) {
-        const announce = async () => {
-          const text = `Assistance is required at bed ${bedDesignation}.`;
-          if (!mutedRef.current) {
-            const { apiKey, voiceId, volume } = settingsRef.current;
-            const success = await playElevenLabs(text, apiKey, voiceId, volume);
-            if (!success && "speechSynthesis" in window) {
-              await new Promise(r => setTimeout(r, 150));
-              const u = new SpeechSynthesisUtterance(text);
-              u.rate = 0.95;
-              u.pitch = user?.ai_persona === "male" ? 0.7 : 1.1;
-              u.volume = volume;
-              window.speechSynthesis.speak(u);
-            }
-          }
-          setMessages((prev) => [...prev, { role: "assistant", content: `🔔 **${text}**` }]);
-        };
-        announce();
-        callBellTimersRef.current[bedDesignation] = setInterval(announce, 15000);
-      } else {
-        if (callBellTimersRef.current[bedDesignation]) {
-          clearInterval(callBellTimersRef.current[bedDesignation]);
-          delete callBellTimersRef.current[bedDesignation];
-          setMessages((prev) => [...prev, { role: "assistant", content: `Call bell at bed ${bedDesignation} has been reset.` }]);
-        }
-      }
-    };
-    window.addEventListener("callbell-status", handler);
-    return () => { window.removeEventListener("callbell-status", handler); Object.values(callBellTimersRef.current).forEach(clearInterval); };
-  }, []);
+
 
   useEffect(() => {
     if (expanded && messages.length === 0) {
       setMessages([{
         role: "assistant",
-        content: `Hello ${user?.full_name?.split(" ")[0] || "there"}! I'm your AI Clinical Assistant. I can help with theory, care planning, ward simulation, and call bell management.\n\nTap the microphone for continuous voice input. Use the mute and stop controls to manage speech output.`,
+        content: `Hello ${user?.full_name?.split(" ")[0] || "there"}! I'm your AI Clinical Assistant. I can help with theory, care planning, and ward simulation.\n\nTap the microphone for continuous voice input. Use the mute and stop controls to manage speech output.`,
       }]);
     }
   }, [expanded]);
@@ -139,7 +105,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
     try {
       const wardState = wardStateRef.current;
-      const wardContext = wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Active Call Bells: ${JSON.stringify(wardState.callBells)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
+      const wardContext = wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `${systemPrompt}${wardContext}\n\nConversation:\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}\nuser: ${userMsg.content}\nassistant:`,
         response_json_schema: {
@@ -149,7 +115,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
             ward_action: {
               type: "object",
               properties: {
-                action: { type: "string", enum: ["place", "delete", "rotate", "activate_callbell", "reset_callbell", "none"] },
+                action: { type: "string", enum: ["place", "delete", "rotate", "none"] },
                 itemType: { type: "string" },
                 designation: { type: "string" },
                 x: { type: "number" },

@@ -6,8 +6,8 @@
 @layer base {
   :root {
     /* T Level brand palette */
-    --tl-salmon: 17 100% 74%;     /* #FFA07A */
-    --tl-red: 8 100% 58%;          /* #FF4528 */
+    --tl-salmon: 15 100% 85%;     /* #FFC4B0 pastel salmon */
+    --tl-red: 8 100% 80%;          /* #FFB3A0 pastel coral */
     --tl-purple: 253 24% 53%;      /* #766AA3 */
     --tl-navy: 220 23% 10%;        /* #141820 */
 
@@ -18,21 +18,21 @@
     --card-foreground: 217 33% 17%;
     --popover: 0 0% 100%;
     --popover-foreground: 217 33% 17%;
-    --primary: 8 100% 58%;             /* #FF4528 T Level orange-red — primary accent */
+    --primary: 208 49% 45%;            /* #2E78B8 pale blue — primary accent */
     --primary-foreground: 0 0% 100%;
     --secondary: 214 20% 91%;          /* #E2E8F0 slate-200 */
     --secondary-foreground: 217 33% 17%;
     --muted: 214 20% 93%;              /* #E8EDF3 cool light */
     --muted-foreground: 215 25% 31%;   /* #475569 slate-600 — readable */
-    --accent: 17 100% 74%;             /* #FFA07A T Level salmon — highlight accent */
+    --accent: 15 100% 85%;             /* #FFC4B0 pastel salmon — highlight accent */
     --accent-foreground: 217 33% 17%;
     --destructive: 0 72% 51%;          /* #DC2626 red-600 — alerts only */
     --destructive-foreground: 0 0% 100%;
     --border: 214 20% 87%;             /* #D8DEE6 cool hairline */
     --input: 214 20% 91%;
-    --ring: 8 100% 58%;                /* #FF4528 orange-red focus ring */
+    --ring: 208 49% 45%;               /* #2E78B8 pale blue focus ring */
     --clinical-navy: 217 33% 17%;      /* #1E293B dark slate — 3D ward scene */
-    --clinical-teal: 8 100% 58%;        /* #FF4528 T Level orange-red — primary accent */
+    --clinical-teal: 208 49% 45%;       /* #2E78B8 pale blue — primary accent */
     --clinical-amber: 38 92% 50%;      /* #F59E0B — notifications / warnings */
     --clinical-red: 0 72% 51%;         /* #DC2626 — alerts */
     --clinical-green: 142 71% 45%;    /* #22C55E — success */
@@ -51,6 +51,19 @@
   body {
     @apply bg-background text-foreground font-body;
     font-family: 'Inter', Arial, sans-serif;
+  }
+
+  /* Neon click + focus highlights — global active-state feedback */
+  button:active:not(:disabled):not(.no-neon),
+  [role="button"]:active:not(:disabled):not(.no-neon) {
+    box-shadow: 0 0 0 2px hsl(188 86% 53% / 0.7), 0 0 18px hsl(188 86% 53% / 0.45);
+    transform: translateY(1px);
+  }
+  button:focus-visible:not(.no-neon),
+  [role="button"]:focus-visible:not(.no-neon),
+  a:focus-visible:not(.no-neon) {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(188 86% 53% / 0.75), 0 0 14px hsl(188 86% 53% / 0.5);
   }
 }
 
