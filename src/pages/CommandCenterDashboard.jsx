@@ -43,7 +43,7 @@ function Sparkline() {
   );
 }
 
-function KpiCard({ label, value, note, icon: Icon, tone, children }) {
+function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
   return (
     <article className="group relative overflow-hidden rounded-[22px] border border-white/70 bg-white/54 p-4 shadow-[0_18px_55px_-28px_rgba(15,60,90,.55)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:bg-white/72">
       <div className={`absolute inset-x-0 top-0 h-1 ${tone}`} />
@@ -82,7 +82,7 @@ export default function CommandCenterDashboard() {
   const [now, setNow] = useState(Date.now());
   const [selectedRoom, setSelectedRoom] = useState("B2");
   const patients = useMemo(() => initialBoard(now), []);
-  const critical = patients.filter((p) => (p.news2 ?? 0) >= 5);
+  const critical = patients.filter((p) => (p.initial_news2 ?? 0) >= 5);
   const occupancy = Math.min(100, Math.round((patients.length / 24) * 100));
   const selectedPatient = patients.find((p) => p.bedDesignation === selectedRoom) || patients[0];
 
@@ -168,7 +168,7 @@ export default function CommandCenterDashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <NEWS2Badge score={selectedPatient?.news2 ?? 0} size="sm" />
+                <NEWS2Badge score={selectedPatient?.initial_news2 ?? 0} size="sm" />
                 <button onClick={() => navigate("/ward-simulation")} className="rounded-xl bg-slate-900 px-3 py-2 text-[10px] font-bold text-white transition hover:bg-cyan-700">Open ward</button>
               </div>
             </div>
