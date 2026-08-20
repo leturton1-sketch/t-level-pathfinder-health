@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/CommandCenterDashboard';
 import Theory from './pages/Theory';
 import TheoryDetail from './pages/TheoryDetail';
 import CarePlanning from './pages/CarePlanning';
