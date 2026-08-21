@@ -49,6 +49,8 @@ export function useVoiceSynthesis() {
     u.volume = prefs.muted ? 0 : prefs.volume;
     const match =
       voices.find((v) => v.voiceURI === prefs.systemVoiceURI) ||
+      voices.find((v) => /en-GB/i.test(v.lang) && /natural|neural|aria|sonia|ryan|libby/i.test(`${v.name} ${v.voiceURI}`)) ||
+      voices.find((v) => /^en/i.test(v.lang) && /natural|neural/i.test(`${v.name} ${v.voiceURI}`)) ||
       voices.find((v) => /en-GB/i.test(v.lang)) ||
       voices.find((v) => /^en/i.test(v.lang));
     if (match) u.voice = match;
