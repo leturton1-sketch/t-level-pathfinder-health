@@ -159,6 +159,16 @@ export function savePrefs(prefs) {
   }
 }
 
+export function prepareSpeechText(text) {
+  return String(text || "")
+    .replace(/\bNHS\b/g, "en aych ess")
+    .replace(/\bNEWS\s*2\b/gi, "news two")
+    .replace(/\bSBAR\b/g, "ess bar")
+    .replace(/\bT[- ]?Levels?\b/gi, "T Levels")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function getVoiceProfile(profileId) {
   return VOICE_PROFILES.find((profile) => profile.id === profileId) || VOICE_PROFILES[0];
 }
