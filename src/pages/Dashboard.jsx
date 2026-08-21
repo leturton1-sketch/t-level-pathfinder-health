@@ -7,6 +7,7 @@ import LiveWardWidget from "@/components/dashboard/LiveWardWidget";
 import PatientBannerWidget from "@/components/dashboard/PatientBannerWidget";
 import NEWS2LiveWidget from "@/components/dashboard/NEWS2LiveWidget";
 import RiskAssessmentWidget from "@/components/dashboard/RiskAssessmentWidget";
+import MandatoryIntakeRiskAssessment from "@/components/dashboard/MandatoryIntakeRiskAssessment";
 import WardStatsWidget from "@/components/dashboard/WardStatsWidget";
 import { initialBoard, admitIncoming, INCOMING_PATIENTS } from "@/lib/wardBoard";
 import { Activity, Clock, Stethoscope, Users, Sparkles, Bot, Sliders } from "lucide-react";
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const [patients, setPatients] = useState(() => initialBoard(Date.now()));
   const [incoming, setIncoming] = useState(INCOMING_PATIENTS);
   const [selectedId, setSelectedId] = useState(() => patients[0]?.id);
+  const [intakePatient, setIntakePatient] = useState(null);
 
   useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
@@ -37,6 +39,23 @@ export default function Dashboard() {
     setPatients((prev) => [...prev, admitted]);
     setIncoming((prev) => prev.filter((x) => x.id !== p.id));
     setSelectedId(admitted.id);
+    setIntakePatient(admitted);
+  };
+
+  const handleIntakeComplete = (assessment) => {
+    setPatients((current) => current.map((patient) =>
+      patient.id === intakePatient?.id ? { ...patient, riskAssessment: assessment } : patient
+    ));
+    try {
+      const audit = JSON.parse(localStorage.getItem("clinicaledge_intake_audit") || "[]");
+      localStorage.setItem("clinicaledge_intake_audit", JSON.stringify([
+        ...audit.slice(-49),
+        { patientId: intakePatient?.id, patientName: intakePatient?.name, ...assessment },
+      ]));
+    } catch {
+      // The assessment remains in dashboard state if device storage is unavailable.
+    }
+    setIntakePatient(null);
   };
 
   const handleDischarge = (p) => {
@@ -109,6 +128,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <MandatoryIntakeRiskAssessment patient={intakePatient} onComplete={handleIntakeComplete} />
     </div>
   );
 }
