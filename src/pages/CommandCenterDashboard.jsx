@@ -10,22 +10,23 @@ import NEWS2Badge from "@/components/NEWS2Badge";
 import TLevelLogo from "@/components/TLevelLogo";
 
 const ROOMS = [
-  { id: "A1", label: "Bay A1", status: "normal", x: 3, y: 5, w: 27, h: 28 },
-  { id: "A2", label: "Bay A2", status: "normal", x: 33, y: 5, w: 28, h: 28 },
-  { id: "A3", label: "Bay A3", status: "observation", x: 64, y: 5, w: 33, h: 28 },
-  { id: "B1", label: "Bay B1", status: "normal", x: 3, y: 38, w: 37, h: 28 },
-  { id: "B2", label: "Bay B2", status: "emergency", x: 43, y: 38, w: 25, h: 28 },
-  { id: "B3", label: "Bay B3", status: "normal", x: 71, y: 38, w: 26, h: 28 },
-  { id: "C1", label: "Recovery", status: "observation", x: 3, y: 71, w: 31, h: 24 },
-  { id: "C2", label: "Treatment", status: "normal", x: 37, y: 71, w: 36, h: 24 },
-  { id: "C3", label: "Isolation", status: "normal", x: 76, y: 71, w: 21, h: 24 },
+  { id: "suite-a", label: "Clinical Suite A", shortLabel: "Suite A", status: "suiteA", x: 7, y: 8, size: 29 },
+  { id: "suite-b", label: "Clinical Suite B", shortLabel: "Suite B", status: "suiteB", x: 64, y: 8, size: 29 },
+  { id: "health-theory-101", label: "Health Theory 101", shortLabel: "Theory 101", status: "theory", x: 36, y: 62, size: 29 },
 ];
 
 const roomStyles = {
-  normal: "from-emerald-300 to-teal-500 border-emerald-100/90",
-  observation: "from-amber-300 to-orange-500 border-amber-100/90",
-  emergency: "from-rose-400 to-red-600 border-rose-100/90",
+  suiteA: "from-pink-200 via-pink-300 to-rose-400 border-pink-100/95",
+  suiteB: "from-emerald-200 via-green-300 to-emerald-500 border-emerald-100/95",
+  theory: "from-yellow-100 via-yellow-300 to-amber-400 border-yellow-50/95",
 };
+
+const areaLegend = [
+  { label: "Corridor", colour: "bg-black" },
+  { label: "Clinical Suite A", colour: "bg-pink-400" },
+  { label: "Clinical Suite B", colour: "bg-emerald-500" },
+  { label: "Health Theory 101", colour: "bg-yellow-400" },
+];
 
 const staff = [
   { name: "Dr Maya Chen", role: "Ward consultant", status: "Available", initials: "MC", tone: "bg-cyan-500" },
@@ -80,11 +81,12 @@ export default function CommandCenterDashboard() {
   const navigate = useNavigate();
   const user = getCurrentUser();
   const [now, setNow] = useState(Date.now());
-  const [selectedRoom, setSelectedRoom] = useState("B2");
+  const [selectedRoom, setSelectedRoom] = useState("suite-a");
   const patients = useMemo(() => initialBoard(now), []);
   const critical = patients.filter((p) => (p.initial_news2 ?? 0) >= 5);
   const occupancy = Math.min(100, Math.round((patients.length / 24) * 100));
-  const selectedPatient = patients.find((p) => p.bedDesignation === selectedRoom) || patients[0];
+  const selectedPatient = patients[0];
+  const selectedArea = ROOMS.find((room) => room.id === selectedRoom) || ROOMS[0];
 
   useEffect(() => {
     if (!isLoggedIn()) navigate("/login");
@@ -138,22 +140,27 @@ export default function CommandCenterDashboard() {
           <section className="polished-glass-edge relative min-h-[510px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive ward map</p>
-                <h2 className="text-lg font-black text-slate-900">Hepatica Ward · Floor 3</h2>
+                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college floor plan</p>
+                <h2 className="text-lg font-black text-slate-900">T Level Health Corridor</h2>
               </div>
-              <div className="flex gap-3 text-[10px] font-bold text-slate-600">
-                {["normal", "observation", "emergency"].map((s) => <span key={s} className="flex items-center gap-1.5 capitalize"><i className={`h-2.5 w-2.5 rounded-full ${s === "normal" ? "bg-emerald-500" : s === "observation" ? "bg-amber-500" : "bg-red-500"}`} />{s}</span>)}
+              <div className="flex max-w-md flex-wrap justify-end gap-x-3 gap-y-1 text-[9px] font-bold text-slate-600">
+                {areaLegend.map((item) => <span key={item.label} className="flex items-center gap-1.5"><i className={`h-2.5 w-2.5 rounded-full ${item.colour}`} />{item.label}</span>)}
               </div>
             </div>
 
             <div className="relative mx-auto h-[380px] max-w-[760px] [perspective:1350px] before:absolute before:inset-[18%_9%_7%] before:translate-y-10 before:rotate-[-4deg] before:rounded-[35%] before:bg-slate-700/24 before:blur-2xl">
               <div className="absolute inset-[7%_5%_13%] origin-center rounded-[26px] border-[11px] border-slate-100/95 bg-gradient-to-br from-slate-100/96 via-slate-300/92 to-slate-400/82 shadow-[12px_14px_0_rgba(71,85,105,.22),22px_28px_0_rgba(51,65,85,.16),35px_48px_42px_-24px_rgba(15,23,42,.72),inset_3px_3px_4px_white,inset_-3px_-3px_4px_rgba(71,85,105,.24)] [transform:rotateX(58deg)_rotateZ(-32deg)_translateZ(18px)] [transform-style:preserve-3d] before:pointer-events-none before:absolute before:inset-2 before:rounded-[18px] before:border before:border-white/75 before:bg-gradient-to-br before:from-white/30 before:via-transparent before:to-slate-500/10">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible" aria-label="Main corridor">
+                  <polyline points="-4,88 16,69 31,58 48,48 65,41 82,28 104,17" fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="5.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <polyline points="-4,88 16,69 31,58 48,48 65,41 82,28 104,17" fill="none" stroke="#050706" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="pointer-events-none absolute left-[43%] top-[45%] z-30 -rotate-6 rounded-full bg-black px-3 py-1 text-[7px] font-black uppercase tracking-[.16em] text-white shadow-lg">Corridor</span>
                 {ROOMS.map((room) => (
-                  <button key={room.id} onClick={() => setSelectedRoom(room.id)} style={{ left: `${room.x}%`, top: `${room.y}%`, width: `${room.w}%`, height: `${room.h}%` }}
-                    className={`group absolute overflow-hidden rounded-lg border-2 bg-gradient-to-br ${roomStyles[room.status]} shadow-[4px_5px_0_rgba(255,255,255,.35),10px_14px_0_rgba(15,53,83,.24),14px_20px_18px_-8px_rgba(15,23,42,.58),inset_2px_2px_2px_rgba(255,255,255,.62)] transition duration-300 before:pointer-events-none before:absolute before:-left-4 before:-top-3 before:h-7 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/58 before:blur-md hover:-translate-y-3 hover:brightness-110 hover:shadow-[5px_7px_0_rgba(255,255,255,.38),13px_19px_0_rgba(15,53,83,.28),18px_26px_24px_-10px_rgba(15,23,42,.65)] focus:outline-none focus:ring-4 focus:ring-cyan-300 ${selectedRoom === room.id ? "-translate-y-3 ring-4 ring-white" : ""}`}>
-                    <span className="absolute inset-x-1 top-1 rounded bg-white/78 px-1 py-0.5 text-[8px] font-black text-slate-700 shadow-sm">{room.label}</span>
-                    <span className="absolute bottom-2 left-2 h-3 w-5 rounded-sm bg-white/75 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
-                    <span className="absolute bottom-2 right-2 h-3 w-5 rounded-sm bg-white/75 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
+                  <button key={room.id} onClick={() => setSelectedRoom(room.id)} style={{ left: `${room.x}%`, top: `${room.y}%`, width: `${room.size}%`, aspectRatio: "1 / 1" }}
+                    className={`group absolute z-10 overflow-hidden rounded-xl border-2 bg-gradient-to-br ${roomStyles[room.status]} shadow-[4px_5px_0_rgba(255,255,255,.35),10px_14px_0_rgba(15,53,83,.24),14px_20px_18px_-8px_rgba(15,23,42,.58),inset_2px_2px_2px_rgba(255,255,255,.62)] transition duration-300 before:pointer-events-none before:absolute before:-left-4 before:-top-3 before:h-7 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/58 before:blur-md hover:-translate-y-3 hover:brightness-110 hover:shadow-[5px_7px_0_rgba(255,255,255,.38),13px_19px_0_rgba(15,53,83,.28),18px_26px_24px_-10px_rgba(15,23,42,.65)] focus:outline-none focus:ring-4 focus:ring-slate-900 ${selectedRoom === room.id ? "-translate-y-3 ring-4 ring-white" : ""}`}>
+                    <span className="absolute inset-x-2 top-2 rounded-md bg-white/82 px-1 py-1 text-[8px] font-black text-slate-800 shadow-sm">{room.label}</span>
+                    <span className="absolute bottom-3 left-3 h-4 w-6 rounded-md bg-white/78 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
+                    <span className="absolute bottom-3 right-3 h-4 w-6 rounded-md bg-white/78 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
                   </button>
                 ))}
               </div>
@@ -163,8 +170,8 @@ export default function CommandCenterDashboard() {
               <div className="flex min-w-0 items-center gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white"><UserRound className="h-5 w-5" /></span>
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-black text-slate-900">{selectedPatient?.name || "Select a room"}</p>
-                  <p className="truncate text-[10px] text-slate-500">{selectedRoom} · {selectedPatient?.condition || "Clinical bay overview"}</p>
+                  <p className="truncate text-xs font-black text-slate-900">{selectedArea.label}</p>
+                  <p className="truncate text-[10px] text-slate-500">T Level Health Corridor · Selected area</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
