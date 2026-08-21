@@ -6,7 +6,7 @@ export const SUITE_OFFSET_B = { x: 0, z: 0 };
 export const SUITE_OFFSET_C = { x: 30, z: 0 };
 export const SUITE_OFFSET_D = { x: 0, z: 25 };
 export const SUITE_OFFSETS = { A: SUITE_OFFSET_A, B: SUITE_OFFSET_B, C: SUITE_OFFSET_C, D: SUITE_OFFSET_D };
-export const SUITE_LABELS = { A: "Clinical Suite A", B: "Clinical Suite B", C: "Skills Room", D: "Theory Room" };
+export const SUITE_LABELS = { A: "Clinical Suite A", B: "Clinical Suite B", C: "Clinical Skills Room", D: "Health Theory 101" };
 
 export const WARD_ITEM_TYPES = [
   { type: "bed", label: "Hospital Bed" },
@@ -21,7 +21,7 @@ export const WARD_ITEM_TYPES = [
   { type: "nurses_station", label: "Nurses' Station" },
   { type: "tv", label: "Wall TV / Screen" },
   { type: "table", label: "Table" },
-  { type: "countertop", label: "Countertop" },
+  { type: "wall_cabinet", label: "Wall Cabinet Unit" },
 ];
 
 export const DEFAULT_PATIENTS = {
@@ -78,7 +78,7 @@ export function generateDefaultItems() {
   items.push({ id: id(), type: "sink", x: oC.x, z: oC.z - 6.5, rotationY: 0 });
   items.push({ id: id(), type: "table", x: oC.x - 3, z: oC.z, rotationY: 0 });
   items.push({ id: id(), type: "table", x: oC.x + 3, z: oC.z, rotationY: 0 });
-  items.push({ id: id(), type: "countertop", x: oC.x + 4, z: oC.z + 5, rotationY: 0 });
+  items.push({ id: id(), type: "wall_cabinet", x: oC.x + 4, z: oC.z + 5, rotationY: 0 });
   items.push({ id: id(), type: "chair", x: oC.x - 3, z: oC.z + 2, rotationY: Math.PI });
   items.push({ id: id(), type: "chair", x: oC.x + 3, z: oC.z + 2, rotationY: Math.PI });
   items.push({ id: id(), type: "chair", x: oC.x - 3, z: oC.z - 2, rotationY: 0 });
@@ -157,7 +157,8 @@ export function createWardItem(type, options = {}) {
     case "nurses_station": return createNursesStation();
     case "tv": return createTV();
     case "table": return createTable();
-    case "countertop": return createCountertop();
+    case "wall_cabinet": return createWallCabinet();
+    case "countertop": return createWallCabinet(); // backwards compatibility for saved layouts
     default: return new THREE.Group();
   }
 }
@@ -320,15 +321,15 @@ function createTable() {
   return g;
 }
 
-function createCountertop() {
+function createWallCabinet() {
   const g = new THREE.Group();
-  const longTop = new THREE.Mesh(new THREE.BoxGeometry(4, 0.06, 0.8), M.cabinetTop);
-  longTop.position.set(0, 0.9, -0.6); longTop.castShadow = true; g.add(longTop);
-  const shortTop = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.06, 2.4), M.cabinetTop);
-  shortTop.position.set(1.6, 0.9, 0.4); shortTop.castShadow = true; g.add(shortTop);
-  const longCab = new THREE.Mesh(new THREE.BoxGeometry(4, 0.85, 0.75), M.cabinet);
-  longCab.position.set(0, 0.45, -0.6); g.add(longCab);
-  const shortCab = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.85, 2.4), M.cabinet);
-  shortCab.position.set(1.6, 0.45, 0.4); g.add(shortCab);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), M.cabinet);
+  body.position.y = 1.45; body.castShadow = true; body.receiveShadow = true; g.add(body);
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.76, 0.04), M.cabinetTop);
+  door.position.set(0, 1.45, 0.47); door.castShadow = true; g.add(door);
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.28, 0.05), M.metal);
+  handle.position.set(0.27, 1.45, 0.51); g.add(handle);
+  const glow = new THREE.PointLight(0xE8FFF1, 0.25, 3);
+  glow.position.set(0, 1.2, 0.8); g.add(glow);
   return g;
 }
