@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Bot, Send, Mic, Settings2, Square, Volume2, VolumeX, ArrowLeft, Sparkles } from "lucide-react";
+import { Bot, Send, Mic, Settings2, Square, Volume2, VolumeX, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import AudioVisualizer from "@/components/voice/AudioVisualizer";
 import VoiceSettings from "@/components/voice/VoiceSettings";
+import ClinicianHead3D from "@/components/voice/ClinicianHead3D";
 
 const STATUS = {
   idle: { label: "Idle", color: "text-muted-foreground", dot: "bg-muted-foreground" },
@@ -34,7 +35,7 @@ export default function VoiceAssistant() {
     if (!isLoggedIn()) { navigate("/login"); return; }
     setMessages([{
       role: "assistant",
-      content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm your AI Voice Assistant. Ask me anything, tap the mic to talk, or open settings to customise how I sound.`,
+      content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm your AI Clinical Assistant. We can talk naturally about clinical theory, care planning or ward simulation. Ask a question, or tap the microphone to begin.`,
     }]);
   }, [navigate]);
 
@@ -54,7 +55,7 @@ export default function VoiceAssistant() {
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a friendly, knowledgeable AI voice assistant for nursing students on the ClinicalEdge platform. Use British English. Be warm, concise, and helpful. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
+        prompt: `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
       });
       const reply = typeof res === "string" ? res : res?.reply || "Sorry, I didn't catch that.";
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
@@ -100,7 +101,7 @@ export default function VoiceAssistant() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_50%_0%,rgba(103,232,249,.16),transparent_34%),linear-gradient(145deg,#f8fafc,#e2e8f0)] pb-28">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -127,13 +128,13 @@ export default function VoiceAssistant() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4">
-        {/* Visualizer panel */}
-        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 mb-4 text-center">
-          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-clinical-teal/20 to-clinical-teal/5 flex items-center justify-center mb-3">
-            <Sparkles className="w-9 h-9 text-clinical-teal" />
+        {/* Interactive holographic clinician */}
+        <div className="polished-glass-edge relative mb-4 overflow-hidden rounded-[32px] border border-white/90 bg-white/55 p-2 shadow-[0_18px_55px_-28px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl">
+          <ClinicianHead3D status={status} />
+          <div className="absolute bottom-4 left-4 rounded-2xl border border-white/80 bg-white/65 px-3 py-2 shadow-lg backdrop-blur-xl">
+            <AudioVisualizer state={status} />
+            <p className={`mt-1 text-[10px] font-bold uppercase tracking-[.16em] ${STATUS[status].color}`}>{STATUS[status].label}</p>
           </div>
-          <AudioVisualizer state={status} />
-          <p className="text-xs text-muted-foreground mt-2">{STATUS[status].label}</p>
         </div>
 
         {/* Messages */}
