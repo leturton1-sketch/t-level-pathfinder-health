@@ -15,33 +15,118 @@ export const VOICE_PROFILES = [
     rate: 0.96,
     pitch: 0.98,
     stability: 0.68,
+    dialect: "neutral_uk",
+    gender: "neutral",
   },
   {
-    id: "warm",
-    name: "Warm & Professional",
-    desc: "Soft, supportive, clinical tone",
-    cloudVoice: "honey",
-    rate: 0.95,
-    pitch: 1.0,
-    stability: 0.65,
+    id: "sarah_yorkshire",
+    name: "Sarah · South Yorkshire",
+    desc: "Warm, grounded Rotherham and Sheffield cadence",
+    cloudVoice: "Kore",
+    rate: 0.98,
+    pitch: 1.14,
+    stability: 0.66,
+    dialect: "yorkshire",
+    gender: "female",
   },
   {
-    id: "expressive",
-    name: "Expressive Narrator",
-    desc: "Formal, authoritative delivery",
-    cloudVoice: "storm",
-    rate: 0.92,
-    pitch: 0.95,
-    stability: 0.4,
+    id: "liam_yorkshire",
+    name: "Liam · South Yorkshire",
+    desc: "Warm, grounded Rotherham and Sheffield cadence",
+    cloudVoice: "Charon",
+    rate: 0.98,
+    pitch: 0.74,
+    stability: 0.66,
+    dialect: "yorkshire",
+    gender: "male",
   },
   {
-    id: "bright",
-    name: "Bright & Upbeat",
-    desc: "Energetic, quick, friendly",
-    cloudVoice: "sunny",
+    id: "chloe_manchester",
+    name: "Chloe · Greater Manchester",
+    desc: "Energetic, rhythmic northern delivery",
+    cloudVoice: "Aoede",
     rate: 1.05,
-    pitch: 1.1,
-    stability: 0.45,
+    pitch: 1.16,
+    stability: 0.58,
+    dialect: "mancunian",
+    gender: "female",
+  },
+  {
+    id: "jack_manchester",
+    name: "Jack · Greater Manchester",
+    desc: "Energetic, rhythmic northern delivery",
+    cloudVoice: "Puck",
+    rate: 1.05,
+    pitch: 0.76,
+    stability: 0.58,
+    dialect: "mancunian",
+    gender: "male",
+  },
+  {
+    id: "charlotte_rp",
+    name: "Charlotte · British RP",
+    desc: "Polished, distinguished British broadcast tone",
+    cloudVoice: "Leda",
+    rate: 0.92,
+    pitch: 1.12,
+    stability: 0.74,
+    dialect: "london_rp",
+    gender: "female",
+  },
+  {
+    id: "george_rp",
+    name: "George · British RP",
+    desc: "Polished, distinguished British broadcast tone",
+    cloudVoice: "Fenrir",
+    rate: 0.92,
+    pitch: 0.72,
+    stability: 0.74,
+    dialect: "london_rp",
+    gender: "male",
+  },
+  {
+    id: "fiona_scottish",
+    name: "Fiona · Scotland",
+    desc: "Warm, confident Scottish lilt",
+    cloudVoice: "Kore",
+    rate: 1,
+    pitch: 1.18,
+    stability: 0.64,
+    dialect: "scottish",
+    gender: "female",
+  },
+  {
+    id: "callum_scottish",
+    name: "Callum · Scotland",
+    desc: "Warm, confident Scottish lilt",
+    cloudVoice: "Charon",
+    rate: 1,
+    pitch: 0.75,
+    stability: 0.64,
+    dialect: "scottish",
+    gender: "male",
+  },
+  {
+    id: "emma_midlands",
+    name: "Emma · West Midlands",
+    desc: "Friendly West Midlands warmth",
+    cloudVoice: "Aoede",
+    rate: 0.97,
+    pitch: 1.14,
+    stability: 0.62,
+    dialect: "west_midlands",
+    gender: "female",
+  },
+  {
+    id: "oliver_midlands",
+    name: "Oliver · West Midlands",
+    desc: "Friendly West Midlands warmth",
+    cloudVoice: "Puck",
+    rate: 0.97,
+    pitch: 0.73,
+    stability: 0.62,
+    dialect: "west_midlands",
+    gender: "male",
   },
 ];
 
@@ -74,8 +159,24 @@ export function savePrefs(prefs) {
   }
 }
 
+export function getVoiceProfile(profileId) {
+  return VOICE_PROFILES.find((profile) => profile.id === profileId) || VOICE_PROFILES[0];
+}
+
+export function getRegionalVoicePrompt(profileId) {
+  const profile = getVoiceProfile(profileId);
+  const prompts = {
+    yorkshire: "Use subtle South Yorkshire warmth and cadence. Keep regional phrasing natural and never caricatured.",
+    mancunian: "Use an upbeat Greater Manchester cadence with restrained, natural regional warmth.",
+    london_rp: "Use polished British Received Pronunciation with crisp, professional diction.",
+    scottish: "Use a warm Scottish cadence with clear, professional clinical diction.",
+    west_midlands: "Use friendly West Midlands warmth with natural, professional phrasing.",
+    neutral_uk: "Use natural conversational British English with clear clinical diction.",
+  };
+  return prompts[profile.dialect] || prompts.neutral_uk;
+}
+
 export function applyProfile(profileId) {
-  const profile = VOICE_PROFILES.find((p) => p.id === profileId);
-  if (!profile) return null;
+  const profile = getVoiceProfile(profileId);
   return { rate: profile.rate, pitch: profile.pitch, stability: profile.stability };
 }
