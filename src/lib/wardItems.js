@@ -126,20 +126,20 @@ export function createTextTexture(text, w = 128, h = 48, color = "#2C3E50", bg =
 
 // Colors matched to reference image
 const M = {
-  bedFrame: new THREE.MeshStandardMaterial({ color: 0xF0F0F0, roughness: 0.4, metalness: 0.3 }),
-  mattress: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.8 }),
-  duvet: new THREE.MeshStandardMaterial({ color: 0xC8E6C9, roughness: 0.7 }),
+  bedFrame: new THREE.MeshPhysicalMaterial({ color: 0xE8EFEB, roughness: 0.28, metalness: 0.16, clearcoat: 0.55 }),
+  mattress: new THREE.MeshStandardMaterial({ color: 0xFFFDFC, roughness: 0.72 }),
+  duvet: new THREE.MeshStandardMaterial({ color: 0xCDE9DA, roughness: 0.58 }),
   pillow: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 }),
   rail: new THREE.MeshStandardMaterial({ color: 0xD8D8D8, roughness: 0.3, metalness: 0.7 }),
   metal: new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.7, roughness: 0.3 }),
-  cabinet: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.5, metalness: 0.1 }),
-  cabinetTop: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.3 }),
-  screenBody: new THREE.MeshStandardMaterial({ color: 0x2C3E50, roughness: 0.4 }),
+  cabinet: new THREE.MeshPhysicalMaterial({ color: 0xDCE8E1, roughness: 0.28, metalness: 0.08, clearcoat: 0.62 }),
+  cabinetTop: new THREE.MeshPhysicalMaterial({ color: 0xFFFDF8, roughness: 0.18, clearcoat: 0.8 }),
+  screenBody: new THREE.MeshStandardMaterial({ color: 0x50665B, roughness: 0.32, metalness: 0.16 }),
   screenAlert: new THREE.MeshStandardMaterial({ color: 0xFFD6D6, emissive: 0xFFD6D6, emissiveIntensity: 0.5 }),
   screenNormal: new THREE.MeshStandardMaterial({ color: 0xD6F5D6, emissive: 0x88DD88, emissiveIntensity: 0.3 }),
   curtain: new THREE.MeshStandardMaterial({ color: 0xF8F6F0, transparent: true, opacity: 0.3, roughness: 0.1, side: THREE.DoubleSide }),
-  wood: new THREE.MeshStandardMaterial({ color: 0xC8C5BE, roughness: 0.5, metalness: 0.2 }),
-  yellow: new THREE.MeshStandardMaterial({ color: 0xFFCC00, roughness: 0.6 }),
+  wood: new THREE.MeshStandardMaterial({ color: 0xD9E2DD, roughness: 0.42, metalness: 0.08 }),
+  yellow: new THREE.MeshStandardMaterial({ color: 0xFFE7A3, roughness: 0.5 }),
   porcelain: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.2 }),
 };
 
