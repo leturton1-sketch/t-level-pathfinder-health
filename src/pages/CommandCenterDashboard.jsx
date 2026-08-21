@@ -8,6 +8,7 @@ import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
 import NEWS2Badge from "@/components/NEWS2Badge";
 import TLevelLogo from "@/components/TLevelLogo";
+import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
 
 const ROOMS = [
   { id: "suite-a", label: "Clinical Suite A", shortLabel: "Suite A", status: "suiteA", x: 7, y: 8, size: 29 },
@@ -140,15 +141,17 @@ export default function CommandCenterDashboard() {
           <section className="polished-glass-edge relative min-h-[510px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college floor plan</p>
-                <h2 className="text-lg font-black text-slate-900">T Level Health Corridor</h2>
+                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
+                <h2 className="text-lg font-black text-slate-900">Journey to the T Level Health Corridor</h2>
               </div>
               <div className="flex max-w-md flex-wrap justify-end gap-x-3 gap-y-1 text-[9px] font-bold text-slate-600">
                 {areaLegend.map((item) => <span key={item.label} className="flex items-center gap-1.5"><i className={`h-2.5 w-2.5 rounded-full ${item.colour}`} />{item.label}</span>)}
               </div>
             </div>
 
-            <div className="relative mx-auto h-[380px] max-w-[760px] [perspective:1350px] before:absolute before:inset-[18%_9%_7%] before:translate-y-10 before:rotate-[-4deg] before:rounded-[35%] before:bg-slate-700/24 before:blur-2xl">
+            <CampusZoomMap />
+
+            <div className="hidden">
               <div className="absolute inset-[7%_5%_13%] origin-center rounded-[26px] border-[11px] border-slate-100/95 bg-gradient-to-br from-slate-100/96 via-slate-300/92 to-slate-400/82 shadow-[12px_14px_0_rgba(71,85,105,.22),22px_28px_0_rgba(51,65,85,.16),35px_48px_42px_-24px_rgba(15,23,42,.72),inset_3px_3px_4px_white,inset_-3px_-3px_4px_rgba(71,85,105,.24)] [transform:rotateX(58deg)_rotateZ(-32deg)_translateZ(18px)] [transform-style:preserve-3d] before:pointer-events-none before:absolute before:inset-2 before:rounded-[18px] before:border before:border-white/75 before:bg-gradient-to-br before:from-white/30 before:via-transparent before:to-slate-500/10">
                 <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible" aria-label="Main corridor">
                   <polyline points="-4,50 15,50 31,50 48,50 65,50 82,50 104,50" fill="none" stroke="rgba(255,255,255,.82)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
