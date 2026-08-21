@@ -316,27 +316,26 @@
   }
 
   .campus-aerial {
-    animation: aerial-campus-zoom 18s cubic-bezier(.42, 0, .18, 1) infinite;
+    animation: aerial-campus-zoom 18s cubic-bezier(.42, 0, .18, 1) 1 forwards;
     transform-origin: 51.8% 64%;
     will-change: transform, filter;
   }
 
-  .health-location { animation: health-location-reveal 18s ease-in-out infinite; }
+  .health-location { animation: health-location-reveal 18s ease-in-out 1 forwards; }
   .health-ring { animation: health-location-pulse 2.2s ease-out infinite; }
   .health-ring-delay { animation-delay: .75s; }
-  .health-label { animation: health-label-reveal 18s ease-in-out infinite; }
-  .campus-progress { animation: campus-journey-progress 18s linear infinite; }
+  .health-label { animation: health-label-reveal 18s ease-in-out 1 forwards; }
+  .campus-progress { animation: campus-journey-progress 18s linear 1 forwards; }
+  .map-reflection { animation: map-reflection-settle 18s ease-in-out 1 forwards; }
 
   @keyframes aerial-campus-zoom {
     0%, 8% { transform: scale(1); filter: saturate(.9) brightness(1.03); }
-    68%, 92% { transform: scale(2.15); filter: saturate(1.08) brightness(1.01); }
-    100% { transform: scale(1); filter: saturate(.9) brightness(1.03); }
+    68%, 100% { transform: scale(2.15); filter: saturate(1.08) brightness(1.01) contrast(1.03); }
   }
 
   @keyframes health-location-reveal {
     0%, 34% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
-    48%, 92% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(.45); }
+    48%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
 
   @keyframes health-location-pulse {
@@ -346,14 +345,18 @@
 
   @keyframes health-label-reveal {
     0%, 54% { opacity: 0; transform: translateY(10px); }
-    66%, 92% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(10px); }
+    66%, 100% { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes campus-journey-progress {
     0% { transform: scaleX(0); }
-    92% { transform: scaleX(1); }
-    100% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+  }
+
+  @keyframes map-reflection-settle {
+    0% { opacity: .16; }
+    58% { opacity: .58; }
+    100% { opacity: .34; }
   }
 
   @media (prefers-reduced-motion: reduce) {
