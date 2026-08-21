@@ -4,7 +4,7 @@ import AIAssistant from "./AIAssistant";
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="clinical-global-theme min-h-screen bg-background pb-16">
       <main className="min-h-screen">
         <Outlet />
       </main>
