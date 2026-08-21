@@ -142,7 +142,7 @@ export default function CommandCenterDashboard() {
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
-                <h2 className="text-lg font-black text-slate-900">Journey to the T Level Health Corridor</h2>
+                <h2 className="text-lg font-black text-slate-900">Isometric Display - Dearne Valley College</h2>
               </div>
               <div className="flex max-w-md flex-wrap justify-end gap-x-3 gap-y-1 text-[9px] font-bold text-slate-600">
                 {areaLegend.map((item) => <span key={item.label} className="flex items-center gap-1.5"><i className={`h-2.5 w-2.5 rounded-full ${item.colour}`} />{item.label}</span>)}
