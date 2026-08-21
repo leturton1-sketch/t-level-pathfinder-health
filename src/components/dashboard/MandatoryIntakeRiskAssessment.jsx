@@ -72,7 +72,7 @@ export default function MandatoryIntakeRiskAssessment({ patient, onComplete }) {
                   </div>
                   {answers[risk.id] && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-2" role="group" aria-label={\`\${risk.label} risk band\`}>
+                <div className="mt-3 grid grid-cols-3 gap-2" role="group" aria-label={`${risk.label} risk band`}>
                   {LEVELS.map((level) => {
                     const selected = answers[risk.id] === level.id;
                     return (
@@ -81,7 +81,7 @@ export default function MandatoryIntakeRiskAssessment({ patient, onComplete }) {
                         type="button"
                         onClick={() => setAnswers((current) => ({ ...current, [risk.id]: level.id }))}
                         aria-pressed={selected}
-                        className={\`rounded-xl border px-2 py-2 text-xs font-bold transition \${selected ? \`\${level.colour} ring-2 ring-offset-1 ring-[#005eb8]\` : "border-slate-200 bg-slate-50 text-slate-600 hover:border-sky-300"}\`}
+                        className={`rounded-xl border px-2 py-2 text-xs font-bold transition ${selected ? `${level.colour} ring-2 ring-offset-1 ring-[#005eb8]` : "border-slate-200 bg-slate-50 text-slate-600 hover:border-sky-300"}`}
                       >
                         {level.label}
                       </button>
@@ -105,7 +105,7 @@ export default function MandatoryIntakeRiskAssessment({ patient, onComplete }) {
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
             <div>
-              <p className="text-xs font-bold text-slate-700">{canComplete ? "All mandatory screens recorded" : \`\${RISK_ASSESSMENTS.length - completedCount} assessment\${RISK_ASSESSMENTS.length - completedCount === 1 ? "" : "s"} remaining\`}</p>
+              <p className="text-xs font-bold text-slate-700">{canComplete ? "All mandatory screens recorded" : `${RISK_ASSESSMENTS.length - completedCount} assessment${RISK_ASSESSMENTS.length - completedCount === 1 ? "" : "s"} remaining`}</p>
               <p className="text-[10px] text-slate-500">Training simulation · follow local policy in clinical practice</p>
             </div>
             <button
