@@ -45,7 +45,7 @@ export default function VoiceSettings({ open, onClose, onSaved, synth }) {
             <button onClick={() => set("engine")("cloud")}
               className={`p-3 rounded-xl border text-left transition-all ${draft.engine === "cloud" ? "border-clinical-teal bg-clinical-teal/5" : "border-slate-200 hover:border-slate-300"}`}>
               <div className="flex items-center gap-2"><Cloud className="w-4 h-4 text-slate-600" /> <span className="text-sm font-semibold">Cloud HD</span></div>
-              <p className="text-[10px] text-slate-500 mt-1">Neural voices · higher quality</p>
+              <p className="text-[10px] text-slate-500 mt-1">Regional neural presets · higher quality</p>
             </button>
           </div>
         </div>
@@ -62,6 +62,7 @@ export default function VoiceSettings({ open, onClose, onSaved, synth }) {
                   <div>
                     <p className="text-sm font-semibold text-slate-800">{p.name}</p>
                     <p className="text-[10px] text-slate-500">{p.desc}</p>
+                    <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-cyan-700">Voice preset · {p.cloudVoice}</p>
                   </div>
                 </div>
                 {draft.profileId === p.id && <Check className="w-4 h-4 text-clinical-teal" />}
