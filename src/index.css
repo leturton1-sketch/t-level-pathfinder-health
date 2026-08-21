@@ -118,3 +118,199 @@
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: #2A3244; border-radius: 3px; }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #3A4458; }
+
+/* ClinicalEdge global frosted clay design system */
+@layer base {
+  :root {
+    --background: 150 12% 91%;
+    --foreground: 158 22% 15%;
+    --card: 150 10% 94%;
+    --card-foreground: 158 22% 15%;
+    --popover: 150 12% 96%;
+    --popover-foreground: 158 22% 15%;
+    --primary: 158 31% 37%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 145 12% 86%;
+    --secondary-foreground: 158 22% 18%;
+    --muted: 145 10% 89%;
+    --muted-foreground: 157 12% 35%;
+    --accent: 143 22% 82%;
+    --accent-foreground: 158 24% 18%;
+    --border: 145 11% 79%;
+    --input: 145 12% 88%;
+    --ring: 157 34% 42%;
+    --clinical-teal: 158 31% 37%;
+    --radius: 1rem;
+  }
+
+  html {
+    background: #d9dfdc;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 13% 6%, rgba(255,255,255,.98), transparent 26rem),
+      radial-gradient(circle at 88% 14%, rgba(192,218,204,.72), transparent 30rem),
+      linear-gradient(145deg, #f0f2f1 0%, #d5dad7 44%, #e8ece9 100%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: rgba(101, 151, 125, .28);
+    color: #17352a;
+  }
+}
+
+@layer components {
+  .clinical-global-theme {
+    position: relative;
+    isolation: isolate;
+    background:
+      linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .clinical-global-theme::before,
+  .clinical-global-theme::after {
+    content: "";
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+    border-radius: 999px;
+    filter: blur(70px);
+  }
+
+  .clinical-global-theme::before {
+    width: 42vw;
+    height: 24vw;
+    left: -10vw;
+    top: 10vh;
+    background: rgba(255,255,255,.62);
+    transform: rotate(-18deg);
+  }
+
+  .clinical-global-theme::after {
+    width: 38vw;
+    height: 30vw;
+    right: -12vw;
+    bottom: 5vh;
+    background: rgba(167, 203, 182, .30);
+  }
+
+  .clinical-global-theme :where(.bg-card, .bg-popover, [class*="bg-card/"], [class*="bg-white/"]) {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.84) 0%, rgba(232,236,234,.72) 46%, rgba(197,207,201,.58) 100%) !important;
+    border-color: rgba(255,255,255,.88) !important;
+    backdrop-filter: blur(22px) saturate(118%);
+    -webkit-backdrop-filter: blur(22px) saturate(118%);
+    box-shadow:
+      0 9px 0 -5px rgba(99,116,106,.26),
+      0 24px 44px -24px rgba(30,48,39,.48),
+      inset 1px 1px 1px rgba(255,255,255,.96),
+      inset -1px -1px 1px rgba(74,92,82,.14);
+  }
+
+  .clinical-global-theme :where(.rounded-xl, .rounded-2xl, .rounded-3xl)[class*="border"] {
+    position: relative;
+    transition:
+      transform .28s cubic-bezier(.2,.8,.2,1),
+      box-shadow .28s ease,
+      filter .28s ease;
+  }
+
+  .clinical-global-theme :where(article, button, [role="button"])[class*="rounded"]:not(.no-clay):hover {
+    filter: brightness(1.025);
+  }
+
+  .clinical-global-theme :where(article, .bg-card)[class*="rounded"]:not(.no-clay):hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 13px 0 -6px rgba(99,116,106,.27),
+      0 30px 50px -24px rgba(30,48,39,.52),
+      inset 1px 1px 2px rgba(255,255,255,.98);
+  }
+
+  .clinical-global-theme :where(input, textarea, select, [role="combobox"]) {
+    background: linear-gradient(145deg, rgba(238,241,239,.90), rgba(211,218,214,.74)) !important;
+    border-color: rgba(255,255,255,.90) !important;
+    box-shadow:
+      inset 2px 2px 5px rgba(74,92,82,.13),
+      inset -2px -2px 5px rgba(255,255,255,.88),
+      0 5px 12px -9px rgba(30,48,39,.55);
+    backdrop-filter: blur(14px);
+  }
+
+  .clinical-global-theme button[class*="bg-primary"],
+  .clinical-global-theme a[class*="bg-primary"] {
+    background: linear-gradient(145deg, #78a58e, #3e725b) !important;
+    border: 1px solid rgba(255,255,255,.58);
+    box-shadow:
+      0 7px 0 -3px rgba(47,83,66,.38),
+      0 16px 24px -14px rgba(24,52,39,.60),
+      inset 1px 1px 2px rgba(255,255,255,.50);
+  }
+
+  .clinical-global-theme :where(button, a)[class*="rounded"]:active {
+    transform: translateY(2px) scale(.99);
+  }
+
+  .clinical-global-theme table {
+    overflow: hidden;
+    border-radius: 1rem;
+    background: rgba(244,247,245,.62);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.9);
+  }
+
+  .clinical-global-theme thead {
+    background: rgba(201,215,207,.72);
+  }
+
+  .clinical-global-theme :where([role="dialog"], [data-radix-popper-content-wrapper] > div) {
+    border: 1px solid rgba(255,255,255,.9) !important;
+    background: linear-gradient(145deg, rgba(246,248,247,.94), rgba(211,220,215,.90)) !important;
+    box-shadow:
+      0 18px 0 -10px rgba(91,108,98,.25),
+      0 42px 80px -28px rgba(21,40,31,.62),
+      inset 1px 1px 2px rgba(255,255,255,.96) !important;
+    backdrop-filter: blur(28px);
+  }
+
+  .clinical-global-theme .clinical-glass-nav {
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(245,247,246,.91), rgba(199,209,203,.78)) !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    box-shadow:
+      0 9px 0 -5px rgba(88,107,96,.32),
+      0 24px 42px -20px rgba(27,49,38,.60),
+      inset 1px 1px 2px rgba(255,255,255,.98),
+      inset -1px -1px 1px rgba(67,88,76,.15) !important;
+    backdrop-filter: blur(26px) saturate(120%);
+  }
+
+  .clinical-global-theme .clinical-glass-nav::before {
+    content: "";
+    position: absolute;
+    width: 62%;
+    height: 34px;
+    left: -8%;
+    top: -20px;
+    border-radius: 999px;
+    transform: rotate(-5deg);
+    background: rgba(255,255,255,.76);
+    filter: blur(12px);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clinical-global-theme *,
+    .clinical-global-theme *::before,
+    .clinical-global-theme *::after {
+      scroll-behavior: auto !important;
+      transition-duration: .01ms !important;
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
