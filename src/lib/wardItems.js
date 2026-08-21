@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 export const WARD_BOUNDS = { minX: -45, maxX: 45, minZ: -10, maxZ: 35 };
 export const SUITE_OFFSET_A = { x: -30, z: 0 };
@@ -73,11 +74,10 @@ export function generateDefaultItems() {
   items.push({ id: id(), type: "iv_stand", x: oB.x - 3, z: oB.z - 4, rotationY: 0 });
 
   // === Room C (Skills Room) — offset (30, 0) ===
-  // Sink on top wall, 2 tables in center, L-shaped countertop in bottom-right
+  // Sink on top wall, one large rounded teaching table in the centre
   const oC = SUITE_OFFSET_C;
   items.push({ id: id(), type: "sink", x: oC.x, z: oC.z - 6.5, rotationY: 0 });
-  items.push({ id: id(), type: "table", x: oC.x - 3, z: oC.z, rotationY: 0 });
-  items.push({ id: id(), type: "table", x: oC.x + 3, z: oC.z, rotationY: 0 });
+  items.push({ id: id(), type: "table", x: oC.x, z: oC.z, rotationY: 0 });
   items.push({ id: id(), type: "wall_cabinet", x: oC.x + 4, z: oC.z + 5, rotationY: 0 });
   items.push({ id: id(), type: "chair", x: oC.x - 3, z: oC.z + 2, rotationY: Math.PI });
   items.push({ id: id(), type: "chair", x: oC.x + 3, z: oC.z + 2, rotationY: Math.PI });
@@ -85,10 +85,9 @@ export function generateDefaultItems() {
   items.push({ id: id(), type: "chair", x: oC.x + 3, z: oC.z - 2, rotationY: 0 });
 
   // === Room D (Theory Room) — offset (0, 25) ===
-  // 2 large tables side-by-side in center, TV on right wall
+  // One large rounded teaching table in the centre, TV on right wall
   const oD = SUITE_OFFSET_D;
-  items.push({ id: id(), type: "table", x: oD.x - 3, z: oD.z, rotationY: 0 });
-  items.push({ id: id(), type: "table", x: oD.x + 3, z: oD.z, rotationY: 0 });
+  items.push({ id: id(), type: "table", x: oD.x, z: oD.z, rotationY: 0 });
   items.push({ id: id(), type: "tv", x: oD.x + 9, z: oD.z, rotationY: -Math.PI / 2 });
   items.push({ id: id(), type: "chair", x: oD.x - 3, z: oD.z + 2, rotationY: Math.PI });
   items.push({ id: id(), type: "chair", x: oD.x + 3, z: oD.z + 2, rotationY: Math.PI });
@@ -116,12 +115,27 @@ export function createTextTexture(text, w = 128, h = 48, color = "#2C3E50", bg =
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
   const ctx = c.getContext("2d");
-  if (bg !== "transparent") { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+  if (bg !== "transparent") {
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.roundRect(2, 2, w - 4, h - 4, Math.max(4, h * 0.16));
+    ctx.fill();
+  }
+  const safeText = String(text || "").trim();
+  const maxWidth = w * 0.88;
+  let fontSize = Math.floor(h * 0.55);
+  ctx.font = `700 ${fontSize}px Inter, Arial, sans-serif`;
+  while (fontSize > 12 && ctx.measureText(safeText).width > maxWidth) {
+    fontSize -= 2;
+    ctx.font = `700 ${fontSize}px Inter, Arial, sans-serif`;
+  }
   ctx.fillStyle = color;
-  ctx.font = `bold ${Math.floor(h * 0.6)}px Arial`;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(text, w / 2, h / 2);
-  return new THREE.CanvasTexture(c);
+  ctx.fillText(safeText, w / 2, h / 2 + 1, maxWidth);
+  const texture = new THREE.CanvasTexture(c);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 // Colors matched to reference image
@@ -139,6 +153,7 @@ const M = {
   screenNormal: new THREE.MeshStandardMaterial({ color: 0xD6F5D6, emissive: 0x88DD88, emissiveIntensity: 0.3 }),
   curtain: new THREE.MeshStandardMaterial({ color: 0xF8F6F0, transparent: true, opacity: 0.3, roughness: 0.1, side: THREE.DoubleSide }),
   wood: new THREE.MeshStandardMaterial({ color: 0xD9E2DD, roughness: 0.42, metalness: 0.08 }),
+  tableBlue: new THREE.MeshPhysicalMaterial({ color: 0xBFDDF2, roughness: 0.24, metalness: 0.04, clearcoat: 0.7, clearcoatRoughness: 0.16 }),
   yellow: new THREE.MeshStandardMaterial({ color: 0xFFE7A3, roughness: 0.5 }),
   porcelain: new THREE.MeshStandardMaterial({ color: 0xF5F5F5, roughness: 0.2 }),
 };
@@ -312,12 +327,17 @@ function createTV() {
 
 function createTable() {
   const g = new THREE.Group();
-  const top = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 1.1), M.wood);
-  top.position.y = 0.75; top.castShadow = true; g.add(top);
-  [[-1, -0.45], [1, -0.45], [-1, 0.45], [1, 0.45]].forEach(([x, z]) => {
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.73, 0.08), M.metal);
-    leg.position.set(x, 0.365, z); g.add(leg);
+  const top = new THREE.Mesh(new RoundedBoxGeometry(5.4, 0.18, 2.2, 5, 0.18), M.tableBlue);
+  top.position.y = 0.82; top.castShadow = true; top.receiveShadow = true; g.add(top);
+  [[-2.25, -0.82], [2.25, -0.82], [-2.25, 0.82], [2.25, 0.82]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(new RoundedBoxGeometry(0.16, 0.76, 0.16, 3, 0.04), M.metal);
+    leg.position.set(x, 0.39, z); leg.castShadow = true; g.add(leg);
   });
+  const edgeGlow = new THREE.Mesh(
+    new RoundedBoxGeometry(5.15, 0.025, 1.95, 5, 0.16),
+    new THREE.MeshBasicMaterial({ color: 0xEAF7FF, transparent: true, opacity: 0.5 })
+  );
+  edgeGlow.position.y = 0.92; g.add(edgeGlow);
   return g;
 }
 
