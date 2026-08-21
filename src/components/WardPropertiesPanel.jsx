@@ -39,7 +39,7 @@ export default function WardPropertiesPanel({ item, onRotate15, onRotate90, onDu
 
         {/* Rotation */}
         <div>
-          <p className="text-[9px] font-semibold text-slate-400 uppercase mb-1">Rotation: {rotationDeg}°</p>
+          <p className="text-[9px] font-semibold text-sky-700 uppercase mb-1">Rotate this item: {rotationDeg}°</p>
           <div className="flex items-center gap-1.5">
             <button onClick={() => onRotate15("left")}
               className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg border border-slate-200 bg-slate-50 text-[10px] text-slate-600 hover:bg-slate-100 transition-colors"
@@ -74,9 +74,9 @@ export default function WardPropertiesPanel({ item, onRotate15, onRotate90, onDu
             <Copy className="w-3.5 h-3.5" /> Duplicate
           </button>
           <button onClick={onDelete}
-            className="flex items-center justify-center py-2 px-3 rounded-lg border border-clinical-red/30 bg-clinical-red/5 text-clinical-red hover:bg-clinical-red/10 transition-colors"
+            className="flex items-center justify-center gap-1 py-2 px-3 rounded-lg border border-clinical-red/30 bg-clinical-red/5 text-[10px] font-semibold text-clinical-red hover:bg-clinical-red/10 transition-colors"
             aria-label="Delete item">
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-3.5 h-3.5" /> Delete
           </button>
         </div>
       </div>
