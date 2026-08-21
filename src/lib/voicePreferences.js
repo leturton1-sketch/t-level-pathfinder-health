@@ -9,12 +9,12 @@ const STORAGE_KEY = "voice_assistant_prefs";
 export const VOICE_PROFILES = [
   {
     id: "natural",
-    name: "Natural Conversational",
-    desc: "Calm, neutral, everyday pace",
+    name: "Natural Clinical Voice",
+    desc: "Realistic, calm UK clinical delivery",
     cloudVoice: "river",
-    rate: 1.0,
-    pitch: 1.0,
-    stability: 0.5,
+    rate: 0.96,
+    pitch: 0.98,
+    stability: 0.68,
   },
   {
     id: "warm",
@@ -48,9 +48,9 @@ export const VOICE_PROFILES = [
 export const DEFAULT_PREFS = {
   profileId: "natural",
   engine: "browser",
-  rate: 1.0,
-  pitch: 1.0,
-  stability: 0.5,
+  rate: 0.96,
+  pitch: 0.98,
+  stability: 0.68,
   volume: 1,
   systemVoiceURI: null,
   muted: false,
