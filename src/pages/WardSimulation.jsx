@@ -20,6 +20,22 @@ import {
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
 
+function consolidateTeachingTables(layout) {
+  let next = [...layout];
+  const zones = [
+    { matches: (item) => item.type === "table" && item.x >= 15 && item.z < 15, x: 30, z: 0 },
+    { matches: (item) => item.type === "table" && item.z >= 15, x: 0, z: 25 },
+  ];
+  zones.forEach((zone) => {
+    const tables = next.filter(zone.matches);
+    if (tables.length > 1) {
+      next = next.filter((item) => !zone.matches(item));
+      next.push({ ...tables[0], x: zone.x, z: zone.z, rotationY: tables[0].rotationY || 0 });
+    }
+  });
+  return next;
+}
+
 export default function WardSimulation() {
   const navigate = useNavigate();
   const user = getCurrentUser();
@@ -80,10 +96,10 @@ export default function WardSimulation() {
       const existing = await base44.entities.WardLayout.filter({ suite: "ward" });
       if (existing.length > 0 && existing[0].items) {
         const loaded = JSON.parse(existing[0].items || "[]");
-        setItems(loaded.length > 0 ? loaded : generateDefaultItems());
+        setItems(loaded.length > 0 ? consolidateTeachingTables(loaded) : generateDefaultItems());
       } else {
         const local = localStorage.getItem("wardLayout_ward");
-        setItems(local ? JSON.parse(local) : generateDefaultItems());
+        setItems(local ? consolidateTeachingTables(JSON.parse(local)) : generateDefaultItems());
       }
     } catch {
       const local = localStorage.getItem("wardLayout_ward");
