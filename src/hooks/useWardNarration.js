@@ -52,7 +52,6 @@ export function useWardNarration() {
     stop();
 
     const prefs = loadPrefs();
-    const profile = prefs?.profileId ? null : null; // placeholder — prefs carry engine
 
     // Cloud neural voice path (preferred when chosen in Voice Settings)
     if (prefs?.engine === "cloud") {
@@ -87,6 +86,8 @@ export function useWardNarration() {
     u.volume = prefs?.muted ? 0 : (prefs?.volume ?? 1);
     const sv = window.speechSynthesis.getVoices();
     const match = sv.find(v => v.voiceURI === prefs?.systemVoiceURI) ||
+                  sv.find(v => /en-GB/i.test(v.lang) && /natural|neural|aria|sonia|ryan|libby/i.test(`${v.name} ${v.voiceURI}`)) ||
+                  sv.find(v => /^en/i.test(v.lang) && /natural|neural/i.test(`${v.name} ${v.voiceURI}`)) ||
                   sv.find(v => /en-GB/i.test(v.lang)) ||
                   sv.find(v => /^en/i.test(v.lang));
     if (match) u.voice = match;
