@@ -315,6 +315,47 @@
     pointer-events: none;
   }
 
+  .campus-aerial {
+    animation: aerial-campus-zoom 18s cubic-bezier(.42, 0, .18, 1) infinite;
+    transform-origin: 51.8% 64%;
+    will-change: transform, filter;
+  }
+
+  .health-location { animation: health-location-reveal 18s ease-in-out infinite; }
+  .health-ring { animation: health-location-pulse 2.2s ease-out infinite; }
+  .health-ring-delay { animation-delay: .75s; }
+  .health-label { animation: health-label-reveal 18s ease-in-out infinite; }
+  .campus-progress { animation: campus-journey-progress 18s linear infinite; }
+
+  @keyframes aerial-campus-zoom {
+    0%, 8% { transform: scale(1); filter: saturate(.9) brightness(1.03); }
+    68%, 92% { transform: scale(2.15); filter: saturate(1.08) brightness(1.01); }
+    100% { transform: scale(1); filter: saturate(.9) brightness(1.03); }
+  }
+
+  @keyframes health-location-reveal {
+    0%, 34% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+    48%, 92% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(.45); }
+  }
+
+  @keyframes health-location-pulse {
+    0% { transform: translate(-50%, -50%) scale(.35); opacity: .95; }
+    100% { transform: translate(-50%, -50%) scale(1.45); opacity: 0; }
+  }
+
+  @keyframes health-label-reveal {
+    0%, 54% { opacity: 0; transform: translateY(10px); }
+    66%, 92% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(10px); }
+  }
+
+  @keyframes campus-journey-progress {
+    0% { transform: scaleX(0); }
+    92% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .clinical-global-theme *,
     .clinical-global-theme *::before,
@@ -324,5 +365,8 @@
       animation-duration: .01ms !important;
       animation-iteration-count: 1 !important;
     }
+
+    .campus-aerial { transform: scale(1.55); }
+    .health-location, .health-label { opacity: 1; }
   }
 }
