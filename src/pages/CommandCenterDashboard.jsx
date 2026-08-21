@@ -45,7 +45,7 @@ function Sparkline() {
 
 function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
   return (
-    <article className="group relative overflow-hidden rounded-[22px] border border-white/70 bg-white/54 p-4 shadow-[0_18px_55px_-28px_rgba(15,60,90,.55)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:bg-white/72">
+    <article className="group relative overflow-hidden rounded-[22px] border border-white/80 bg-gradient-to-br from-slate-100/88 via-slate-200/72 to-slate-300/54 p-4 shadow-[0_10px_0_-5px_rgba(100,116,139,.28),0_26px_50px_-24px_rgba(15,23,42,.52),inset_1px_1px_1px_rgba(255,255,255,.95),inset_-1px_-1px_1px_rgba(71,85,105,.14)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-10 before:-top-16 before:h-28 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/65 before:blur-xl after:pointer-events-none after:absolute after:inset-x-4 after:bottom-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/90 after:to-transparent hover:-translate-y-2 hover:rotate-[.35deg] hover:shadow-[0_15px_0_-7px_rgba(100,116,139,.3),0_35px_62px_-24px_rgba(15,23,42,.58)]">
       <div className={`absolute inset-x-0 top-0 h-1 ${tone}`} />
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -62,7 +62,7 @@ function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
 
 function QuickLaunch({ icon: Icon, label, detail, onClick, tone }) {
   return (
-    <button onClick={onClick} className="group relative w-full rounded-[24px] border border-white/80 bg-white/55 p-3 text-left shadow-[0_18px_32px_-22px_rgba(15,53,83,.8),inset_0_1px_1px_rgba(255,255,255,.95)] backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-white/75 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+    <button onClick={onClick} className="group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 p-3 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
       <div className="flex items-center gap-3">
         <span className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white shadow-[0_9px_0_-4px_rgba(15,23,42,.22),0_13px_24px_-14px_rgba(15,23,42,.75)] ${tone}`}>
           <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />
@@ -96,11 +96,11 @@ export default function CommandCenterDashboard() {
   const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_14%_15%,rgba(125,211,252,.48),transparent_26%),radial-gradient(circle_at_84%_18%,rgba(167,243,208,.43),transparent_28%),linear-gradient(145deg,#e8f5fa_0%,#cfe4eb_48%,#edf8f7_100%)] pb-24 text-slate-800">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.92),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(203,213,225,.70),transparent_30%),linear-gradient(145deg,#e7e9ec_0%,#c9cdd2_48%,#eef0f2_100%)] pb-24 text-slate-800">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:42px_42px]" />
 
       <div className="relative mx-auto max-w-[1560px] px-4 py-4 sm:px-6 lg:px-8">
-        <header className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[26px] border border-white/70 bg-white/38 px-5 py-3 shadow-[0_20px_70px_-38px_rgba(14,54,78,.7)] backdrop-blur-xl">
+        <header className="relative mb-5 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-5 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
             <div>
@@ -135,7 +135,7 @@ export default function CommandCenterDashboard() {
             </div>
           </aside>
 
-          <section className="relative min-h-[510px] overflow-hidden rounded-[34px] border border-white/75 bg-white/40 p-4 shadow-[0_35px_90px_-48px_rgba(15,53,83,.82)] backdrop-blur-2xl sm:p-6">
+          <section className="relative min-h-[510px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive ward map</p>
@@ -146,11 +146,11 @@ export default function CommandCenterDashboard() {
               </div>
             </div>
 
-            <div className="relative mx-auto h-[380px] max-w-[760px] [perspective:1100px]">
-              <div className="absolute inset-[7%_5%_13%] origin-center rotate-x-[58deg] rotate-z-[-32deg] rounded-[26px] border-[10px] border-slate-100/90 bg-slate-200/80 shadow-[26px_36px_40px_-20px_rgba(15,53,83,.62)] [transform:rotateX(58deg)_rotateZ(-32deg)]">
+            <div className="relative mx-auto h-[380px] max-w-[760px] [perspective:1350px] before:absolute before:inset-[18%_9%_7%] before:translate-y-10 before:rotate-[-4deg] before:rounded-[35%] before:bg-slate-700/24 before:blur-2xl">
+              <div className="absolute inset-[7%_5%_13%] origin-center rounded-[26px] border-[11px] border-slate-100/95 bg-gradient-to-br from-slate-100/96 via-slate-300/92 to-slate-400/82 shadow-[12px_14px_0_rgba(71,85,105,.22),22px_28px_0_rgba(51,65,85,.16),35px_48px_42px_-24px_rgba(15,23,42,.72),inset_3px_3px_4px_white,inset_-3px_-3px_4px_rgba(71,85,105,.24)] [transform:rotateX(58deg)_rotateZ(-32deg)_translateZ(18px)] [transform-style:preserve-3d] before:pointer-events-none before:absolute before:inset-2 before:rounded-[18px] before:border before:border-white/75 before:bg-gradient-to-br before:from-white/30 before:via-transparent before:to-slate-500/10">
                 {ROOMS.map((room) => (
                   <button key={room.id} onClick={() => setSelectedRoom(room.id)} style={{ left: `${room.x}%`, top: `${room.y}%`, width: `${room.w}%`, height: `${room.h}%` }}
-                    className={`group absolute rounded-lg border-2 bg-gradient-to-br ${roomStyles[room.status]} shadow-[8px_10px_0_rgba(15,53,83,.18)] transition duration-300 hover:-translate-y-2 hover:brightness-110 focus:outline-none focus:ring-4 focus:ring-cyan-300 ${selectedRoom === room.id ? "-translate-y-2 ring-4 ring-white" : ""}`}>
+                    className={`group absolute overflow-hidden rounded-lg border-2 bg-gradient-to-br ${roomStyles[room.status]} shadow-[4px_5px_0_rgba(255,255,255,.35),10px_14px_0_rgba(15,53,83,.24),14px_20px_18px_-8px_rgba(15,23,42,.58),inset_2px_2px_2px_rgba(255,255,255,.62)] transition duration-300 before:pointer-events-none before:absolute before:-left-4 before:-top-3 before:h-7 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/58 before:blur-md hover:-translate-y-3 hover:brightness-110 hover:shadow-[5px_7px_0_rgba(255,255,255,.38),13px_19px_0_rgba(15,53,83,.28),18px_26px_24px_-10px_rgba(15,23,42,.65)] focus:outline-none focus:ring-4 focus:ring-cyan-300 ${selectedRoom === room.id ? "-translate-y-3 ring-4 ring-white" : ""}`}>
                     <span className="absolute inset-x-1 top-1 rounded bg-white/78 px-1 py-0.5 text-[8px] font-black text-slate-700 shadow-sm">{room.label}</span>
                     <span className="absolute bottom-2 left-2 h-3 w-5 rounded-sm bg-white/75 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
                     <span className="absolute bottom-2 right-2 h-3 w-5 rounded-sm bg-white/75 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
@@ -159,7 +159,7 @@ export default function CommandCenterDashboard() {
               </div>
             </div>
 
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-2xl border border-white/80 bg-white/68 px-4 py-3 shadow-lg backdrop-blur-xl sm:left-6 sm:right-6">
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/92 via-slate-200/78 to-slate-300/62 px-4 py-3 shadow-[0_8px_0_-4px_rgba(100,116,139,.34),0_20px_35px_-18px_rgba(15,23,42,.62),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-6 before:-top-6 before:h-10 before:w-1/2 before:rotate-[-10deg] before:bg-white/70 before:blur-xl sm:left-6 sm:right-6">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white"><UserRound className="h-5 w-5" /></span>
                 <div className="min-w-0">
@@ -174,14 +174,14 @@ export default function CommandCenterDashboard() {
             </div>
           </section>
 
-          <aside className="rounded-[30px] border border-white/75 bg-white/48 p-4 shadow-[0_26px_70px_-40px_rgba(15,53,83,.8)] backdrop-blur-2xl">
+          <aside className="relative overflow-hidden rounded-[30px] border border-white/90 bg-gradient-to-br from-slate-100/88 via-slate-200/70 to-slate-300/54 p-4 shadow-[0_12px_0_-6px_rgba(100,116,139,.32),0_30px_62px_-30px_rgba(15,23,42,.68),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-10 before:-top-12 before:h-24 before:w-3/4 before:rotate-[-14deg] before:rounded-full before:bg-white/68 before:blur-2xl">
             <div className="mb-3 flex items-center justify-between">
               <div><p className="text-[10px] font-bold uppercase tracking-[.17em] text-cyan-700">Response team</p><h2 className="text-base font-black text-slate-900">Patient & staff</h2></div>
               <span className="rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-bold text-emerald-700">{staff.length} active</span>
             </div>
             <div className="space-y-2">
               {staff.map((person) => (
-                <button key={person.name} className="group flex w-full items-center gap-3 rounded-2xl border border-white/80 bg-white/55 p-2.5 text-left transition hover:translate-x-1 hover:bg-white/85">
+                <button key={person.name} className="group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/88 to-slate-300/60 p-2.5 text-left shadow-[0_5px_0_-3px_rgba(100,116,139,.3),0_12px_20px_-14px_rgba(15,23,42,.7),inset_1px_1px_1px_white] transition before:pointer-events-none before:absolute before:-left-5 before:-top-4 before:h-7 before:w-1/2 before:rotate-[-15deg] before:bg-white/65 before:blur-lg hover:-translate-y-1 hover:translate-x-1 hover:shadow-[0_8px_0_-3px_rgba(100,116,139,.32),0_18px_24px_-12px_rgba(15,23,42,.72)]">
                   <span className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-black text-white shadow-md ${person.tone}`}>{person.initials}<i className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" /></span>
                   <span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold text-slate-800">{person.name}</span><span className="block truncate text-[10px] text-slate-500">{person.role}</span></span>
                   <span className="text-[9px] font-semibold text-slate-500">{person.status}</span>
