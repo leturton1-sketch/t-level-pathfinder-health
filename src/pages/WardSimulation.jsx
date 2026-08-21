@@ -10,8 +10,8 @@ import WardEditPanel from "@/components/WardEditPanel";
 import WardPropertiesPanel from "@/components/WardPropertiesPanel";
 import PatientPanel from "@/components/PatientPanel";
 import WardPatientPanel from "@/components/WardPatientPanel";
-import { getPatientForBed, WARD_PATIENTS } from "@/lib/wardPatients";
-import { WARD_ITEM_TYPES, generateDefaultItems, DEFAULT_PATIENTS, getItemLabel } from "@/lib/wardItems";
+import { getPatientForBed } from "@/lib/wardPatients";
+import { WARD_ITEM_TYPES, generateDefaultItems } from "@/lib/wardItems";
 import { useWardNarration } from "@/hooks/useWardNarration";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
