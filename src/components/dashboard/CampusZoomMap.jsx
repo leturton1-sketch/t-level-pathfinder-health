@@ -1,91 +1,36 @@
-import { MapPin, ScanSearch } from "lucide-react";
+import { Building2, Crosshair, MapPin, ScanSearch } from "lucide-react";
 
 export default function CampusZoomMap() {
   return (
-    <div className="campus-zoom relative mx-auto h-[380px] max-w-[900px] overflow-hidden rounded-[28px] border border-white/90 bg-slate-200 shadow-[0_18px_0_-9px_rgba(100,116,139,.32),0_36px_70px_-34px_rgba(15,23,42,.68),inset_1px_1px_2px_white]">
-      <img
-        src="/assets/campus-wide.jpg"
-        alt="Wide view of the Dearne Valley College campus and surrounding area"
-        className="campus-wide absolute inset-0 h-full w-full object-cover"
-      />
-      <img
-        src="/assets/campus-close.jpg"
-        alt="Detailed view of Dearne Valley College campus buildings"
-        className="campus-close absolute inset-0 h-full w-full object-cover"
-      />
-
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,.2),transparent_28%,rgba(15,23,42,.12))]" />
-      <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-2 rounded-2xl border border-white/90 bg-white/72 px-3 py-2 shadow-lg backdrop-blur-xl">
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-md">
-          <ScanSearch className="h-4 w-4" />
-        </span>
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[.18em] text-cyan-700">Campus approach</p>
-          <p className="text-[10px] font-semibold text-slate-700">Locating T Level Health Corridor</p>
+    <div className="relative mx-auto h-[390px] max-w-[920px] [perspective:1400px]">
+      <div className="absolute inset-[9%_3%_2%] translate-y-7 rounded-[30px] bg-slate-700/25 blur-2xl" />
+      <div className="absolute inset-[5%_2%_7%] translate-x-2 translate-y-5 rounded-[26px] border border-slate-400/30 bg-slate-500/35 shadow-xl [transform:rotateX(8deg)_rotateZ(-1.2deg)]" />
+      <div className="campus-plane absolute inset-[1%_2%_11%] overflow-hidden rounded-[26px] border-[6px] border-white/90 bg-slate-100 shadow-[0_12px_0_-5px_rgba(100,116,139,.4),0_30px_55px_-26px_rgba(15,23,42,.75),inset_2px_2px_3px_white] [transform:rotateX(8deg)_rotateZ(-1.2deg)] [transform-style:preserve-3d]">
+        <img src="/assets/campus-aerial.jpg" alt="Aerial map of Dearne Valley College campus" className="campus-aerial absolute inset-0 h-full w-full object-cover" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(145deg,rgba(255,255,255,.28),transparent_32%,rgba(15,23,42,.08))]" />
+        <div className="health-location pointer-events-none absolute left-[51.8%] top-[64%] z-20 -translate-x-1/2 -translate-y-1/2">
+          <span className="health-ring absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-400/70 bg-cyan-300/10" />
+          <span className="health-ring health-ring-delay absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-500/80" />
+          <span className="relative grid h-10 w-10 place-items-center rounded-full border-[3px] border-white bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-[0_0_0_5px_rgba(14,165,233,.22),0_0_32px_rgba(6,182,212,.95)]">
+            <MapPin className="h-5 w-5" />
+          </span>
+          <span className="health-stem absolute left-1/2 top-9 h-20 w-px -translate-x-1/2 bg-gradient-to-b from-cyan-300 to-transparent" />
         </div>
       </div>
-
-      <div className="campus-target pointer-events-none absolute left-[45.2%] top-[45.5%]">
-        <span className="absolute -left-5 -top-5 h-10 w-10 animate-ping rounded-full border-2 border-cyan-400/70" />
-        <span className="relative grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br from-rose-400 to-pink-600 text-white shadow-[0_0_24px_rgba(244,114,182,.8)]">
-          <MapPin className="h-4 w-4" />
-        </span>
+      <div className="pointer-events-none absolute left-5 top-4 z-30 flex items-center gap-2 rounded-2xl border border-white/90 bg-white/75 px-3 py-2 shadow-lg backdrop-blur-xl">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-700 text-white shadow-md"><ScanSearch className="h-4 w-4" /></span>
+        <div><p className="text-[9px] font-black uppercase tracking-[.18em] text-cyan-700">Aerial campus approach</p><p className="text-[10px] font-semibold text-slate-700">Locating T Level Health Provision</p></div>
       </div>
-
-      <div className="pointer-events-none absolute bottom-5 left-5 right-5 overflow-hidden rounded-full border border-white/70 bg-white/45 p-1 shadow-lg backdrop-blur-xl">
-        <div className="campus-progress h-1.5 origin-left rounded-full bg-gradient-to-r from-cyan-400 via-sky-500 to-pink-400" />
+      <div className="health-label pointer-events-none absolute bottom-11 right-5 z-30 max-w-[240px] rounded-2xl border border-cyan-200/80 bg-slate-950/82 px-3 py-2.5 text-white shadow-[0_12px_30px_-14px_rgba(8,145,178,.9)] backdrop-blur-xl">
+        <div className="flex items-center gap-2">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-400/20 text-cyan-200"><Building2 className="h-4 w-4" /></span>
+          <div><p className="text-[9px] font-black uppercase tracking-[.16em] text-cyan-200">Destination located</p><p className="text-[11px] font-bold">T Level Health Provision</p><p className="text-[9px] text-slate-300">Dearne Valley College</p></div>
+        </div>
       </div>
-
-      <div className="campus-detail-label pointer-events-none absolute bottom-10 right-5 rounded-xl border border-white/90 bg-slate-900/78 px-3 py-2 text-white shadow-xl backdrop-blur-xl">
-        <p className="text-[9px] font-black uppercase tracking-[.16em] text-cyan-200">Dearne Valley College</p>
-        <p className="text-[10px] text-slate-200">T Level Health teaching campus</p>
+      <div className="pointer-events-none absolute bottom-5 left-5 right-5 z-30 overflow-hidden rounded-full border border-white/80 bg-white/55 p-1 shadow-lg backdrop-blur-xl">
+        <div className="campus-progress h-1.5 origin-left rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500" />
       </div>
-
-      <style>{`
-        .campus-wide {
-          animation: campusWideJourney 16s cubic-bezier(.45,0,.2,1) infinite;
-          transform-origin: 46% 47%;
-          will-change: transform, opacity, filter;
-        }
-        .campus-close {
-          animation: campusCloseResolve 16s cubic-bezier(.45,0,.2,1) infinite;
-          transform-origin: 50% 50%;
-          will-change: transform, opacity, filter;
-        }
-        .campus-target { animation: campusTarget 16s ease-in-out infinite; }
-        .campus-progress { animation: campusProgress 16s linear infinite; }
-        .campus-detail-label { animation: campusLabel 16s ease-in-out infinite; }
-        @keyframes campusWideJourney {
-          0%, 8% { transform: scale(1); opacity: 1; filter: saturate(.92); }
-          58% { transform: scale(2.18) translate(3.5%, 2%); opacity: 1; filter: saturate(1.06); }
-          68%, 92% { transform: scale(2.42) translate(4%, 2.5%); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes campusCloseResolve {
-          0%, 52% { transform: scale(1.34); opacity: 0; filter: blur(4px); }
-          68% { transform: scale(1.08); opacity: 1; filter: blur(0); }
-          92% { transform: scale(1); opacity: 1; filter: blur(0); }
-          100% { transform: scale(1.08); opacity: 0; }
-        }
-        @keyframes campusTarget {
-          0%, 48% { opacity: 1; transform: scale(1); }
-          60%, 100% { opacity: 0; transform: scale(1.7); }
-        }
-        @keyframes campusProgress {
-          0% { transform: scaleX(0); }
-          92% { transform: scaleX(1); }
-          100% { transform: scaleX(0); }
-        }
-        @keyframes campusLabel {
-          0%, 58% { opacity: 0; transform: translateY(8px); }
-          70%, 92% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(8px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .campus-wide, .campus-target, .campus-progress { animation: none; opacity: 0; }
-          .campus-close, .campus-detail-label { animation: none; opacity: 1; transform: none; filter: none; }
-        }
-      `}</style>
+      <div className="pointer-events-none absolute right-5 top-5 z-30 rounded-full border border-white/80 bg-white/70 p-2 text-blue-700 shadow-lg backdrop-blur-xl"><Crosshair className="h-4 w-4" /></div>
     </div>
   );
 }
