@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { VOICE_PROFILES, loadPrefs, savePrefs, applyProfile } from "@/lib/voicePreferences";
+import { VOICE_PROFILES, loadPrefs, savePrefs, applyProfile, prepareSpeechText } from "@/lib/voicePreferences";
 
 /**
  * useVoiceSynthesis — speech synthesis hook.
@@ -61,7 +61,7 @@ export function useVoiceSynthesis() {
   }, [supported, voices]);
 
   const speak = useCallback(async (text, { onEnd } = {}) => {
-    const clean = String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000).trim();
+    const clean = prepareSpeechText(String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000));
     if (!clean) { onEnd?.(); return; }
     stop();
     if (prefs.muted) { onEnd?.(); return; }
