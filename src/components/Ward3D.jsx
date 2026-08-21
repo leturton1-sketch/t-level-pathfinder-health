@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createWardItem, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
+import { createWardItem, createTextTexture, WARD_BOUNDS, clampToBounds, checkCollision, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import WardItemDropdown from "@/components/WardItemDropdown";
 
 const WARD_W = 20;
@@ -39,29 +39,54 @@ function createFloorTexture() {
 function buildWard(scene, offset, label, wallsRef) {
   const { x: ox, z: oz } = offset;
 
-  // Floor — high-gloss polished ivory
+  // Raised, polished pastel floor slab
+  const floorTint = label.includes("Suite A") ? 0xFBE5EE
+    : label.includes("Suite B") ? 0xE2F4E8
+    : label.includes("Theory") ? 0xFFF7CD
+    : 0xE9F3EF;
   const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(WARD_W, WARD_D),
-    new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.1, metalness: 0.2 })
+    new THREE.BoxGeometry(WARD_W, 0.28, WARD_D),
+    new THREE.MeshPhysicalMaterial({
+      map: createFloorTexture(), color: floorTint, roughness: 0.16, metalness: 0.08,
+      clearcoat: 0.75, clearcoatRoughness: 0.12,
+    })
   );
-  floor.rotation.x = -Math.PI / 2; floor.position.set(ox, 0, oz); floor.receiveShadow = true; scene.add(floor);
+  floor.position.set(ox, -0.14, oz); floor.receiveShadow = true; floor.castShadow = true; scene.add(floor);
 
-  // Walls — pure white, semi-transparent (opacity updated in animation loop)
-  const wallMat = () => new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.9, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
+  // Textual room marker set into each floor
+  const labelTexture = createTextTexture(label.toUpperCase(), 512, 92, "#27483A", "rgba(255,255,255,0.78)");
+  labelTexture.colorSpace = THREE.SRGBColorSpace;
+  const floorLabel = new THREE.Mesh(
+    new THREE.PlaneGeometry(7.5, 1.35),
+    new THREE.MeshBasicMaterial({ map: labelTexture, transparent: true, depthWrite: false })
+  );
+  floorLabel.rotation.x = -Math.PI / 2;
+  floorLabel.position.set(ox, 0.035, oz + 5.7);
+  scene.add(floorLabel);
+
+  // Thick white-grey glass walls with studio highlights
+  const wallMat = () => new THREE.MeshPhysicalMaterial({
+    color: 0xEEF2F0, roughness: 0.24, metalness: 0.03, transmission: 0.08,
+    clearcoat: 0.8, clearcoatRoughness: 0.16, transparent: true, opacity: 0.34,
+    side: THREE.DoubleSide,
+  });
 
   const backWall = new THREE.Mesh(new THREE.BoxGeometry(WARD_W, 3.5, 0.2), wallMat());
   backWall.position.set(ox, 1.75, oz - WARD_D / 2);
   backWall.userData = { normal: new THREE.Vector3(0, 0, 1) };
+  backWall.castShadow = true; backWall.receiveShadow = true;
   scene.add(backWall); wallsRef.current.push(backWall);
 
   const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, WARD_D), wallMat());
   leftWall.position.set(ox - WARD_W / 2, 1.75, oz);
   leftWall.userData = { normal: new THREE.Vector3(1, 0, 0) };
+  leftWall.castShadow = true; leftWall.receiveShadow = true;
   scene.add(leftWall); wallsRef.current.push(leftWall);
 
   const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, WARD_D), wallMat());
   rightWall.position.set(ox + WARD_W / 2, 1.75, oz);
   rightWall.userData = { normal: new THREE.Vector3(-1, 0, 0) };
+  rightWall.castShadow = true; rightWall.receiveShadow = true;
   scene.add(rightWall); wallsRef.current.push(rightWall);
 
   // Ceiling lights — long thin fixtures
@@ -137,6 +162,9 @@ export default function Ward3D({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.18;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -154,13 +182,14 @@ export default function Ward3D({
     }
     controlsRef.current = controls;
 
-    // Soft natural lighting
-    scene.add(new THREE.AmbientLight(0xFFFFFF, 0.55));
-    const sunLight = new THREE.DirectionalLight(0xFFF8F0, 0.5);
+    // Bright medical studio lighting with soft grey-green bounce
+    scene.add(new THREE.HemisphereLight(0xFFFFFF, 0xB8CEC2, 1.1));
+    scene.add(new THREE.AmbientLight(0xFFFFFF, 0.72));
+    const sunLight = new THREE.DirectionalLight(0xFFFDF8, 1.15);
     sunLight.position.set(10, 25, 10); sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 1024; sunLight.shadow.mapSize.height = 1024;
     sunLight.shadow.radius = 6; scene.add(sunLight);
-    const fillLight = new THREE.DirectionalLight(0xEEF2FF, 0.2);
+    const fillLight = new THREE.DirectionalLight(0xDFF7EA, 0.55);
     fillLight.position.set(-10, 15, -10); scene.add(fillLight);
 
     // Build wards
@@ -317,7 +346,7 @@ export default function Ward3D({
         const dot = toCam.dot(wall.userData.normal);
         // dot > 0: camera is outside this wall → transparent (see through)
         // dot < 0: camera is inside → more opaque
-        wall.material.opacity = 0.05 + Math.max(0, -dot) * 0.2;
+        wall.material.opacity = 0.18 + Math.max(0, -dot) * 0.28;
       });
 
       // Camera lerp
@@ -401,6 +430,12 @@ export default function Ward3D({
         const patient = DEFAULT_PATIENTS[item.designation];
         const options = { designation: item.designation, alert: patient?.status === "red" };
         mesh = createWardItem(item.type, options);
+        mesh.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
         mesh.userData = { itemId: item.id, itemOptions: options };
         scene.add(mesh); map.set(item.id, mesh);
       }
@@ -423,9 +458,9 @@ export default function Ward3D({
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
       <div className="absolute top-3 left-3 flex items-center gap-2">
-        <div className="text-xs text-slate-600 bg-white/80 backdrop-blur-sm rounded-lg px-3 py-1.5 pointer-events-none border border-slate-200 whitespace-nowrap">
+        <div className="polished-glass-edge pointer-events-none whitespace-nowrap rounded-xl border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-lg backdrop-blur-xl">
           {editMode
-            ? "EDIT MODE · Drag items · Scroll to zoom"
+            ? "EDIT MODE · Every item is moveable · Drag to position · Scroll to zoom"
             : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
         </div>
         {editMode && (
