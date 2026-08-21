@@ -43,7 +43,7 @@ function buildWard(scene, offset, label, wallsRef) {
   const floorTint = label.includes("Suite A") ? 0xFBE5EE
     : label.includes("Suite B") ? 0xE2F4E8
     : label.includes("Theory") ? 0xFFF7CD
-    : 0xE9F3EF;
+    : 0xDCEFFA;
   const floor = new THREE.Mesh(
     new THREE.BoxGeometry(WARD_W, 0.28, WARD_D),
     new THREE.MeshPhysicalMaterial({
@@ -53,15 +53,15 @@ function buildWard(scene, offset, label, wallsRef) {
   );
   floor.position.set(ox, -0.14, oz); floor.receiveShadow = true; floor.castShadow = true; scene.add(floor);
 
-  // Textual room marker set into each floor
-  const labelTexture = createTextTexture(label.toUpperCase(), 512, 92, "#27483A", "rgba(255,255,255,0.78)");
-  labelTexture.colorSpace = THREE.SRGBColorSpace;
-  const floorLabel = new THREE.Mesh(
-    new THREE.PlaneGeometry(7.5, 1.35),
-    new THREE.MeshBasicMaterial({ map: labelTexture, transparent: true, depthWrite: false })
-  );
-  floorLabel.rotation.x = -Math.PI / 2;
-  floorLabel.position.set(ox, 0.035, oz + 5.7);
+  // Camera-facing room marker: remains readable from every orbit angle and zoom level
+  const labelTexture = createTextTexture(label.toUpperCase(), 1024, 160, "#1F4B5C", "rgba(247,252,255,0.94)");
+  const floorLabel = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: labelTexture, transparent: true, depthTest: false, depthWrite: false,
+  }));
+  floorLabel.position.set(ox, 4.25, oz - 5.8);
+  floorLabel.scale.set(9.5, 1.5, 1);
+  floorLabel.renderOrder = 50;
+  floorLabel.userData.isRoomLabel = true;
   scene.add(floorLabel);
 
   // Thick white-grey glass walls with studio highlights
