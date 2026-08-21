@@ -39,7 +39,7 @@ export default function BottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-3 pointer-events-none">
-      <nav className="pointer-events-auto mx-auto max-w-md bg-card/95 backdrop-blur rounded-2xl shadow-lg border border-border px-2 py-1.5">
+      <nav className="clinical-glass-nav pointer-events-auto relative mx-auto max-w-md rounded-[22px] px-2 py-1.5">
         <div className="flex items-center justify-around">
           {nav.map((item) => {
             const isActive = location.pathname === item.path;
