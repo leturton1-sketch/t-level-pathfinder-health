@@ -9,6 +9,7 @@ import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import AudioVisualizer from "@/components/voice/AudioVisualizer";
 import VoiceSettings from "@/components/voice/VoiceSettings";
 import ClinicianHead3D from "@/components/voice/ClinicianHead3D";
+import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
 
 const STATUS = {
   idle: { label: "Idle", color: "text-muted-foreground", dot: "bg-muted-foreground" },
@@ -55,7 +56,7 @@ export default function VoiceAssistant() {
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
+        prompt: `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
       });
       const reply = typeof res === "string" ? res : res?.reply || "Sorry, I didn't catch that.";
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
