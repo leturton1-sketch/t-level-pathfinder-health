@@ -6,6 +6,7 @@ const STATUS_STYLE = {
   overdue: { wrap: "border-clinical-red/40 bg-clinical-red/10", text: "text-clinical-red", icon: AlertTriangle, label: "Overdue" },
   "due-soon": { wrap: "border-clinical-amber/40 bg-clinical-amber/10", text: "text-clinical-amber", icon: Clock, label: "Due soon" },
   scheduled: { wrap: "border-sky-200 bg-sky-50", text: "text-sky-700", icon: Clock, label: "Scheduled" },
+  completed: { wrap: "border-emerald-200 bg-emerald-50", text: "text-emerald-700", icon: CheckCircle2, label: "Recorded" },
 };
 
 /**
@@ -13,7 +14,11 @@ const STATUS_STYLE = {
  * plus the live admissions queue — admitting a new patient schedules their risks.
  */
 export default function RiskAssessmentWidget({ patient, now, incoming, onAdmit }) {
-  const risks = patient ? scheduledRisks(patient.admittedAt, now) : RISK_ASSESSMENTS.map((r) => ({ ...r, remainingH: r.dueWithinHours, status: "scheduled" }));
+  const risks = patient ? scheduledRisks(patient.admittedAt, now).map((risk) => ({
+    ...risk,
+    status: patient.riskAssessment?.answers?.[risk.id] ? "completed" : risk.status,
+    recordedRisk: patient.riskAssessment?.answers?.[risk.id],
+  })) : RISK_ASSESSMENTS.map((r) => ({ ...r, remainingH: r.dueWithinHours, status: "scheduled" }));
 
   return (
     <div className="rounded-2xl border border-sky-200/70 bg-card p-4 shadow-sm">
@@ -38,7 +43,7 @@ export default function RiskAssessmentWidget({ patient, now, incoming, onAdmit }
                 <span className="text-xs font-semibold text-foreground truncate">{r.label}</span>
               </div>
               <span className={`text-[11px] font-heading font-bold ${s.text} shrink-0 ml-2`}>
-                {r.status === "overdue" ? "Due now" : formatCountdown(r.remainingH)}
+                {r.status === "completed" ? `${r.recordedRisk} risk` : r.status === "overdue" ? "Due now" : formatCountdown(r.remainingH)}
               </span>
             </div>
           );
