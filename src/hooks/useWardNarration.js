@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { loadPrefs } from "@/lib/voicePreferences";
+import { getVoiceProfile, loadPrefs, prepareSpeechText } from "@/lib/voicePreferences";
 
 /**
  * useWardNarration — reliable clinical narration during ward simulation.
@@ -47,7 +47,7 @@ export function useWardNarration() {
   }, [supported]);
 
   const speak = useCallback(async (text, { onEnd } = {}) => {
-    const clean = String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000).trim();
+    const clean = prepareSpeechText(String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000));
     if (!clean || !enabled) { onEnd?.(); return; }
     stop();
 
@@ -55,8 +55,7 @@ export function useWardNarration() {
 
     // Cloud neural voice path (preferred when chosen in Voice Settings)
     if (prefs?.engine === "cloud") {
-      const voices = { natural: "river", warm: "honey", expressive: "storm", bright: "sunny" };
-      const cloudVoice = voices[prefs.profileId] || "river";
+      const cloudVoice = getVoiceProfile(prefs.profileId).cloudVoice;
       try {
         setSpeaking(true);
         const res = await base44.integrations.Core.GenerateSpeech({
