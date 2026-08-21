@@ -14,7 +14,7 @@ const ICON_MAP = {
   nurses_station: Monitor,
   tv: Tv,
   table: Table,
-  countertop: LayoutGrid,
+  wall_cabinet: LayoutGrid,
 };
 
 export default function WardEditPanel({
@@ -23,8 +23,8 @@ export default function WardEditPanel({
   onResetLayout, onExitEdit,
 }) {
   return (
-    <div className="absolute top-16 left-3 z-20 w-56 sm:w-60 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-slide-up max-h-[calc(100vh-100px)] flex flex-col">
-      <div className="bg-slate-800 text-white px-4 py-2.5 flex items-center justify-between shrink-0">
+    <div className="polished-glass-edge absolute top-16 left-3 z-20 flex max-h-[calc(100vh-100px)] w-56 flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/70 shadow-2xl backdrop-blur-2xl animate-slide-up sm:w-60">
+      <div className="bg-gradient-to-r from-slate-700/90 to-emerald-800/85 text-white px-4 py-2.5 flex items-center justify-between shrink-0">
         <h3 className="font-display text-xs tracking-wide">EDIT WARD</h3>
         <button onClick={onExitEdit} className="flex items-center gap-1 text-[10px] bg-clinical-teal text-white px-2 py-1 rounded-md hover:opacity-90">
           Done — Save Layout
@@ -71,7 +71,7 @@ export default function WardEditPanel({
 
         {/* Item palette */}
         <div className="p-3">
-          <p className="text-[9px] font-semibold text-slate-400 uppercase mb-2 tracking-wide">Add Items</p>
+          <p className="text-[9px] font-semibold text-slate-500 uppercase mb-2 tracking-wide">Moveable 3D Items</p>
           <div className="grid grid-cols-2 gap-1.5">
             {WARD_ITEM_TYPES.map((item) => {
               const Icon = ICON_MAP[item.type] || Table;
@@ -92,8 +92,8 @@ export default function WardEditPanel({
 
       <div className="px-3 py-2 bg-slate-50 border-t border-slate-200 text-[9px] text-slate-400 shrink-0">
         {selectedItemForPlacement
-          ? "Click on the floor to place."
-          : `${itemCount} items · Drag to reposition · Click to select`}
+          ? "Click on the floor to place. Add repeated units as needed."
+          : `${itemCount} moveable items · Drag any item · Click to select`}
       </div>
     </div>
   );
