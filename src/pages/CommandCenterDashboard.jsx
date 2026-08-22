@@ -100,7 +100,7 @@ export default function CommandCenterDashboard() {
   const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.92),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(203,213,225,.70),transparent_30%),linear-gradient(145deg,#e7e9ec_0%,#c9cdd2_48%,#eef0f2_100%)] pb-24 text-slate-800">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.98),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(220,210,238,.55),transparent_32%),linear-gradient(145deg,#faf9fb_0%,#f2eef7_48%,#f8f6fa_100%)] pb-24 text-[#15131A]">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:42px_42px]" />
 
       <div className="relative mx-auto max-w-[1560px] px-4 py-4 sm:px-6 lg:px-8">
