@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { login, changePin, getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import { Lock, User as UserIcon, Delete, AlertCircle } from "lucide-react";
+import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export default function Login() {
         setPendingUser({ ...user, pin });
         setShowPinChange(true);
       } else {
+        void ukVoiceService.speak(`Welcome back, ${user.full_name?.split(" ")[0] || "there"}. Login successful.`);
         navigate("/");
       }
     } catch (err) {
@@ -51,6 +53,7 @@ export default function Login() {
     }
     try {
       await changePin(pendingUser.id, newPin);
+      void ukVoiceService.speak("Your PIN has been updated successfully. Welcome to Clinical Edge.");
       navigate("/");
     } catch (err) {
       setError("Failed to update PIN. Please try again.");
