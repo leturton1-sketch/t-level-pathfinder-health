@@ -85,7 +85,7 @@ export default function NEWS2LiveWidget({ patient }) {
       <div className="mt-3 h-16">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={history}>
-            <Line type="monotone" dataKey="hr" stroke="#2E78B8" strokeWidth={2} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="hr" stroke="#765AB0" strokeWidth={2} dot={false} isAnimationActive={false} />
             <Tooltip contentStyle={{ fontSize: 10, borderRadius: 8, border: "1px solid #D8DEE6" }} formatter={(v) => [`${v} bpm`, "HR"]} labelFormatter={() => ""} />
           </LineChart>
         </ResponsiveContainer>
