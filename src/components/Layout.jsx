@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import BottomNav from "./BottomNav";
 import AIAssistant from "./AIAssistant";
+import GlobalVoiceControl from "./voice/GlobalVoiceControl";
 
 export default function Layout() {
   return (
@@ -8,6 +9,7 @@ export default function Layout() {
       <main className="min-h-screen">
         <Outlet />
       </main>
+      <GlobalVoiceControl />
       <BottomNav />
       <AIAssistant />
     </div>
