@@ -4,6 +4,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Volume2, Play, Sparkles, Cloud, Cpu, Check } from "lucide-react";
 import { VOICE_PROFILES } from "@/lib/voicePreferences";
+import { UK_DIALECTS } from "@/utils/ukVoiceSynthesizer";
 
 export default function VoiceSettings({ open, onClose, onSaved, synth }) {
   const { updatePrefs, testVoice, voices, speaking } = synth;
@@ -12,6 +13,21 @@ export default function VoiceSettings({ open, onClose, onSaved, synth }) {
   useEffect(() => { if (open) setDraft(synth.prefs); }, [open, synth.prefs]);
 
   const set = (k) => (v) => setDraft((d) => ({ ...d, [k]: v }));
+  const selectedProfile = VOICE_PROFILES.find((profile) => profile.id === draft.profileId) || VOICE_PROFILES[0];
+  const selectedDialect = selectedProfile.dialect === "neutral_uk" ? "london_rp" : selectedProfile.dialect;
+  const selectedGender = selectedProfile.gender === "male" ? "male" : "female";
+
+  const chooseRegionalVoice = (dialect, gender) => {
+    const profile = VOICE_PROFILES.find((item) => item.dialect === dialect && item.gender === gender);
+    if (!profile) return;
+    setDraft((current) => ({
+      ...current,
+      profileId: profile.id,
+      rate: profile.rate,
+      pitch: profile.pitch,
+      stability: profile.stability,
+    }));
+  };
 
   const applyAndTest = () => {
     updatePrefs(draft);
@@ -47,6 +63,44 @@ export default function VoiceSettings({ open, onClose, onSaved, synth }) {
               <div className="flex items-center gap-2"><Cloud className="w-4 h-4 text-slate-600" /> <span className="text-sm font-semibold">Cloud HD</span></div>
               <p className="text-[10px] text-slate-500 mt-1">Regional neural presets · higher quality</p>
             </button>
+          </div>
+        </div>
+
+        {/* Regional voice controls */}
+        <div>
+          <p className="text-xs font-semibold text-slate-500 mb-2">UK REGIONAL VOICE</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-[11px] font-semibold text-slate-600">
+              Dialect
+              <select
+                value={selectedDialect}
+                onChange={(event) => chooseRegionalVoice(event.target.value, selectedGender)}
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+              >
+                {UK_DIALECTS.map((dialect) => (
+                  <option key={dialect.id} value={dialect.id}>{dialect.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="text-[11px] font-semibold text-slate-600">
+              Voice
+              <select
+                value={selectedGender}
+                onChange={(event) => chooseRegionalVoice(selectedDialect, event.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
+              >
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            </label>
+          </div>
+          <div className="mt-2 rounded-xl border border-cyan-100 bg-cyan-50/70 px-3 py-2">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-cyan-700">
+              {UK_DIALECTS.find((dialect) => dialect.id === selectedDialect)?.badge}
+            </p>
+            <p className="mt-0.5 text-[11px] text-slate-600">
+              {UK_DIALECTS.find((dialect) => dialect.id === selectedDialect)?.description}
+            </p>
           </div>
         </div>
 
