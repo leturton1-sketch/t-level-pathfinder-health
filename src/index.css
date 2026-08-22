@@ -317,11 +317,6 @@
   }
 
   /* Standardised brand utilities and readable text treatment */
-  .clinical-global-theme :where(h1, h2, h3, h4, h5, h6):not(.text-white) {
-    color: #15131a;
-    text-wrap: balance;
-  }
-
   .clinical-global-theme :where(p, li, label, td, th) {
     text-rendering: optimizeLegibility;
   }
