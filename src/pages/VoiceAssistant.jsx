@@ -102,7 +102,7 @@ export default function VoiceAssistant() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_50%_0%,rgba(103,232,249,.16),transparent_34%),linear-gradient(145deg,#f8fafc,#e2e8f0)] pb-28">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_50%_0%,rgba(220,210,238,.58),transparent_34%),linear-gradient(145deg,#faf9fb,#f2eef7)] pb-28">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
