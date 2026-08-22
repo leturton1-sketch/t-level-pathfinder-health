@@ -6,36 +6,36 @@
 @layer base {
   :root {
     /* T Level brand palette */
-    --tl-salmon: 15 100% 85%;     /* #FFC4B0 pastel salmon */
-    --tl-red: 8 100% 80%;          /* #FFB3A0 pastel coral */
-    --tl-purple: 253 24% 53%;      /* #766AA3 */
-    --tl-navy: 220 23% 10%;        /* #141820 */
+    --tl-salmon: 19 100% 70%;      /* #FF9567 official salmon */
+    --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
+    --tl-purple: 261 36% 52%;       /* #765AB0 official purple */
+    --tl-navy: 257 16% 9%;          /* #15131A accessible near-black */
 
-    /* Arctic Slate light theme */
-    --background: 210 20% 96%;         /* #F1F4F7 cool grey-white */
-    --foreground: 217 33% 17%;         /* #1E293B slate-800 — high contrast */
-    --card: 0 0% 100%;                 /* #FFFFFF pure white */
-    --card-foreground: 217 33% 17%;
+    /* Official T Levels light application theme */
+    --background: 270 22% 96%;          /* #F6F4F8 */
+    --foreground: 257 16% 9%;           /* #15131A */
+    --card: 0 0% 100%;
+    --card-foreground: 257 16% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 217 33% 17%;
-    --primary: 208 49% 45%;            /* #2E78B8 pale blue — primary accent */
+    --popover-foreground: 257 16% 9%;
+    --primary: 261 36% 52%;             /* #765AB0 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 20% 91%;          /* #E2E8F0 slate-200 */
-    --secondary-foreground: 217 33% 17%;
-    --muted: 214 20% 93%;              /* #E8EDF3 cool light */
-    --muted-foreground: 215 25% 31%;   /* #475569 slate-600 — readable */
-    --accent: 15 100% 85%;             /* #FFC4B0 pastel salmon — highlight accent */
-    --accent-foreground: 217 33% 17%;
-    --destructive: 0 72% 51%;          /* #DC2626 red-600 — alerts only */
+    --secondary: 267 36% 95%;           /* #F2EEF7 */
+    --secondary-foreground: 257 16% 15%;
+    --muted: 267 36% 95%;
+    --muted-foreground: 265 6% 39%;     /* #625D69 */
+    --accent: 19 100% 70%;              /* #FF9567 */
+    --accent-foreground: 257 16% 9%;
+    --destructive: 10 97% 56%;          /* #FC4421 */
     --destructive-foreground: 0 0% 100%;
-    --border: 214 20% 87%;             /* #D8DEE6 cool hairline */
-    --input: 214 20% 91%;
-    --ring: 208 49% 45%;               /* #2E78B8 pale blue focus ring */
-    --clinical-navy: 217 33% 17%;      /* #1E293B dark slate — 3D ward scene */
-    --clinical-teal: 208 49% 45%;       /* #2E78B8 pale blue — primary accent */
-    --clinical-amber: 38 92% 50%;      /* #F59E0B — notifications / warnings */
-    --clinical-red: 0 72% 51%;         /* #DC2626 — alerts */
-    --clinical-green: 142 71% 45%;    /* #22C55E — success */
+    --border: 260 23% 92%;              /* #E9E6EF */
+    --input: 260 23% 92%;
+    --ring: 261 36% 52%;
+    --clinical-navy: 257 16% 9%;
+    --clinical-teal: 261 36% 52%;
+    --clinical-amber: 33 100% 33%;
+    --clinical-red: 10 97% 56%;
+    --clinical-green: 151 51% 32%;
     --radius: 0.75rem;
     --font-heading: 'Saira', Arial, sans-serif;
     --font-body: 'Inter', Arial, sans-serif;
@@ -53,17 +53,18 @@
     font-family: 'Inter', Arial, sans-serif;
   }
 
-  /* Neon click + focus highlights — global active-state feedback */
+  /* Accessible T Levels interaction feedback */
   button:active:not(:disabled):not(.no-neon),
   [role="button"]:active:not(:disabled):not(.no-neon) {
-    box-shadow: 0 0 0 2px hsl(188 86% 53% / 0.7), 0 0 18px hsl(188 86% 53% / 0.45);
+    box-shadow: 0 0 0 2px hsl(var(--ring) / .48), 0 8px 18px -10px rgba(36,27,58,.35);
     transform: translateY(1px);
   }
   button:focus-visible:not(.no-neon),
   [role="button"]:focus-visible:not(.no-neon),
   a:focus-visible:not(.no-neon) {
-    outline: none;
-    box-shadow: 0 0 0 2px hsl(188 86% 53% / 0.75), 0 0 14px hsl(188 86% 53% / 0.5);
+    outline: 3px solid hsl(var(--ring) / .42);
+    outline-offset: 2px;
+    box-shadow: none;
   }
 }
 
