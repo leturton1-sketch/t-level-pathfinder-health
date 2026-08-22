@@ -137,8 +137,8 @@ export default function Login() {
   return (
     <div className="fixed inset-0 flex items-center justify-center p-6" style={bgStyle}>
       {/* Decorative BG mark */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none select-none">
-        <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/eb340c16e_TLevel-Logo-TLWhite.png" alt="" className="w-96 h-auto" />
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] pointer-events-none select-none">
+        <img src="https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8acde0e8c_TLevel-Logo-BlackWithStrapline.png" alt="" className="w-96 h-auto" />
       </div>
 
       <div className="w-full max-w-sm relative z-10">
