@@ -17,7 +17,7 @@ export default function WardStatsWidget({ patients, incoming, now }) {
     return p.initial_news2 === 0 && el > 4;
   }).length;
   const data = [
-    { name: "Occupied", value: occupied, color: "#2E78B8" },
+    { name: "Occupied", value: occupied, color: "#765AB0" },
     { name: "Available", value: available, color: "#E2E8F0" },
   ];
 
