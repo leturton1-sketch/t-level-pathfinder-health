@@ -22,7 +22,7 @@ const SIZE_MAP = {
 };
 
 export default function TLevelLogo({ size = "md", variant = "black", dark = false, className = "" }) {
-  const src = dark ? LOGOS.white : LOGOS[variant] || LOGOS.salmon;
+  const src = dark ? LOGOS.white : LOGOS[variant] || LOGOS.black;
   const h = SIZE_MAP[size] || SIZE_MAP.md;
   return (
     <img
