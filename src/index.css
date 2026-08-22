@@ -264,24 +264,24 @@
   .clinical-global-theme table {
     overflow: hidden;
     border-radius: 1rem;
-    background: rgba(244,247,245,.62);
+    background: rgba(255,255,255,.82);
     box-shadow: inset 0 1px 1px rgba(255,255,255,.9);
   }
 
   .clinical-global-theme thead {
-    background: rgba(201,215,207,.72);
+    background: rgba(220,210,238,.52);
   }
 
   .clinical-global-theme :where([role="dialog"], [data-radix-popper-content-wrapper] > div) {
     border: 1px solid transparent !important;
     background:
-      linear-gradient(145deg, rgba(246,248,247,.94), rgba(211,220,215,.90)) padding-box,
-      linear-gradient(118deg, #cbd5e1 0%, #ffffff 46%, #e2e8f0 100%) border-box !important;
+      linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,238,247,.94)) padding-box,
+      linear-gradient(118deg, #e9e6ef 0%, #ffffff 46%, #dcd2ee 100%) border-box !important;
     background-clip: padding-box, border-box !important;
     background-origin: border-box !important;
     box-shadow:
-      0 18px 0 -10px rgba(91,108,98,.25),
-      0 42px 80px -28px rgba(21,40,31,.62),
+      0 18px 0 -10px rgba(118,90,176,.17),
+      0 42px 80px -28px rgba(36,27,58,.48),
       inset 1px 1px 2px rgba(255,255,255,.96) !important;
     backdrop-filter: blur(28px);
   }
@@ -290,15 +290,15 @@
     overflow: hidden;
     border: 1px solid transparent !important;
     background:
-      linear-gradient(145deg, rgba(245,247,246,.91), rgba(199,209,203,.78)) padding-box,
-      linear-gradient(118deg, #cbd5e1 0%, #ffffff 46%, #e2e8f0 100%) border-box !important;
+      linear-gradient(145deg, rgba(255,255,255,.94), rgba(242,238,247,.88)) padding-box,
+      linear-gradient(118deg, #e9e6ef 0%, #ffffff 46%, #dcd2ee 100%) border-box !important;
     background-clip: padding-box, border-box !important;
     background-origin: border-box !important;
     box-shadow:
-      0 9px 0 -5px rgba(88,107,96,.32),
-      0 24px 42px -20px rgba(27,49,38,.60),
+      0 9px 0 -5px rgba(118,90,176,.18),
+      0 24px 42px -20px rgba(36,27,58,.38),
       inset 1px 1px 2px rgba(255,255,255,.98),
-      inset -1px -1px 1px rgba(67,88,76,.15) !important;
+      inset -1px -1px 1px rgba(118,90,176,.10) !important;
     backdrop-filter: blur(26px) saturate(120%);
   }
 
@@ -314,6 +314,50 @@
     background: rgba(255,255,255,.76);
     filter: blur(12px);
     pointer-events: none;
+  }
+
+  /* Standardised brand utilities and readable text treatment */
+  .clinical-global-theme :where(h1, h2, h3, h4, h5, h6) {
+    color: #15131a;
+    text-wrap: balance;
+  }
+
+  .clinical-global-theme :where(p, li, label, td, th) {
+    text-rendering: optimizeLegibility;
+  }
+
+  .clinical-global-theme :where(.text-muted-foreground, .text-slate-400, .text-slate-500) {
+    color: #625d69;
+  }
+
+  .clinical-global-theme :where([class*="from-cyan-"], [class*="from-sky-"]) {
+    --tw-gradient-from: #866bc0 var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgb(134 107 192 / 0) var(--tw-gradient-to-position) !important;
+  }
+
+  .clinical-global-theme :where([class*="to-cyan-"], [class*="to-sky-"]) {
+    --tw-gradient-to: #63479d var(--tw-gradient-to-position) !important;
+  }
+
+  .clinical-global-theme :where(.text-cyan-600, .text-cyan-700, .text-sky-600, .text-sky-700) {
+    color: #63479d !important;
+  }
+
+  .clinical-global-theme :where(.bg-cyan-500, .bg-cyan-600, .bg-sky-600, .bg-sky-700) {
+    background-color: #765ab0 !important;
+  }
+
+  .clinical-global-theme :where(button, a)[class*="bg-clinical-teal"],
+  .clinical-global-theme :where(button, a)[class*="from-clinical-teal"] {
+    color: #fff !important;
+  }
+
+  .tlevel-3d-panel {
+    position: relative;
+    border: 1px solid #e9e6ef;
+    background: linear-gradient(145deg, #fff, #f2eef7);
+    box-shadow: 0 8px 0 -4px rgba(118,90,176,.18), 0 22px 38px -22px rgba(36,27,58,.38), inset 1px 1px 1px #fff;
+    transform-style: preserve-3d;
   }
 
   .campus-aerial {
