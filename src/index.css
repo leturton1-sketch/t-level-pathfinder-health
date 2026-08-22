@@ -123,43 +123,41 @@
 /* ClinicalEdge global frosted clay design system */
 @layer base {
   :root {
-    --background: 150 12% 91%;
-    --foreground: 158 22% 15%;
-    --card: 150 10% 94%;
-    --card-foreground: 158 22% 15%;
-    --popover: 150 12% 96%;
-    --popover-foreground: 158 22% 15%;
-    --primary: 158 31% 37%;
+    --background: 270 22% 96%;
+    --foreground: 257 16% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 257 16% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 257 16% 9%;
+    --primary: 261 36% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 145 12% 86%;
-    --secondary-foreground: 158 22% 18%;
-    --muted: 145 10% 89%;
-    --muted-foreground: 157 12% 35%;
-    --accent: 143 22% 82%;
-    --accent-foreground: 158 24% 18%;
-    --border: 145 11% 79%;
-    --input: 145 12% 88%;
-    --ring: 157 34% 42%;
-    --clinical-teal: 158 31% 37%;
+    --secondary: 267 36% 95%;
+    --secondary-foreground: 257 16% 15%;
+    --muted: 267 36% 95%;
+    --muted-foreground: 265 6% 39%;
+    --accent: 19 100% 70%;
+    --accent-foreground: 257 16% 9%;
+    --border: 260 23% 92%;
+    --input: 260 23% 92%;
+    --ring: 261 36% 52%;
+    --clinical-teal: 261 36% 52%;
     --radius: 1rem;
   }
 
-  html {
-    background: #d9dfdc;
-  }
+  html { background: #f6f4f8; }
 
   body {
     min-height: 100vh;
     background:
-      radial-gradient(circle at 13% 6%, rgba(255,255,255,.98), transparent 26rem),
-      radial-gradient(circle at 88% 14%, rgba(192,218,204,.72), transparent 30rem),
-      linear-gradient(145deg, #f0f2f1 0%, #d5dad7 44%, #e8ece9 100%);
+      radial-gradient(circle at 12% 4%, rgba(255,255,255,.99), transparent 28rem),
+      radial-gradient(circle at 88% 12%, rgba(220,210,238,.48), transparent 32rem),
+      linear-gradient(145deg, #faf9fb 0%, #f2eef7 48%, #f8f6fa 100%);
     background-attachment: fixed;
   }
 
   ::selection {
-    background: rgba(101, 151, 125, .28);
-    color: #17352a;
+    background: rgba(118,90,176,.24);
+    color: #15131a;
   }
 }
 
@@ -197,24 +195,24 @@
     height: 30vw;
     right: -12vw;
     bottom: 5vh;
-    background: rgba(167, 203, 182, .30);
+    background: rgba(220,210,238,.34);
   }
 
   .clinical-global-theme :where(.bg-card, .bg-popover, [class*="bg-card/"], [class*="bg-white/"]),
   .clinical-global-theme .polished-glass-edge {
     border: 1px solid transparent !important;
     background:
-      linear-gradient(135deg, rgba(255,255,255,.84) 0%, rgba(232,236,234,.72) 46%, rgba(197,207,201,.58) 100%) padding-box,
-      linear-gradient(118deg, #cbd5e1 0%, #ffffff 46%, #e2e8f0 100%) border-box !important;
+      linear-gradient(135deg, rgba(255,255,255,.94) 0%, rgba(246,244,248,.88) 48%, rgba(233,230,239,.76) 100%) padding-box,
+      linear-gradient(118deg, #e9e6ef 0%, #ffffff 46%, #dcd2ee 100%) border-box !important;
     background-clip: padding-box, border-box !important;
     background-origin: border-box !important;
     backdrop-filter: blur(22px) saturate(118%);
     -webkit-backdrop-filter: blur(22px) saturate(118%);
     box-shadow:
-      0 9px 0 -5px rgba(99,116,106,.26),
-      0 24px 44px -24px rgba(30,48,39,.48),
-      inset 1px 1px 1px rgba(255,255,255,.96),
-      inset -1px -1px 1px rgba(74,92,82,.14);
+      0 9px 0 -5px rgba(118,90,176,.16),
+      0 24px 44px -24px rgba(36,27,58,.34),
+      inset 1px 1px 1px rgba(255,255,255,.98),
+      inset -1px -1px 1px rgba(118,90,176,.10);
   }
 
   .clinical-global-theme :where(.rounded-xl, .rounded-2xl, .rounded-3xl)[class*="border"] {
@@ -232,29 +230,31 @@
   .clinical-global-theme :where(article, .bg-card)[class*="rounded"]:not(.no-clay):hover {
     transform: translateY(-3px);
     box-shadow:
-      0 13px 0 -6px rgba(99,116,106,.27),
-      0 30px 50px -24px rgba(30,48,39,.52),
+      0 13px 0 -6px rgba(118,90,176,.18),
+      0 30px 50px -24px rgba(36,27,58,.38),
       inset 1px 1px 2px rgba(255,255,255,.98);
   }
 
   .clinical-global-theme :where(input, textarea, select, [role="combobox"]) {
-    background: linear-gradient(145deg, rgba(238,241,239,.90), rgba(211,218,214,.74)) !important;
-    border-color: rgba(255,255,255,.90) !important;
+    color: #15131a !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,238,247,.88)) !important;
+    border-color: #dcd2ee !important;
     box-shadow:
-      inset 2px 2px 5px rgba(74,92,82,.13),
-      inset -2px -2px 5px rgba(255,255,255,.88),
-      0 5px 12px -9px rgba(30,48,39,.55);
+      inset 2px 2px 5px rgba(118,90,176,.08),
+      inset -2px -2px 5px rgba(255,255,255,.92),
+      0 5px 12px -9px rgba(36,27,58,.34);
     backdrop-filter: blur(14px);
   }
 
   .clinical-global-theme button[class*="bg-primary"],
   .clinical-global-theme a[class*="bg-primary"] {
-    background: linear-gradient(145deg, #78a58e, #3e725b) !important;
-    border: 1px solid rgba(255,255,255,.58);
+    background: linear-gradient(145deg, #866bc0, #63479d) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,.68);
     box-shadow:
-      0 7px 0 -3px rgba(47,83,66,.38),
-      0 16px 24px -14px rgba(24,52,39,.60),
-      inset 1px 1px 2px rgba(255,255,255,.50);
+      0 7px 0 -3px rgba(76,53,126,.28),
+      0 16px 24px -14px rgba(36,27,58,.44),
+      inset 1px 1px 2px rgba(255,255,255,.46);
   }
 
   .clinical-global-theme :where(button, a)[class*="rounded"]:active {
