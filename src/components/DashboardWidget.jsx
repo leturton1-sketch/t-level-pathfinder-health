@@ -18,7 +18,7 @@ export default function DashboardWidget({ title, subtitle, icon: Icon, metric, m
       className="group relative w-full text-left animate-slide-up"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${accentColors[accent]} p-4 transition-all hover:scale-[1.02] hover:border-opacity-60`}>
+      <div className={`tlevel-3d-panel relative overflow-hidden rounded-2xl bg-gradient-to-br ${accentColors[accent]} p-4 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-opacity-60`}>
         <div className="flex items-start justify-between mb-3">
           <div className="p-2 rounded-lg bg-background/40 backdrop-blur-sm">
             {Icon && <Icon className="w-5 h-5" />}
