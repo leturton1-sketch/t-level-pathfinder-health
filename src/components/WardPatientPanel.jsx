@@ -69,22 +69,22 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
   return (
     <div className="absolute right-0 top-0 h-full w-full sm:max-w-md bg-white shadow-2xl z-30 flex flex-col animate-slide-up overflow-hidden">
       {/* Header */}
-      <div className="bg-slate-800 px-4 pt-4 pb-0">
+      <div className="bg-gradient-to-br from-white via-[#F6F4F8] to-[#E9E6EF] px-4 pt-4 pb-0 border-b border-[#DCD2EE] shadow-[0_10px_30px_-22px_rgba(36,27,58,.45)]">
         <div className="flex items-start justify-between mb-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Bed {patient.bedDesignation} · Suite {patient.suite}</span>
+              <span className="text-[9px] font-bold text-[#625D69] uppercase tracking-widest">Bed {patient.bedDesignation} · Suite {patient.suite}</span>
               {patient.safeguarding_flag && (
                 <span className="flex items-center gap-1 text-[9px] font-bold bg-clinical-red/20 text-clinical-red px-1.5 py-0.5 rounded uppercase">
                   <Shield className="w-2.5 h-2.5" /> Safeguarding
                 </span>
               )}
             </div>
-            <h2 className="text-lg font-heading font-bold text-white">{patient.name}</h2>
-            <p className="text-xs text-slate-400">Age {patient.age} · {patient.pronouns} · NHS {patient.nhs_number}</p>
+            <h2 className="text-lg font-heading font-bold text-[#15131A]">{patient.name}</h2>
+            <p className="text-xs text-[#625D69]">Age {patient.age} · {patient.pronouns} · NHS {patient.nhs_number}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-700 mt-0.5">
-            <X className="w-4 h-4 text-slate-400" />
+          <button onClick={onClose} className="tlevel-3d-panel p-1.5 rounded-xl hover:-translate-y-0.5 mt-0.5">
+            <X className="w-4 h-4 text-[#625D69]" />
           </button>
         </div>
 
@@ -95,12 +95,12 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-slate-700 rounded-none">
+        <div className="flex bg-[#F2EEF7] rounded-none border-t border-[#E9E6EF]">
           {tabs.map(t => {
             const Icon = t.icon;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-heading font-semibold uppercase tracking-wide transition-all ${tab === t.id ? "bg-white text-slate-800" : "text-slate-400 hover:text-slate-200"}`}>
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-heading font-semibold uppercase tracking-wide transition-all ${tab === t.id ? "bg-white text-[#63479D] shadow-sm" : "text-[#625D69] hover:text-[#15131A] hover:bg-white/60"}`}>
                 <Icon className="w-3.5 h-3.5" />
                 {t.label}
               </button>
