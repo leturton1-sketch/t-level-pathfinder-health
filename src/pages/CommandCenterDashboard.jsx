@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Activity, AlertTriangle, BedDouble, BriefcaseMedical, Clock3, HeartPulse,
-  ShieldCheck, Sparkles, Stethoscope, UserRound, UsersRound, Wifi,
+  Activity, AlertTriangle, BedDouble, BookOpen, BriefcaseMedical, Clock3, FilePenLine,
+  HeartPulse, LibraryBig, ShieldCheck, Sparkles, Stethoscope, UserCog, UserRound,
+  UsersRound, Wifi,
 } from "lucide-react";
-import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
+import { getCurrentUser, isAdmin, isLoggedIn } from "@/lib/clinicalAuth";
 import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
 import NEWS2Badge from "@/components/NEWS2Badge";
 import TLevelLogo from "@/components/TLevelLogo";
@@ -126,10 +127,19 @@ export default function CommandCenterDashboard() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[180px_minmax(0,1fr)_300px]">
-          <aside className="grid grid-cols-3 gap-3 xl:block xl:space-y-3" aria-label="Quick launch">
+          <aside className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:block xl:space-y-2" aria-label="Quick launch">
             <QuickLaunch icon={HeartPulse} label="NEWS2" detail="Score observations" tone="bg-gradient-to-br from-rose-400 to-red-600" onClick={() => navigate("/care-planning/news2")} />
             <QuickLaunch icon={BedDouble} label="Ward Sim" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
             <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
+            <QuickLaunch icon={UserRound} label="User Profile" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
+            <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
+            <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
+            {isAdmin() && (
+              <>
+                <QuickLaunch icon={UserCog} label="User Management" detail="Admin accounts" tone="bg-gradient-to-br from-fuchsia-400 to-purple-700" onClick={() => navigate("/user-management")} />
+                <QuickLaunch icon={FilePenLine} label="Scenario Authoring" detail="Admin scenarios" tone="bg-gradient-to-br from-slate-500 to-slate-900" onClick={() => navigate("/scenario-authoring")} />
+              </>
+            )}
             <div className="hidden rounded-[24px] border border-white/70 bg-slate-900/82 p-4 text-white shadow-xl backdrop-blur-xl xl:block">
               <ShieldCheck className="mb-5 h-5 w-5 text-cyan-300" />
               <p className="text-[10px] uppercase tracking-[.18em] text-slate-400">Signed in</p>
