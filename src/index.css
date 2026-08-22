@@ -317,7 +317,7 @@
   }
 
   /* Standardised brand utilities and readable text treatment */
-  .clinical-global-theme :where(h1, h2, h3, h4, h5, h6) {
+  .clinical-global-theme :where(h1, h2, h3, h4, h5, h6):not(.text-white) {
     color: #15131a;
     text-wrap: balance;
   }
@@ -326,7 +326,7 @@
     text-rendering: optimizeLegibility;
   }
 
-  .clinical-global-theme :where(.text-muted-foreground, .text-slate-400, .text-slate-500) {
+  .clinical-global-theme :where(.text-muted-foreground, .text-slate-400, .text-slate-500):not(.bg-slate-800 *, .bg-slate-900 *, .bg-clinical-navy *) {
     color: #625d69;
   }
 
