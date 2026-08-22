@@ -199,7 +199,7 @@ export default function ClinicianHead3D({ status = "idle" }) {
   }, []);
 
   return (
-    <div className="relative h-[360px] w-full overflow-hidden rounded-[28px] bg-[radial-gradient(circle_at_50%_38%,rgba(103,232,249,.22),transparent_34%),linear-gradient(145deg,rgba(241,245,249,.92),rgba(203,213,225,.72))]">
+    <div className="relative h-[360px] w-full overflow-hidden rounded-[28px] bg-[radial-gradient(circle_at_50%_38%,rgba(220,210,238,.62),transparent_34%),linear-gradient(145deg,rgba(255,255,255,.96),rgba(242,238,247,.82))]">
       <div ref={mountRef} className="absolute inset-0 cursor-grab active:cursor-grabbing" aria-label="Rotatable 3D AI clinician head" />
       <div className="pointer-events-none absolute left-4 top-4 rounded-full border border-white/80 bg-white/55 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.14em] text-slate-600 shadow-lg backdrop-blur-xl">
         Drag to rotate · Scroll to zoom
