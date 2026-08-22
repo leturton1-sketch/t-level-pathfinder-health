@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { VOICE_PROFILES, loadPrefs, savePrefs, applyProfile, prepareSpeechText } from "@/lib/voicePreferences";
+import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
 
 /**
  * useVoiceSynthesis — speech synthesis hook.
@@ -41,24 +42,24 @@ export function useVoiceSynthesis() {
     setSpeaking(false);
   }, [supported]);
 
-  const speakBrowser = useCallback((text, prefs, onEnd) => {
+  const speakBrowser = useCallback((text, currentPrefs, profile, onEnd) => {
     if (!supported) { onEnd?.(); return; }
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = prefs.rate;
-    u.pitch = prefs.pitch;
-    u.volume = prefs.muted ? 0 : prefs.volume;
-    const match =
-      voices.find((v) => v.voiceURI === prefs.systemVoiceURI) ||
-      voices.find((v) => /en-GB/i.test(v.lang) && /natural|neural|aria|sonia|ryan|libby/i.test(`${v.name} ${v.voiceURI}`)) ||
-      voices.find((v) => /^en/i.test(v.lang) && /natural|neural/i.test(`${v.name} ${v.voiceURI}`)) ||
-      voices.find((v) => /en-GB/i.test(v.lang)) ||
-      voices.find((v) => /^en/i.test(v.lang));
-    if (match) u.voice = match;
-    u.onend = () => { setSpeaking(false); onEnd?.(); };
-    u.onerror = () => { setSpeaking(false); onEnd?.(); };
     setSpeaking(true);
-    window.speechSynthesis.speak(u);
-  }, [supported, voices]);
+    ukVoiceService.updateSettings({
+      dialect: profile.dialect === "neutral_uk" ? "london_rp" : profile.dialect,
+      gender: profile.gender === "male" ? "male" : "female",
+      personaId: profile.id,
+      voiceName: currentPrefs.systemVoiceURI || "auto",
+      rate: currentPrefs.rate,
+      pitch: currentPrefs.pitch,
+      volume: currentPrefs.muted ? 0 : currentPrefs.volume,
+      useNeuralGeminiTts: currentPrefs.engine === "cloud",
+    });
+    ukVoiceService.speak(text).finally(() => {
+      setSpeaking(false);
+      onEnd?.();
+    });
+  }, [supported]);
 
   const speak = useCallback(async (text, { onEnd } = {}) => {
     const clean = prepareSpeechText(String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000));
@@ -89,7 +90,7 @@ export function useVoiceSynthesis() {
         // fall back to browser TTS
       }
     }
-    speakBrowser(clean, prefs, onEnd);
+    speakBrowser(clean, prefs, profile, onEnd);
   }, [prefs, stop, speakBrowser]);
 
   const testVoice = useCallback((sampleText) => {
