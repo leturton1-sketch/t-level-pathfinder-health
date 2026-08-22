@@ -1,7 +1,7 @@
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { ALL_BEDS, bedOf } from "@/lib/wardBoard";
+import { ALL_BEDS } from "@/lib/wardBoard";
 import Widget3DGraphic from "./Widget3DGraphic";
-import { BedDouble, ArrowDownToLine, ArrowUpFromLine, AlertTriangle } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, AlertTriangle } from "lucide-react";
 
 /**
  * Ward occupancy and throughput stats — bed occupancy donut plus live counters

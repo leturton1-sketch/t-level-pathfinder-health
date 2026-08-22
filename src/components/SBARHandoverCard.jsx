@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { speakAsCharacter, stopCharacterSpeech } from "@/lib/sbarDatabase";
-import { Volume2, Square, User, FileText } from "lucide-react";
+import { Volume2, Square, User } from "lucide-react";
 
 const SECTIONS = [
   { key: "situation", label: "S — Situation", color: "clinical-teal" },

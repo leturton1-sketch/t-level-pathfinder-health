@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Monitor, User, AlertCircle, Pill, Heart, Activity, FileText,
-  ChevronRight, CheckCircle, Clock, Lock, Stethoscope, TrendingDown, TrendingUp,
+  Monitor, User, AlertCircle, Pill, Activity, FileText, Clock, Lock, Stethoscope, TrendingDown, TrendingUp,
 } from "lucide-react";
 import { EPR_PATIENTS } from "@/lib/learningData";
 

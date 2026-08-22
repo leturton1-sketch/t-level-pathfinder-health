@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Clipboard, User, Heart, Target, CheckCircle2, XCircle, RotateCcw,
-  ChevronRight, Award, Lightbulb,
+  Clipboard, User, Target, CheckCircle2, XCircle, RotateCcw, Award, Lightbulb,
 } from "lucide-react";
 import { CARE_PERSONAS } from "@/lib/learningData";
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2, Monitor, Clipboard, Network, ListChecks, HeartPulse, Scale } from "lucide-react";
 import { LEARNING_MODULES } from "@/lib/learningData";
 import InteractiveAtlas from "@/components/learning/InteractiveAtlas";

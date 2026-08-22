@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, CheckCircle, AlertTriangle, RefreshCw, Stethoscope, FileText } from "lucide-react";
 import { CHRONIC_CONDITIONS, CONDITION_QUIZ } from "@/lib/learningData";

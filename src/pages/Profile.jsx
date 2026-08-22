@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, logout } from "@/lib/clinicalAuth";
 import { SK_CODES } from "@/lib/specData";
-import { SKBadgeGroup } from "@/components/SKBadge";
-import { User, BookOpen, ClipboardList, Stethoscope, LogOut, BarChart3, Target, TrendingUp, Volume2, Save } from "lucide-react";
+import { BookOpen, ClipboardList, Stethoscope, LogOut, BarChart3, Target, TrendingUp, Volume2, Save } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();

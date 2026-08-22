@@ -12,7 +12,7 @@ import {
   ClipboardList, Users, FileText, ShieldAlert, Target, RefreshCw,
   ChevronDown, ChevronUp, Volume2, Save, Send, CheckCircle2, GraduationCap, AlertTriangle,
 } from "lucide-react";
-import { getActiveEhrPatient, getUnreadTabs, getComplianceFields, applyEhrPenalty } from "@/lib/ehrCompliance";
+import { getActiveEhrPatient, getComplianceFields, applyEhrPenalty } from "@/lib/ehrCompliance";
 
 const TEXT_SECTIONS = [
   { key: "handover", label: "Handover Notes (SBAR)", icon: FileText, placeholder: "Document your SBAR handover: Situation, Background, Assessment, Recommendation…" },

@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, User, Heart, AlertTriangle, ClipboardList, ChevronRight, ChevronDown,
-  Shield, Activity, MessageSquare, BookOpen, CheckCircle, AlertCircle,
+  Shield, Activity, BookOpen, AlertCircle,
   Thermometer, Droplets, Wind, Zap, FileText,
 } from "lucide-react";
-import { WARD_PATIENTS, getPatientForBed, news2Band } from "@/lib/wardPatients";
+import { getPatientForBed, news2Band } from "@/lib/wardPatients";
 import EHRModal from "@/components/ehr/EHRModal";
 
 const VITAL_CONFIG = [

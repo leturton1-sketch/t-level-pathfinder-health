@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { SKBadgeGroup } from "@/components/SKBadge";

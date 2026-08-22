@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert, CheckCircle2, AlertTriangle, RefreshCw, Search } from "lucide-react";
+import { ShieldAlert, CheckCircle2, RefreshCw, Search } from "lucide-react";
 import { CLINICAL_HAZARDS } from "@/lib/learningData";
 
 const REG_STYLES = {

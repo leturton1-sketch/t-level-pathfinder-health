@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HeartPulse, Cigarette, Scale, Syringe, SearchCheck, Brain,
-  CheckCircle2, XCircle, RotateCcw, ChevronRight, Globe, Users, TrendingDown,
+  CheckCircle2, XCircle, RotateCcw, Globe, Users, TrendingDown,
 } from "lucide-react";
 import { PUBLIC_HEALTH_TOPICS } from "@/lib/learningData";
 

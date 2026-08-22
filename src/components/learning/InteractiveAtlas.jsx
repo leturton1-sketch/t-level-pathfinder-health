@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  HeartPulse, Activity, Eye, ShieldCheck, BookOpen, Users, Brain, Baby,
+  HeartPulse, Activity, Eye, BookOpen, Users, Brain, Baby,
   Bone, RotateCcw, Focus, Boxes, Layers, User, X, Info,
 } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";

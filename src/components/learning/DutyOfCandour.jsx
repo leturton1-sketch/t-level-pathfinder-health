@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Scale, AlertTriangle, CheckCircle2, XCircle, ChevronRight, RotateCcw,
+  Scale, AlertTriangle, CheckCircle2, XCircle, RotateCcw,
   BookOpen, FileWarning, ShieldCheck, Award,
 } from "lucide-react";
 import { DUTY_OF_CANDOUR_SCENARIOS } from "@/lib/learningData";

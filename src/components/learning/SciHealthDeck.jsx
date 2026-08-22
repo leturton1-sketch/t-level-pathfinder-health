@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FlaskConical, CheckCircle, AlertTriangle, RefreshCw, ChevronLeft, ChevronRight, BookOpen, HelpCircle } from "lucide-react";
+import { FlaskConical, CheckCircle, AlertTriangle, ChevronLeft, ChevronRight, BookOpen, HelpCircle } from "lucide-react";
 import { SCIENCE_DECK } from "@/lib/learningData";
 
 export default function SciHealthDeck() {
