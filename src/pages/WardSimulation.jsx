@@ -13,6 +13,7 @@ import WardPatientPanel from "@/components/WardPatientPanel";
 import { getPatientForBed } from "@/lib/wardPatients";
 import { WARD_ITEM_TYPES, generateDefaultItems } from "@/lib/wardItems";
 import { useWardNarration } from "@/hooks/useWardNarration";
+import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
   Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle,
@@ -268,10 +269,12 @@ export default function WardSimulation() {
       if (existing.length > 0) await base44.entities.WardLayout.update(existing[0].id, { items: itemsJson });
       else await base44.entities.WardLayout.create({ suite: "ward", items: itemsJson, layout_name: "Default" });
       setSaveStatus("Layout saved");
+      announceVoiceFeedback("Ward layout saved successfully.");
       setTimeout(() => setSaveStatus(""), 2500);
     } catch {
       localStorage.setItem("wardLayout_ward", JSON.stringify(itemsToSave));
       setSaveStatus("Unable to save – changes retained on this device");
+      announceVoiceFeedback("The ward layout could not be saved online. Your changes are retained on this device.");
     }
   };
 
