@@ -1,6 +1,6 @@
 /**
  * TLevelLogo — uses official T Level uploaded assets.
- * variant: "salmon" (default), "red", "white", "strapline"
+ * variant: "black" (default for light screens), "salmon", "red", "white"
  * dark: true forces white version on dark backgrounds
  */
 const LOGOS = {
@@ -21,7 +21,7 @@ const SIZE_MAP = {
   xl: "h-20",
 };
 
-export default function TLevelLogo({ size = "md", variant = "salmon", dark = false, className = "" }) {
+export default function TLevelLogo({ size = "md", variant = "black", dark = false, className = "" }) {
   const src = dark ? LOGOS.white : LOGOS[variant] || LOGOS.salmon;
   const h = SIZE_MAP[size] || SIZE_MAP.md;
   return (
