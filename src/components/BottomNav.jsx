@@ -54,7 +54,7 @@ export default function BottomNav() {
                 <item.icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
                 <span className="text-[10px] font-heading font-medium">{item.label}</span>
                 {isActive && (
-                  <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary shadow-[0_0_8px_hsl(188_86%_53%/0.9)]" />
+                  <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary shadow-[0_4px_10px_rgba(118,90,176,.45)]" />
                 )}
               </button>
             );
