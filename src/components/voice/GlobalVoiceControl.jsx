@@ -38,7 +38,10 @@ export default function GlobalVoiceControl() {
         open={open}
         onClose={() => setOpen(false)}
         synth={synth}
-        onSaved={() => toast({ title: "Voice settings saved", description: "Your UK regional voice is ready." })}
+        onSaved={() => {
+          toast({ title: "Voice settings saved", description: "Your UK regional voice is ready." });
+          setTimeout(() => synth.speak("Voice settings saved. Your regional voice is ready."), 80);
+        }}
       />
     </>
   );
