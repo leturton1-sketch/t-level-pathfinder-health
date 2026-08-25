@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, UsersRound } from "lucide-react";
+import { useState } from "react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
