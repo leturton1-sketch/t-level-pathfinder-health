@@ -251,6 +251,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       const isBone = s.system === "skeletal";
       const isMuscle = s.system === "muscular";
       const isLymphatic = s.system === "lymphatic";
+      const isIntegumentary = s.system === "integumentary";
+      const isDiaphragm = s.id === "diaphragm";
       const isVascular = ["aorta", "vena_cava", "arterial_tree", "venous_tree"].includes(s.id);
       const hasCapsule = ["liver", "kidneys", "spleen"].includes(s.id);
       const isParenchymal = ["liver", "kidneys", "lungs", "spleen", "brain"].includes(s.id);
@@ -262,27 +264,32 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         : isMuscle
           ? clinicalTextures.muscleMap
           : clinicalTextures.tissueMap;
+      const educationalOpacity = isIntegumentary ? 0.2 : isMuscle ? 0.36 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
       const mat = new THREE.MeshPhysicalMaterial({
-        color,
+        color: isDiaphragm ? new THREE.Color(0xd9f2f1) : color,
         metalness: 0,
-        roughness: isBone ? 0.84 : isMuscle ? 0.58 : hasCapsule ? 0.38 : isVascular ? 0.44 : 0.5,
+        roughness: isBone ? 0.84 : isMuscle ? 0.62 : isDiaphragm ? 0.72 : hasCapsule ? 0.38 : isVascular ? 0.44 : 0.5,
         roughnessMap: isBone ? clinicalTextures.boneMap : clinicalTextures.roughnessMap,
         bumpMap: bumpTexture,
         bumpScale: isBone ? 0.0045 : isMuscle ? 0.006 : isVascular ? 0.0015 : 0.003,
         aoMap: bumpTexture,
         aoMapIntensity: isBone ? 0.38 : 0.22,
-        transparent: true,
-        opacity: isLymphatic ? 0.76 : 1,
-        clearcoat: isBone ? 0 : hasCapsule ? 0.2 : isVascular ? 0.08 : 0.06,
+        transparent: educationalOpacity < 1,
+        opacity: educationalOpacity,
+        depthWrite: educationalOpacity >= 0.95,
+        side: isMuscle || isIntegumentary || isDiaphragm ? THREE.DoubleSide : THREE.FrontSide,
+        clearcoat: isBone ? 0 : hasCapsule ? 0.2 : isDiaphragm ? 0.04 : isVascular ? 0.08 : 0.06,
         clearcoatRoughness: hasCapsule ? 0.58 : 0.74,
         sheen: isBone ? 0 : isMuscle ? 0.16 : 0.1,
         sheenColor: color.clone().lerp(new THREE.Color(0xffffff), 0.26),
-        transmission: isBone ? 0 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
-        thickness: isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
+        transmission: isBone ? 0 : isDiaphragm ? 0.46 : isMuscle ? 0.12 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
+        thickness: isDiaphragm ? 0.025 : isMuscle ? 0.06 : isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
         attenuationColor: color.clone().multiplyScalar(0.78),
         attenuationDistance: isParenchymal ? 0.38 : 0.7,
         specularIntensity: isBone ? 0.12 : hasCapsule ? 0.36 : 0.25,
       });
+      mat.userData.educationalOpacity = educationalOpacity;
+      mat.userData.educationalDepthWrite = educationalOpacity >= 0.95;
       materialsRef.current.push(mat);
       const partDefs = s.parts ? s.parts : [{ shape: s.shape, position: [0, 0, 0], rotation: s.rotation, scale: s.scale }];
       partDefs.forEach((p) => {
@@ -487,7 +494,9 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       if (visible) {
         grp.traverse((m) => {
           if (m.isMesh) {
-            m.material.opacity = id === isolated ? 1 : 0.96;
+            const educationalOpacity = m.material.userData.educationalOpacity ?? 1;
+            m.material.opacity = id === isolated ? 1 : educationalOpacity;
+            m.material.depthWrite = id === isolated ? true : (m.material.userData.educationalDepthWrite ?? true);
             m.material.wireframe = false;
             m.material.emissive = new THREE.Color(0x000000);
           }
@@ -497,7 +506,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     });
     // Dim shell when isolating
     if (shellRef.current) {
-      shellRef.current.mat.opacity = isolated ? 0.03 : 0.09;
+      shellRef.current.mat.opacity = isolated ? 0.03 : 0.16;
     }
   }, [gender, activeSystems, isolatedId]);
 
