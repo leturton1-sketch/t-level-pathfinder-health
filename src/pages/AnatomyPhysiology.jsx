@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound } from "lucide-react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
@@ -11,6 +11,7 @@ function Explorer() {
   const [gender, setGender] = useState("male");
   const [removed, setRemoved] = useState([]);
   const [selectedId, setSelectedId] = useState("skin");
+  const [viewMode, setViewMode] = useState("full");
   const activeSystems = BODY_LAYER_ORDER.filter((system) => !removed.includes(system));
   const selected = ANATOMY_STRUCTURES.find((item) => item.id === selectedId);
   const nextVisible = BODY_LAYER_ORDER.find((system) => activeSystems.includes(system));
@@ -41,12 +42,22 @@ function Explorer() {
     </aside>
 
     <section className={`${panel} overflow-hidden p-3`}>
-      <div className="mb-3 flex items-center justify-between px-2">
-        <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Real-time 3D anatomy</p><h2 className="font-black text-slate-900">360° {gender} model</h2></div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-2">
+        <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Interactive organ system</p><h2 className="font-black text-slate-900">360° thoracic & abdominal visualiser</h2></div>
         <span className="flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-white"><Rotate3D className="h-3.5 w-3.5"/> Drag to rotate · scroll to zoom</span>
       </div>
-      <div className="h-[620px] overflow-hidden rounded-[22px] bg-slate-950">
-        <Anatomy3DViewer gender={gender} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0}/>
+      <div className="mb-3 flex flex-wrap gap-2 px-2" role="group" aria-label="Anatomical camera view">
+        {[
+          ["full", "Full body", Rotate3D],
+          ["torso", "Torso focus", Focus],
+          ["cross-section", "Cross-section", ScanLine],
+        ].map(([mode, label, Icon]) => <button key={mode} onClick={() => setViewMode(mode)} aria-pressed={viewMode === mode}
+          className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${viewMode === mode ? "border-violet-600 bg-violet-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-violet-300"}`}>
+          <Icon className="h-3.5 w-3.5"/>{label}
+        </button>)}
+      </div>
+      <div className="h-[620px] overflow-hidden rounded-[22px] border border-slate-200 bg-[#F8FAFC]">
+        <Anatomy3DViewer gender={gender} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
