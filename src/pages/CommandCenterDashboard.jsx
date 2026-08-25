@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Activity, AlertTriangle, BedDouble, BookOpen, BriefcaseMedical, Clock3, FilePenLine,
+  Activity, AlertTriangle, BedDouble, BookOpen, Brain, BriefcaseMedical, Clock3, FilePenLine,
   HeartPulse, LibraryBig, ShieldCheck, Sparkles, Stethoscope, UserCog, UserRound,
   UsersRound, Wifi,
 } from "lucide-react";
@@ -133,6 +133,7 @@ export default function CommandCenterDashboard() {
             <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
             <QuickLaunch icon={UserRound} label="User Profile" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
             <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
+            <QuickLaunch icon={Brain} label="Anatomy & Pathophysiology" detail="3D body systems and patient lab" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
             <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
             {isAdmin() && (
               <>
