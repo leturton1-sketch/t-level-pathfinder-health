@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 import { getClinicalForm } from "@/lib/clinicalFormTemplates";
+import { buildSimulationPrefill, loadCarePlanSimulation, localFormativeFeedback } from "@/lib/carePlanSimulation";
 import { SKBadgeGroup } from "@/components/SKBadge";
-import { ArrowLeft, Calculator, CheckCircle2, ClipboardCheck, Info, Save, Send, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Award, Calculator, CheckCircle2, ClipboardCheck, Info, Save, Send, ShieldAlert, Sparkles } from "lucide-react";
 
 const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-tl-purple/60 focus:ring-4 focus:ring-tl-purple/10";
 const number = (value) => Number(value || 0);
@@ -107,15 +108,69 @@ function Field({ field, value, onChange }) {
   );
 }
 
+function FeedbackPanel({ feedback, onReturnToWard }) {
+  if (!feedback) return null;
+  const labels = {
+    completeness: "Completeness",
+    clinicalReasoning: "Clinical reasoning",
+    safetyEscalation: "Safety & escalation",
+    personCentredCare: "Person-centred care",
+    documentation: "Documentation",
+  };
+
+  return (
+    <section className="mt-5 overflow-hidden rounded-[28px] border border-violet-200 bg-white/94 shadow-[0_20px_46px_rgba(66,55,88,0.14)]" aria-labelledby="feedback-heading">
+      <div className="bg-gradient-to-r from-tl-purple to-violet-600 p-5 text-white sm:p-7">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-100">Instant formative feedback</p>
+            <h2 id="feedback-heading" className="mt-1 text-xl font-black sm:text-2xl">{feedback.band}</h2>
+          </div>
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/25 bg-white/15 text-2xl font-black shadow-inner">{Math.round(feedback.overallScore)}%</div>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-violet-50">{feedback.summary}</p>
+      </div>
+      <div className="space-y-6 p-5 sm:p-7">
+        <div className="grid gap-3 sm:grid-cols-5">
+          {Object.entries(feedback.categoryScores || {}).map(([key, score]) => (
+            <div key={key} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-lg font-black text-slate-950">{Math.round(score)}%</p>
+              <p className="mt-0.5 text-[11px] font-bold leading-4 text-slate-600">{labels[key] || key}</p>
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          <div>
+            <h3 className="mb-2 flex items-center gap-2 text-sm font-black text-emerald-900"><CheckCircle2 className="h-4 w-4" /> What you did well</h3>
+            <ul className="space-y-2">{feedback.strengths?.map((item) => <li key={item} className="rounded-xl bg-emerald-50 px-3 py-2.5 text-sm leading-5 text-emerald-950">{item}</li>)}</ul>
+          </div>
+          <div>
+            <h3 className="mb-2 flex items-center gap-2 text-sm font-black text-amber-900"><Award className="h-4 w-4" /> Areas to improve</h3>
+            <ul className="space-y-2">{feedback.improvements?.map((item) => <li key={item} className="rounded-xl bg-amber-50 px-3 py-2.5 text-sm leading-5 text-amber-950">{item}</li>)}</ul>
+          </div>
+        </div>
+        <div>
+          <h3 className="mb-2 text-sm font-black text-slate-950">Your next practice steps</h3>
+          <ol className="space-y-2">{feedback.nextSteps?.map((item, index) => <li key={item} className="flex gap-3 rounded-xl border border-violet-100 bg-violet-50/70 px-3 py-2.5 text-sm leading-5 text-slate-800"><span className="font-black text-tl-purple">{index + 1}</span>{item}</li>)}</ol>
+        </div>
+        <p className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-xs font-semibold leading-5 text-sky-950">{feedback.safetyNote}</p>
+        {onReturnToWard && <button onClick={onReturnToWard} className="w-full rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800">Return to Ward Simulation</button>}
+      </div>
+    </section>
+  );
+}
+
 export default function ClinicalFormWorkspace() {
   const { toolId } = useParams();
   const navigate = useNavigate();
   const template = getClinicalForm(toolId);
   const user = getCurrentUser();
   const storageKey = `clinical_form_${user?.id || "guest"}_${toolId}`;
+  const simulation = loadCarePlanSimulation(toolId);
   const [values, setValues] = useState({});
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -124,7 +179,8 @@ export default function ClinicalFormWorkspace() {
     }
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
-      setValues(saved);
+      const prefilled = template ? buildSimulationPrefill(template, simulation) : {};
+      setValues({ ...prefilled, ...saved });
     } catch {
       setValues({});
     }
@@ -153,6 +209,7 @@ export default function ClinicalFormWorkspace() {
   const update = (id, value) => {
     setValues((current) => ({ ...current, [id]: value }));
     setStatus("");
+    setFeedback(null);
   };
 
   const save = async (submit) => {
@@ -162,13 +219,18 @@ export default function ClinicalFormWorkspace() {
     }
 
     setSaving(true);
+    const generatedFeedback = submit ? localFormativeFeedback(template, values, simulation) : null;
+    if (generatedFeedback) setFeedback(generatedFeedback);
+
     const payload = {
       student_id: user?.id || "local-user",
       student_name: user?.full_name || "Clinical Edge learner",
       type: toolId,
-      title: `${template.title} — ${new Date().toLocaleDateString("en-GB")}`,
-      content: JSON.stringify({ template: toolId, values, calculatedResult: result, source: template.source }),
+      title: `${template.title}${simulation?.patient?.name ? ` — ${simulation.patient.name}` : ""} — ${new Date().toLocaleDateString("en-GB")}`,
+      content: JSON.stringify({ template: toolId, values, calculatedResult: result, source: template.source, simulationPatientId: simulation?.patient?.id, formativeFeedback: generatedFeedback }),
+      linked_scenario: simulation?.patient?.id || undefined,
       status: submit ? "submitted" : "draft",
+      tutor_feedback: generatedFeedback ? JSON.stringify(generatedFeedback) : undefined,
       sk_codes: template.skCodes,
       performance_outcomes: template.poCodes,
     };
@@ -177,12 +239,12 @@ export default function ClinicalFormWorkspace() {
     try {
       await base44.entities.CarePlanSubmission.create(payload);
       if (submit) localStorage.removeItem(storageKey);
-      setStatus(submit ? "Submitted for tutor review." : "Draft saved.");
+      setStatus(submit ? "Submitted. Your formative feedback is ready below." : "Draft saved.");
     } catch {
       const drafts = JSON.parse(localStorage.getItem("careplan_drafts") || "[]");
       drafts.push({ ...payload, timestamp: Date.now() });
       localStorage.setItem("careplan_drafts", JSON.stringify(drafts));
-      setStatus(submit ? "Submission stored securely on this device and will remain available for review." : "Draft saved on this device.");
+      setStatus(submit ? "Submission stored on this device. Your formative feedback is ready below." : "Draft saved on this device.");
     } finally {
       setSaving(false);
     }
@@ -205,6 +267,20 @@ export default function ClinicalFormWorkspace() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+        {simulation?.patient && (
+          <section className="mb-5 rounded-[24px] border border-tl-purple/25 bg-gradient-to-r from-violet-50/95 to-white p-5 shadow-[0_14px_32px_rgba(66,55,88,.11)]" aria-labelledby="simulation-patient-heading">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-tl-purple text-white shadow-lg"><Sparkles className="h-5 w-5" /></div>
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-tl-purple">Ward-linked simulation · Bed {simulation.patient.bedDesignation}</p>
+                <h2 id="simulation-patient-heading" className="mt-0.5 text-lg font-black text-slate-950">{simulation.patient.name}</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-700">{simulation.briefing}</p>
+                <p className="mt-2 text-xs font-semibold text-slate-500">Verified EHR facts have been pre-populated. You must complete the clinical assessment, judgement, actions and review.</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="polished-glass-edge mb-5 rounded-[28px] border border-white/90 bg-white/88 p-5 shadow-[0_18px_42px_rgba(66,55,88,0.12),inset_0_1px_0_white] backdrop-blur-xl sm:p-7">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
             <div>
@@ -256,6 +332,8 @@ export default function ClinicalFormWorkspace() {
           </div>
         </form>
 
+        <FeedbackPanel feedback={feedback} onReturnToWard={simulation ? () => navigate("/ward-simulation") : null} />
+
         <div className="mt-5 rounded-[24px] border border-white/90 bg-white/82 p-3 shadow-xl backdrop-blur-xl">
           {status && (
             <div className={`mb-3 flex items-start gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold ${status.startsWith("Complete") ? "bg-amber-100 text-amber-950" : "bg-emerald-100 text-emerald-950"}`} role="status">
@@ -267,7 +345,7 @@ export default function ClinicalFormWorkspace() {
               <Save className="h-4 w-4" /> Save Draft
             </button>
             <button type="button" onClick={() => save(true)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-tl-purple to-violet-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(118,90,176,0.25)] transition hover:-translate-y-0.5 disabled:opacity-50">
-              <Send className="h-4 w-4" /> Submit for Review
+              <Send className="h-4 w-4" /> {saving ? "Generating feedback…" : "Submit & Generate Feedback"}
             </button>
           </div>
         </div>
