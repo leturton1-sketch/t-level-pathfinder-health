@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
+import { ADL_TASKS } from "@/lib/adlScenario";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import { WARD_PATIENTS } from "@/lib/wardPatients";
 import { SBAR_PATIENTS } from "@/lib/sbarDatabase";
@@ -24,6 +25,7 @@ const CATEGORIES = [
   { value: "post_op", label: "Post-Op" },
   { value: "admission", label: "Admission" },
   { value: "discharge", label: "Discharge" },
+  { value: "activities_daily_living", label: "Activities of Daily Living" },
 ];
 
 const AVPU_OPTIONS = ["A", "V", "P", "U"];
@@ -38,6 +40,7 @@ const EMPTY = {
   debrief_rationale: "",
   sk_codes: [], performance_outcomes: [],
   category: "deterioration",
+  call_bell_speed: "normal", adl_task_source: "pregenerated", adl_tasks: [],
   ehr_drug_chart: "", ehr_nursing_notes: "", ehr_lab_results: "",
 };
 
@@ -223,6 +226,37 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
               </div>
             </div>
           </div>
+
+          {draft.category === "activities_daily_living" && (
+            <div className="rounded-2xl border border-purple-200 bg-purple-50/70 p-3 space-y-3">
+              <div>
+                <p className="text-xs font-heading font-bold text-purple-900">ADL Call-Bell Controls</p>
+                <p className="text-[10px] text-slate-600">Configure the frequency and T Level SK15 activities available to the simulation.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="text-[11px] font-semibold text-slate-600">Call-bell speed
+                  <select value={draft.call_bell_speed || "normal"} onChange={(e) => update({ call_bell_speed: e.target.value })} className="mt-1 w-full rounded-lg border border-purple-200 bg-white px-2 py-2 text-xs">
+                    <option value="slow">Slow · 90 seconds</option><option value="normal">Normal · 60 seconds</option><option value="fast">Fast · 30 seconds</option>
+                  </select>
+                </label>
+                <label className="text-[11px] font-semibold text-slate-600">Task source
+                  <select value={draft.adl_task_source || "pregenerated"} onChange={(e) => update({ adl_task_source: e.target.value })} className="mt-1 w-full rounded-lg border border-purple-200 bg-white px-2 py-2 text-xs">
+                    <option value="pregenerated">All pre-generated</option><option value="specific">Selected tasks only</option><option value="mixed">Selected first, then mixed</option>
+                  </select>
+                </label>
+              </div>
+              {draft.adl_task_source !== "pregenerated" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {ADL_TASKS.map((task) => (
+                    <button key={task.id} type="button" onClick={() => toggleArr("adl_tasks", task.id)}
+                      className={`rounded-xl border px-2.5 py-2 text-left text-[10px] transition ${(draft.adl_tasks || []).includes(task.id) ? "border-purple-500 bg-purple-100 text-purple-900" : "border-slate-200 bg-white text-slate-600"}`}>
+                      <span className="font-bold">{task.title}</span><span className="block opacity-70">{task.staff} learner{task.staff > 1 ? "s" : ""} required</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Celebrity profile picker */}
           <div>

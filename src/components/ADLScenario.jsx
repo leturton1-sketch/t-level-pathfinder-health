@@ -41,8 +41,8 @@ function assessSbar(text, task) {
   const missing = sections.map(([name]) => name).filter((name) => !present.includes(name));
   return {
     score,
-    strengths: present.length ? \`Clear \${present.join(", ")} content\${care.length ? \`, with attention to \${care.join(" and ")}\` : ""}.\` : "You identified that a handover was required.",
-    improvements: missing.length ? \`Make the \${missing.join(", ")} section\${missing.length > 1 ? "s" : ""} explicit and clinically specific.\` : "Add exact observations, actions completed and the required timeframe.",
+    strengths: present.length ? `Clear ${present.join(", ")} content${care.length ? `, with attention to ${care.join(" and ")}` : ""}.` : "You identified that a handover was required.",
+    improvements: missing.length ? `Make the ${missing.join(", ")} section${missing.length > 1 ? "s" : ""} explicit and clinically specific.` : "Add exact observations, actions completed and the required timeframe.",
     tip: task.staff === 2 ? "State that two staff are required and confirm the moving-and-handling or repositioning plan." : "Finish with one clear recommendation, named escalation route and timeframe.",
     safe_to_complete: present.length >= 3 && /safe|consent|dignity|privacy|care plan|risk/.test(value),
   };
@@ -75,13 +75,13 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
     const assigned = assignLearners(learners, task.staff);
     setActiveCall({ id: Date.now(), bed, patient, task, assigned });
     setFeedback(null); setSbar(""); onActiveBedChange?.(bed); playCallBell();
-    synth.speak(\`Nurse call bell from bed \${bed}. \${assigned.join(" and ")}, please support \${patient?.name || "the patient"} with \${task.title}. \${task.staff === 2 ? "Two learners are required." : ""}\`);
+    synth.speak(`Nurse call bell from bed ${bed}. ${assigned.join(" and ")}, please support ${patient?.name || "the patient"} with ${task.title}. ${task.staff === 2 ? "Two learners are required." : ""}`);
   };
 
   const start = () => { if (learners.length) { setPhase("running"); setTimeout(triggerCall, 700); } };
   const submitSbar = () => {
     const result = assessSbar(sbar, activeCall.task);
-    setFeedback(result); synth.speak(\`Feedback. \${result.strengths} \${result.tip}\`);
+    setFeedback(result); synth.speak(`Feedback. ${result.strengths} ${result.tip}`);
   };
   const completeTask = () => {
     setCompleted((current) => [...current, { task: activeCall.task.title, bed: activeCall.bed, learners: activeCall.assigned, sbar, feedback }]);
@@ -106,7 +106,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
     const recognition = new Recognition(); recognition.lang = "en-GB"; recognition.continuous = true; recognition.interimResults = false;
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results).slice(event.resultIndex).map((result) => result[0].transcript).join(" ");
-      setSbar((current) => \`\${current} \${transcript}\`.trim());
+      setSbar((current) => `${current} ${transcript}`.trim());
     };
     recognition.onend = () => setListening(false); recognitionRef.current = recognition; recognition.start(); setListening(true);
   };
@@ -124,13 +124,13 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
   </div>;
 
   return <div className="absolute inset-x-3 bottom-3 z-50 sm:left-auto sm:w-[430px]"><div className="polished-glass-edge max-h-[78vh] overflow-y-auto rounded-[26px] border border-white/90 bg-white/95 p-4 shadow-2xl backdrop-blur-2xl">
-    <div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-purple-700">ADL simulation · {completed.length} complete</p><h2 className="text-base font-black">{activeCall ? \`Call bell · Bed \${activeCall.bed}\` : "Ward monitoring"}</h2></div><button onClick={finish} className="rounded-xl border px-3 py-2 text-xs font-bold">Finish</button></div>
+    <div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.16em] text-purple-700">ADL simulation · {completed.length} complete</p><h2 className="text-base font-black">{activeCall ? `Call bell · Bed ${activeCall.bed}` : "Ward monitoring"}</h2></div><button onClick={finish} className="rounded-xl border px-3 py-2 text-xs font-bold">Finish</button></div>
     {!activeCall ? <div className="mt-4 rounded-2xl bg-slate-100 p-5 text-center"><BellRing className="mx-auto h-8 w-8 text-slate-400" /><p className="mt-2 text-sm font-bold">Waiting for the next patient call</p><button onClick={triggerCall} className="mt-3 text-xs font-bold text-purple-700">Trigger next call now</button></div> : <>
       <div className="mt-3 animate-pulse rounded-2xl border-2 border-red-300 bg-red-50 p-3"><div className="flex gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-red-500 text-white shadow-lg"><BellRing className="h-5 w-5" /></span><div><p className="font-black">{activeCall.patient?.name || "Patient"} · Bed {activeCall.bed}</p><p className="text-sm">{activeCall.task.title}</p><p className="mt-1 text-xs font-bold text-red-700"><Users className="mr-1 inline h-3 w-3" />Assigned: {activeCall.assigned.join(" & ")}</p></div></div></div>
       <p className="mt-3 rounded-xl bg-purple-50 p-3 text-xs">{activeCall.task.prompt}</p>
       <label className="mt-3 block text-xs font-black uppercase">SBAR handover — type or dictate</label>
       <textarea value={sbar} onChange={(e) => setSbar(e.target.value)} rows={6} placeholder="Situation… Background… Assessment… Recommendation…" className="mt-1 w-full rounded-2xl border p-3 text-sm" />
-      <div className="mt-2 flex gap-2"><button onClick={toggleDictation} className={\`flex items-center gap-1 rounded-xl border px-3 py-2 text-xs font-bold \${listening ? "border-red-300 bg-red-50 text-red-700" : ""}\`}>{listening ? <Square className="h-3 w-3" /> : <Mic className="h-3 w-3" />}{listening ? "Stop" : "Speak SBAR"}</button><button disabled={!sbar.trim()} onClick={submitSbar} className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-purple-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-40"><Send className="h-3 w-3" />Assess SBAR</button></div>
+      <div className="mt-2 flex gap-2"><button onClick={toggleDictation} className={`flex items-center gap-1 rounded-xl border px-3 py-2 text-xs font-bold ${listening ? "border-red-300 bg-red-50 text-red-700" : ""}`}>{listening ? <Square className="h-3 w-3" /> : <Mic className="h-3 w-3" />}{listening ? "Stop" : "Speak SBAR"}</button><button disabled={!sbar.trim()} onClick={submitSbar} className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-purple-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-40"><Send className="h-3 w-3" />Assess SBAR</button></div>
       {feedback && <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs"><div className="flex justify-between"><b>AI-guided SBAR feedback</b><b className="text-lg text-emerald-700">{feedback.score}%</b></div><p><b>Strengths:</b> {feedback.strengths}</p><p><b>Improve:</b> {feedback.improvements}</p><p><b>Tip:</b> {feedback.tip}</p><button onClick={completeTask} className="mt-3 flex w-full items-center justify-center gap-1 rounded-xl bg-emerald-600 py-2 font-black text-white"><CheckCircle className="h-4 w-4" />Complete task</button></div>}
     </>}
   </div></div>;
