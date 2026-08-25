@@ -19,12 +19,16 @@ export default function CampusZoomMap() {
             <MapPin className="h-5 w-5" />
           </span>
           <span className="health-stem absolute left-1/2 top-9 h-20 w-px -translate-x-1/2 bg-gradient-to-b from-cyan-300 to-transparent" />
-        </div>
-      </div>
-      <div className="health-label pointer-events-none absolute bottom-11 right-5 z-30 max-w-[240px] rounded-2xl border border-cyan-200/80 bg-slate-950/82 px-3 py-2.5 text-white shadow-[0_12px_30px_-14px_rgba(8,145,178,.9)] backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-400/20 text-cyan-200"><Building2 className="h-4 w-4" /></span>
-          <div><p className="text-[9px] font-black uppercase tracking-[.16em] text-cyan-200">Destination located</p><p className="text-[11px] font-bold">T Level Health Provision</p><p className="text-[9px] text-slate-300">Dearne Valley College</p></div>
+          <div className="health-label absolute left-12 top-1/2 w-[220px] -translate-y-1/2 rounded-2xl border border-cyan-200/80 bg-slate-950/86 px-3 py-2.5 text-white shadow-[0_12px_30px_-14px_rgba(8,145,178,.9)] backdrop-blur-xl">
+            <div className="flex items-center gap-2">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-400/20 text-cyan-200"><Building2 className="h-4 w-4" /></span>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[.16em] text-cyan-200">Destination located</p>
+                <p className="text-[11px] font-bold">Health Department</p>
+                <p className="text-[9px] text-slate-300">T Level Health Provision</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div className="pointer-events-none absolute bottom-5 left-5 right-5 z-30 overflow-hidden rounded-full border border-white/80 bg-white/55 p-1 shadow-lg backdrop-blur-xl">
