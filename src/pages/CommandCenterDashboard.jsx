@@ -24,10 +24,10 @@ const roomStyles = {
 };
 
 const areaLegend = [
-  { label: "Corridor", colour: "bg-black" },
   { label: "Clinical Suite A", colour: "bg-pink-400" },
   { label: "Clinical Suite B", colour: "bg-emerald-500" },
   { label: "Health Theory 101", colour: "bg-yellow-400" },
+  { label: "Laboratory / Informatics", colour: "bg-violet-500" },
 ];
 
 const staff = [
