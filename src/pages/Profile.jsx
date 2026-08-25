@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, logout } from "@/lib/clinicalAuth";
 import { SK_CODES } from "@/lib/specData";
-import { BookOpen, ClipboardList, Stethoscope, LogOut, BarChart3, Target, TrendingUp, Volume2, Save } from "lucide-react";
+import { BookOpen, ClipboardList, Stethoscope, LogOut, BarChart3, Target, TrendingUp } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -11,18 +11,10 @@ export default function Profile() {
   const [results, setResults] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [modulesComplete, setModulesComplete] = useState(0);
-  const [elevenLabsKey, setElevenLabsKey] = useState("");
-  const [elevenLabsVoiceId, setElevenLabsVoiceId] = useState("");
-  const [ttsVolume, setTtsVolume] = useState(1);
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [settingsSaved, setSettingsSaved] = useState(false);
-
-  const canEdit = ["super_admin", "admin", "tutor"].includes(user?.role);
 
   useEffect(() => {
     if (!isLoggedIn()) { navigate("/login"); return; }
     loadData();
-    loadSettings();
   }, [navigate]);
 
   const loadData = async () => {
@@ -30,29 +22,6 @@ export default function Profile() {
     try { const s = await base44.entities.CarePlanSubmission.filter({ student_id: user.id }); setSubmissions(s); } catch {}
     const progress = JSON.parse(localStorage.getItem("theory_progress") || "{}");
     setModulesComplete(Object.values(progress).filter(Boolean).length);
-  };
-
-  const loadSettings = async () => {
-    try {
-      const u = await base44.auth.me();
-      setElevenLabsKey(u.elevenlabs_api_key || "");
-      setElevenLabsVoiceId(u.elevenlabs_voice_id || "");
-      setTtsVolume(u.tts_volume ?? 1);
-    } catch {}
-  };
-
-  const saveSettings = async () => {
-    setSavingSettings(true);
-    try {
-      await base44.auth.updateMe({
-        elevenlabs_api_key: elevenLabsKey,
-        elevenlabs_voice_id: elevenLabsVoiceId,
-        tts_volume: ttsVolume,
-      });
-      setSettingsSaved(true);
-      setTimeout(() => setSettingsSaved(false), 2500);
-    } catch {}
-    setSavingSettings(false);
   };
 
   const handleLogout = () => {
@@ -122,59 +91,6 @@ export default function Profile() {
           })}
         </div>
       </div>
-
-      {/* AI Assistant preferences */}
-      <div className="rounded-xl border border-border bg-card p-4 mb-4">
-        <h2 className="text-sm font-bold text-foreground mb-3">AI Clinical Assistant Preferences</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Voice Persona</label>
-            <div className="flex gap-2">
-              <span className={`text-xs rounded-lg border px-3 py-1.5 ${user?.ai_persona === "female" ? "border-clinical-teal bg-clinical-teal/10 text-clinical-teal" : "border-border text-muted-foreground"}`}>Female</span>
-              <span className={`text-xs rounded-lg border px-3 py-1.5 ${user?.ai_persona === "male" ? "border-clinical-teal bg-clinical-teal/10 text-clinical-teal" : "border-border text-muted-foreground"}`}>Male</span>
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Voice Style</label>
-            <span className="text-xs text-muted-foreground capitalize">{user?.ai_voice || "honey"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ElevenLabs Voice Settings (admin/tutor only) */}
-      {canEdit && (
-        <div className="rounded-xl border border-clinical-teal/30 bg-card p-4 mb-4">
-          <h2 className="text-sm font-bold text-foreground mb-1 flex items-center gap-2">
-            <Volume2 className="w-4 h-4 text-clinical-teal" />
-            ElevenLabs Voice Settings
-          </h2>
-          <p className="text-xs text-muted-foreground mb-4">Configure a warm, modern South Yorkshire male voice. Search the ElevenLabs Voice Library for a Yorkshire accent voice with an easygoing, versatile personality.</p>
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">ElevenLabs API Key</label>
-              <input type="password" value={elevenLabsKey} onChange={(e) => setElevenLabsKey(e.target.value)}
-                placeholder="Enter your ElevenLabs API key"
-                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal" />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Voice ID (Yorkshire Male)</label>
-              <input type="text" value={elevenLabsVoiceId} onChange={(e) => setElevenLabsVoiceId(e.target.value)}
-                placeholder="e.g. TxGEJRHbtfZRdBPUuh8N"
-                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-clinical-teal" />
-              <p className="text-[10px] text-muted-foreground mt-1">Find Yorkshire accent voices at elevenlabs.io/app/voice-library — search "Yorkshire" or "South Yorkshire".</p>
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Volume: {Math.round(ttsVolume * 100)}%</label>
-              <input type="range" min="0" max="1" step="0.05" value={ttsVolume} onChange={(e) => setTtsVolume(parseFloat(e.target.value))}
-                className="w-full accent-clinical-teal" />
-            </div>
-            <button onClick={saveSettings} disabled={savingSettings}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-clinical-teal text-white text-sm font-heading font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity">
-              <Save className="w-4 h-4" /> {savingSettings ? "Saving…" : settingsSaved ? "Saved!" : "Save Settings"}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Recent activity */}
       <div className="rounded-xl border border-border bg-card p-4">
