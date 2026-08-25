@@ -107,6 +107,7 @@ export default function Ward3D({
   items = [], editMode = false, selectedItemId = null, snapToGrid = true,
   selectedItemForPlacement = null, suite = "both", cameraCommand = null,
   onItemSelect, onItemMove, onItemPlace, onBedClick, onSelectItemType,
+  activeCallBed = null,
 }) {
   const containerRef = useRef(null);
   const rendererRef = useRef(null);
@@ -382,6 +383,15 @@ export default function Ward3D({
         wall.material.opacity = 0.18 + Math.max(0, -dot) * 0.28;
       });
 
+      const pulse = 0.55 + Math.sin(performance.now() * 0.009) * 0.35;
+      itemsMapRef.current.forEach((itemMesh) => {
+        const marker = itemMesh.children.find((child) => child.name === "callBellMarker");
+        if (marker) {
+          marker.scale.setScalar(0.92 + pulse * 0.16);
+          marker.children.forEach((child) => { if (child.material) child.material.opacity = pulse; });
+        }
+      });
+
       // Camera lerp
       if (cameraTargetRef.current) {
         camera.position.lerp(cameraTargetRef.current.pos, 0.08);
@@ -444,6 +454,8 @@ export default function Ward3D({
     map.forEach((mesh) => {
       const ring = mesh.children.find(c => c.name === "selectionRing");
       if (ring) { mesh.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
+      const callMarker = mesh.children.find(c => c.name === "callBellMarker");
+      if (callMarker) { mesh.remove(callMarker); callMarker.traverse(disposeMesh); }
     });
 
     if (!editMode && !visibleItems.length) { return; }
@@ -477,6 +489,17 @@ export default function Ward3D({
       }
       mesh.position.set(item.x, 0, item.z);
       mesh.rotation.y = item.rotationY || 0;
+      if (item.type === "bed" && item.designation === activeCallBed) {
+        const marker = new THREE.Group();
+        marker.name = "callBellMarker";
+        marker.position.set(0, 3.2, 0);
+        const halo = new THREE.Mesh(new THREE.TorusGeometry(0.52, 0.1, 12, 32), new THREE.MeshBasicMaterial({ color: 0xFC4421, transparent: true, opacity: 0.9 }));
+        halo.rotation.x = Math.PI / 2;
+        const bell = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 16), new THREE.MeshStandardMaterial({ color: 0xFF9567, emissive: 0xFC4421, emissiveIntensity: 2, transparent: true, opacity: 1 }));
+        const light = new THREE.PointLight(0xFC4421, 3, 8);
+        marker.add(halo, bell, light);
+        mesh.add(marker);
+      }
       if (item.id === selectedItemId) {
         const ring = new THREE.Mesh(
           new THREE.RingGeometry(0.9, 1.15, 32),
@@ -488,7 +511,7 @@ export default function Ward3D({
     });
 
     itemsArrayRef.current = Array.from(map.values());
-  }, [visibleItems, selectedItemId, editMode]);
+  }, [visibleItems, selectedItemId, editMode, activeCallBed]);
 
   return (
     <div className="relative w-full h-full">
