@@ -247,7 +247,7 @@ export const ANATOMY_STRUCTURES = [
     parts: [{ shape: { type: "sphere", radius: 0.018 }, position: [-0.09,1.105,-0.04] },{ shape: { type: "sphere", radius: 0.018 }, position: [0.09,1.105,-0.04] }],
     function: "Produce cortisol, aldosterone and catecholamines central to stress, blood pressure and electrolyte regulation.",
     clinicalNote: "Adrenal crisis can cause profound hypotension, vomiting and electrolyte disturbance and requires urgent escalation." },
-  { id: "lymph_nodes", name: "Lymph Nodes", system: "lymphatic", genders: "both",
+  { id: "lymph_nodes", name: "Lymph Nodes", system: "lymphatic", genders: "both", color: 0xd6aa58,
     parts: [
       { shape: { type: "sphere", radius: 0.016 }, position: [-0.07,1.48,0.04] }, { shape: { type: "sphere", radius: 0.016 }, position: [0.07,1.48,0.04] },
       { shape: { type: "sphere", radius: 0.018 }, position: [-0.14,1.34,0.03] }, { shape: { type: "sphere", radius: 0.018 }, position: [0.14,1.34,0.03] },
@@ -255,4 +255,14 @@ export const ANATOMY_STRUCTURES = [
     ],
     function: "Filter lymph and coordinate immune-cell activation against pathogens and abnormal cells.",
     clinicalNote: "Assess lymphadenopathy for site, size, tenderness, mobility and duration; combine with infection and malignancy red flags." },
+  { id: "lymph_vessels", name: "Lymphatic Vessels", system: "lymphatic", genders: "both", color: 0xd6aa58,
+    parts: [
+      { shape: { type: "tube", radius: 0.0045, points: [[0,0.88,0.05],[0.02,1.08,0.05],[0.01,1.3,0.05],[0,1.5,0.05]] } },
+      { shape: { type: "tube", radius: 0.0035, points: [[0.08,0.22,0.05],[0.08,0.62,0.05],[0.06,0.88,0.05],[0,1.02,0.05]] } },
+      { shape: { type: "tube", radius: 0.0035, points: [[-0.08,0.22,0.05],[-0.08,0.62,0.05],[-0.06,0.88,0.05],[0,1.02,0.05]] } },
+      { shape: { type: "tube", radius: 0.0035, points: [[0.22,1.12,0.05],[0.15,1.33,0.05],[0.06,1.42,0.05],[0,1.45,0.05]] } },
+      { shape: { type: "tube", radius: 0.0035, points: [[-0.22,1.12,0.05],[-0.15,1.33,0.05],[-0.06,1.42,0.05],[0,1.45,0.05]] } }
+    ],
+    function: "A one-way translucent vessel network returns interstitial fluid to the circulation and transports immune cells.",
+    clinicalNote: "Impaired drainage causes lymphoedema; assess swelling, skin integrity, infection and limb measurements." },
 ];
