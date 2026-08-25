@@ -34,16 +34,16 @@ function applyScale(mesh, scale) {
 }
 
 function createClinicalTextures(renderer) {
-  const size = 256;
-  const canvases = Array.from({ length: 4 }, () => {
+  const size = renderer.capabilities.maxTextureSize >= 4096 && window.devicePixelRatio > 1 ? 1024 : 512;
+  const canvases = Array.from({ length: 5 }, () => {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = size;
     return canvas;
   });
-  const [colourCanvas, tissueCanvas, muscleCanvas, boneCanvas] = canvases;
+  const [colourCanvas, tissueCanvas, muscleCanvas, boneCanvas, roughnessCanvas] = canvases;
   const contexts = canvases.map((canvas) => canvas.getContext("2d"));
   const images = contexts.map((context) => context.createImageData(size, size));
-  const [colourImage, tissueImage, muscleImage, boneImage] = images;
+  const [colourImage, tissueImage, muscleImage, boneImage, roughnessImage] = images;
 
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
@@ -61,13 +61,15 @@ function createClinicalTextures(renderer) {
       tissueImage.data.set([tissueHeight, tissueHeight, tissueHeight, 255], i);
       muscleImage.data.set([muscleHeight, muscleHeight, muscleHeight, 255], i);
       boneImage.data.set([boneHeight, boneHeight, boneHeight, 255], i);
+      const roughness = Math.max(80, Math.min(235, 168 + cellular * 4 + capillary * 1.5));
+      roughnessImage.data.set([roughness, roughness, roughness, 255], i);
     }
   }
 
   contexts.forEach((context, index) => context.putImageData(images[index], 0, 0));
-  const [map, tissueMap, muscleMap, boneMap] = canvases.map((canvas) => new THREE.CanvasTexture(canvas));
+  const [map, tissueMap, muscleMap, boneMap, roughnessMap] = canvases.map((canvas) => new THREE.CanvasTexture(canvas));
   map.colorSpace = THREE.SRGBColorSpace;
-  const textures = [map, tissueMap, muscleMap, boneMap];
+  const textures = [map, tissueMap, muscleMap, boneMap, roughnessMap];
   textures.forEach((texture) => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
@@ -76,7 +78,8 @@ function createClinicalTextures(renderer) {
   tissueMap.repeat.set(12, 18);
   muscleMap.repeat.set(5, 24);
   boneMap.repeat.set(18, 24);
-  return { map, tissueMap, muscleMap, boneMap, textures };
+  roughnessMap.repeat.set(10, 16);
+  return { map, tissueMap, muscleMap, boneMap, roughnessMap, textures };
 }
 
 export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full" }) {
@@ -187,7 +190,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     // Body shell (translucent cadaver mannequin)
     const shellMat = new THREE.MeshPhysicalMaterial({
       color: 0xf0b6a3, map: clinicalTextures.map, bumpMap: clinicalTextures.tissueMap,
-      bumpScale: 0.006, roughnessMap: clinicalTextures.tissueMap, roughness: 0.46,
+      bumpScale: 0.006, roughnessMap: clinicalTextures.roughnessMap, roughness: 0.46,
       metalness: 0, transparent: true, opacity: 0.16, depthWrite: false,
       side: THREE.DoubleSide, transmission: 0.28, thickness: 0.34,
       attenuationColor: new THREE.Color(0xc74f58), attenuationDistance: 0.72,
@@ -263,7 +266,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         color,
         metalness: 0,
         roughness: isBone ? 0.84 : isMuscle ? 0.58 : hasCapsule ? 0.38 : isVascular ? 0.44 : 0.5,
-        roughnessMap: bumpTexture,
+        roughnessMap: isBone ? clinicalTextures.boneMap : clinicalTextures.roughnessMap,
         bumpMap: bumpTexture,
         bumpScale: isBone ? 0.0045 : isMuscle ? 0.006 : isVascular ? 0.0015 : 0.003,
         aoMap: bumpTexture,
