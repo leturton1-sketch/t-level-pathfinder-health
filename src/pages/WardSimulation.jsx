@@ -6,6 +6,7 @@ import { PREBUILT_SCENARIOS } from "@/lib/specData";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import NEWS2Badge from "@/components/NEWS2Badge";
 import Ward3D from "@/components/Ward3D";
+import ADLScenario from "@/components/ADLScenario";
 import WardEditPanel from "@/components/WardEditPanel";
 import WardPropertiesPanel from "@/components/WardPropertiesPanel";
 import PatientPanel from "@/components/PatientPanel";
@@ -67,6 +68,8 @@ export default function WardSimulation() {
   const [vitals, setVitals] = useState(null);
   const [decisions, setDecisions] = useState([]);
   const [showDebrief, setShowDebrief] = useState(false);
+  const [adlScenario, setAdlScenario] = useState(null);
+  const [activeCallBed, setActiveCallBed] = useState(null);
 
   // Clinical narration during simulation
   const narration = useWardNarration();
@@ -87,7 +90,8 @@ export default function WardSimulation() {
   const loadScenarios = async () => {
     try {
       const existing = await base44.entities.Scenario.list();
-      setScenarios(existing.length > 0 ? existing : PREBUILT_SCENARIOS);
+      const customIds = new Set(existing.map((scenario) => scenario.name));
+      setScenarios([...PREBUILT_SCENARIOS.filter((scenario) => !customIds.has(scenario.name)), ...existing]);
     } catch { setScenarios(PREBUILT_SCENARIOS); }
   };
 
@@ -314,6 +318,12 @@ export default function WardSimulation() {
 
   // --- Scenario ---
   const startScenario = (scenario) => {
+    if (scenario.category === "activities_daily_living") {
+      setShowScenarioList(false);
+      setActiveScenario(null);
+      setAdlScenario(scenario);
+      return;
+    }
     setActiveScenario(scenario);
     setVitals({ ...scenario.initial_vitals });
     setDecisions([]);
@@ -558,6 +568,7 @@ export default function WardSimulation() {
           onItemPlace={handleItemPlace}
           onBedClick={handleBedClick}
           onSelectItemType={(type) => { setSelectedItemForPlacement(type); setSelectedItemId(null); }}
+          activeCallBed={activeCallBed}
         />
 
         {/* Edit panel (left) */}
@@ -608,8 +619,17 @@ export default function WardSimulation() {
           )
         )}
 
+        {adlScenario && !editMode && (
+          <ADLScenario
+            scenario={adlScenario}
+            bedDesignations={items.filter((item) => item.type === "bed").map((item) => item.designation)}
+            onActiveBedChange={setActiveCallBed}
+            onClose={() => { setAdlScenario(null); setActiveCallBed(null); }}
+          />
+        )}
+
         {/* Hint */}
-        {!activeScenario && !editMode && !showPatientPanel && (
+        {!activeScenario && !adlScenario && !editMode && !showPatientPanel && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-card/80 backdrop-blur-sm px-4 py-2 text-xs text-muted-foreground border border-border shadow-sm">
             Click a bed to view patient details →
           </div>
