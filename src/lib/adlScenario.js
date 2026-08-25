@@ -17,6 +17,7 @@ export function getAdlTaskPool(scenario) {
   const selected = Array.isArray(scenario?.adl_tasks) ? scenario.adl_tasks : [];
   if (!selected.length || scenario?.adl_task_source === "pregenerated") return ADL_TASKS;
   const specific = ADL_TASKS.filter((task) => selected.includes(task.id));
+  if (!specific.length) return ADL_TASKS;
   return scenario?.adl_task_source === "mixed" ? [...specific, ...ADL_TASKS.filter((task) => !selected.includes(task.id))] : specific;
 }
 
