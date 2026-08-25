@@ -3,7 +3,7 @@ import { Bot, X, Send, Mic, Volume2, VolumeX, Square } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
-import { playElevenLabs, stopSpeaking } from "@/lib/elevenLabs";
+import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import ReactMarkdown from "react-markdown";
 
 const AI_STATES = {
@@ -19,29 +19,18 @@ export default function AIAssistant({ context = "general" }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [ttsVolume, setTtsVolume] = useState(1);
+  const synth = useVoiceSynthesis();
+  const muted = synth.prefs.muted;
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const listeningRef = useRef(false);
-  const mutedRef = useRef(false);
-  const settingsRef = useRef({ apiKey: "", voiceId: "", volume: 1 });
+  const mutedRef = useRef(muted);
   const wardStateRef = useRef(null);
   const user = getCurrentUser();
 
-  // Load ElevenLabs settings
   useEffect(() => {
-    base44.auth.me().then(u => {
-      settingsRef.current = {
-        apiKey: u.elevenlabs_api_key || "",
-        voiceId: u.elevenlabs_voice_id || "",
-        volume: u.tts_volume ?? 1,
-      };
-      setTtsVolume(u.tts_volume ?? 1);
-      setMuted(u.tts_muted || false);
-      mutedRef.current = u.tts_muted || false;
-    }).catch(() => {});
-  }, []);
+    mutedRef.current = muted;
+  }, [muted]);
 
   const systemPrompt = `You are the ClinicalEdge AI Clinical Assistant, supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. The user's name is ${user?.full_name || "Student"}. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
 
@@ -70,28 +59,9 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
   const speak = async (text) => {
     if (mutedRef.current) { setState("idle"); return; }
     setState("speaking");
-    const cleanText = text.replace(/[*#`🔔]/g, "");
-    const { apiKey, voiceId, volume } = settingsRef.current;
-    // Try ElevenLabs first
-    if (apiKey && voiceId) {
-      const success = await playElevenLabs(cleanText, apiKey, voiceId, volume, () => {
-        if (listeningRef.current) setState("listening"); else setState("idle");
-      });
-      if (success) return;
-      // ElevenLabs failed — brief delay so speechSynthesis recovers after cancel()
-      await new Promise(r => setTimeout(r, 150));
-    }
-    // Fallback to browser TTS
-    if ("speechSynthesis" in window) {
-      const u = new SpeechSynthesisUtterance(cleanText);
-      u.rate = 0.95;
-      u.pitch = user?.ai_persona === "male" ? 0.7 : 1.1;
-      u.volume = volume;
-      u.onend = () => { if (listeningRef.current) setState("listening"); else setState("idle"); };
-      window.speechSynthesis.speak(u);
-    } else {
-      setTimeout(() => setState(listeningRef.current ? "listening" : "idle"), 2000);
-    }
+    await synth.speak(text, {
+      onEnd: () => setState(listeningRef.current ? "listening" : "idle"),
+    });
   };
 
   const handleSend = async (overrideText) => {
@@ -150,7 +120,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) { alert("Voice input is not supported on this device."); return; }
     // Interrupt current speech when starting to listen
-    stopSpeaking();
+    synth.stop();
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
     recognition.continuous = true;
@@ -173,14 +143,13 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
   const toggleMute = () => {
     const newMuted = !muted;
-    setMuted(newMuted);
     mutedRef.current = newMuted;
-    if (newMuted) stopSpeaking();
-    base44.auth.updateMe({ tts_muted: newMuted }).catch(() => {});
+    synth.updatePrefs({ muted: newMuted });
+    if (newMuted) synth.stop();
   };
 
   const handleStopSpeaking = () => {
-    stopSpeaking();
+    synth.stop();
     if (listeningRef.current) setState("listening"); else setState("idle");
   };
 
