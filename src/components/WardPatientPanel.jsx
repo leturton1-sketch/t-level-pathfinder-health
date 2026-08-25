@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, User, Heart, AlertTriangle, ClipboardList, ChevronRight, ChevronDown,
   Shield, Activity, BookOpen, AlertCircle,
-  Thermometer, Droplets, Wind, Zap, FileText,
+  Thermometer, Droplets, Wind, Zap, FileText, ClipboardPenLine,
 } from "lucide-react";
 import { getPatientForBed, news2Band } from "@/lib/wardPatients";
+import { getCarePlanSimulation } from "@/lib/carePlanSimulation";
 import EHRModal from "@/components/ehr/EHRModal";
 
 const VITAL_CONFIG = [
@@ -32,7 +33,7 @@ function VitalCell({ config, value }) {
   );
 }
 
-export default function WardPatientPanel({ bedDesignation, onClose, onBeginScenario, onLaunchTool }) {
+export default function WardPatientPanel({ bedDesignation, onClose, onBeginScenario, onLaunchTool, onLaunchCarePlan }) {
   const patient = getPatientForBed(bedDesignation);
   const [tab, setTab] = useState("overview");
   const [consentGiven, setConsentGiven] = useState(false);
@@ -59,6 +60,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
 
   const band = news2Band(patient.initial_news2);
   const vitals = patient.initial_vitals;
+  const carePlanSimulation = getCarePlanSimulation(patient);
   const tabs = [
     { id: "overview", label: "Overview", icon: User },
     { id: "vitals", label: "Vitals", icon: Activity },
@@ -232,6 +234,22 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Debrief Rationale</p>
                   <p className="text-xs text-slate-600 leading-relaxed">{patient.debrief_rationale}</p>
                 </div>
+                <div className="rounded-xl border border-tl-purple/25 bg-tl-purple/5 p-3">
+                  <p className="text-[10px] font-bold text-tl-purple uppercase tracking-wider mb-1">Care Planning Practice</p>
+                  <p className="mb-2.5 text-xs leading-relaxed text-slate-600">{carePlanSimulation.briefing}</p>
+                  <div className="space-y-1.5">
+                    {carePlanSimulation.tools.map((tool) => (
+                      <button
+                        key={tool.id}
+                        onClick={() => onLaunchCarePlan?.(tool.id, patient)}
+                        className="flex w-full items-center justify-between rounded-lg border border-white bg-white px-3 py-2 text-left text-xs font-semibold text-slate-700 shadow-sm transition hover:border-tl-purple/30 hover:text-tl-purple"
+                      >
+                        <span className="flex items-center gap-2"><ClipboardPenLine className="h-3.5 w-3.5" />{tool.label}</span>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -241,12 +259,20 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
 
       {/* Footer actions */}
       <div className="border-t border-slate-200 bg-white p-3 space-y-2">
-        <button
-          onClick={() => setShowEHR(true)}
-          className="w-full py-2.5 rounded-xl bg-slate-800 text-white text-xs font-heading font-semibold hover:bg-slate-700 flex items-center justify-center gap-1.5"
-        >
-          <FileText className="w-3.5 h-3.5" /> Open Electronic Health Record
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => setShowEHR(true)}
+            className="py-2.5 rounded-xl bg-slate-800 text-white text-xs font-heading font-semibold hover:bg-slate-700 flex items-center justify-center gap-1.5"
+          >
+            <FileText className="w-3.5 h-3.5" /> Open EHR
+          </button>
+          <button
+            onClick={() => onLaunchCarePlan?.(carePlanSimulation.tools[0].id, patient)}
+            className="py-2.5 rounded-xl bg-tl-purple text-white text-xs font-heading font-semibold hover:opacity-90 flex items-center justify-center gap-1.5"
+          >
+            <ClipboardPenLine className="w-3.5 h-3.5" /> Care Plan Practice
+          </button>
+        </div>
         <div className="flex gap-2">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 text-xs font-heading font-semibold hover:bg-slate-50">
             Close
