@@ -317,6 +317,17 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         if (ra.t >= 1) { ra.active = false; }
       }
       const pathologyId = pathologyRef.current;
+      const heart = groupsRef.current.heart;
+      if (heart?.visible && pathologyId !== "heart" && !ra.active) {
+        const beatPhase = clock.elapsedTime % 0.82;
+        const beat = beatPhase < 0.12 ? Math.sin((beatPhase / 0.12) * Math.PI) : 0;
+        heart.scale.setScalar(1 + beat * 0.075);
+      }
+      const lungs = groupsRef.current.lungs;
+      if (lungs?.visible && pathologyId !== "lungs" && !ra.active) {
+        const breath = Math.sin(clock.elapsedTime * 1.35) * 0.035;
+        lungs.scale.set(1 + breath * 0.45, 1 + breath, 1 + breath * 0.6);
+      }
       Object.entries(groupsRef.current).forEach(([id, grp]) => {
         if (id !== pathologyId || !grp.visible || reconstructAnimRef.current.active) return;
         const pulse = 1 + Math.sin(clock.elapsedTime * 3.4) * 0.055;
