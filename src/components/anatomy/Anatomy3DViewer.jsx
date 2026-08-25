@@ -216,18 +216,38 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     ANATOMY_STRUCTURES.forEach((s) => {
       const grp = new THREE.Group();
       grp.userData.id = s.id;
-      const color = new THREE.Color(s.color ?? SYSTEM_META[s.system].color);
-      const softTissue = !["skeletal", "nervous"].includes(s.system);
+      const isBone = s.system === "skeletal";
+      const isMuscle = s.system === "muscular";
+      const isLymphatic = s.system === "lymphatic";
+      const isVascular = ["aorta", "vena_cava", "arterial_tree", "venous_tree"].includes(s.id);
+      const hasCapsule = ["liver", "kidneys", "spleen"].includes(s.id);
+      const isParenchymal = ["liver", "kidneys", "lungs", "spleen", "brain"].includes(s.id);
+      const color = new THREE.Color(
+        isBone ? 0xe8deca : isLymphatic ? (s.color ?? 0xd6aa58) : (s.color ?? SYSTEM_META[s.system].color)
+      );
+      const bumpTexture = isBone
+        ? clinicalTextures.boneMap
+        : isMuscle
+          ? clinicalTextures.muscleMap
+          : clinicalTextures.tissueMap;
       const mat = new THREE.MeshPhysicalMaterial({
-        color, roughness: s.system === "skeletal" ? 0.72 : 0.48, metalness: 0,
-        transparent: true, opacity: 1, clearcoat: softTissue ? 0.12 : 0.04,
-        clearcoatRoughness: 0.66, sheen: softTissue ? 0.18 : 0,
-        sheenColor: color.clone().lerp(new THREE.Color(0xffffff), 0.35),
-        transmission: softTissue ? 0.045 : 0, thickness: softTissue ? 0.08 : 0,
-        bumpMap: softTissue ? organicTextures.detailMap : null,
-        bumpScale: softTissue ? 0.0025 : 0,
-        roughnessMap: softTissue ? organicTextures.detailMap : null,
-        specularIntensity: softTissue ? 0.32 : 0.2,
+        color,
+        metalness: 0,
+        roughness: isBone ? 0.84 : isMuscle ? 0.58 : hasCapsule ? 0.38 : isVascular ? 0.44 : 0.5,
+        roughnessMap: bumpTexture,
+        bumpMap: bumpTexture,
+        bumpScale: isBone ? 0.0045 : isMuscle ? 0.006 : isVascular ? 0.0015 : 0.003,
+        transparent: true,
+        opacity: isLymphatic ? 0.76 : 1,
+        clearcoat: isBone ? 0 : hasCapsule ? 0.2 : isVascular ? 0.08 : 0.06,
+        clearcoatRoughness: hasCapsule ? 0.58 : 0.74,
+        sheen: isBone ? 0 : isMuscle ? 0.16 : 0.1,
+        sheenColor: color.clone().lerp(new THREE.Color(0xffffff), 0.26),
+        transmission: isBone ? 0 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
+        thickness: isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
+        attenuationColor: color.clone().multiplyScalar(0.78),
+        attenuationDistance: isParenchymal ? 0.38 : 0.7,
+        specularIntensity: isBone ? 0.12 : hasCapsule ? 0.36 : 0.25,
       });
       const partDefs = s.parts ? s.parts : [{ shape: s.shape, position: [0, 0, 0], rotation: s.rotation, scale: s.scale }];
       partDefs.forEach((p) => {
