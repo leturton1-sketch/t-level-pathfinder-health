@@ -19,7 +19,7 @@ export function POBadge({ code }) {
   return (
     <span
       title={desc}
-      className="inline-flex items-center rounded-md bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 text-xs font-semibold text-purple-300 cursor-help"
+      className="inline-flex items-center rounded-md bg-violet-100 border border-violet-300 px-2 py-0.5 text-xs font-semibold text-violet-800 cursor-help"
     >
       {code}
     </span>
