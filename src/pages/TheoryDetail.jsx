@@ -6,7 +6,7 @@ import { THEORY_MODULES } from "@/lib/specData";
 import { getKnowledgeChecks } from "@/lib/theoryContent";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, Clock, CheckCircle, BookMarked, ChevronRight, AlertCircle } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, BookMarked, ChevronRight, AlertCircle, Target } from "lucide-react";
 
 export default function TheoryDetail() {
   const { moduleId } = useParams();
@@ -31,10 +31,8 @@ export default function TheoryDetail() {
       return;
     }
     try {
-      const m = await base44.entities.TheoryModule.get(moduleId);
-      setModule(m);
+      setModule(await base44.entities.TheoryModule.get(moduleId));
     } catch {
-      // Try local fallback
       const local = THEORY_MODULES.find((_, i) => `local_${i}` === moduleId);
       if (local) setModule(local);
     } finally {
@@ -49,120 +47,123 @@ export default function TheoryDetail() {
     navigate("/theory");
   };
 
+  const quizQuestions = module ? (getKnowledgeChecks(module).length > 0 ? getKnowledgeChecks(module) : [{
+    question: `Which specification area does "${module.title}" belong to?`,
+    options: [module.spec_area, "Area 1", "Area 5", "Area 9"],
+    correct: module.spec_area,
+  }]) : [];
+
+  const quizScore = quizQuestions.filter((q, idx) => quizAnswers[idx] === q.correct).length;
+
   const handleSubmitQuiz = () => {
     setQuizSubmitted(true);
     if (module?.spec_area) {
       const scores = JSON.parse(localStorage.getItem("theory_quiz_scores") || "{}");
-      scores[module.spec_area] = { score: quizScore, total: quizQuestions.length, pct: Math.round((quizScore / quizQuestions.length) * 100) };
+      scores[module.spec_area] = {
+        score: quizScore,
+        total: quizQuestions.length,
+        pct: Math.round((quizScore / quizQuestions.length) * 100),
+      };
       localStorage.setItem("theory_quiz_scores", JSON.stringify(scores));
     }
   };
 
-  // Knowledge check questions — stored per module (20 per volume), specData fallback
-  const quizQuestions = module ? (getKnowledgeChecks(module).length > 0 ? getKnowledgeChecks(module) : [
-    {
-      question: `Which specification area does "${module.title}" belong to?`,
-      options: [module.spec_area, "Area 1", "Area 5", "Area 9"],
-      correct: module.spec_area,
-    },
-  ]) : [];
-
-  const handleQuizAnswer = (qIdx, answer) => {
-    setQuizAnswers({ ...quizAnswers, [qIdx]: answer });
-  };
-
-  const quizScore = quizQuestions.filter((q, idx) => quizAnswers[idx] === q.correct).length;
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-clinical-navy">
-        <div className="w-8 h-8 border-2 border-clinical-teal/30 border-t-clinical-teal rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-background" role="status" aria-label="Loading module">
+        <div className="h-9 w-9 animate-spin rounded-full border-2 border-tl-purple/25 border-t-tl-purple" />
       </div>
     );
   }
 
   if (!module) {
     return (
-      <div className="min-h-screen bg-clinical-navy flex items-center justify-center px-4">
-        <div className="text-center">
-          <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">Module not found.</p>
-          <button onClick={() => navigate("/theory")} className="mt-4 text-clinical-teal text-sm">← Back to Theory</button>
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="rounded-[24px] border border-white bg-white/90 p-8 text-center shadow-xl backdrop-blur-xl">
+          <AlertCircle className="mx-auto mb-3 h-9 w-9 text-tl-purple" aria-hidden="true" />
+          <p className="font-semibold text-slate-800">Module not found.</p>
+          <button onClick={() => navigate("/theory")} className="mt-5 rounded-xl bg-tl-purple px-4 py-2.5 text-sm font-bold text-white">Back to Theory</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-clinical-navy">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-clinical-navy/90 backdrop-blur-md border-b border-border">
-        <div className="flex items-center gap-3 px-4 py-3 max-w-3xl mx-auto">
-          <button onClick={() => navigate("/theory")} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.12),transparent_34%),radial-gradient(circle_at_85%_15%,rgba(255,147,105,0.09),transparent_28%)]">
+      <header className="sticky top-0 z-20 border-b border-white/90 bg-white/85 shadow-[0_8px_24px_rgba(66,55,88,0.08)] backdrop-blur-2xl">
+        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
+          <button
+            onClick={() => navigate("/theory")}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-tl-purple/30 hover:text-tl-purple focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-purple/25"
+            aria-label="Back to theory modules"
+          >
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </button>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-              {module.volume} · {module.spec_area}
-            </p>
-            <h1 className="text-sm font-bold text-foreground truncate">{module.title}</h1>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-tl-purple">{module.volume} · {module.spec_area}</p>
+            <h1 className="truncate text-base font-extrabold text-slate-950 sm:text-lg">{module.title}</h1>
           </div>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-            <Clock className="w-3 h-3" /> {module.estimated_duration}m
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
+            <Clock className="h-4 w-4 text-tl-purple" aria-hidden="true" /> {module.estimated_duration} min
           </span>
         </div>
-      </div>
+      </header>
 
-      <div className="px-4 pt-4 pb-32 max-w-3xl mx-auto">
-        {/* SK/PO badges */}
-        <div className="mb-4">
-          <p className="text-xs font-semibold text-muted-foreground mb-1.5">MAPPED TO:</p>
+      <main className="mx-auto max-w-4xl px-4 pb-32 pt-6 sm:px-6">
+        <section className="polished-glass-edge mb-5 rounded-[24px] border border-white/90 bg-white/82 p-4 shadow-[0_14px_32px_rgba(66,55,88,0.11),inset_0_1px_0_white] backdrop-blur-xl sm:p-5" aria-labelledby="mapping-heading">
+          <div className="mb-3 flex items-center gap-2">
+            <Target className="h-4 w-4 text-tl-purple" aria-hidden="true" />
+            <h2 id="mapping-heading" className="text-sm font-bold text-slate-900">Specification mapping</h2>
+          </div>
           <SKBadgeGroup skCodes={module.sk_codes || []} poCodes={module.performance_outcomes || []} />
-        </div>
+        </section>
 
-        {/* Content */}
-        <div className="prose prose-sm max-w-none mb-6">
+        <article className="polished-glass-edge mb-6 rounded-[28px] border border-white/90 bg-white/92 p-5 shadow-[0_20px_46px_rgba(66,55,88,0.13),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
           <ReactMarkdown
             components={{
-              h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-foreground mt-5 mb-2" {...props} />,
-              h3: ({ node, ...props }) => <h3 className="text-base font-bold text-clinical-teal mt-4 mb-1.5" {...props} />,
-              p: ({ node, ...props }) => <p className="text-sm text-foreground/90 leading-relaxed mb-3" {...props} />,
-              li: ({ node, ...props }) => <li className="text-sm text-foreground/90 leading-relaxed" {...props} />,
-              ul: ({ node, ...props }) => <ul className="space-y-1 mb-3 list-disc list-inside" {...props} />,
-              strong: ({ node, ...props }) => <strong className="font-bold text-foreground" {...props} />,
+              h1: ({ node, ...props }) => <h1 className="mb-5 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl" {...props} />,
+              h2: ({ node, ...props }) => <h2 className="mb-3 mt-8 border-b border-tl-purple/15 pb-2 text-xl font-extrabold tracking-tight text-slate-950 first:mt-0 sm:text-2xl" {...props} />,
+              h3: ({ node, ...props }) => <h3 className="mb-2 mt-6 text-lg font-bold text-tl-purple sm:text-xl" {...props} />,
+              p: ({ node, ...props }) => <p className="mb-4 text-[15px] leading-7 text-slate-800 sm:text-base" {...props} />,
+              li: ({ node, ...props }) => <li className="pl-1 text-[15px] leading-7 text-slate-800 marker:text-tl-purple sm:text-base" {...props} />,
+              ul: ({ node, ...props }) => <ul className="mb-5 ml-5 list-disc space-y-1.5" {...props} />,
+              ol: ({ node, ...props }) => <ol className="mb-5 ml-5 list-decimal space-y-1.5" {...props} />,
+              strong: ({ node, ...props }) => <strong className="font-extrabold text-slate-950" {...props} />,
+              blockquote: ({ node, ...props }) => <blockquote className="my-5 rounded-r-xl border-l-4 border-tl-purple bg-tl-purple/8 px-4 py-3 text-slate-800" {...props} />,
+              table: ({ node, ...props }) => <div className="my-5 overflow-x-auto rounded-xl border border-slate-200"><table className="w-full border-collapse text-left text-sm text-slate-800" {...props} /></div>,
+              th: ({ node, ...props }) => <th className="bg-tl-purple/10 px-3 py-2.5 font-bold text-slate-950" {...props} />,
+              td: ({ node, ...props }) => <td className="border-t border-slate-200 px-3 py-2.5 align-top" {...props} />,
             }}
           >
             {module.content}
           </ReactMarkdown>
-        </div>
+        </article>
 
-        {/* References */}
-        {module.references && module.references.length > 0 && (
-          <div className="mb-6 rounded-xl border border-border bg-card/40 p-3">
-            <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1">
-              <BookMarked className="w-3 h-3" /> EVIDENCE & REFERENCES
-            </p>
-            <ul className="space-y-1">
-              {module.references.map((ref, i) => (
-                <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
-                  <span className="text-clinical-teal shrink-0">•</span> {ref}
+        {module.references?.length > 0 && (
+          <section className="mb-6 rounded-[22px] border border-tl-purple/18 bg-gradient-to-br from-white to-violet-50/80 p-5 shadow-[0_12px_28px_rgba(66,55,88,0.09),inset_0_1px_0_white]" aria-labelledby="references-heading">
+            <h2 id="references-heading" className="mb-3 flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.08em] text-slate-900">
+              <BookMarked className="h-4 w-4 text-tl-purple" aria-hidden="true" /> Evidence & references
+            </h2>
+            <ul className="space-y-2">
+              {module.references.map((ref, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm leading-6 text-slate-700">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-tl-purple" aria-hidden="true" /> {ref}
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
 
-        {/* Knowledge check */}
-        <div className="rounded-xl border border-clinical-teal/30 bg-clinical-teal/5 p-4 mb-6">
-          <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-clinical-teal" />
+        <section className="mb-6 rounded-[28px] border border-tl-purple/20 bg-white/90 p-5 shadow-[0_18px_40px_rgba(66,55,88,0.12),inset_0_1px_0_white] backdrop-blur-xl sm:p-7" aria-labelledby="knowledge-check-heading">
+          <h2 id="knowledge-check-heading" className="mb-5 flex items-center gap-2 text-lg font-extrabold text-slate-950">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-tl-purple/12 text-tl-purple"><CheckCircle className="h-5 w-5" aria-hidden="true" /></span>
             Knowledge Check
-          </h3>
-          <div className="space-y-4">
+          </h2>
+          <div className="space-y-7">
             {quizQuestions.map((q, qIdx) => (
-              <div key={qIdx}>
-                <p className="text-sm text-foreground mb-2">{qIdx + 1}. {q.question}</p>
-                <div className="space-y-1.5">
+              <fieldset key={qIdx}>
+                <legend className="mb-3 text-[15px] font-bold leading-6 text-slate-900 sm:text-base">{qIdx + 1}. {q.question}</legend>
+                <div className="space-y-2">
                   {q.options.map((opt) => {
                     const selected = quizAnswers[qIdx] === opt;
                     const isCorrect = quizSubmitted && opt === q.correct;
@@ -170,15 +171,17 @@ export default function TheoryDetail() {
                     return (
                       <button
                         key={opt}
-                        onClick={() => handleQuizAnswer(qIdx, opt)}
-                        className={`w-full text-left text-sm rounded-lg border px-3 py-2 transition-all ${
+                        type="button"
+                        onClick={() => setQuizAnswers({ ...quizAnswers, [qIdx]: opt })}
+                        aria-pressed={selected}
+                        className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-medium leading-5 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-purple/20 ${
                           isCorrect
-                            ? "border-clinical-green bg-clinical-green/10 text-clinical-green"
+                            ? "border-emerald-400 bg-emerald-50 text-emerald-900"
                             : isWrong
-                            ? "border-clinical-red bg-clinical-red/10 text-clinical-red"
+                            ? "border-rose-400 bg-rose-50 text-rose-900"
                             : selected
-                            ? "border-clinical-teal bg-clinical-teal/10 text-clinical-teal"
-                            : "border-border bg-muted/30 text-foreground hover:border-clinical-teal/40"
+                            ? "border-tl-purple bg-tl-purple/10 text-slate-950 ring-2 ring-tl-purple/15"
+                            : "border-slate-200 bg-white text-slate-800 hover:-translate-y-0.5 hover:border-tl-purple/35"
                         }`}
                       >
                         {opt}
@@ -186,37 +189,34 @@ export default function TheoryDetail() {
                     );
                   })}
                 </div>
-              </div>
+              </fieldset>
             ))}
           </div>
           {quizSubmitted && (
-            <div className="mt-3 text-sm text-center">
-              <span className={quizScore === quizQuestions.length ? "text-clinical-green" : "text-clinical-amber"}>
-                Score: {quizScore}/{quizQuestions.length}
-              </span>
+            <div className={`mt-6 rounded-xl px-4 py-3 text-center text-sm font-extrabold ${quizScore === quizQuestions.length ? "bg-emerald-100 text-emerald-900" : "bg-amber-100 text-amber-900"}`} role="status">
+              Score: {quizScore}/{quizQuestions.length}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Action buttons */}
-        <div className="flex gap-2">
-          {!quizSubmitted ? (
+        <div className="flex flex-col gap-3 rounded-[22px] border border-white/90 bg-white/80 p-3 shadow-lg backdrop-blur-xl sm:flex-row">
+          {!quizSubmitted && (
             <button
               onClick={handleSubmitQuiz}
               disabled={Object.keys(quizAnswers).length < quizQuestions.length}
-              className="flex-1 py-3 rounded-lg border border-clinical-teal/40 text-clinical-teal font-semibold text-sm disabled:opacity-40 hover:bg-clinical-teal/10 transition-all"
+              className="flex-1 rounded-xl border border-tl-purple/30 bg-white px-5 py-3.5 text-sm font-extrabold text-tl-purple transition hover:bg-tl-purple/8 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:opacity-70"
             >
               Check Answers
             </button>
-          ) : null}
+          )}
           <button
             onClick={handleComplete}
-            className="flex-1 py-3 rounded-lg bg-clinical-teal text-white font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="flex-1 rounded-xl bg-gradient-to-r from-tl-purple to-violet-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(118,90,176,0.25)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(118,90,176,0.32)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-purple/25"
           >
-            Mark Complete <ChevronRight className="w-4 h-4" />
+            <span className="flex items-center justify-center gap-2">Mark Complete <ChevronRight className="h-4 w-4" aria-hidden="true" /></span>
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
