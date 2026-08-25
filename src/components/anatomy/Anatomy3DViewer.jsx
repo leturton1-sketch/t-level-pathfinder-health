@@ -98,7 +98,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
   useEffect(() => {
     const mount = mountRef.current;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a);
+    scene.background = new THREE.Color(0xf8fafc);
 
     const camera = new THREE.PerspectiveCamera(45, mount.clientWidth / mount.clientHeight, 0.1, 100);
     const spherical = { radius: 3.2, theta: Math.PI * 0.5, phi: Math.PI * 0.42 };
@@ -125,35 +125,48 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.02;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     const clinicalTextures = createClinicalTextures(renderer);
     mount.appendChild(renderer.domElement);
 
-    // Lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 2.2);
-    key.position.set(2, 4, 3);
+    // High-key clinical three-point studio lighting.
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xe8eef3, 1.05));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+
+    const key = new THREE.DirectionalLight(0xffe5d2, 2.45);
+    key.position.set(-3.2, 4.8, 3.4);
+    key.target.position.set(0, 0.95, 0);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
     key.shadow.camera.near = 0.1;
-    key.shadow.camera.far = 10;
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0x93c5fd, 0.5);
-    fill.position.set(-3, 2, -2);
-    scene.add(fill);
-    const rim = new THREE.PointLight(0xa78bfa, 0.5, 10);
-    rim.position.set(0, 1.5, -2);
-    scene.add(rim);
+    key.shadow.camera.far = 12;
+    key.shadow.camera.left = -1.5;
+    key.shadow.camera.right = 1.5;
+    key.shadow.camera.top = 2.4;
+    key.shadow.camera.bottom = -0.5;
+    key.shadow.bias = -0.00025;
+    key.shadow.normalBias = 0.015;
+    key.shadow.radius = 7;
+    scene.add(key, key.target);
 
-    // Floor disc for orientation
+    const fill = new THREE.DirectionalLight(0xf8fafc, 1.28);
+    fill.position.set(3.5, 2.6, 3);
+    fill.target.position.set(0, 1, 0);
+    scene.add(fill, fill.target);
+
+    const rim = new THREE.DirectionalLight(0xb9e6ff, 1.65);
+    rim.position.set(1.4, 2.7, -3.6);
+    rim.target.position.set(0, 1.05, 0);
+    scene.add(rim, rim.target);
+
     const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(2.4, 48),
-      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.72, metalness: 0.05, transparent: true, opacity: 0.72 })
+      new THREE.CircleGeometry(2.25, 64),
+      new THREE.ShadowMaterial({ color: 0x64748b, transparent: true, opacity: 0.13 })
     );
     floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0;
+    floor.position.y = -0.006;
     floor.receiveShadow = true;
     scene.add(floor);
 
