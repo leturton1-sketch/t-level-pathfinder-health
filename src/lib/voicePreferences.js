@@ -10,11 +10,11 @@ export const VOICE_PROFILES = [
   {
     id: "natural",
     name: "Natural Clinical Voice",
-    desc: "Realistic, calm UK clinical delivery",
+    desc: "Natural, expressive British clinical conversation",
     cloudVoice: "river",
-    rate: 0.96,
-    pitch: 0.98,
-    stability: 0.68,
+    rate: 0.94,
+    pitch: 1,
+    stability: 0.62,
     dialect: "neutral_uk",
     gender: "neutral",
   },
@@ -130,12 +130,15 @@ export const VOICE_PROFILES = [
   },
 ];
 
+const CURRENT_PREFS_VERSION = 2;
+
 export const DEFAULT_PREFS = {
+  version: CURRENT_PREFS_VERSION,
   profileId: "natural",
-  engine: "browser",
-  rate: 0.96,
-  pitch: 0.98,
-  stability: 0.68,
+  engine: "cloud",
+  rate: 0.94,
+  pitch: 1,
+  stability: 0.62,
   volume: 1,
   systemVoiceURI: null,
   muted: false,
@@ -145,7 +148,13 @@ export function loadPrefs() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_PREFS };
-    return { ...DEFAULT_PREFS, ...JSON.parse(raw) };
+    const saved = JSON.parse(raw);
+    if (saved.version !== CURRENT_PREFS_VERSION) {
+      const migrated = { ...DEFAULT_PREFS, volume: saved.volume ?? DEFAULT_PREFS.volume, muted: saved.muted ?? false };
+      savePrefs(migrated);
+      return migrated;
+    }
+    return { ...DEFAULT_PREFS, ...saved };
   } catch {
     return { ...DEFAULT_PREFS };
   }
