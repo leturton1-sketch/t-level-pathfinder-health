@@ -19,13 +19,15 @@ export default function CampusZoomMap() {
             <MapPin className="h-5 w-5" />
           </span>
           <span className="health-stem absolute left-1/2 top-9 h-20 w-px -translate-x-1/2 bg-gradient-to-b from-cyan-300 to-transparent" />
-          <div className="health-label absolute left-12 top-1/2 w-[220px] -translate-y-1/2 rounded-2xl border border-cyan-200/80 bg-slate-950/86 px-3 py-2.5 text-white shadow-[0_12px_30px_-14px_rgba(8,145,178,.9)] backdrop-blur-xl">
-            <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-400/20 text-cyan-200"><Building2 className="h-4 w-4" /></span>
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[.16em] text-cyan-200">Destination located</p>
-                <p className="text-[11px] font-bold">Health Department</p>
-                <p className="text-[9px] text-slate-300">T Level Health Provision</p>
+          <div className="health-label absolute left-12 top-1/2 w-[250px] -translate-y-1/2 overflow-hidden rounded-2xl border border-white/95 bg-white/78 px-3.5 py-3 text-slate-950 shadow-[0_4px_0_-2px_rgba(118,90,176,.24),0_18px_38px_-16px_rgba(36,27,58,.72),inset_1px_1px_2px_rgba(255,255,255,.98)] backdrop-blur-2xl">
+            <span className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white" />
+            <span className="pointer-events-none absolute -right-5 -top-6 h-16 w-24 rotate-[-18deg] rounded-full bg-white/70 blur-xl" />
+            <div className="relative flex items-center gap-2.5">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-purple-200/80 bg-purple-100/80 text-purple-700 shadow-[inset_1px_1px_1px_white,0_5px_12px_-8px_rgba(36,27,58,.7)]"><Building2 className="h-4 w-4" /></span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-purple-800 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">Destination located</p>
+                <p className="mt-0.5 text-[13px] font-black leading-tight text-slate-950 [text-shadow:0_1px_0_rgba(255,255,255,.95)]">Health Department</p>
+                <p className="mt-0.5 text-[10px] font-semibold text-slate-700 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">T Level Health Provision</p>
               </div>
             </div>
           </div>
