@@ -33,35 +33,50 @@ function applyScale(mesh, scale) {
   mesh.scale.set(scale[0], scale[1], scale[2]);
 }
 
-function createOrganicTextures(renderer) {
+function createClinicalTextures(renderer) {
   const size = 256;
-  const colourCanvas = document.createElement("canvas");
-  const detailCanvas = document.createElement("canvas");
-  colourCanvas.width = colourCanvas.height = detailCanvas.width = detailCanvas.height = size;
-  const colour = colourCanvas.getContext("2d");
-  const detail = detailCanvas.getContext("2d");
-  const colourImage = colour.createImageData(size, size);
-  const detailImage = detail.createImageData(size, size);
+  const canvases = Array.from({ length: 4 }, () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    return canvas;
+  });
+  const [colourCanvas, tissueCanvas, muscleCanvas, boneCanvas] = canvases;
+  const contexts = canvases.map((canvas) => canvas.getContext("2d"));
+  const images = contexts.map((context) => context.createImageData(size, size));
+  const [colourImage, tissueImage, muscleImage, boneImage] = images;
+
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
       const i = (y * size + x) * 4;
-      const pores = Math.sin(x * 0.61) * Math.cos(y * 0.47) * 5 + Math.sin((x + y) * 0.19) * 3;
-      const vessel = Math.max(0, 1 - Math.abs(Math.sin(x * 0.035 + Math.sin(y * 0.04) * 1.8))) * (Math.sin(y * 0.11) > 0.7 ? 14 : 0);
-      colourImage.data.set([210 + pores, 142 + pores - vessel * .28, 128 + pores - vessel, 255], i);
-      const height = Math.max(0, Math.min(255, 128 + pores * 4 - vessel * 1.8));
-      detailImage.data.set([height, height, height, 255], i);
+      const cellular = Math.sin(x * 0.61) * Math.cos(y * 0.47) * 4 + Math.sin((x + y) * 0.19) * 3;
+      const capillary = Math.max(0, 1 - Math.abs(Math.sin(x * 0.035 + Math.sin(y * 0.04) * 1.8))) * (Math.sin(y * 0.11) > 0.7 ? 13 : 0);
+      const striation = Math.sin(y * 0.68 + Math.sin(x * 0.08) * 2.4) * 17 + Math.sin(y * 1.9) * 4;
+      const poreField = Math.sin(x * 0.29) * Math.sin(y * 0.31) + Math.sin(x * 0.73 + y * 0.41);
+      const cancellousPore = poreField > 1.18 ? 55 : Math.max(0, poreField) * 10;
+      const tissueHeight = Math.max(0, Math.min(255, 128 + cellular * 4 - capillary * 1.7));
+      const muscleHeight = Math.max(0, Math.min(255, 128 + striation + cellular * 1.5));
+      const boneHeight = Math.max(0, Math.min(255, 158 + cellular * 2.5 - cancellousPore));
+
+      colourImage.data.set([216 + cellular, 151 + cellular - capillary * .22, 137 + cellular - capillary, 255], i);
+      tissueImage.data.set([tissueHeight, tissueHeight, tissueHeight, 255], i);
+      muscleImage.data.set([muscleHeight, muscleHeight, muscleHeight, 255], i);
+      boneImage.data.set([boneHeight, boneHeight, boneHeight, 255], i);
     }
   }
-  colour.putImageData(colourImage, 0, 0);
-  detail.putImageData(detailImage, 0, 0);
-  const map = new THREE.CanvasTexture(colourCanvas);
-  const detailMap = new THREE.CanvasTexture(detailCanvas);
+
+  contexts.forEach((context, index) => context.putImageData(images[index], 0, 0));
+  const [map, tissueMap, muscleMap, boneMap] = canvases.map((canvas) => new THREE.CanvasTexture(canvas));
   map.colorSpace = THREE.SRGBColorSpace;
-  map.wrapS = map.wrapT = detailMap.wrapS = detailMap.wrapT = THREE.RepeatWrapping;
+  const textures = [map, tissueMap, muscleMap, boneMap];
+  textures.forEach((texture) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  });
   map.repeat.set(5, 8);
-  detailMap.repeat.set(12, 18);
-  map.anisotropy = detailMap.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-  return { map, detailMap };
+  tissueMap.repeat.set(12, 18);
+  muscleMap.repeat.set(5, 24);
+  boneMap.repeat.set(18, 24);
+  return { map, tissueMap, muscleMap, boneMap, textures };
 }
 
 export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null }) {
@@ -113,7 +128,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     renderer.toneMappingExposure = 1.08;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    const organicTextures = createOrganicTextures(renderer);
+    const clinicalTextures = createClinicalTextures(renderer);
     mount.appendChild(renderer.domElement);
 
     // Lighting
@@ -144,8 +159,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
 
     // Body shell (translucent cadaver mannequin)
     const shellMat = new THREE.MeshPhysicalMaterial({
-      color: 0xf0b6a3, map: organicTextures.map, bumpMap: organicTextures.detailMap,
-      bumpScale: 0.006, roughnessMap: organicTextures.detailMap, roughness: 0.46,
+      color: 0xf0b6a3, map: clinicalTextures.map, bumpMap: clinicalTextures.tissueMap,
+      bumpScale: 0.006, roughnessMap: clinicalTextures.tissueMap, roughness: 0.46,
       metalness: 0, transparent: true, opacity: 0.16, depthWrite: false,
       side: THREE.DoubleSide, transmission: 0.28, thickness: 0.34,
       attenuationColor: new THREE.Color(0xc74f58), attenuationDistance: 0.72,
@@ -361,8 +376,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       renderer.domElement.removeEventListener("wheel", onWheel);
       renderer.domElement.removeEventListener("pointerdown", onPickDown);
       renderer.domElement.removeEventListener("pointerup", onPickUp);
-      organicTextures.map.dispose();
-      organicTextures.detailMap.dispose();
+      clinicalTextures.textures.forEach((texture) => texture.dispose());
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
