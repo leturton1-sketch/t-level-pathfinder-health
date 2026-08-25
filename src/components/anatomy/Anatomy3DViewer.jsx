@@ -32,12 +32,14 @@ function applyScale(mesh, scale) {
   mesh.scale.set(scale[0], scale[1], scale[2]);
 }
 
-export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce }) {
+export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null }) {
   const mountRef = useRef(null);
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
   const shellRef = useRef(null);
   const reconstructAnimRef = useRef({ active: false, t: 0 });
+  const pathologyRef = useRef(null);
+  pathologyRef.current = pathologyStructureId;
   const controlsRef = useRef({ reset: null });  // set by setup effect
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
@@ -222,6 +224,18 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         }
         if (ra.t >= 1) { ra.active = false; }
       }
+      const pathologyId = pathologyRef.current;
+      Object.entries(groupsRef.current).forEach(([id, grp]) => {
+        if (id !== pathologyId || !grp.visible || reconstructAnimRef.current.active) return;
+        const pulse = 1 + Math.sin(clock.elapsedTime * 3.4) * 0.055;
+        grp.scale.setScalar(pulse);
+        grp.traverse((m) => {
+          if (m.isMesh) {
+            m.material.emissive = new THREE.Color(0xff4d6d);
+            m.material.emissiveIntensity = 0.35 + Math.sin(clock.elapsedTime * 3.4) * 0.2;
+          }
+        });
+      });
       renderer.render(scene, camera);
     };
     animate();
