@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { login, changePin, getCurrentUser } from "@/lib/clinicalAuth";
+import { login, changePin, getCurrentUser, startGoogleLogin, completeGoogleLogin } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
-import { Lock, User as UserIcon, Delete, AlertCircle } from "lucide-react";
+import GoogleIcon from "@/components/GoogleIcon";
+import { Lock, User as UserIcon, Delete, AlertCircle, ShieldCheck } from "lucide-react";
 import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
 
 export default function Login() {
@@ -12,19 +13,47 @@ export default function Login() {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPinChange, setShowPinChange] = useState(false);
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [pendingUser, setPendingUser] = useState(null);
 
   useEffect(() => {
-    const existing = getCurrentUser();
-    if (existing) {
-      navigate("/");
-    } else {
-      setChecking(false);
-    }
+    let cancelled = false;
+
+    const restoreSession = async () => {
+      const existing = getCurrentUser();
+      if (existing) {
+        navigate("/");
+        return;
+      }
+
+      try {
+        const googleUser = await completeGoogleLogin();
+        if (googleUser && !cancelled) {
+          void ukVoiceService.speak(`Welcome, ${googleUser.full_name?.split(" ")[0] || "there"}. Google sign-in successful.`);
+          navigate("/");
+          return;
+        }
+      } catch (err) {
+        if (!cancelled && new URLSearchParams(window.location.search).get("auth") === "google") {
+          setError(err.message || "Google sign-in could not be completed. Please try again.");
+        }
+      }
+
+      if (!cancelled) setChecking(false);
+    };
+
+    void restoreSession();
+    return () => { cancelled = true; };
   }, [navigate]);
+
+  const handleGoogleLogin = () => {
+    setError("");
+    setGoogleLoading(true);
+    startGoogleLogin();
+  };
 
   const handleLogin = async () => {
     if (!username.trim() || pin.length !== 4) return;
@@ -156,8 +185,33 @@ export default function Login() {
             </div>
           )}
 
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading || loading}
+            className="tlevel-3d-panel w-full min-h-12 rounded-xl border border-[#765AB0]/30 bg-white px-4 py-3 text-sm font-heading font-semibold text-foreground hover:-translate-y-0.5 hover:border-[#765AB0]/60 hover:shadow-lg transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-3"
+          >
+            {googleLoading ? (
+              <div className="w-5 h-5 border-2 border-[#765AB0]/25 border-t-[#765AB0] rounded-full animate-spin" />
+            ) : (
+              <GoogleIcon className="w-5 h-5" />
+            )}
+            Continue with Google
+          </button>
+
+          <div className="flex items-center justify-center gap-2 rounded-xl border border-[#765AB0]/15 bg-[#F6F4F8] px-3 py-2 text-[11px] text-[#625D69]">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-[#765AB0]" />
+            <span>Secure account sign-in — recommended for normal use.</span>
+          </div>
+
+          <div className="flex items-center gap-3 py-1" aria-hidden="true">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-[10px] font-heading font-bold uppercase tracking-[0.16em] text-muted-foreground">Temporary testing access</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block font-heading">Username</label>
+            <label className="text-xs text-muted-foreground mb-1 block font-heading">Test username</label>
             <div className="relative">
               <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -232,7 +286,7 @@ export default function Login() {
           </button>
 
           <p className="text-center text-xs text-muted-foreground">
-            Default PIN is 0000 — you'll be prompted to change it on first login.
+            PIN access is retained temporarily for app testing. Default PIN: 0000.
           </p>
         </div>
       </div>
