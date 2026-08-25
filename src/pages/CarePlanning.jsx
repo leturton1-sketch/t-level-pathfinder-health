@@ -1,68 +1,150 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn } from "@/lib/clinicalAuth";
 import { SKBadgeGroup } from "@/components/SKBadge";
-import { ClipboardList, Stethoscope, Target, ShieldAlert, Droplet, FileText, Users, RefreshCw, ChevronRight, Sparkles } from "lucide-react";
+import { CLINICAL_FORM_CATEGORIES, getClinicalForms } from "@/lib/clinicalFormTemplates";
+import {
+  Activity, BookHeart, Brain, ChevronRight, ClipboardList, Droplets, FileHeart,
+  HeartPulse, Pill, Search, Sparkles, Stethoscope, Target, Users,
+} from "lucide-react";
 
-const TOOLS = [
-  { id: "shared", title: "Shared Care Plan Workspace", icon: Sparkles, description: "Real-time clinical target auto-profiler, celebrity SBAR database & Pearson formative scoring", skCodes: ["SK3", "SK6", "SK9"], poCodes: ["PO4", "PO5", "PO9"], to: "/care-planning/shared", accent: "clinical-teal", featured: true },
-  { id: "abcde", title: "ABCDE Assessment", icon: Stethoscope, description: "Systematic airway, breathing, circulation, disability, exposure assessment", skCodes: ["SK2", "SK17"], poCodes: ["PO4", "PO9"], to: "/care-planning/abcde", accent: "clinical-teal" },
-  { id: "news2", title: "NEWS2 Scoring", icon: ClipboardList, description: "National Early Warning Score calculator with auto-escalation", skCodes: ["SK1", "SK17"], poCodes: ["PO4", "PO9"], to: "/care-planning/news2", accent: "clinical-amber" },
-  { id: "smart", title: "SMART Goals", icon: Target, description: "Specific, Measurable, Achievable, Relevant, Time-bound care goals", skCodes: ["SK3", "SK9"], poCodes: ["PO6", "PO9"], to: "/care-planning/smart-goals", accent: "clinical-green" },
-  { id: "risk", title: "Risk Assessments", icon: ShieldAlert, description: "Falls (Morse), pressure ulcer (Waterlow), VTE assessment", skCodes: ["SK4"], poCodes: ["PO4", "PO6"], to: "/care-planning/abcde", accent: "clinical-red" },
-  { id: "fluid", title: "Fluid Balance Chart", icon: Droplet, description: "Cumulative input/output tracking with running totals", skCodes: ["SK5"], poCodes: ["PO4", "PO9"], to: "/care-planning/abcde", accent: "clinical-teal" },
-  { id: "handover", title: "SBAR Handover", icon: FileText, description: "Situation, Background, Assessment, Recommendation handover summary", skCodes: ["SK6", "SK10"], poCodes: ["PO4", "PO9"], to: "/care-planning/abcde", accent: "primary" },
-  { id: "mdt", title: "MDT Referral", icon: Users, description: "Multi-Disciplinary Team referral template", skCodes: ["SK11"], poCodes: ["PO4"], to: "/care-planning/abcde", accent: "primary" },
-  { id: "reflective", title: "Reflective Log", icon: RefreshCw, description: "What / So What / Now What reflective practice (CS4)", skCodes: ["SK12"], poCodes: ["PO4"], to: "/care-planning/abcde", accent: "clinical-teal" },
+const FEATURED_TOOLS = [
+  { id: "shared", title: "Shared Care Plan Workspace", icon: Sparkles, description: "Build and evaluate a person-centred plan with SMART goals, clinical target prompts and SBAR communication.", skCodes: ["SK3", "SK6", "SK9"], poCodes: ["PO4", "PO5", "PO9"], to: "/care-planning/shared", tone: "from-teal-500 to-emerald-600" },
+  { id: "abcde", title: "ABCDE Assessment", icon: Stethoscope, description: "Complete a systematic assessment and escalate deterioration.", skCodes: ["SK2", "SK17"], poCodes: ["PO4", "PO9"], to: "/care-planning/abcde", tone: "from-sky-500 to-cyan-600" },
+  { id: "news2", title: "NEWS2 Scoring", icon: HeartPulse, description: "Record physiological observations with automatic scoring and escalation guidance.", skCodes: ["SK1", "SK17"], poCodes: ["PO4", "PO9"], to: "/care-planning/news2", tone: "from-rose-500 to-red-600" },
+  { id: "smart", title: "SMART Goals", icon: Target, description: "Create measurable, person-centred goals and review outcomes.", skCodes: ["SK3", "SK9"], poCodes: ["PO6", "PO9"], to: "/care-planning/smart-goals", tone: "from-tl-purple to-violet-600" },
 ];
 
-const accentMap = {
-  "clinical-teal": "border-clinical-teal/30 bg-clinical-teal/5 hover:border-clinical-teal/60",
-  "clinical-amber": "border-clinical-amber/30 bg-clinical-amber/5 hover:border-clinical-amber/60",
-  "clinical-green": "border-clinical-green/30 bg-clinical-green/5 hover:border-clinical-green/60",
-  "clinical-red": "border-clinical-red/30 bg-clinical-red/5 hover:border-clinical-red/60",
-  "primary": "border-primary/30 bg-primary/5 hover:border-primary/60",
+const categoryIcons = {
+  assessment: ClipboardList,
+  risk: Activity,
+  nutrition: Droplets,
+  skin: FileHeart,
+  neurology: Brain,
+  medicines: Pill,
+  communication: Users,
 };
 
 export default function CarePlanning() {
   const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
+  const forms = useMemo(() => getClinicalForms(), []);
 
   useEffect(() => {
     if (!isLoggedIn()) navigate("/login");
   }, [navigate]);
 
-  return (
-    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-          <ClipboardList className="w-5 h-5 text-clinical-teal" />
-          Care Planning Suite
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Full clinical documentation tools mapped to T Level Performance Outcomes
-        </p>
-      </div>
+  const filtered = forms.filter((form) => {
+    const matchesCategory = category === "all" || form.category === category;
+    const haystack = `${form.title} ${form.description} ${form.source}`.toLowerCase();
+    return matchesCategory && haystack.includes(query.toLowerCase());
+  });
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {TOOLS.map((tool, idx) => (
-          <button
-            key={tool.id}
-            onClick={() => navigate(tool.to)}
-            className={`group text-left rounded-xl border p-4 transition-all animate-slide-up ${accentMap[tool.accent]} ${tool.featured ? "sm:col-span-2 border-clinical-teal/50 bg-clinical-teal/5 ring-1 ring-clinical-teal/20" : ""}`}
-            style={{ animationDelay: `${idx * 40}ms` }}
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="p-2 rounded-lg bg-background/40">
-                <tool.icon className="w-5 h-5 text-foreground" />
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-clinical-teal transition-colors" />
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.14),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)] px-4 pb-28 pt-6 sm:px-6">
+      <main className="mx-auto max-w-6xl">
+        <section className="polished-glass-edge mb-6 overflow-hidden rounded-[30px] border border-white/90 bg-white/86 p-5 shadow-[0_22px_50px_rgba(66,55,88,0.14),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-purple to-violet-600 text-white shadow-[0_14px_28px_rgba(118,90,176,0.3),inset_0_1px_0_rgba(255,255,255,.35)]">
+              <BookHeart className="h-7 w-7" />
             </div>
-            <h3 className="font-bold text-sm text-foreground mb-1">{tool.title}</h3>
-            <p className="text-xs text-muted-foreground mb-2">{tool.description}</p>
-            <SKBadgeGroup skCodes={tool.skCodes} poCodes={tool.poCodes} />
-          </button>
-        ))}
-      </div>
+            <div>
+              <p className="mb-1 text-xs font-black uppercase tracking-[0.18em] text-tl-purple">T Level Health clinical toolkit</p>
+              <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Care Planning Suite</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700 sm:text-base">
+                Person-centred assessments, clinical records and review tools adapted from the supplied RNN Group paper templates and mapped to Pearson occupational performance outcomes.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              ["27", "interactive records"],
+              ["Auto", "calculations and totals"],
+              ["Draft", "save and tutor review"],
+            ].map(([value, label]) => (
+              <div key={label} className="rounded-2xl border border-white bg-white/75 px-4 py-3 shadow-[0_8px_18px_rgba(66,55,88,.08),inset_0_1px_0_white]">
+                <p className="text-lg font-black text-tl-purple">{value}</p><p className="text-xs font-semibold text-slate-600">{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-8" aria-labelledby="core-tools-title">
+          <div className="mb-3 flex items-end justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-tl-purple">Core workspaces</p>
+              <h2 id="core-tools-title" className="text-xl font-black text-slate-950">Assessment and care planning</h2>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {FEATURED_TOOLS.map((tool, index) => (
+              <button
+                key={tool.id}
+                onClick={() => navigate(tool.to)}
+                className="group polished-glass-edge animate-slide-up rounded-[26px] border border-white/90 bg-white/88 p-5 text-left shadow-[0_14px_32px_rgba(66,55,88,.11),inset_0_1px_0_white] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_42px_rgba(66,55,88,.17),inset_0_1px_0_white] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-purple/20"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="mb-4 flex items-start justify-between">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${tool.tone} text-white shadow-lg`}><tool.icon className="h-6 w-6" /></div>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition group-hover:bg-tl-purple group-hover:text-white"><ChevronRight className="h-5 w-5" /></span>
+                </div>
+                <h3 className="text-lg font-black text-slate-950">{tool.title}</h3>
+                <p className="mb-4 mt-1 text-sm leading-6 text-slate-700">{tool.description}</p>
+                <SKBadgeGroup skCodes={tool.skCodes} poCodes={tool.poCodes} />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="records-title">
+          <div className="mb-4">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-tl-purple">Clinical documentation library</p>
+            <h2 id="records-title" className="text-xl font-black text-slate-950">Interactive clinical records</h2>
+            <p className="mt-1 text-sm text-slate-700">Choose a record, complete its guided fields, review calculations and submit evidence.</p>
+          </div>
+
+          <div className="mb-5 rounded-[24px] border border-white/90 bg-white/82 p-4 shadow-[0_12px_28px_rgba(66,55,88,.1)] backdrop-blur-xl">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <span className="sr-only">Search clinical records</span>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search assessments, charts and records…" className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium text-slate-900 outline-none focus:border-tl-purple/50 focus:ring-4 focus:ring-tl-purple/10" />
+            </label>
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Filter records by category">
+              <button onClick={() => setCategory("all")} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${category === "all" ? "bg-tl-purple text-white" : "border border-slate-200 bg-white text-slate-700"}`}>All records</button>
+              {CLINICAL_FORM_CATEGORIES.map((item) => (
+                <button key={item.id} onClick={() => setCategory(item.id)} className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${category === item.id ? "bg-tl-purple text-white" : "border border-slate-200 bg-white text-slate-700"}`}>{item.label}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((form, index) => {
+              const Icon = categoryIcons[form.category] || ClipboardList;
+              return (
+                <button
+                  key={form.id}
+                  onClick={() => navigate(`/care-planning/tool/${form.id}`)}
+                  className="group polished-glass-edge animate-slide-up rounded-[24px] border border-white/90 bg-white/88 p-5 text-left shadow-[0_12px_28px_rgba(66,55,88,.1),inset_0_1px_0_white] transition-all duration-300 hover:-translate-y-1 hover:border-tl-purple/30 hover:shadow-[0_18px_38px_rgba(66,55,88,.16)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-purple/20"
+                  style={{ animationDelay: `${Math.min(index, 12) * 35}ms` }}
+                >
+                  <div className="mb-3 flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-white text-tl-purple shadow-[0_8px_18px_rgba(118,90,176,.16),inset_0_1px_0_white]"><Icon className="h-5 w-5" /></div>
+                    <ChevronRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-tl-purple" />
+                  </div>
+                  <h3 className="text-base font-black text-slate-950">{form.title}</h3>
+                  <p className="mt-1 line-clamp-3 text-sm leading-5 text-slate-700">{form.description}</p>
+                  <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-500">Source: {form.source}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {filtered.length === 0 && (
+            <div className="rounded-[24px] border border-white bg-white/85 p-8 text-center text-sm font-semibold text-slate-700 shadow-lg">No clinical records match this search.</div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
