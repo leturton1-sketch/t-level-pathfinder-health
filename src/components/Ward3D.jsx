@@ -1,8 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createWardItem, createTextTexture, clampToBounds, checkCollision, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import WardItemDropdown from "@/components/WardItemDropdown";
+import { getPatientForBed } from "@/lib/wardPatients";
 
 const WARD_W = 20;
 const WARD_D = 16;
@@ -121,6 +122,7 @@ export default function Ward3D({
   const dragRef = useRef({ active: false, itemId: null, startX: 0, startY: 0, moved: false });
   const hoveredBedRef = useRef(null);
   const stateRef = useRef({});
+  const [bedTooltip, setBedTooltip] = useState(null);
 
   stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, onItemSelect, onItemMove, onItemPlace, onBedClick };
 
@@ -258,13 +260,32 @@ export default function Ward3D({
       if (!st.editMode) {
         const hits = raycaster.intersectObjects(itemsArrayRef.current, true);
         let bedId = null;
+        let bedDetails = null;
         if (hits.length > 0) {
           let obj = hits[0].object;
           while (obj.parent && !obj.userData.itemId) obj = obj.parent;
           if (obj.userData.itemId) {
             const item = st.items.find(i => i.id === obj.userData.itemId);
-            if (item?.type === "bed") bedId = obj.userData.itemId;
+            if (item?.type === "bed") {
+              bedId = obj.userData.itemId;
+              const patient = getPatientForBed(item.designation);
+              bedDetails = {
+                designation: item.designation || "Unnumbered",
+                name: patient?.name || "No patient allocated",
+                nhsNumber: patient?.nhs_number || "Not assigned",
+              };
+            }
           }
+        }
+        if (bedDetails) {
+          const rect = renderer.domElement.getBoundingClientRect();
+          setBedTooltip({
+            ...bedDetails,
+            left: Math.min(event.clientX - rect.left + 16, Math.max(12, rect.width - 248)),
+            top: Math.min(event.clientY - rect.top + 16, Math.max(12, rect.height - 104)),
+          });
+        } else {
+          setBedTooltip(null);
         }
         if (bedId !== hoveredBedRef.current) {
           if (hoveredBedRef.current) {
@@ -329,9 +350,21 @@ export default function Ward3D({
       }
     };
 
+    const onPointerLeave = () => {
+      setBedTooltip(null);
+      if (hoveredBedRef.current) {
+        const previousBed = itemsMapRef.current.get(hoveredBedRef.current);
+        const ring = previousBed?.children.find(c => c.name === "hoverRing");
+        if (ring) { previousBed.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
+      }
+      hoveredBedRef.current = null;
+      renderer.domElement.style.cursor = "default";
+    };
+
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
     renderer.domElement.addEventListener("pointermove", onPointerMove);
     renderer.domElement.addEventListener("pointerup", onPointerUp);
+    renderer.domElement.addEventListener("pointerleave", onPointerLeave);
 
     // Animation loop with wall opacity update + camera lerp
     const camDir = new THREE.Vector3();
@@ -374,6 +407,7 @@ export default function Ward3D({
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       renderer.domElement.removeEventListener("pointermove", onPointerMove);
       renderer.domElement.removeEventListener("pointerup", onPointerUp);
+      renderer.domElement.removeEventListener("pointerleave", onPointerLeave);
       controls.dispose();
       renderer.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
@@ -424,11 +458,13 @@ export default function Ward3D({
       let mesh = map.get(item.id);
       if (mesh) {
         const old = mesh.userData.itemOptions || {};
-        if (old.designation !== item.designation) { scene.remove(mesh); mesh.traverse(disposeMesh); map.delete(item.id); mesh = null; }
+        const patient = getPatientForBed(item.designation);
+        if (old.designation !== item.designation || old.patientId !== patient?.id) { scene.remove(mesh); mesh.traverse(disposeMesh); map.delete(item.id); mesh = null; }
       }
       if (!mesh) {
-        const patient = DEFAULT_PATIENTS[item.designation];
-        const options = { designation: item.designation, alert: patient?.status === "red" };
+        const patient = getPatientForBed(item.designation);
+        const statusPatient = DEFAULT_PATIENTS[item.designation];
+        const options = { designation: item.designation, alert: statusPatient?.status === "red", patient, patientId: patient?.id };
         mesh = createWardItem(item.type, options);
         mesh.traverse((child) => {
           if (child.isMesh) {
@@ -457,6 +493,17 @@ export default function Ward3D({
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
+      {bedTooltip && !editMode && (
+        <div
+          className="pointer-events-none absolute z-40 w-[232px] rounded-2xl border border-white/90 bg-slate-950/90 px-3.5 py-3 text-white shadow-[0_18px_45px_-18px_rgba(15,23,42,.9)] backdrop-blur-xl"
+          style={{ left: bedTooltip.left, top: bedTooltip.top }}
+          role="tooltip"
+        >
+          <p className="text-[10px] font-black uppercase tracking-[.16em] text-cyan-200">Bed {bedTooltip.designation}</p>
+          <p className="mt-1 text-sm font-bold">{bedTooltip.name}</p>
+          <p className="mt-1 text-[11px] text-slate-300"><span className="font-semibold text-white">NHS number:</span> {bedTooltip.nhsNumber}</p>
+        </div>
+      )}
       <div className="absolute top-3 left-3 flex items-center gap-2">
         <div className="polished-glass-edge pointer-events-none whitespace-nowrap rounded-xl border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-lg backdrop-blur-xl">
           {editMode
