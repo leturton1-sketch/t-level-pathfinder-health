@@ -79,12 +79,14 @@ function createClinicalTextures(renderer) {
   return { map, tissueMap, muscleMap, boneMap, textures };
 }
 
-export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null }) {
+export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full" }) {
   const mountRef = useRef(null);
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
   const shellRef = useRef(null);
   const importedSurfaceRef = useRef(null);
+  const materialsRef = useRef([]);
+  const clippingPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.015));
   const genderRef = useRef(gender);
   genderRef.current = gender;
   const reconstructAnimRef = useRef({ active: false, t: 0 });
@@ -102,6 +104,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
 
     const camera = new THREE.PerspectiveCamera(45, mount.clientWidth / mount.clientHeight, 0.1, 100);
     const spherical = { radius: 3.2, theta: Math.PI * 0.5, phi: Math.PI * 0.42 };
+    const viewTween = { radius: 3.2, target: new THREE.Vector3(0, 0.95, 0) };
     const updateCamera = () => {
       const sinPhi = Math.sin(spherical.phi);
       camera.position.set(
@@ -112,11 +115,21 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       camera.lookAt(BODY_TARGET);
     };
     controlsRef.current.reset = () => {
-      spherical.radius = 3.2;
+      spherical.radius = viewTween.radius = 3.2;
       spherical.theta = Math.PI * 0.5;
       spherical.phi = Math.PI * 0.42;
       BODY_TARGET.set(0, 0.95, 0);
+      viewTween.target.copy(BODY_TARGET);
       updateCamera();
+    };
+    controlsRef.current.setView = (mode) => {
+      const torso = mode === "torso" || mode === "cross-section";
+      viewTween.radius = torso ? 1.62 : 3.2;
+      viewTween.target.set(0, torso ? 1.18 : 0.95, 0);
+      if (mode === "cross-section") {
+        spherical.theta = Math.PI * 0.5;
+        spherical.phi = Math.PI * 0.5;
+      }
     };
     updateCamera();
 
@@ -128,6 +141,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     renderer.toneMappingExposure = 1.02;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.localClippingEnabled = true;
     const clinicalTextures = createClinicalTextures(renderer);
     mount.appendChild(renderer.domElement);
 
@@ -180,6 +194,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       clearcoat: 0.16, clearcoatRoughness: 0.64, sheen: 0.22,
       sheenColor: new THREE.Color(0xffb4ae), specularIntensity: 0.38,
     });
+    materialsRef.current = [shellMat];
     const shellGroup = new THREE.Group();
     const buildShell = (parts) => {
       while (shellGroup.children.length) shellGroup.remove(shellGroup.children[0]);
@@ -200,6 +215,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     // User-supplied anatomical base mesh. The procedural shell remains as the
     // female and low-bandwidth fallback so the learning module never blocks.
     const surfaceMat = shellMat.clone();
+    materialsRef.current.push(surfaceMat);
     surfaceMat.opacity = 0.28;
     surfaceMat.depthWrite = true;
     new OBJLoader().load(
@@ -264,6 +280,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         attenuationDistance: isParenchymal ? 0.38 : 0.7,
         specularIntensity: isBone ? 0.12 : hasCapsule ? 0.36 : 0.25,
       });
+      materialsRef.current.push(mat);
       const partDefs = s.parts ? s.parts : [{ shape: s.shape, position: [0, 0, 0], rotation: s.rotation, scale: s.scale }];
       partDefs.forEach((p) => {
         const mesh = new THREE.Mesh(buildGeometry(p.shape), mat);
@@ -309,12 +326,16 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         spherical.phi = Math.max(0.18, Math.min(Math.PI - 0.18, spherical.phi));
       }
       updateCamera();
+      viewTween.radius = spherical.radius;
+      viewTween.target.copy(BODY_TARGET);
     };
     const onUp = () => { dragging = false; renderer.domElement.style.cursor = "grab"; };
     const onWheel = (e) => {
       e.preventDefault();
       spherical.radius *= 1 + e.deltaY * 0.0012;
       spherical.radius = Math.max(1.2, Math.min(8, spherical.radius));
+      viewTween.radius = spherical.radius;
+      viewTween.target.copy(BODY_TARGET);
       updateCamera();
     };
     renderer.domElement.style.cursor = "grab";
@@ -351,6 +372,10 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     const animate = () => {
       raf = requestAnimationFrame(animate);
       const dt = clock.getDelta();
+      const viewEase = 1 - Math.exp(-dt * 5.2);
+      spherical.radius = THREE.MathUtils.lerp(spherical.radius, viewTween.radius, viewEase);
+      BODY_TARGET.lerp(viewTween.target, viewEase);
+      updateCamera();
       // Reconstruct build-up animation
       const ra = reconstructAnimRef.current;
       if (ra.active) {
@@ -415,10 +440,21 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       renderer.domElement.removeEventListener("pointerdown", onPickDown);
       renderer.domElement.removeEventListener("pointerup", onPickUp);
       clinicalTextures.textures.forEach((texture) => texture.dispose());
+      materialsRef.current = [];
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
   }, []);
+
+  useEffect(() => {
+    controlsRef.current.setView?.(viewMode);
+    const clippingPlanes = viewMode === "cross-section" ? [clippingPlaneRef.current] : [];
+    materialsRef.current.forEach((material) => {
+      material.clippingPlanes = clippingPlanes;
+      material.clipShadows = viewMode === "cross-section";
+      material.needsUpdate = true;
+    });
+  }, [viewMode]);
 
   // ── Rebuild shell on gender change ──
   useEffect(() => {
