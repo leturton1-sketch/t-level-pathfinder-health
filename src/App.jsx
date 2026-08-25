@@ -11,6 +11,7 @@ import Dashboard from './pages/CommandCenterDashboard';
 import Theory from './pages/Theory';
 import TheoryDetail from './pages/TheoryDetail';
 import CarePlanning from './pages/CarePlanning';
+import ClinicalFormWorkspace from './pages/ClinicalFormWorkspace';
 import SharedCarePlan from './pages/SharedCarePlan';
 import ABCDEAssessment from './pages/ABCDEAssessment';
 import NEWS2Scoring from './pages/NEWS2Scoring';
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
         <Route path="/theory" element={<Theory />} />
         <Route path="/theory/:moduleId" element={<TheoryDetail />} />
         <Route path="/care-planning" element={<CarePlanning />} />
+        <Route path="/care-planning/tool/:toolId" element={<ClinicalFormWorkspace />} />
         <Route path="/care-planning/shared" element={<SharedCarePlan />} />
         <Route path="/care-planning/abcde" element={<ABCDEAssessment />} />
         <Route path="/care-planning/news2" element={<NEWS2Scoring />} />
