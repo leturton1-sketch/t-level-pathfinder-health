@@ -166,7 +166,7 @@ export default function ClinicalFormWorkspace() {
   const template = getClinicalForm(toolId);
   const user = getCurrentUser();
   const storageKey = `clinical_form_${user?.id || "guest"}_${toolId}`;
-  const simulation = loadCarePlanSimulation(toolId);
+  const simulation = useMemo(() => loadCarePlanSimulation(toolId), [toolId]);
   const [values, setValues] = useState({});
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
@@ -184,7 +184,7 @@ export default function ClinicalFormWorkspace() {
     } catch {
       setValues({});
     }
-  }, [navigate, storageKey]);
+  }, [navigate, storageKey, template, simulation]);
 
   const requiredFields = template?.fields.filter((field) => field.required) || [];
   const completeRequired = requiredFields.filter((field) => {
