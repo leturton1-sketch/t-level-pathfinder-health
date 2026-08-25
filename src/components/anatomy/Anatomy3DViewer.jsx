@@ -237,6 +237,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         roughnessMap: bumpTexture,
         bumpMap: bumpTexture,
         bumpScale: isBone ? 0.0045 : isMuscle ? 0.006 : isVascular ? 0.0015 : 0.003,
+        aoMap: bumpTexture,
+        aoMapIntensity: isBone ? 0.38 : 0.22,
         transparent: true,
         opacity: isLymphatic ? 0.76 : 1,
         clearcoat: isBone ? 0 : hasCapsule ? 0.2 : isVascular ? 0.08 : 0.06,
@@ -252,6 +254,9 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       const partDefs = s.parts ? s.parts : [{ shape: s.shape, position: [0, 0, 0], rotation: s.rotation, scale: s.scale }];
       partDefs.forEach((p) => {
         const mesh = new THREE.Mesh(buildGeometry(p.shape), mat);
+        if (mesh.geometry.attributes.uv && !mesh.geometry.attributes.uv2) {
+          mesh.geometry.setAttribute("uv2", mesh.geometry.attributes.uv.clone());
+        }
         if (p.position) mesh.position.set(p.position[0], p.position[1], p.position[2]);
         if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
         if (p.scale) applyScale(mesh, p.scale);
