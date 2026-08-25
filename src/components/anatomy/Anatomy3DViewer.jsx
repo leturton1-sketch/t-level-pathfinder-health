@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { BODY_SHELLS, ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 
 const BODY_TARGET = new THREE.Vector3(0, 0.95, 0);
@@ -32,11 +33,45 @@ function applyScale(mesh, scale) {
   mesh.scale.set(scale[0], scale[1], scale[2]);
 }
 
+function createOrganicTextures(renderer) {
+  const size = 256;
+  const colourCanvas = document.createElement("canvas");
+  const detailCanvas = document.createElement("canvas");
+  colourCanvas.width = colourCanvas.height = detailCanvas.width = detailCanvas.height = size;
+  const colour = colourCanvas.getContext("2d");
+  const detail = detailCanvas.getContext("2d");
+  const colourImage = colour.createImageData(size, size);
+  const detailImage = detail.createImageData(size, size);
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const i = (y * size + x) * 4;
+      const pores = Math.sin(x * 0.61) * Math.cos(y * 0.47) * 5 + Math.sin((x + y) * 0.19) * 3;
+      const vessel = Math.max(0, 1 - Math.abs(Math.sin(x * 0.035 + Math.sin(y * 0.04) * 1.8))) * (Math.sin(y * 0.11) > 0.7 ? 14 : 0);
+      colourImage.data.set([210 + pores, 142 + pores - vessel * .28, 128 + pores - vessel, 255], i);
+      const height = Math.max(0, Math.min(255, 128 + pores * 4 - vessel * 1.8));
+      detailImage.data.set([height, height, height, 255], i);
+    }
+  }
+  colour.putImageData(colourImage, 0, 0);
+  detail.putImageData(detailImage, 0, 0);
+  const map = new THREE.CanvasTexture(colourCanvas);
+  const detailMap = new THREE.CanvasTexture(detailCanvas);
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.wrapS = map.wrapT = detailMap.wrapS = detailMap.wrapT = THREE.RepeatWrapping;
+  map.repeat.set(5, 8);
+  detailMap.repeat.set(12, 18);
+  map.anisotropy = detailMap.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  return { map, detailMap };
+}
+
 export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null }) {
   const mountRef = useRef(null);
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
   const shellRef = useRef(null);
+  const importedSurfaceRef = useRef(null);
+  const genderRef = useRef(gender);
+  genderRef.current = gender;
   const reconstructAnimRef = useRef({ active: false, t: 0 });
   const pathologyRef = useRef(null);
   pathologyRef.current = pathologyStructureId;
@@ -70,15 +105,25 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     };
     updateCamera();
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const organicTextures = createOrganicTextures(renderer);
     mount.appendChild(renderer.domElement);
 
     // Lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 1.1);
+    const key = new THREE.DirectionalLight(0xffffff, 2.2);
     key.position.set(2, 4, 3);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.near = 0.1;
+    key.shadow.camera.far = 10;
     scene.add(key);
     const fill = new THREE.DirectionalLight(0x93c5fd, 0.5);
     fill.position.set(-3, 2, -2);
@@ -90,16 +135,22 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     // Floor disc for orientation
     const floor = new THREE.Mesh(
       new THREE.CircleGeometry(2.4, 48),
-      new THREE.MeshBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.6 })
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.72, metalness: 0.05, transparent: true, opacity: 0.72 })
     );
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = 0;
+    floor.receiveShadow = true;
     scene.add(floor);
 
     // Body shell (translucent cadaver mannequin)
     const shellMat = new THREE.MeshPhysicalMaterial({
-      color: 0xe2e8f0, transparent: true, opacity: 0.09, roughness: 0.4,
-      depthWrite: false, side: THREE.DoubleSide, transmission: 0.6,
+      color: 0xf0b6a3, map: organicTextures.map, bumpMap: organicTextures.detailMap,
+      bumpScale: 0.006, roughnessMap: organicTextures.detailMap, roughness: 0.46,
+      metalness: 0, transparent: true, opacity: 0.16, depthWrite: false,
+      side: THREE.DoubleSide, transmission: 0.28, thickness: 0.34,
+      attenuationColor: new THREE.Color(0xc74f58), attenuationDistance: 0.72,
+      clearcoat: 0.16, clearcoatRoughness: 0.64, sheen: 0.22,
+      sheenColor: new THREE.Color(0xffb4ae), specularIntensity: 0.38,
     });
     const shellGroup = new THREE.Group();
     const buildShell = (parts) => {
@@ -109,12 +160,40 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         if (p.position) mesh.position.set(p.position[0], p.position[1], p.position[2]);
         if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
         mesh.renderOrder = 0;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         shellGroup.add(mesh);
       });
     };
     buildShell(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
     scene.add(shellGroup);
     shellRef.current = { group: shellGroup, mat: shellMat, build: buildShell };
+
+    // User-supplied anatomical base mesh. The procedural shell remains as the
+    // female and low-bandwidth fallback so the learning module never blocks.
+    const surfaceMat = shellMat.clone();
+    surfaceMat.opacity = 0.28;
+    surfaceMat.depthWrite = true;
+    new OBJLoader().load(
+      "/models/anatomy/male-surface.obj",
+      (object) => {
+        object.name = "Imported anatomical surface";
+        object.scale.setScalar(0.205);
+        object.position.set(0, 0.02, 0);
+        object.traverse((mesh) => {
+          if (!mesh.isMesh) return;
+          mesh.material = surfaceMat;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+        });
+        object.visible = genderRef.current === "male";
+        shellGroup.visible = genderRef.current !== "male";
+        scene.add(object);
+        importedSurfaceRef.current = object;
+      },
+      undefined,
+      () => { shellGroup.visible = true; }
+    );
 
     // Structures
     const structGroup = new THREE.Group();
@@ -123,7 +202,18 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       const grp = new THREE.Group();
       grp.userData.id = s.id;
       const color = new THREE.Color(s.color ?? SYSTEM_META[s.system].color);
-      const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05, transparent: true, opacity: 1 });
+      const softTissue = !["skeletal", "nervous"].includes(s.system);
+      const mat = new THREE.MeshPhysicalMaterial({
+        color, roughness: s.system === "skeletal" ? 0.72 : 0.48, metalness: 0,
+        transparent: true, opacity: 1, clearcoat: softTissue ? 0.12 : 0.04,
+        clearcoatRoughness: 0.66, sheen: softTissue ? 0.18 : 0,
+        sheenColor: color.clone().lerp(new THREE.Color(0xffffff), 0.35),
+        transmission: softTissue ? 0.045 : 0, thickness: softTissue ? 0.08 : 0,
+        bumpMap: softTissue ? organicTextures.detailMap : null,
+        bumpScale: softTissue ? 0.0025 : 0,
+        roughnessMap: softTissue ? organicTextures.detailMap : null,
+        specularIntensity: softTissue ? 0.32 : 0.2,
+      });
       const partDefs = s.parts ? s.parts : [{ shape: s.shape, position: [0, 0, 0], rotation: s.rotation, scale: s.scale }];
       partDefs.forEach((p) => {
         const mesh = new THREE.Mesh(buildGeometry(p.shape), mat);
@@ -132,6 +222,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         if (p.scale) applyScale(mesh, p.scale);
         else if (s.scale) applyScale(mesh, s.scale);
         mesh.userData.id = s.id;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         grp.add(mesh);
       });
       if (s.position) grp.position.set(s.position[0], s.position[1], s.position[2]);
@@ -258,6 +350,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       renderer.domElement.removeEventListener("wheel", onWheel);
       renderer.domElement.removeEventListener("pointerdown", onPickDown);
       renderer.domElement.removeEventListener("pointerup", onPickUp);
+      organicTextures.map.dispose();
+      organicTextures.detailMap.dispose();
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
@@ -268,6 +362,9 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     const sh = shellRef.current;
     if (!sh) return;
     sh.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
+    const imported = importedSurfaceRef.current;
+    if (imported) imported.visible = gender === "male";
+    sh.group.visible = gender !== "male" || !imported;
   }, [gender]);
 
   // ── Visibility: gender + active systems + isolate ──
