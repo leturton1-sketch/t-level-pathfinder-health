@@ -78,7 +78,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
     synth.speak(`Nurse call bell from bed ${bed}. ${assigned.join(" and ")}, please support ${patient?.name || "the patient"} with ${task.title}. ${task.staff === 2 ? "Two learners are required." : ""}`);
   };
 
-  const start = () => { if (learners.length) { setPhase("running"); setTimeout(triggerCall, 700); } };
+  const start = () => { if (learners.length >= 2) { setPhase("running"); setTimeout(triggerCall, 700); } };
   const submitSbar = () => {
     const result = assessSbar(sbar, activeCall.task);
     setFeedback(result); synth.speak(`Feedback. ${result.strengths} ${result.tip}`);
@@ -119,7 +119,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
       <div className="mt-3 flex min-h-12 flex-wrap gap-2 rounded-2xl bg-slate-100/80 p-3">{learners.length ? learners.map((name) => <button key={name} onClick={() => setLearners((current) => current.filter((item) => item !== name))} className="rounded-full bg-white px-3 py-1 text-xs font-bold shadow-sm">{name} ×</button>) : <span className="text-xs text-slate-500">No learners added</span>}</div>
       <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs"><div className="rounded-xl bg-purple-50 p-2"><b>{scenario.difficulty || "guided"}</b><br />difficulty</div><div className="rounded-xl bg-cyan-50 p-2"><b>{scenario.call_bell_speed || "normal"}</b><br />call speed</div><div className="rounded-xl bg-emerald-50 p-2"><b>{getAdlTaskPool(scenario).length}</b><br />tasks</div></div>
       <p className="mt-3 text-[10px] text-slate-500">SBAR feedback is assessed locally against the T Level rubric; handover text is not sent to an external AI service.</p>
-      <button disabled={!learners.length} onClick={start} className="mt-3 w-full rounded-xl bg-gradient-to-r from-purple-700 to-[#FC4421] py-3 text-sm font-black text-white disabled:opacity-40">Activate call bells</button>
+      <button disabled={learners.length < 2} onClick={start} className="mt-3 w-full rounded-xl bg-gradient-to-r from-purple-700 to-[#FC4421] py-3 text-sm font-black text-white disabled:opacity-40">{learners.length < 2 ? "Add at least two learners" : "Activate call bells"}</button>
     </div>
   </div>;
 
