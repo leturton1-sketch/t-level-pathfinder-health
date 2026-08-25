@@ -160,7 +160,7 @@ const M = {
 
 export function createWardItem(type, options = {}) {
   switch (type) {
-    case "bed": return createBed(options.designation);
+    case "bed": return createBed(options.designation, options.patient);
     case "bedside_cabinet": return createCabinet();
     case "observation_monitor": return createMonitor(options.alert);
     case "iv_stand": return createIVStand();
@@ -178,7 +178,48 @@ export function createWardItem(type, options = {}) {
   }
 }
 
-function createBed(designation) {
+function createPatientFigure(patient) {
+  const figure = new THREE.Group();
+  figure.name = "allocatedPatient";
+  figure.userData.patientId = patient.id;
+
+  const skin = new THREE.MeshPhysicalMaterial({ color: 0xD9A27E, roughness: 0.55, clearcoat: 0.12 });
+  const gown = new THREE.MeshPhysicalMaterial({ color: 0xA8D8EA, roughness: 0.46, clearcoat: 0.28 });
+  const hair = new THREE.MeshStandardMaterial({ color: 0x4A352B, roughness: 0.8 });
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 20, 16), skin);
+  head.position.set(0, 1.08, -0.68);
+  head.scale.set(0.9, 0.72, 1);
+  figure.add(head);
+
+  const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.255, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), hair);
+  hairCap.position.set(0, 1.13, -0.7);
+  hairCap.rotation.x = -0.15;
+  figure.add(hairCap);
+
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.31, 0.68, 6, 14), gown);
+  torso.rotation.x = Math.PI / 2;
+  torso.position.set(0, 1.02, -0.08);
+  torso.scale.set(1.15, 1, 0.72);
+  figure.add(torso);
+
+  [-0.42, 0.42].forEach((x) => {
+    const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.55, 4, 10), skin);
+    arm.rotation.x = Math.PI / 2;
+    arm.position.set(x, 0.99, -0.08);
+    figure.add(arm);
+  });
+
+  figure.traverse((child) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  return figure;
+}
+
+function createBed(designation, patient = null) {
   const g = new THREE.Group();
   const frame = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.35, 2.4), M.bedFrame);
   frame.position.y = 0.5; frame.castShadow = true; g.add(frame);
@@ -188,6 +229,7 @@ function createBed(designation) {
   duvet.position.set(0, 0.85, 0.3); g.add(duvet);
   const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.12, 0.5), M.pillow);
   pillow.position.set(0, 0.86, -0.8); g.add(pillow);
+  if (patient) g.add(createPatientFigure(patient));
   const hb = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.7, 0.08), M.bedFrame);
   hb.position.set(0, 0.8, -1.2); g.add(hb);
   [-0.9, 0.9].forEach(x => {
