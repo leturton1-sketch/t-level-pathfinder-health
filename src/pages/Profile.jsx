@@ -55,7 +55,10 @@ export default function Profile() {
     setSavingSettings(false);
   };
 
-  const handleLogout = () => { logout(); navigate("/login"); };
+  const handleLogout = () => {
+    const providerRedirectStarted = logout();
+    if (!providerRedirectStarted) navigate("/login");
+  };
 
   const avgSimScore = results.length > 0 ? Math.round(results.reduce((sum, r) => sum + (r.score || 0), 0) / results.length) : 0;
   const submittedCount = submissions.filter((s) => s.status === "submitted" || s.status === "reviewed").length;
