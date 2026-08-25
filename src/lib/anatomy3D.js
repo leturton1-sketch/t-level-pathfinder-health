@@ -82,14 +82,33 @@ export const ANATOMY_STRUCTURES = [
     position: [-0.03, 1.24, 0.02], rotation: [0, 0, -0.15],
     function: "Four-chambered muscular pump. The right side pumps deoxygenated blood to the lungs; the muscular left side pumps oxygenated blood to the systemic circulation.",
     clinicalNote: "Assess via radial/apical pulses, BP, capillary refill, and ECG. Left-sided failure → pulmonary congestion; right-sided failure → peripheral oedema." },
-  { id: "aorta", name: "Aorta", system: "cardiovascular", genders: "both",
+  { id: "aorta", name: "Aorta", system: "cardiovascular", genders: "both", color: 0xb42335,
     shape: { type: "tube", radius: 0.016, points: [[-0.02,1.2,0.02],[-0.02,1.33,0.02],[-0.005,1.42,0.0],[0.015,1.43,-0.01],[0.03,1.4,0.0],[0.03,1.2,0.0],[0.03,1.0,0.0]] },
     function: "The largest artery, conducting high-pressure oxygenated blood from the left ventricle to the systemic circulation. Its elastic walls absorb systolic recoil.",
     clinicalNote: "Aortic compliance diminishes with age/atherosclerosis → isolated systolic hypertension. Aortic aneurysm rupture is rapidly fatal — monitor back pain and pulse disparity." },
-  { id: "vena_cava", name: "Vena Cava", system: "cardiovascular", genders: "both",
+  { id: "vena_cava", name: "Vena Cava", system: "cardiovascular", genders: "both", color: 0x244b7a,
     shape: { type: "tube", radius: 0.02, points: [[0.03,1.42,0.04],[0.03,1.2,0.04],[0.025,1.0,0.04],[0.01,0.88,0.04]] },
     function: "The body's largest veins — superior and inferior vena cava — returning deoxygenated blood to the right atrium.",
     clinicalNote: "Central venous pressure reflects intravascular volume status. Distended neck veins (JVP) suggest right heart failure or tamponade." },
+  { id: "arterial_tree", name: "Systemic Arterial Branches", system: "cardiovascular", genders: "both", color: 0xc62f3f,
+    parts: [
+      { shape: { type: "tube", radius: 0.008, points: [[0,1.42,0],[0.12,1.45,0],[0.18,1.32,0],[0.23,1.12,0]] } },
+      { shape: { type: "tube", radius: 0.008, points: [[0,1.42,0],[-0.12,1.45,0],[-0.18,1.32,0],[-0.23,1.12,0]] } },
+      { shape: { type: "tube", radius: 0.009, points: [[0.03,1.0,0],[0.08,0.82,0],[0.09,0.56,0],[0.08,0.18,0]] } },
+      { shape: { type: "tube", radius: 0.009, points: [[0.03,1.0,0],[-0.08,0.82,0],[-0.09,0.56,0],[-0.08,0.18,0]] } },
+      { shape: { type: "tube", radius: 0.005, points: [[0.01,1.42,0],[0.02,1.52,0],[0.01,1.6,0]] } }
+    ],
+    function: "Elastic and muscular arteries branch repeatedly to distribute oxygenated blood to tissues under pressure.",
+    clinicalNote: "Assess pulse presence, symmetry, volume, capillary refill and distal perfusion." },
+  { id: "venous_tree", name: "Systemic Venous Branches", system: "cardiovascular", genders: "both", color: 0x244b7a,
+    parts: [
+      { shape: { type: "tube", radius: 0.007, points: [[0.22,1.11,0.025],[0.17,1.31,0.025],[0.08,1.42,0.025],[0.03,1.38,0.025]] } },
+      { shape: { type: "tube", radius: 0.007, points: [[-0.22,1.11,0.025],[-0.17,1.31,0.025],[-0.08,1.42,0.025],[0.03,1.38,0.025]] } },
+      { shape: { type: "tube", radius: 0.008, points: [[0.08,0.18,0.025],[0.09,0.55,0.025],[0.06,0.84,0.025],[0.01,0.92,0.025]] } },
+      { shape: { type: "tube", radius: 0.008, points: [[-0.08,0.18,0.025],[-0.09,0.55,0.025],[-0.06,0.84,0.025],[0.01,0.92,0.025]] } }
+    ],
+    function: "Low-pressure veins return deoxygenated blood to the heart and contain valves that support one-way flow.",
+    clinicalNote: "Observe for venous congestion, oedema, varicosities and signs of deep-vein thrombosis." },
 
   // ── RESPIRATORY ──
   { id: "trachea", name: "Trachea", system: "respiratory", genders: "both", shape: { type: "cylinder", radiusTop: 0.018, radiusBottom: 0.018, height: 0.12, radialSegments: 16 }, position: [0, 1.5, 0.03],
