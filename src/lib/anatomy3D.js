@@ -3,16 +3,20 @@
 // Each structure is independently toggleable / isolatable / reconstructable in 3D.
 
 export const SYSTEM_META = {
-  skeletal:     { name: "Skeletal System",  color: 0xeae0d2, hex: "#eae0d2", text: "text-stone-300", bg: "bg-stone-100", border: "border-stone-300" },
+  integumentary:{ name: "Integumentary",    color: 0xf2b8a0, hex: "#f2b8a0", text: "text-orange-500", bg: "bg-orange-50", border: "border-orange-200" },
+  muscular:     { name: "Muscular System",  color: 0xb85c68, hex: "#b85c68", text: "text-red-500", bg: "bg-red-50", border: "border-red-200" },
+  skeletal:     { name: "Skeletal System",  color: 0xeae0d2, hex: "#eae0d2", text: "text-stone-600", bg: "bg-stone-100", border: "border-stone-300" },
   cardiovascular: { name: "Cardiovascular", color: 0xc2334a, hex: "#c2334a", text: "text-rose-500",   bg: "bg-rose-50",   border: "border-rose-200" },
   respiratory:  { name: "Respiratory",      color: 0xe58a8a, hex: "#e58a8a", text: "text-sky-400",    bg: "bg-sky-50",    border: "border-sky-200" },
   digestive:    { name: "Digestive",        color: 0xc77b5a, hex: "#c77b5a", text: "text-amber-500",  bg: "bg-amber-50",  border: "border-amber-200" },
   urinary:      { name: "Urinary / Renal",  color: 0x8a5a8a, hex: "#8a5a8a", text: "text-indigo-500", bg: "bg-indigo-50", border: "border-indigo-200" },
-  nervous:      { name: "Nervous System",   color: 0xe8a9c0, hex: "#e8a9c0", text: "text-violet-400", bg: "bg-violet-50", border: "border-violet-200" },
+  endocrine:    { name: "Endocrine",        color: 0xf1c75b, hex: "#f1c75b", text: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
+  lymphatic:    { name: "Lymphatic / Immune", color: 0x64c7a2, hex: "#64c7a2", text: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
+  nervous:      { name: "Nervous System",   color: 0xe8a9c0, hex: "#e8a9c0", text: "text-violet-500", bg: "bg-violet-50", border: "border-violet-200" },
   reproductive: { name: "Reproductive",     color: 0xc77b8a, hex: "#c77b8a", text: "text-pink-400",   bg: "bg-pink-50",   border: "border-pink-200" },
 };
 
-export const SYSTEM_ORDER = ["skeletal","cardiovascular","respiratory","digestive","urinary","nervous","reproductive"];
+export const SYSTEM_ORDER = ["integumentary","muscular","skeletal","nervous","cardiovascular","respiratory","digestive","urinary","endocrine","lymphatic","reproductive"];
 
 // Translucent body shell ("cadaver" mannequin) — gender-variant silhouette.
 export const BODY_SHELLS = {
@@ -199,4 +203,37 @@ export const ANATOMY_STRUCTURES = [
   { id: "vagina", name: "Vagina", system: "reproductive", genders: "female", shape: { type: "cylinder", radiusTop: 0.018, radiusBottom: 0.022, height: 0.07, radialSegments: 12 }, position: [0, 0.77, 0.04],
     function: "Muscular canal connecting the uterus to the exterior, serving as the birth canal and receiving organ.",
     clinicalNote: "Maintain dignity and privacy during intimate examinations. Always offer a chaperone and document consent." },
+
+  // OUTER AND REGULATORY LAYERS
+  { id: "skin", name: "Skin", system: "integumentary", genders: "both", shape: { type: "sphere", radius: 0.13, scale: [1.55,3.3,0.9] }, position: [0,1.18,0],
+    function: "The body's largest organ: a protective barrier supporting sensation, thermoregulation, vitamin D synthesis and fluid balance.",
+    clinicalNote: "Inspect colour, temperature, moisture, integrity and pressure areas. Non-blanching erythema indicates pressure damage." },
+  { id: "major_muscles", name: "Major Muscle Groups", system: "muscular", genders: "both",
+    parts: [
+      { shape: { type: "capsule", radius: 0.075, length: 0.4 }, position: [0,1.28,0] },
+      { shape: { type: "capsule", radius: 0.04, length: 0.62 }, position: [0.19,1.18,0], rotation: [0,0,0.16] },
+      { shape: { type: "capsule", radius: 0.04, length: 0.62 }, position: [-0.19,1.18,0], rotation: [0,0,-0.16] },
+      { shape: { type: "capsule", radius: 0.055, length: 0.72 }, position: [0.07,0.5,0] },
+      { shape: { type: "capsule", radius: 0.055, length: 0.72 }, position: [-0.07,0.5,0] }
+    ],
+    function: "Skeletal muscles generate movement, stabilise joints, maintain posture and produce heat through contraction.",
+    clinicalNote: "Assess strength, tone, range of movement and pain. Immobility rapidly causes deconditioning and venous stasis." },
+  { id: "thyroid", name: "Thyroid Gland", system: "endocrine", genders: "both", shape: { type: "torus", radius: 0.025, tube: 0.009 }, position: [0,1.5,0.035],
+    function: "Produces thyroid hormones that regulate metabolic rate, growth and heat production.",
+    clinicalNote: "Observe for altered heart rate, weight, temperature tolerance and neck swelling." },
+  { id: "pancreas_endocrine", name: "Pancreatic Islets", system: "endocrine", genders: "both", shape: { type: "capsule", radius: 0.015, length: 0.095 }, position: [0,1.1,0.035], rotation: [0,0,Math.PI/2],
+    function: "Islets release insulin and glucagon to maintain blood glucose within a safe range.",
+    clinicalNote: "Check capillary glucose and ketones when clinically indicated; recognise hypoglycaemia and hyperglycaemia." },
+  { id: "adrenal_glands", name: "Adrenal Glands", system: "endocrine", genders: "both",
+    parts: [{ shape: { type: "sphere", radius: 0.018 }, position: [-0.09,1.105,-0.04] },{ shape: { type: "sphere", radius: 0.018 }, position: [0.09,1.105,-0.04] }],
+    function: "Produce cortisol, aldosterone and catecholamines central to stress, blood pressure and electrolyte regulation.",
+    clinicalNote: "Adrenal crisis can cause profound hypotension, vomiting and electrolyte disturbance and requires urgent escalation." },
+  { id: "lymph_nodes", name: "Lymph Nodes", system: "lymphatic", genders: "both",
+    parts: [
+      { shape: { type: "sphere", radius: 0.016 }, position: [-0.07,1.48,0.04] }, { shape: { type: "sphere", radius: 0.016 }, position: [0.07,1.48,0.04] },
+      { shape: { type: "sphere", radius: 0.018 }, position: [-0.14,1.34,0.03] }, { shape: { type: "sphere", radius: 0.018 }, position: [0.14,1.34,0.03] },
+      { shape: { type: "sphere", radius: 0.018 }, position: [-0.08,0.9,0.03] }, { shape: { type: "sphere", radius: 0.018 }, position: [0.08,0.9,0.03] }
+    ],
+    function: "Filter lymph and coordinate immune-cell activation against pathogens and abnormal cells.",
+    clinicalNote: "Assess lymphadenopathy for site, size, tenderness, mobility and duration; combine with infection and malignancy red flags." },
 ];
