@@ -12,6 +12,7 @@ import WardPropertiesPanel from "@/components/WardPropertiesPanel";
 import PatientPanel from "@/components/PatientPanel";
 import WardPatientPanel from "@/components/WardPatientPanel";
 import { getPatientForBed } from "@/lib/wardPatients";
+import { storeCarePlanSimulation } from "@/lib/carePlanSimulation";
 import { WARD_ITEM_TYPES, generateDefaultItems } from "@/lib/wardItems";
 import { useWardNarration } from "@/hooks/useWardNarration";
 import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
@@ -286,6 +287,11 @@ export default function WardSimulation() {
   const navigateAway = async (path) => {
     if (editMode) await saveNow(items);
     navigate(path);
+  };
+
+  const launchPatientCarePlan = async (toolId, patient) => {
+    storeCarePlanSimulation(patient, toolId);
+    await navigateAway(`/care-planning/tool/${toolId}`);
   };
 
   // --- Camera ---
@@ -606,6 +612,7 @@ export default function WardSimulation() {
               onClose={() => { setShowPatientPanel(false); setSelectedBed(null); }}
               onBeginScenario={handleBeginPatientScenario}
               onLaunchTool={(path) => navigateAway(path)}
+              onLaunchCarePlan={launchPatientCarePlan}
             />
           ) : (
             <PatientPanel
