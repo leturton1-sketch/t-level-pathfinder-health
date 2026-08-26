@@ -19,11 +19,14 @@ export default function AIAssistant({ context = "general" }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
+  const [autoListen, setAutoListen] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("clinicaledge-auto-listen") === "true");
   const synth = useVoiceSynthesis();
   const muted = synth.prefs.muted;
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const listeningRef = useRef(false);
+  const autoListenRef = useRef(autoListen);
+  const listenTimerRef = useRef(null);
   const mutedRef = useRef(muted);
   const wardStateRef = useRef(null);
   const user = getCurrentUser();
@@ -31,6 +34,16 @@ export default function AIAssistant({ context = "general" }) {
   useEffect(() => {
     mutedRef.current = muted;
   }, [muted]);
+
+  useEffect(() => {
+    autoListenRef.current = autoListen;
+  }, [autoListen]);
+
+  useEffect(() => () => {
+    window.clearTimeout(listenTimerRef.current);
+    listeningRef.current = false;
+    try { recognitionRef.current?.stop(); } catch {}
+  }, []);
 
   const systemPrompt = `You are the ClinicalEdge AI Clinical Assistant, supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. The user's name is ${user?.full_name || "Student"}. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
 
