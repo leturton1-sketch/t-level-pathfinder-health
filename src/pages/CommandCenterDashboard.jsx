@@ -24,10 +24,10 @@ const roomStyles = {
 };
 
 const areaLegend = [
-  { label: "Clinical Suite A", colour: "bg-pink-400" },
-  { label: "Clinical Suite B", colour: "bg-emerald-500" },
-  { label: "Health Theory 101", colour: "bg-yellow-400" },
-  { label: "Laboratory / Informatics", colour: "bg-violet-500" },
+  { id: "suite-a", label: "Clinical Suite A", colour: "bg-pink-400" },
+  { id: "suite-b", label: "Clinical Suite B", colour: "bg-emerald-500" },
+  { id: "health-theory-101", label: "Health Theory 101", colour: "bg-yellow-400" },
+  { id: "laboratory-informatics", label: "Laboratory / Informatics", colour: "bg-violet-500" },
 ];
 
 const staff = [
@@ -84,6 +84,7 @@ export default function CommandCenterDashboard() {
   const user = getCurrentUser();
   const [now, setNow] = useState(Date.now());
   const [selectedRoom, setSelectedRoom] = useState("suite-a");
+  const [activeZone, setActiveZone] = useState("all");
   const patients = useMemo(() => initialBoard(now), []);
   const critical = patients.filter((p) => (p.initial_news2 ?? 0) >= 5);
   const occupancy = Math.min(100, Math.round((patients.length / 24) * 100));
@@ -127,17 +128,29 @@ export default function CommandCenterDashboard() {
         </section>
 
         <section className="dashboard-grid grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)_320px]">
-          <aside className="sidebar-left grid grid-cols-2 gap-3 sm:grid-cols-4 xl:flex xl:flex-col xl:gap-4" aria-label="Quick launch">
+          <aside className="sidebar-left grid grid-cols-2 gap-3 sm:grid-cols-4 xl:flex xl:flex-col xl:gap-3" aria-label="Primary navigation">
+            <div className="col-span-full hidden items-center gap-2 px-2 xl:flex">
+              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Clinical tools</span>
+              <span className="h-px flex-1 bg-slate-300/80" />
+            </div>
             <QuickLaunch icon={HeartPulse} label="NEWS2" detail="Score observations" tone="bg-gradient-to-br from-rose-400 to-red-600" onClick={() => navigate("/care-planning/news2")} />
             <QuickLaunch icon={BedDouble} label="Ward Sim" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
             <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
             <QuickLaunch icon={HeartPulse} label="Health Hub" detail="Clinic checks and records" tone="bg-gradient-to-br from-emerald-300 to-emerald-700" onClick={() => navigate("/health-hub")} />
+            <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
+              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Learning & account</span>
+              <span className="h-px flex-1 bg-slate-300/80" />
+            </div>
             <QuickLaunch icon={UserRound} label="User Profile" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
             <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
             <QuickLaunch icon={Brain} label="Anatomy & Pathophysiology" detail="3D body systems and patient lab" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
             <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
             {isAdmin() && (
               <>
+                <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
+                  <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Administration</span>
+                  <span className="h-px flex-1 bg-slate-300/80" />
+                </div>
                 <QuickLaunch icon={UserCog} label="User Management" detail="Admin accounts" tone="bg-gradient-to-br from-fuchsia-400 to-purple-700" onClick={() => navigate("/user-management")} />
                 <QuickLaunch icon={FilePenLine} label="Scenario Authoring" detail="Admin scenarios" tone="bg-gradient-to-br from-slate-500 to-slate-900" onClick={() => navigate("/scenario-authoring")} />
               </>
@@ -150,18 +163,32 @@ export default function CommandCenterDashboard() {
             </div>
           </aside>
 
-          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[820px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 px-[18px] py-3 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl">
+          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[820px] overflow-hidden rounded-[26px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-3 shadow-[0_24px_55px_-34px_rgba(15,23,42,.56),inset_1px_1px_2px_white] backdrop-blur-3xl">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
                 <h2 className="text-lg font-black text-slate-900">Isometric Display - Dearne Valley College</h2>
               </div>
-              <div className="flex max-w-md flex-wrap justify-end gap-x-3 gap-y-1 text-[9px] font-bold text-slate-600">
-                {areaLegend.map((item) => <span key={item.label} className="flex items-center gap-1.5"><i className={`h-2.5 w-2.5 rounded-full ${item.colour}`} />{item.label}</span>)}
+              <div className="flex max-w-lg flex-wrap justify-end gap-2 text-[9px] font-bold text-slate-600" aria-label="Map area filters">
+                {areaLegend.map((item) => {
+                  const active = activeZone === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setActiveZone(active ? "all" : item.id)}
+                      className={`no-clay flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${active ? "border-slate-900 bg-slate-900 text-white shadow-md" : "border-white/90 bg-white/72 text-[#4A5568] hover:bg-white"}`}
+                    >
+                      <i className={`h-2.5 w-2.5 rounded-full ${item.colour}`} />
+                      {item.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <CampusZoomMap />
+            <CampusZoomMap activeZone={activeZone} />
 
             <div className="hidden">
               <div className="absolute inset-[7%_5%_13%] origin-center rounded-[26px] border-[11px] border-slate-100/95 bg-gradient-to-br from-slate-100/96 via-slate-300/92 to-slate-400/82 shadow-[12px_14px_0_rgba(71,85,105,.22),22px_28px_0_rgba(51,65,85,.16),35px_48px_42px_-24px_rgba(15,23,42,.72),inset_3px_3px_4px_white,inset_-3px_-3px_4px_rgba(71,85,105,.24)] [transform:rotateX(58deg)_rotateZ(-32deg)_translateZ(18px)] [transform-style:preserve-3d] before:pointer-events-none before:absolute before:inset-2 before:rounded-[18px] before:border before:border-white/75 before:bg-gradient-to-br before:from-white/30 before:via-transparent before:to-slate-500/10">
@@ -206,7 +233,7 @@ export default function CommandCenterDashboard() {
                 <button key={person.name} className="polished-glass-edge group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/88 to-slate-300/60 px-4 py-3.5 text-left shadow-[0_5px_0_-3px_rgba(100,116,139,.3),0_12px_20px_-14px_rgba(15,23,42,.7),inset_1px_1px_1px_white] transition before:pointer-events-none before:absolute before:-left-5 before:-top-4 before:h-7 before:w-1/2 before:rotate-[-15deg] before:bg-white/65 before:blur-lg hover:-translate-y-1 hover:translate-x-1 hover:shadow-[0_8px_0_-3px_rgba(100,116,139,.32),0_18px_24px_-12px_rgba(15,23,42,.72)]">
                   <span className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-black text-white shadow-md ${person.tone}`}>{person.initials}<i className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" /></span>
                   <span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold text-slate-800">{person.name}</span><span className="block truncate text-[10px] text-slate-500">{person.role}</span></span>
-                  <span className="text-[9px] font-semibold text-slate-500">{person.status}</span>
+                  <span className={`rounded-full px-2 py-1 text-[9px] font-bold ${person.status === "Available" ? "bg-emerald-100 text-emerald-800" : person.status === "With patient" ? "bg-amber-100 text-amber-800" : "bg-slate-200 text-slate-700"}`}>{person.status}</span>
                 </button>
               ))}
             </div>
