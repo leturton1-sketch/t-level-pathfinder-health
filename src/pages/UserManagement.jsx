@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, isAdmin, isSuperAdmin, resetPin } from "@/lib/clinicalAuth";
-import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X } from "lucide-react";
+import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
+import VoiceSettings from "@/components/voice/VoiceSettings";
 
 const ROLE_LABELS = {
   super_admin: "Super Admin",
@@ -22,11 +25,15 @@ const ROLE_COLORS = {
 
 export default function UserManagement() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const voiceSynth = useVoiceSynthesis();
   const user = getCurrentUser();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [activeTab, setActiveTab] = useState("users");
+  const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", full_name: "", role: "student", cohort: "" });
 
   useEffect(() => {
@@ -128,6 +135,28 @@ export default function UserManagement() {
         </p>
       </div>
 
+      <div className="mb-5 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "users"}
+          onClick={() => setActiveTab("users")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "users" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
+        >
+          <Users className="h-4 w-4" /> Users
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "voice"}
+          onClick={() => setActiveTab("voice")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "voice" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
+        >
+          <Volume2 className="h-4 w-4" /> Voice Configuration
+        </button>
+      </div>
+
+      <div className={activeTab === "users" ? "block" : "hidden"}>
       {/* Search + Create */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
