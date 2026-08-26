@@ -164,8 +164,14 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   setDraggingId(spot.id);
                   event.currentTarget.setPointerCapture(event.pointerId);
                 }}
-                style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-                className={`campus-hotspot group absolute z-30 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
+                style={{
+                  left: `${spot.x}%`,
+                  top: `${spot.y}%`,
+                  transform: selected && !editing
+                    ? `translate(-50%, -50%) scale(${1 / selected.scale})`
+                    : "translate(-50%, -50%)",
+                }}
+                className={`campus-hotspot group absolute z-30 transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
                 aria-label={editing ? `Move ${spot.label} pin` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
               >
