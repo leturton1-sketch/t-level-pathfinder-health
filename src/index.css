@@ -42,24 +42,40 @@
     --font-display: 'Russo One', Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-    /* 8pt spatial grid with a 4px half-step for compact controls */
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-6: 1.5rem;
-    --space-8: 2rem;
-    --page-gutter: var(--space-4);
-    --page-block-start: var(--space-6);
-    --page-block-end: 6rem;
+    /* Strict 8pt spatial grid (4px half-step for compact controls).
+       Every container padding, margin and gap resolves to a multiple of 4px/8px. */
+    --space-0: 0;
+    --space-1: 0.25rem;   /* 4px  */
+    --space-2: 0.5rem;    /* 8px  */
+    --space-3: 0.75rem;   /* 12px */
+    --space-4: 1rem;      /* 16px */
+    --space-5: 1.25rem;   /* 20px */
+    --space-6: 1.5rem;    /* 24px */
+    --space-8: 2rem;      /* 32px */
+    --space-10: 2.5rem;   /* 40px */
+    --space-12: 3rem;     /* 48px */
+    --space-16: 4rem;     /* 64px */
+    --space-20: 5rem;     /* 80px */
+    --space-24: 6rem;     /* 96px */
+
+    /* Standardised horizontal gutters and vertical rhythm */
+    --page-gutter: var(--space-4);        /* 16px mobile  */
+    --page-block-start: var(--space-6);  /* 24px page top */
+    --page-block-end: var(--space-24);   /* 96px page bottom */
+    --section-rhythm: var(--space-6);    /* 24px between sections */
+    --component-rhythm: var(--space-4);   /* 16px between components */
+    --element-rhythm: var(--space-2);     /* 8px between elements */
+    --content-max: 80rem;
+    --content-max-standard: 64rem;
+    --content-max-narrow: 48rem;
   }
 
   @media (min-width: 640px) {
-    :root { --page-gutter: var(--space-6); }
+    :root { --page-gutter: var(--space-6); }   /* 24px tablet */
   }
 
   @media (min-width: 1024px) {
-    :root { --page-gutter: var(--space-8); }
+    :root { --page-gutter: var(--space-8); }   /* 32px desktop */
   }
 }
 
@@ -190,28 +206,46 @@
     padding-block-end: var(--page-block-end);
   }
 
-  .clinical-page-shell--narrow { max-width: 48rem; }
-  .clinical-page-shell--standard { max-width: 64rem; }
-  .clinical-page-shell--wide { max-width: 80rem; }
+  .clinical-page-shell--narrow { max-width: var(--content-max-narrow); }
+  .clinical-page-shell--standard { max-width: var(--content-max-standard); }
+  .clinical-page-shell--wide { max-width: var(--content-max); }
 
+  /* Vertical rhythm stacks — use flexbox gap, never arbitrary margins */
   .clinical-section-stack {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: var(--section-rhythm);
   }
 
   .clinical-component-stack {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--component-rhythm);
   }
 
   .clinical-inline-cluster {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--element-rhythm);
   }
+
+  /* 8pt-aligned grid helpers for consistent inter-element gaps */
+  .clinical-grid {
+    display: grid;
+    gap: var(--component-rhythm);
+  }
+  .clinical-grid--tight { gap: var(--space-3); }
+  .clinical-grid--comfortable { gap: var(--section-rhythm); }
+  .clinical-grid--loose { gap: var(--space-8); }
+
+  .clinical-stack--tight { gap: var(--space-3); }
+  .clinical-stack--comfortable { gap: var(--section-rhythm); }
+  .clinical-stack--loose { gap: var(--space-8); }
+
+  .clinical-cluster--tight { gap: var(--space-1); }
+  .clinical-cluster--comfortable { gap: var(--space-3); }
+  .clinical-cluster--loose { gap: var(--component-rhythm); }
 
   .clinical-global-theme {
     position: relative;
@@ -788,4 +822,3 @@
     transition-duration: .01ms !important;
   }
 }
-
