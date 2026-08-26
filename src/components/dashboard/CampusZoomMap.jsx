@@ -2,11 +2,11 @@ import { Building2, MapPin } from "lucide-react";
 
 export default function CampusZoomMap() {
   return (
-    <div className="relative left-1/2 campus-image-viewport h-[380px] w-full max-w-none -translate-x-1/2 [perspective:1750px]">
+    <div className="relative left-1/2 campus-image-viewport h-[494px] w-full max-w-none -translate-x-1/2 [perspective:1750px]">
       <div className="absolute inset-[9%_3%_2%] translate-y-7 rounded-[30px] bg-slate-700/25 blur-2xl" />
       <div className="absolute inset-[5%_2%_7%] translate-x-2 translate-y-5 rounded-[26px] border border-slate-400/30 bg-slate-500/35 shadow-xl [transform:rotateX(8deg)_rotateZ(-1.2deg)]" />
       <div className="isometric-frame-wrapper campus-plane absolute inset-[1%_1%_9%] overflow-hidden rounded-[26px] border-[6px] border-white/90 bg-slate-100 shadow-[0_12px_0_-5px_rgba(100,116,139,.4),0_30px_55px_-26px_rgba(15,23,42,.75),inset_2px_2px_3px_white] [transform:rotateX(8deg)_rotateZ(-1.2deg)] [transform-style:preserve-3d]">
-        <img src="/assets/campus-holographic.jpg" alt="Isometric aerial illustration of Dearne Valley College campus" className="campus-aerial absolute inset-0 h-full w-full object-cover" />
+        <img src="/assets/campus-map.png" alt="Campus map of Dearne Valley College and the surrounding area" className="campus-aerial absolute inset-0 h-full w-full object-cover" />
         <div className="pointer-events-none absolute inset-0 z-10 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.28)_1px,transparent_1px),linear-gradient(90deg,rgba(15,94,184,.10)_1px,transparent_1px)] [background-size:34px_34px]" />
         <div className="map-reflection pointer-events-none absolute -left-[18%] -top-[35%] z-10 h-[78%] w-[72%] rotate-[-18deg] rounded-full bg-gradient-to-r from-white/70 via-cyan-100/35 to-transparent blur-2xl" />
         <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_12%,rgba(255,255,255,.74),transparent_28%),radial-gradient(circle_at_82%_78%,rgba(14,165,233,.18),transparent_24%),linear-gradient(145deg,rgba(255,255,255,.24),transparent_34%,rgba(15,23,42,.12))]" />
