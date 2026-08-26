@@ -399,18 +399,35 @@ export default function HealthHub() {
   );
 }
 
-function FeedbackSheet({ feedback, reference, onClose, onPrint }) {
+function FeedbackSheet({ feedback, reference, clinicianName, clinicianDesignation, checkDate, followUpMonths, followUpDate, onFollowUpChange, onClose, onPrint }) {
   return (
     <section className="rounded-[28px] border border-violet-200 bg-white p-6 shadow-xl" aria-live="polite">
       <div className="flex items-start justify-between gap-3">
         <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-tl-purple">Formative feedback sheet</p><h2 className="text-lg font-black">{reference || "Health & Wellbeing Check"}</h2></div>
         <div className="flex gap-2">{onPrint && <button onClick={onPrint} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Print feedback"><Printer className="h-4 w-4" /></button>}{onClose && <button onClick={onClose} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Close feedback"><X className="h-4 w-4" /></button>}</div>
       </div>
+      <dl className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs sm:grid-cols-3">
+        <div><dt className="font-bold text-slate-500">Check date</dt><dd className="mt-1 font-black text-slate-900">{checkDate || "Not recorded"}</dd></div>
+        <div><dt className="font-bold text-slate-500">Clinician</dt><dd className="mt-1 font-black text-slate-900">{clinicianName || "Not recorded"}</dd></div>
+        <div><dt className="font-bold text-slate-500">Designation</dt><dd className="mt-1 font-black text-slate-900">{clinicianDesignation || "Not recorded"}</dd></div>
+      </dl>
       <p className="mt-4 rounded-2xl bg-violet-50 p-4 text-sm font-bold text-violet-950">{feedback.summary}</p>
       <FeedbackList title="What was done well" icon={CheckCircle2} tone="text-emerald-700" items={feedback.strengths} />
       <FeedbackList title="Recommendations and advice" icon={Sparkles} tone="text-violet-700" items={feedback.recommendations} />
       <FeedbackList title="Review and escalation" icon={ShieldAlert} tone="text-rose-700" items={feedback.escalation} />
       <FeedbackList title="Learner reflection prompts" icon={Save} tone="text-sky-700" items={feedback.learningPrompts} />
+      <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+        <label className="block text-sm font-black text-emerald-950" htmlFor="next-check-up">Next health and wellbeing check</label>
+        <p className="mt-1 text-xs text-emerald-800">Select the agreed review interval after discussing the formative feedback.</p>
+        <select id="next-check-up" className="mt-3 w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-slate-900" value={followUpMonths || ""} onChange={onFollowUpChange}>
+          <option value="">No interval selected</option>
+          <option value="1">1 month</option>
+          <option value="2">2 months</option>
+          <option value="3">3 months</option>
+          <option value="6">6 months</option>
+        </select>
+        {followUpDate && <p className="mt-3 text-sm font-black text-emerald-950">Next check-up date: {followUpDate}</p>}
+      </div>
     </section>
   );
 }
