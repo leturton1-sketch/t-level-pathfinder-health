@@ -6,8 +6,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
-import AudioVisualizer from "@/components/voice/AudioVisualizer";
-import ClinicianHead3D from "@/components/voice/ClinicianHead3D";
 import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
 
 const STATUS = {
@@ -123,16 +121,7 @@ export default function VoiceAssistant() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6">
-        {/* Interactive holographic clinician */}
-        <div className="polished-glass-edge relative mb-4 overflow-hidden rounded-[32px] border border-white/90 bg-white/55 p-2 shadow-[0_18px_55px_-28px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl">
-          <ClinicianHead3D status={status} />
-          <div className="absolute bottom-4 left-4 rounded-2xl border border-white/80 bg-white/65 px-3 py-2 shadow-lg backdrop-blur-xl">
-            <AudioVisualizer state={status} />
-            <p className={`mt-1 text-[10px] font-bold uppercase tracking-[.16em] ${STATUS[status].color}`}>{STATUS[status].label}</p>
-          </div>
-        </div>
-
+      <div className="mx-auto max-w-2xl px-4 py-4 pb-24 sm:px-6">
         {/* Messages */}
         <div className="space-y-3">
           {messages.map((m, i) => (
@@ -149,7 +138,7 @@ export default function VoiceAssistant() {
       </div>
 
       {/* Input bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-card/90 backdrop-blur-md border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/90 bg-white/96 shadow-[0_-12px_34px_-24px_rgba(15,23,42,.55)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3 sm:px-6">
           <button onClick={toggleMic}
             className={`p-2.5 rounded-xl transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-muted text-muted-foreground hover:text-clinical-teal"}`}
