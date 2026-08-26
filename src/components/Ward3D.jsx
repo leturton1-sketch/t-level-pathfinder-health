@@ -530,7 +530,7 @@ export default function Ward3D({
       <div className="absolute top-3 left-3 flex items-center gap-2">
         <div className="polished-glass-edge pointer-events-none whitespace-nowrap rounded-xl border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-lg backdrop-blur-xl">
           {editMode
-            ? "EDIT MODE · Every item is moveable · Drag to position · Scroll to zoom"
+            ? "EDIT MODE · Every item is moveable and rotatable · Select an item for rotate/delete controls · Drag to position · Scroll to zoom"
             : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
         </div>
         {editMode && (
