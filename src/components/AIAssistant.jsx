@@ -205,6 +205,12 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     }
   };
 
+  useEffect(() => {
+    if (autoListen) scheduleNextListen();
+    else window.clearTimeout(listenTimerRef.current);
+    return () => window.clearTimeout(listenTimerRef.current);
+  }, [autoListen]);
+
   const toggleMute = () => {
     const newMuted = !muted;
     mutedRef.current = newMuted;
@@ -294,10 +300,17 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
             title={listening ? "Stop listening" : "Start voice input"} aria-label="Microphone">
             <Mic className="w-4 h-4" />
           </button>
-          {/* Mute toggle */}
+          {/* Periodic command monitoring */}
+          <button onClick={toggleAutoListen}
+            className={`p-2.5 rounded-xl transition-all ${autoListen ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500 hover:text-clinical-teal"}`}
+            title={autoListen ? "Turn off periodic command listening" : "Turn on periodic command listening"}
+            aria-label="Periodic voice command monitoring" aria-pressed={autoListen}>
+            {autoListen ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+          {/* Assistant speech output */}
           <button onClick={toggleMute}
             className={`p-2.5 rounded-xl transition-all ${muted ? "bg-clinical-red/10 text-clinical-red" : "bg-slate-100 text-slate-500 hover:text-clinical-teal"}`}
-            title={muted ? "Unmute" : "Mute"} aria-label="Mute toggle">
+            title={muted ? "Enable assistant speech" : "Mute assistant speech"} aria-label="Assistant speech output">
             {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
           {/* Stop speaking / Interrupt */}
@@ -317,7 +330,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
             <Send className="w-4 h-4" />
           </button>
         </div>
-        {listening && <p className="text-[10px] text-clinical-teal mt-1.5 text-center">● Continuously listening — tap mic to stop</p>}
+        {listening ? <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">● Microphone active — listening for a command</p> : autoListen && <p className="mt-1.5 text-center text-[10px] text-emerald-700">Voice monitoring is on — the assistant will listen again at intervals</p>}
       </div>
     </div>
   );
