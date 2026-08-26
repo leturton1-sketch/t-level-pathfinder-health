@@ -517,6 +517,18 @@
 .ar-command-centre .campus-aerial-interactive {
   transition: transform 1.6s cubic-bezier(.25,1,.5,1), filter 1.6s cubic-bezier(.25,1,.5,1), opacity .3s ease;
 }
+.ar-command-centre .campus-map-world {
+  transition: transform 1.6s cubic-bezier(.25,1,.5,1);
+  will-change: transform;
+}
+.ar-command-centre .campus-map-image {
+  opacity: .9;
+  filter: saturate(.88) contrast(1.05) brightness(1.06);
+}
+.ar-command-centre .campus-hotspot {
+  transition: transform 1.6s cubic-bezier(.25,1,.5,1), opacity .3s ease, filter .3s ease;
+  touch-action: none;
+}
 .campus-hotspot-pulse { animation: campus-hotspot-pulse 2.2s ease-out infinite; }
 @keyframes campus-hotspot-pulse {
   0% { transform: translate(-50%,-50%) scale(.42); opacity: .9; }
