@@ -1,41 +1,140 @@
-import { Building2, MapPin } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Building2, FlaskConical, HeartPulse, MapPin, RotateCcw, Trophy } from "lucide-react";
 
-export default function CampusZoomMap() {
+const HOTSPOTS = [
+  {
+    id: "health",
+    label: "Health Department",
+    detail: "T Level Health Provision",
+    x: 50,
+    y: 41.5,
+    filters: ["suite-a", "suite-b"],
+    icon: HeartPulse,
+    colour: "from-pink-500 to-rose-600",
+  },
+  {
+    id: "sports",
+    label: "Sports Pitches",
+    detail: "Outdoor learning zone",
+    x: 61,
+    y: 70,
+    filters: ["health-theory-101"],
+    icon: Trophy,
+    colour: "from-amber-400 to-orange-600",
+  },
+  {
+    id: "labs",
+    label: "Laboratory / Informatics",
+    detail: "Practical science and digital labs",
+    x: 43,
+    y: 31,
+    filters: ["laboratory-informatics"],
+    icon: FlaskConical,
+    colour: "from-violet-500 to-indigo-700",
+  },
+];
+
+export default function CampusZoomMap({ activeZone = "all" }) {
+  const [selectedId, setSelectedId] = useState(null);
+  const [resetView, setResetView] = useState(false);
+  const selected = useMemo(() => HOTSPOTS.find((spot) => spot.id === selectedId), [selectedId]);
+
+  const focusHotspot = (spot) => {
+    setResetView(false);
+    setSelectedId(spot.id);
+  };
+
+  const resetZoom = () => {
+    setSelectedId(null);
+    setResetView(true);
+  };
+
+  const imageStyle = selected
+    ? {
+        animation: "none",
+        transformOrigin: `${selected.x}% ${selected.y}%`,
+        transform: "scale(2.05)",
+      }
+    : resetView
+      ? { animation: "none", transformOrigin: "50% 41.5%", transform: "scale(1.08)" }
+      : undefined;
+
   return (
-    <div className="relative left-1/2 campus-image-viewport aspect-square h-auto w-full max-w-[680px] -translate-x-1/2 [perspective:1750px]">
-      <div className="absolute inset-[9%_3%_2%] translate-y-7 rounded-[30px] bg-slate-700/25 blur-2xl" />
-      <div className="absolute inset-[5%_2%_7%] translate-x-2 translate-y-5 rounded-[26px] border border-slate-400/30 bg-slate-500/35 shadow-xl [transform:rotateX(8deg)_rotateZ(-1.2deg)]" />
-      <div className="isometric-frame-wrapper campus-plane absolute inset-[1%_1%_9%] overflow-hidden rounded-[26px] border-[6px] border-white/90 bg-slate-100 shadow-[0_12px_0_-5px_rgba(100,116,139,.4),0_30px_55px_-26px_rgba(15,23,42,.75),inset_2px_2px_3px_white] [transform:rotateX(8deg)_rotateZ(-1.2deg)] [transform-style:preserve-3d]">
-        <img src="/assets/campus-original-map.png" alt="Original campus map of Dearne Valley College and the T Level Health location" className="campus-aerial absolute inset-0 h-full w-full object-cover" />
-        <div className="pointer-events-none absolute inset-0 z-10 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.28)_1px,transparent_1px),linear-gradient(90deg,rgba(15,94,184,.10)_1px,transparent_1px)] [background-size:34px_34px]" />
-        <div className="map-reflection pointer-events-none absolute -left-[18%] -top-[35%] z-10 h-[78%] w-[72%] rotate-[-18deg] rounded-full bg-gradient-to-r from-white/70 via-cyan-100/35 to-transparent blur-2xl" />
-        <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_82%_78%,rgba(14,165,233,.18),transparent_24%),linear-gradient(145deg,rgba(255,255,255,.18),transparent_34%,rgba(15,23,42,.12))]" />
-        <span className="pointer-events-none absolute bottom-[4%] right-[9%] z-10 h-28 w-28 rounded-full bg-cyan-300/25 blur-3xl" />
-        <div className="health-location pointer-events-none absolute left-[50%] top-[41.5%] z-20 h-0 w-0">
-          <div className="health-label absolute left-12 top-1/2 w-[250px] -translate-y-1/2 overflow-hidden rounded-2xl border border-white/95 bg-white/78 px-4 py-3 text-slate-950 shadow-[0_4px_0_-2px_rgba(118,90,176,.24),0_18px_38px_-16px_rgba(36,27,58,.72),inset_1px_1px_2px_rgba(255,255,255,.98)] backdrop-blur-2xl">
-            <span className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white" />
-            <span className="pointer-events-none absolute -right-5 -top-6 h-16 w-24 rotate-[-18deg] rounded-full bg-white/70 blur-xl" />
-            <div className="relative flex items-center gap-2">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-purple-200/80 bg-purple-100/80 text-purple-700 shadow-[inset_1px_1px_1px_white,0_5px_12px_-8px_rgba(36,27,58,.7)]"><Building2 className="h-4 w-4" /></span>
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-purple-800 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">Destination located</p>
-                <p className="mt-1 text-[13px] font-black leading-tight text-slate-950 [text-shadow:0_1px_0_rgba(255,255,255,.95)]">Health Department</p>
-                <p className="mt-1 text-[10px] font-semibold text-slate-700 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">T Level Health Provision</p>
-              </div>
+    <div className="campus-map-shell relative mx-auto aspect-square w-full max-w-[720px]">
+      <div className="campus-plane absolute inset-0 overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_18px_42px_-24px_rgba(15,23,42,.52),inset_1px_1px_2px_white]">
+        <img
+          src="/assets/campus-original-map.png"
+          alt="Interactive campus map of Dearne Valley College"
+          className="campus-aerial campus-aerial-interactive absolute inset-0 h-full w-full object-cover"
+          style={imageStyle}
+        />
+        <div className="pointer-events-none absolute inset-0 z-10 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.34)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,.10)_1px,transparent_1px)] [background-size:32px_32px]" />
+        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-white/20 via-transparent to-slate-900/10" />
+
+        <div className="absolute right-3 top-3 z-40 flex items-center gap-2 rounded-xl border border-white/90 bg-white/82 p-1.5 shadow-lg backdrop-blur-xl">
+          <span className="hidden px-2 text-[9px] font-bold uppercase tracking-[.12em] text-slate-600 sm:inline">
+            Map controls
+          </span>
+          <button
+            type="button"
+            onClick={resetZoom}
+            className="no-clay flex items-center gap-1.5 rounded-lg bg-slate-900 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-white"
+            aria-label="Reset campus map zoom to 100 percent"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset 100%
+          </button>
+        </div>
+
+        {HOTSPOTS.map((spot) => {
+          const Icon = spot.icon;
+          const matchesFilter = activeZone === "all" || spot.filters.includes(activeZone);
+          const isSelected = selectedId === spot.id;
+
+          return (
+            <button
+              key={spot.id}
+              type="button"
+              onClick={() => focusHotspot(spot)}
+              style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+              className={`campus-hotspot group absolute z-30 -translate-x-1/2 -translate-y-1/2 transition duration-300 ${matchesFilter ? "opacity-100" : "pointer-events-none opacity-20 grayscale"}`}
+              aria-label={`Focus map on ${spot.label}`}
+              aria-pressed={isSelected}
+            >
+              <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 ${isSelected ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
+              <span className={`relative grid h-10 w-10 place-items-center rounded-full border-[3px] border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_5px_rgba(255,255,255,.24),0_0_28px_rgba(34,211,238,.75)] transition group-hover:scale-110`}>
+                <MapPin className="absolute h-5 w-5 opacity-35" />
+                <Icon className="h-4 w-4" />
+              </span>
+              <span className={`absolute left-1/2 top-12 w-max max-w-[190px] -translate-x-1/2 rounded-xl border border-white/95 bg-white/90 px-3 py-2 text-left shadow-xl backdrop-blur-xl transition ${isSelected ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"}`}>
+                <span className="block text-[10px] font-black text-slate-900">{spot.label}</span>
+                <span className="mt-0.5 block text-[9px] font-semibold text-[#4A5568]">{spot.detail}</span>
+              </span>
+            </button>
+          );
+        })}
+
+        <div className="absolute inset-x-3 bottom-3 z-40 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-white/95 bg-white/84 px-4 py-2.5 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700">
+              <Building2 className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[10px] font-black uppercase tracking-[.12em] text-violet-800">
+                {selected ? "Destination located" : "Explore the campus"}
+              </p>
+              <p className="truncate text-xs font-black text-slate-950">
+                {selected?.label || "Select a glowing department pin"}
+              </p>
+              <p className="truncate text-[9px] font-semibold text-[#4A5568]">
+                {selected?.detail || "Use the filters above to highlight relevant areas"}
+              </p>
             </div>
           </div>
-          <div className="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2">
-            <span className="health-stem absolute left-full top-1/2 h-px w-12 -translate-y-1/2 bg-cyan-400/80" />
-            <span className="health-ring absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-400/70 bg-cyan-300/10" />
-            <span className="health-ring health-ring-delay absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-500/80" />
-            <span className="relative grid h-10 w-10 place-items-center rounded-full border-[3px] border-white bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-[0_0_0_5px_rgba(14,165,233,.22),0_0_32px_rgba(6,182,212,.95)]">
-              <MapPin className="h-5 w-5" />
-            </span>
-          </div>
+          <span className="hidden rounded-full bg-emerald-100 px-2.5 py-1 text-[9px] font-bold text-emerald-800 sm:inline">
+            Interactive map
+          </span>
         </div>
-      </div>
-      <div className="pointer-events-none absolute bottom-5 left-5 right-5 z-30 overflow-hidden rounded-full border border-white/80 bg-white/55 p-1 shadow-lg backdrop-blur-xl">
-        <div className="campus-progress h-1.5 origin-left rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500" />
       </div>
     </div>
   );
