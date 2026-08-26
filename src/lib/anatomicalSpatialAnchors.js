@@ -65,12 +65,9 @@ export function alignAnatomicalGroupToBody(bodyEnvelope, organGroup, organKey, o
 
   const { targetWorldPos, bodyHeight } = getAnatomicalTargetTransform(bodyEnvelope, config.normalized);
   const currentCenterWorld = new THREE.Box3().setFromObject(organGroup).getCenter(new THREE.Vector3());
-  const worldDelta = targetWorldPos.clone().sub(currentCenterWorld);
-
-  const parentInverse = new THREE.Matrix4().copy(organGroup.parent.matrixWorld).invert();
-  const localOrigin = new THREE.Vector3().setFromMatrixPosition(organGroup.parent.matrixWorld).applyMatrix4(parentInverse);
-  const localDelta = worldDelta.clone().transformDirection(parentInverse);
-  organGroup.position.add(localDelta.sub(localOrigin));
+  const localTarget = organGroup.parent.worldToLocal(targetWorldPos.clone());
+  const localCurrentCenter = organGroup.parent.worldToLocal(currentCenterWorld.clone());
+  organGroup.position.add(localTarget.sub(localCurrentCenter));
 
   if (options.applyRotation !== false) organGroup.rotation.copy(config.rotation);
 
