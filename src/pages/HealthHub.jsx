@@ -7,9 +7,13 @@ import {
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 
-const emptyCheck = () => ({
+const emptyCheck = (user = {}) => ({
   clinic_name: "Dearne Valley College Health Hub",
   clinic_date: new Date().toISOString().slice(0, 10),
+  clinician_name: user?.full_name || user?.username || "",
+  clinician_designation: user?.designation || user?.role?.replace?.(/_/g, " ") || "",
+  next_check_months: "",
+  next_check_date: "",
   participant_reference: "",
   age: "",
   consent_confirmed: false,
@@ -40,6 +44,13 @@ const numberOrNull = (value) => value === "" ? null : Number(value);
 const safeArray = (value) => {
   try { return JSON.parse(value || "[]"); } catch { return []; }
 };
+
+function calculateNextCheckDate(checkDate, months) {
+  if (!checkDate || !months) return "";
+  const date = new Date(`${checkDate}T12:00:00`);
+  date.setMonth(date.getMonth() + Number(months));
+  return date.toISOString().slice(0, 10);
+}
 
 function calculateBMI(heightCm, weightKg) {
   const heightM = Number(heightCm) / 100;
@@ -126,12 +137,13 @@ export default function HealthHub() {
   const navigate = useNavigate();
   const user = getCurrentUser();
   const [tab, setTab] = useState("new");
-  const [check, setCheck] = useState(emptyCheck);
+  const [check, setCheck] = useState(() => emptyCheck(user));
   const [records, setRecords] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savedRecordId, setSavedRecordId] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -155,7 +167,8 @@ export default function HealthHub() {
     setMessage("");
   };
 
-  const requiredComplete = check.clinic_name.trim() && check.clinic_date && check.participant_reference.trim()
+  const requiredComplete = check.clinic_name.trim() && check.clinic_date
+    && check.clinician_name.trim() && check.clinician_designation.trim() && check.participant_reference.trim()
     && check.consent_confirmed && check.systolic_bp && check.diastolic_bp && check.pulse
     && check.respiratory_rate && check.spo2 && check.temperature && check.height_cm && check.weight_kg
     && check.smoking_status && check.alcohol_level && check.activity_minutes !== ""
