@@ -138,10 +138,10 @@ export default function CampusZoomMap({ activeZone = "all" }) {
     : { transformOrigin: "50% 50%", transform: "scale(1)" };
 
   return (
-    <div className="campus-map-shell relative mx-auto aspect-square w-full max-w-[720px]">
+    <div className="campus-map-shell relative mx-auto w-full max-w-[720px]">
       <div
         ref={mapRef}
-        className={`campus-plane absolute inset-0 overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_18px_42px_-24px_rgba(15,23,42,.52),inset_1px_1px_2px_white] ${editing ? "cursor-crosshair ring-2 ring-violet-500 ring-offset-2" : ""}`}
+        className={`campus-plane relative aspect-square w-full overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_18px_42px_-24px_rgba(15,23,42,.52),inset_1px_1px_2px_white] ${editing ? "cursor-crosshair ring-2 ring-violet-500 ring-offset-2" : ""}`}
         onPointerMove={moveDraggedPin}
         onPointerUp={() => setDraggingId(null)}
         onPointerCancel={() => setDraggingId(null)}
@@ -194,7 +194,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   <MapPin className="absolute h-5 w-5 opacity-35" />
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className={`campus-hotspot-tooltip absolute left-1/2 top-12 w-max max-w-[190px] -translate-x-1/2 rounded-xl border border-white/95 bg-white/92 px-3 py-2 text-left shadow-xl backdrop-blur-xl transition ${isSelected || isBeingEdited ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"}`}>
+                <span className={`campus-hotspot-tooltip pointer-events-none absolute bottom-12 left-1/2 w-max max-w-[190px] -translate-x-1/2 rounded-xl border border-white/95 bg-white/94 px-3 py-2 text-left shadow-xl backdrop-blur-xl transition ${isBeingEdited ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"}`}>
                   <span className="block text-[10px] font-black text-slate-900">{spot.label}</span>
                   <span className="mt-0.5 block text-[9px] font-semibold text-[#4A5568]">
                     {editing ? `X ${spot.x}% · Y ${spot.y}%` : spot.detail}
@@ -230,8 +230,10 @@ export default function CampusZoomMap({ activeZone = "all" }) {
           </button>
         </div>
 
+      </div>
+
         {editing ? (
-          <div className="absolute inset-x-3 bottom-3 z-40 rounded-2xl border border-violet-200 bg-white/94 p-3 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
+          <div className="relative z-40 mt-3 rounded-2xl border border-violet-200 bg-white/94 p-3 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
             <div className="flex flex-wrap items-end gap-2">
               <label className="min-w-[170px] flex-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4A5568]">
                 Pin
@@ -269,7 +271,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
             </p>
           </div>
         ) : (
-          <div className="absolute inset-x-3 bottom-3 z-40 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-white/95 bg-white/88 px-4 py-2.5 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
+          <div className="relative z-40 mt-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-white/95 bg-white/88 px-4 py-2.5 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
             <div className="flex min-w-0 items-center gap-2.5">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700">
                 <Building2 className="h-4 w-4" />
@@ -291,7 +293,6 @@ export default function CampusZoomMap({ activeZone = "all" }) {
             </span>
           </div>
         )}
-      </div>
     </div>
   );
 }
