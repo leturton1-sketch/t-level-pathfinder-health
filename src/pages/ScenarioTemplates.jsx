@@ -132,7 +132,7 @@ export default function ScenarioTemplates() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 pt-4">
+      <div className="mx-auto max-w-4xl px-4 pt-4 sm:px-6 lg:px-8">
         {/* Intro card */}
         <div className="rounded-xl border border-clinical-teal/30 bg-clinical-teal/5 p-3.5 mb-4 flex items-start gap-3">
           <FileStack className="w-5 h-5 text-clinical-teal shrink-0 mt-0.5" />
