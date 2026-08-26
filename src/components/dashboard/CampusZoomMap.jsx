@@ -212,15 +212,35 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const mapStyle = selected && !editing
     ? {
         transformOrigin: `${selected.x}% ${selected.y}%`,
-        transform: `scale(${selected.scale})`,
+        transform: `rotateX(10deg) scale(${selected.scale})`,
       }
-    : { transformOrigin: "50% 50%", transform: "scale(1)" };
+    : { transformOrigin: "50% 50%", transform: "rotateX(10deg) scale(1)" };
 
   return (
     <div className="campus-map-shell relative mx-auto w-full max-w-[720px]">
+      <div className="campus-map-controls relative z-40 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/95 bg-white/90 p-2 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
+        <span className="px-2 text-[9px] font-bold uppercase tracking-[.12em] text-[#4A5568]">Map controls</span>
+        <div className="flex items-center gap-2">
+          {!editing && (
+            <button type="button" onClick={openEditor} className="no-clay flex items-center gap-1.5 rounded-lg border border-violet-200 bg-white px-2.5 py-2 text-[10px] font-bold text-violet-800 transition hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <Pencil className="h-3.5 w-3.5" /> Edit pins
+            </button>
+          )}
+          {editing && (
+            <button type="button" onClick={savePositions} className="no-clay flex items-center gap-1.5 rounded-lg bg-violet-700 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-white">
+              <Save className="h-3.5 w-3.5" /> Save pins
+            </button>
+          )}
+          <button type="button" onClick={editing ? closeEditor : resetZoom} className="no-clay flex items-center gap-1.5 rounded-lg bg-slate-900 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-white" aria-label={editing ? "Close pin editor" : "Reset campus map zoom to 100 percent"}>
+            {editing ? <X className="h-3.5 w-3.5" /> : <RotateCcw className="h-3.5 w-3.5" />}
+            {editing ? "Cancel" : "Reset 100%"}
+          </button>
+        </div>
+      </div>
       <div
         ref={mapRef}
-        className={`campus-plane relative aspect-square w-full overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_18px_42px_-24px_rgba(15,23,42,.52),inset_1px_1px_2px_white] ${editing ? "cursor-crosshair ring-2 ring-violet-500 ring-offset-2" : ""}`}
+        style={{ perspective: "1600px" }}
+        className={`campus-plane relative aspect-square w-full overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_26px_60px_-28px_rgba(15,23,42,.6),inset_1px_1px_2px_white,inset_0_-44px_80px_-44px_rgba(15,23,42,.38)] [transform-style:preserve-3d] ${editing ? "cursor-crosshair ring-2 ring-violet-500 ring-offset-2" : ""}`}
         onPointerMove={moveDraggedPin}
         onPointerUp={() => setDraggingId(null)}
         onPointerCancel={() => setDraggingId(null)}
@@ -295,45 +315,6 @@ export default function CampusZoomMap({ activeZone = "all" }) {
               </button>
             );
           })}
-        </div>
-
-        <div
-          className="campus-map-controls absolute right-3 top-3 z-40 flex items-center gap-2 rounded-xl border border-white/90 bg-white/88 p-1.5 shadow-lg backdrop-blur-xl"
-          onClick={(event) => event.stopPropagation()}
-          onPointerDown={(event) => event.stopPropagation()}
-        >
-          <span className="hidden px-2 text-[9px] font-bold uppercase tracking-[.12em] text-[#4A5568] sm:inline">
-            Map controls
-          </span>
-          {!editing && (
-            <button
-              type="button"
-              onClick={openEditor}
-              className="no-clay flex items-center gap-1.5 rounded-lg border border-violet-200 bg-white px-2.5 py-2 text-[10px] font-bold text-violet-800 transition hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Edit pins
-            </button>
-          )}
-          {editing && (
-            <button
-              type="button"
-              onClick={savePositions}
-              className="no-clay flex items-center gap-1.5 rounded-lg bg-violet-700 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-white"
-            >
-              <Save className="h-3.5 w-3.5" />
-              Save pins
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={editing ? closeEditor : resetZoom}
-            className="no-clay flex items-center gap-1.5 rounded-lg bg-slate-900 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-white"
-            aria-label={editing ? "Close pin editor" : "Reset campus map zoom to 100 percent"}
-          >
-            {editing ? <X className="h-3.5 w-3.5" /> : <RotateCcw className="h-3.5 w-3.5" />}
-            {editing ? "Cancel" : "Reset 100%"}
-          </button>
         </div>
 
       </div>
