@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Activity, ArrowLeft, CheckCircle2, ClipboardHeart, FileText, HeartPulse,
+  Activity, ArrowLeft, CheckCircle2, FileText, HeartPulse,
   Plus, Printer, Save, Search, ShieldAlert, Sparkles, UserRound, X,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
