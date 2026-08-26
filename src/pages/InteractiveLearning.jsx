@@ -52,7 +52,7 @@ export default function InteractiveLearning() {
     const Module = MODULE_COMPONENTS[activeModule];
     if (!Module) return null;
     return (
-      <div className="px-4 py-4 sm:px-6 max-w-5xl mx-auto pb-24">
+      <div className="clinical-page-shell clinical-page-shell--standard">
         <button onClick={() => setActiveModule(null)}
           className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Modules
@@ -63,7 +63,7 @@ export default function InteractiveLearning() {
   }
 
   return (
-    <div className="px-4 py-4 sm:px-6 max-w-5xl mx-auto pb-24">
+    <div className="clinical-page-shell clinical-page-shell--standard">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
