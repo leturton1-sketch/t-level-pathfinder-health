@@ -216,19 +216,19 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   left: `${spot.x}%`,
                   top: `${spot.y}%`,
                   transform: selected && !editing
-                    ? `translate(-50%, -50%) scale(${1 / selected.scale})`
-                    : "translate(-50%, -50%)",
+                    ? `scale(${1 / selected.scale})`
+                    : "scale(1)",
                 }}
-                className={`campus-hotspot group absolute z-30 transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
+                className={`campus-hotspot group absolute z-30 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
                 aria-label={editing ? `Move ${spot.label} pin` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
               >
-                <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
-                <span className={`relative grid h-10 w-10 place-items-center rounded-full border-[3px] border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_5px_rgba(255,255,255,.24),0_0_28px_rgba(34,211,238,.75)] transition group-hover:scale-110 ${isBeingEdited ? "ring-4 ring-violet-300" : ""}`}>
-                  <MapPin className="absolute h-5 w-5 opacity-35" />
-                  <Icon className="h-4 w-4" />
+                <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
+                <span className={`relative grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_3px_rgba(255,255,255,.24),0_0_16px_rgba(34,211,238,.75)] transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
+                  <MapPin className="absolute h-2.5 w-2.5 opacity-35" />
+                  <Icon className="h-2 w-2" />
                 </span>
-                <span className={`campus-hotspot-tooltip pointer-events-none absolute bottom-12 left-1/2 w-max max-w-[190px] -translate-x-1/2 rounded-xl border border-white/95 bg-white/94 px-3 py-2 text-left shadow-xl backdrop-blur-xl transition ${isBeingEdited ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"}`}>
+                <span className={`campus-hotspot-tooltip pointer-events-none absolute bottom-9 left-1/2 w-max max-w-[190px] -translate-x-1/2 rounded-xl border border-white/95 bg-white/94 px-3 py-2 text-left shadow-xl backdrop-blur-xl transition ${isBeingEdited ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"}`}>
                   <span className="block text-[10px] font-black text-slate-900">{spot.label}</span>
                   <span className="mt-0.5 block text-[9px] font-semibold text-[#4A5568]">
                     {editing ? `X ${spot.x}% · Y ${spot.y}%` : spot.detail}
@@ -251,6 +251,16 @@ export default function CampusZoomMap({ activeZone = "all" }) {
             >
               <Pencil className="h-3.5 w-3.5" />
               Edit pins
+            </button>
+          )}
+          {editing && (
+            <button
+              type="button"
+              onClick={savePositions}
+              className="no-clay flex items-center gap-1.5 rounded-lg bg-violet-700 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-white"
+            >
+              <Save className="h-3.5 w-3.5" />
+              Save pins
             </button>
           )}
           <button
