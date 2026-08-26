@@ -26,6 +26,7 @@ import ScenarioTemplates from './pages/ScenarioTemplates';
 import Profile from './pages/Profile';
 import VoiceAssistant from './pages/VoiceAssistant';
 import AnatomyPhysiology from './pages/AnatomyPhysiology';
+import HealthHub from './pages/HealthHub';
 import Layout from './components/Layout';
 
 const AuthenticatedApp = () => {
@@ -69,6 +70,7 @@ const AuthenticatedApp = () => {
         <Route path="/knowledge-library" element={<KnowledgeLibrary />} />
         <Route path="/interactive-learning" element={<InteractiveLearning />} />
         <Route path="/anatomy-physiology" element={<AnatomyPhysiology />} />
+        <Route path="/health-hub" element={<HealthHub />} />
         <Route path="/performance" element={<Performance />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/scenario-authoring" element={<ScenarioAuthoring />} />
