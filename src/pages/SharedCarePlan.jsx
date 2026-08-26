@@ -142,7 +142,7 @@ export default function SharedCarePlan() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-4 space-y-4">
+      <div className="mx-auto max-w-5xl space-y-4 px-4 pt-4 sm:px-6 lg:px-8">
         {/* Case selector */}
         <div className="rounded-xl border border-border bg-card p-3 shadow-sm">
           <label className="text-[11px] font-heading font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Active Celebrity Patient Case</label>
