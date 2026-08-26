@@ -435,7 +435,7 @@ export default function WardSimulation() {
   if (showDebrief && activeScenario) {
     const pct = Math.round((score / decisionSteps.length) * 100);
     return (
-      <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-2xl mx-auto">
+      <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">
         <div className="text-center mb-6">
           <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${pct >= 70 ? "bg-clinical-green/20" : "bg-clinical-amber/20"}`}>
             {pct >= 70 ? <CheckCircle className="w-8 h-8 text-clinical-green" /> : <AlertCircle className="w-8 h-8 text-clinical-amber" />}
