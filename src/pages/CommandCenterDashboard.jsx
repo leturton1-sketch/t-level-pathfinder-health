@@ -48,7 +48,7 @@ function Sparkline() {
 
 function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
   return (
-    <article className="polished-glass-edge group relative overflow-hidden rounded-[22px] border border-white/80 bg-gradient-to-br from-slate-100/88 via-slate-200/72 to-slate-300/54 p-4 shadow-[0_10px_0_-5px_rgba(100,116,139,.28),0_26px_50px_-24px_rgba(15,23,42,.52),inset_1px_1px_1px_rgba(255,255,255,.95),inset_-1px_-1px_1px_rgba(71,85,105,.14)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-10 before:-top-16 before:h-28 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/65 before:blur-xl after:pointer-events-none after:absolute after:inset-x-4 after:bottom-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/90 after:to-transparent hover:-translate-y-2 hover:rotate-[.35deg] hover:shadow-[0_15px_0_-7px_rgba(100,116,139,.3),0_35px_62px_-24px_rgba(15,23,42,.58)]">
+    <article className="ar-kpi polished-glass-edge group relative overflow-hidden rounded-[22px] border border-white/80 bg-gradient-to-br from-slate-100/88 via-slate-200/72 to-slate-300/54 p-4 shadow-[0_10px_0_-5px_rgba(100,116,139,.28),0_26px_50px_-24px_rgba(15,23,42,.52),inset_1px_1px_1px_rgba(255,255,255,.95),inset_-1px_-1px_1px_rgba(71,85,105,.14)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-10 before:-top-16 before:h-28 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/65 before:blur-xl after:pointer-events-none after:absolute after:inset-x-4 after:bottom-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/90 after:to-transparent hover:-translate-y-2 hover:rotate-[.35deg] hover:shadow-[0_15px_0_-7px_rgba(100,116,139,.3),0_35px_62px_-24px_rgba(15,23,42,.58)]">
       <div className={`absolute inset-x-0 top-0 h-1 ${tone}`} />
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -65,7 +65,7 @@ function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
 
 function QuickLaunch({ icon: Icon, label, detail, onClick, tone }) {
   return (
-    <button onClick={onClick} className="polished-glass-edge group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 p-3 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
+    <button onClick={onClick} className="ar-launch polished-glass-edge group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 p-3 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
       <div className="flex items-center gap-3">
         <span className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white shadow-[0_9px_0_-4px_rgba(15,23,42,.22),0_13px_24px_-14px_rgba(15,23,42,.75)] ${tone}`}>
           <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />
@@ -100,11 +100,11 @@ export default function CommandCenterDashboard() {
   const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.98),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(220,210,238,.55),transparent_32%),linear-gradient(145deg,#faf9fb_0%,#f2eef7_48%,#f8f6fa_100%)] pb-24 text-[#15131A]">
+    <main className="ar-command-centre relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.98),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(220,210,238,.55),transparent_32%),linear-gradient(145deg,#faf9fb_0%,#f2eef7_48%,#f8f6fa_100%)] pb-24 text-[#15131A]">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:42px_42px]" />
 
       <div className="relative mx-auto max-w-[1950px] px-4 py-4 sm:px-6 lg:px-8">
-        <header className="polished-glass-edge relative mb-6 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-6 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
+        <header className="ar-header polished-glass-edge relative mb-6 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-6 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
             <div>
@@ -150,7 +150,7 @@ export default function CommandCenterDashboard() {
             </div>
           </aside>
 
-          <section className="polished-glass-edge relative min-h-[638px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
+          <section className="ar-stage polished-glass-edge relative min-h-[638px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
@@ -181,7 +181,7 @@ export default function CommandCenterDashboard() {
               </div>
             </div>
 
-            <div className="polished-glass-edge absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/92 via-slate-200/78 to-slate-300/62 px-4 py-3 shadow-[0_8px_0_-4px_rgba(100,116,139,.34),0_20px_35px_-18px_rgba(15,23,42,.62),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-6 before:-top-6 before:h-10 before:w-1/2 before:rotate-[-10deg] before:bg-white/70 before:blur-xl sm:left-6 sm:right-6">
+            <div className="ar-selected polished-glass-edge absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/92 via-slate-200/78 to-slate-300/62 px-4 py-3 shadow-[0_8px_0_-4px_rgba(100,116,139,.34),0_20px_35px_-18px_rgba(15,23,42,.62),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-6 before:-top-6 before:h-10 before:w-1/2 before:rotate-[-10deg] before:bg-white/70 before:blur-xl sm:left-6 sm:right-6">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white"><UserRound className="h-5 w-5" /></span>
                 <div className="min-w-0">
@@ -196,7 +196,7 @@ export default function CommandCenterDashboard() {
             </div>
           </section>
 
-          <aside className="polished-glass-edge relative overflow-hidden rounded-[30px] border border-white/90 bg-gradient-to-br from-slate-100/88 via-slate-200/70 to-slate-300/54 p-4 shadow-[0_12px_0_-6px_rgba(100,116,139,.32),0_30px_62px_-30px_rgba(15,23,42,.68),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-10 before:-top-12 before:h-24 before:w-3/4 before:rotate-[-14deg] before:rounded-full before:bg-white/68 before:blur-2xl">
+          <aside className="ar-panel polished-glass-edge relative overflow-hidden rounded-[30px] border border-white/90 bg-gradient-to-br from-slate-100/88 via-slate-200/70 to-slate-300/54 p-4 shadow-[0_12px_0_-6px_rgba(100,116,139,.32),0_30px_62px_-30px_rgba(15,23,42,.68),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-10 before:-top-12 before:h-24 before:w-3/4 before:rotate-[-14deg] before:rounded-full before:bg-white/68 before:blur-2xl">
             <div className="mb-3 flex items-center justify-between">
               <div><p className="text-[10px] font-bold uppercase tracking-[.17em] text-cyan-700">Response team</p><h2 className="text-base font-black text-slate-900">Patient & staff</h2></div>
               <span className="rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-bold text-emerald-700">{staff.length} active</span>
