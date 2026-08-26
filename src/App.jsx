@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -7,27 +8,29 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Login from './pages/Login';
-import Dashboard from './pages/CommandCenterDashboard';
-import Theory from './pages/Theory';
-import TheoryDetail from './pages/TheoryDetail';
-import CarePlanning from './pages/CarePlanning';
-import ClinicalFormWorkspace from './pages/ClinicalFormWorkspace';
-import SharedCarePlan from './pages/SharedCarePlan';
-import ABCDEAssessment from './pages/ABCDEAssessment';
-import NEWS2Scoring from './pages/NEWS2Scoring';
-import SMARTGoals from './pages/SMARTGoals';
-import WardSimulation from './pages/WardSimulation';
-import KnowledgeLibrary from './pages/KnowledgeLibrary';
-import InteractiveLearning from './pages/InteractiveLearning';
-import Performance from './pages/Performance';
-import UserManagement from './pages/UserManagement';
-import ScenarioAuthoring from './pages/ScenarioAuthoring';
-import ScenarioTemplates from './pages/ScenarioTemplates';
-import Profile from './pages/Profile';
-import VoiceAssistant from './pages/VoiceAssistant';
-import AnatomyPhysiology from './pages/AnatomyPhysiology';
-import HealthHub from './pages/HealthHub';
 import Layout from './components/Layout';
+
+// Route-level code splitting: each page loads on demand, reducing the initial bundle
+const Dashboard = lazy(() => import('./pages/CommandCenterDashboard'));
+const Theory = lazy(() => import('./pages/Theory'));
+const TheoryDetail = lazy(() => import('./pages/TheoryDetail'));
+const CarePlanning = lazy(() => import('./pages/CarePlanning'));
+const ClinicalFormWorkspace = lazy(() => import('./pages/ClinicalFormWorkspace'));
+const SharedCarePlan = lazy(() => import('./pages/SharedCarePlan'));
+const ABCDEAssessment = lazy(() => import('./pages/ABCDEAssessment'));
+const NEWS2Scoring = lazy(() => import('./pages/NEWS2Scoring'));
+const SMARTGoals = lazy(() => import('./pages/SMARTGoals'));
+const WardSimulation = lazy(() => import('./pages/WardSimulation'));
+const KnowledgeLibrary = lazy(() => import('./pages/KnowledgeLibrary'));
+const InteractiveLearning = lazy(() => import('./pages/InteractiveLearning'));
+const Performance = lazy(() => import('./pages/Performance'));
+const UserManagement = lazy(() => import('./pages/UserManagement'));
+const ScenarioAuthoring = lazy(() => import('./pages/ScenarioAuthoring'));
+const ScenarioTemplates = lazy(() => import('./pages/ScenarioTemplates'));
+const Profile = lazy(() => import('./pages/Profile'));
+const VoiceAssistant = lazy(() => import('./pages/VoiceAssistant'));
+const AnatomyPhysiology = lazy(() => import('./pages/AnatomyPhysiology'));
+const HealthHub = lazy(() => import('./pages/HealthHub'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -54,6 +57,11 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
+    <Suspense fallback={
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      </div>
+    }>
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route element={<Layout />}>
@@ -80,6 +88,7 @@ const AuthenticatedApp = () => {
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </Suspense>
   );
 };
 
