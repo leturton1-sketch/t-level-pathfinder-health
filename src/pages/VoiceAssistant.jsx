@@ -150,7 +150,7 @@ export default function VoiceAssistant() {
 
       {/* Input bar */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-card/90 backdrop-blur-md border-t border-border">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2">
+        <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3 sm:px-6">
           <button onClick={toggleMic}
             className={`p-2.5 rounded-xl transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-muted text-muted-foreground hover:text-clinical-teal"}`}
             aria-label="Microphone">
