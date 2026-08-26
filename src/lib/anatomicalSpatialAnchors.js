@@ -60,6 +60,7 @@ export function alignAnatomicalGroupToBody(bodyEnvelope, organGroup, organKey, o
   const config = ANATOMICAL_LANDMARKS[organKey];
   if (!config || !organGroup?.parent) return organGroup;
 
+  if (options.applyRotation !== false) organGroup.rotation.copy(config.rotation);
   bodyEnvelope.updateWorldMatrix(true, true);
   organGroup.updateWorldMatrix(true, true);
 
@@ -68,8 +69,6 @@ export function alignAnatomicalGroupToBody(bodyEnvelope, organGroup, organKey, o
   const localTarget = organGroup.parent.worldToLocal(targetWorldPos.clone());
   const localCurrentCenter = organGroup.parent.worldToLocal(currentCenterWorld.clone());
   organGroup.position.add(localTarget.sub(localCurrentCenter));
-
-  if (options.applyRotation !== false) organGroup.rotation.copy(config.rotation);
 
   if (options.applyScale) {
     const organSize = new THREE.Box3().setFromObject(organGroup).getSize(new THREE.Vector3());
