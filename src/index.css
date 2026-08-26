@@ -693,7 +693,7 @@
   background-color: transparent !important;
 }
 
-.app-command-surface :where(h1, h2, h3) {
+.app-command-surface :where(h1, h2, h3):not(.bg-slate-800 *, .bg-slate-900 *, .bg-clinical-navy *, [class*="bg-[#0"] *) {
   color: #17212b;
   text-wrap: balance;
 }
