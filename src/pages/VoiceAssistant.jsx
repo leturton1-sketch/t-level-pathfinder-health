@@ -123,7 +123,7 @@ export default function VoiceAssistant() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-4">
+      <div className="mx-auto max-w-2xl px-4 py-4 sm:px-6">
         {/* Interactive holographic clinician */}
         <div className="polished-glass-edge relative mb-4 overflow-hidden rounded-[32px] border border-white/90 bg-white/55 p-2 shadow-[0_18px_55px_-28px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl">
           <ClinicianHead3D status={status} />
