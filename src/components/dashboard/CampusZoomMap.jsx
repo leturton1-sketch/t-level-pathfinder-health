@@ -91,7 +91,10 @@ export default function CampusZoomMap({ activeZone = "all" }) {
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      const savedRecord = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY) || "null",
+      );
+      const saved = Array.isArray(savedRecord) ? savedRecord : savedRecord?.positions;
       if (!Array.isArray(saved)) return;
       setHotspots((current) => current.map((spot) => {
         const position = saved.find((item) => item.id === spot.id);
@@ -148,7 +151,13 @@ export default function CampusZoomMap({ activeZone = "all" }) {
 
   const savePositions = () => {
     const positions = hotspots.map(({ id, x, y }) => ({ id, x, y }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+    const payload = JSON.stringify({ version: 2, savedAt: new Date().toISOString(), positions });
+    try {
+      localStorage.setItem(STORAGE_KEY, payload);
+      sessionStorage.setItem(STORAGE_KEY, payload);
+    } catch {
+      sessionStorage.setItem(STORAGE_KEY, payload);
+    }
     editBaselineRef.current = null;
     setEditing(false);
     setDraggingId(null);
@@ -258,25 +267,28 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                 style={{
                   left: `${spot.x}%`,
                   top: `${spot.y}%`,
-                  transform: selected && !editing
-                    ? `translate(-50%, -50%) scale(${1 / selected.scale})`
-                    : "translate(-50%, -50%)",
+                  transform: "translate(-50%, -50%)",
                 }}
                 className={`campus-hotspot group absolute z-30 grid h-10 w-10 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
                 aria-label={editing ? `Move ${spot.label} pin. Use arrow keys for precise positioning.` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
                 onKeyDown={(event) => nudgePin(event, spot)}
               >
-                <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
-                <span className={`relative grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_3px_rgba(255,255,255,.24),0_0_16px_rgba(34,211,238,.75)] transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
-                  <MapPin className="absolute h-2.5 w-2.5 opacity-35" />
-                  <Icon className="h-2 w-2" />
-                </span>
-                <span className={`campus-hotspot-tooltip pointer-events-none absolute bottom-9 left-1/2 w-max max-w-[190px] -translate-x-1/2 rounded-xl border border-white/95 bg-white/94 px-3 py-2 text-left shadow-xl backdrop-blur-xl transition ${isBeingEdited ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"}`}>
-                  <span className="block text-[10px] font-black text-slate-900">{spot.label}</span>
-                  <span className="mt-0.5 block text-[9px] font-semibold text-[#4A5568]">
-                    {editing ? `X ${spot.x}% · Y ${spot.y}%` : spot.detail}
+                <span
+                  className="relative grid h-10 w-10 place-items-center"
+                  style={{ transform: selected && !editing ? `scale(${1 / selected.scale})` : "scale(1)" }}
+                >
+                  <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
+                  <span className={`relative grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_3px_rgba(255,255,255,.24),0_0_16px_rgba(34,211,238,.75)] transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
+                    <MapPin className="absolute h-2.5 w-2.5 opacity-35" />
+                    <Icon className="h-2 w-2" />
                   </span>
+                  {!editing && (
+                    <span className="campus-hotspot-tooltip pointer-events-none absolute bottom-9 left-1/2 w-max max-w-[190px] -translate-x-1/2 translate-y-1 rounded-xl border border-white/95 bg-white/94 px-3 py-2 text-left opacity-0 shadow-xl backdrop-blur-xl transition group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
+                      <span className="block text-[10px] font-black text-slate-900">{spot.label}</span>
+                      <span className="mt-0.5 block text-[9px] font-semibold text-[#4A5568]">{spot.detail}</span>
+                    </span>
+                  )}
                 </span>
               </button>
             );
