@@ -68,24 +68,6 @@
     --content-max: 80rem;
     --content-max-standard: 64rem;
     --content-max-narrow: 48rem;
-
-    /* Fixed chrome heights — content offsets resolve against these so bars never cover content */
-    --app-header-height: 72px;
-    --app-nav-height: 80px;       /* floating bottom nav + its safe-area gap */
-    --app-nav-clearance: 96px;    /* hint/CTA bottom offset that clears the nav */
-
-    /* Unified z-index hierarchy: base content → sticky bars → dropdowns → nav → overlay → modal → toast */
-    --z-base: 1;
-    --z-sticky: 10;
-    --z-dropdown: 20;
-    --z-nav: 40;
-    --z-overlay: 50;
-    --z-modal: 80;
-    --z-toast: 90;
-  }
-
-  @media (max-width: 639px) {
-    :root { --app-header-height: 64px; }
   }
 
   @media (min-width: 640px) {

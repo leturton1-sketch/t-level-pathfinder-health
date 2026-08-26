@@ -34,36 +34,6 @@ function applyScale(mesh, scale) {
   mesh.scale.set(scale[0], scale[1], scale[2]);
 }
 
-/**
- * Normalises a dynamically-loaded skin mesh to the procedural body envelope:
- * resets its transform, fits it to the body height and aligns bounding-box
- * centres, so the imported asset shares the same origin and bounds as the
- * runtime-generated organs. Both objects must share a common parent (BodyRoot).
- */
-function normalizeSurfaceToBody(surface, bodyEnvelope) {
-  if (!surface || !bodyEnvelope) return;
-  bodyEnvelope.updateWorldMatrix(true, true);
-  const bodyBox = new THREE.Box3().setFromObject(bodyEnvelope);
-  const bodySize = bodyBox.getSize(new THREE.Vector3());
-  const bodyCenter = bodyBox.getCenter(new THREE.Vector3());
-  if (bodySize.y <= 0) return;
-
-  surface.scale.setScalar(1);
-  surface.position.set(0, 0, 0);
-  surface.rotation.set(0, 0, 0);
-  surface.updateWorldMatrix(true, true);
-  const surfSize = new THREE.Box3().setFromObject(surface).getSize(new THREE.Vector3());
-  if (surfSize.y <= 0) return;
-
-  const scale = bodySize.y / surfSize.y;
-  surface.scale.setScalar(scale);
-  surface.updateWorldMatrix(true, true);
-  const scaledCenter = new THREE.Box3().setFromObject(surface).getCenter(new THREE.Vector3());
-  // BodyRoot has an identity transform, so world space == local space here.
-  surface.position.copy(bodyCenter.clone().sub(scaledCenter));
-  surface.updateWorldMatrix(true, true);
-}
-
 function createClinicalTextures(renderer) {
   const size = renderer.capabilities.maxTextureSize >= 4096 && window.devicePixelRatio > 1 ? 1024 : 512;
   const canvases = Array.from({ length: 5 }, () => {
@@ -118,7 +88,6 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
   const shellRef = useRef(null);
-  const bodyRootRef = useRef(null);
   const importedSurfaceRef = useRef(null);
   const materialsRef = useRef([]);
   const clippingPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.015));
@@ -179,14 +148,6 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     renderer.localClippingEnabled = true;
     const clinicalTextures = createClinicalTextures(renderer);
     mount.appendChild(renderer.domElement);
-
-    // Single unified root container — shell, imported surface and all anatomical
-    // systems share origin (0,0,0) and an identity transform matrix, so global
-    // translations/rotations applied here propagate equally to every system.
-    const bodyRoot = new THREE.Group();
-    bodyRoot.name = "BodyRoot";
-    scene.add(bodyRoot);
-    bodyRootRef.current = bodyRoot;
 
     // High-key clinical three-point studio lighting.
     scene.add(new THREE.HemisphereLight(0xffffff, 0xe8eef3, 1.05));
@@ -252,7 +213,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       });
     };
     buildShell(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
-    bodyRoot.add(shellGroup);
+    scene.add(shellGroup);
     shellRef.current = { group: shellGroup, mat: shellMat, build: buildShell };
 
     // User-supplied anatomical base mesh. The procedural shell remains as the
@@ -265,18 +226,17 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       "/models/anatomy/male-surface.obj",
       (object) => {
         object.name = "Imported anatomical surface";
+        object.scale.setScalar(0.205);
+        object.position.set(0, 0.02, 0);
         object.traverse((mesh) => {
           if (!mesh.isMesh) return;
           mesh.material = surfaceMat;
           mesh.castShadow = true;
           mesh.receiveShadow = true;
         });
-        // Unify origin + bounding box with the procedural body envelope so the
-        // external skin mesh and internal organs share the same frame.
-        normalizeSurfaceToBody(object, shellGroup);
         object.visible = genderRef.current === "male";
         shellGroup.visible = genderRef.current !== "male";
-        bodyRoot.add(object);
+        scene.add(object);
         importedSurfaceRef.current = object;
       },
       undefined,
@@ -285,7 +245,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
 
     // Structures
     const structGroup = new THREE.Group();
-    bodyRoot.add(structGroup);
+    scene.add(structGroup);
     ANATOMY_STRUCTURES.forEach((s) => {
       const grp = new THREE.Group();
       grp.userData.id = s.id;
@@ -516,10 +476,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     if (!sh) return;
     sh.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
     const imported = importedSurfaceRef.current;
-    if (imported) {
-      if (gender === "male") normalizeSurfaceToBody(imported, sh.group);
-      imported.visible = gender === "male";
-    }
+    if (imported) imported.visible = gender === "male";
     sh.group.visible = gender !== "male" || !imported;
   }, [gender]);
 
