@@ -478,7 +478,7 @@ export default function WardSimulation() {
   }
 
   return (
-    <div className="fixed inset-0 bg-background flex flex-col">
+    <div className="fixed inset-x-0 bottom-0 bg-background flex flex-col" style={{ top: 'var(--app-header-height)' }}>
       {/* Status bar */}
       <div className="bg-primary text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 text-[10px] font-heading uppercase tracking-wider sm:px-6 lg:px-8">
@@ -637,7 +637,7 @@ export default function WardSimulation() {
 
         {/* Hint */}
         {!activeScenario && !adlScenario && !editMode && !showPatientPanel && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-card/80 backdrop-blur-sm px-4 py-2 text-xs text-muted-foreground border border-border shadow-sm">
+          <div className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 rounded-lg border border-border bg-card/80 px-4 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur-sm" style={{ bottom: 'var(--app-nav-clearance)' }}>
             Click a bed to view patient details →
           </div>
         )}

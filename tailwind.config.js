@@ -25,6 +25,19 @@ module.exports = {
   			'content-standard': 'var(--content-max-standard)',
   			'content-narrow': 'var(--content-max-narrow)'
   		},
+  		height: {
+  			'app-header': 'var(--app-header-height)',
+  			'app-nav': 'var(--app-nav-height)'
+  		},
+  		zIndex: {
+  			base: 'var(--z-base)',
+  			sticky: 'var(--z-sticky)',
+  			dropdown: 'var(--z-dropdown)',
+  			nav: 'var(--z-nav)',
+  			overlay: 'var(--z-overlay)',
+  			modal: 'var(--z-modal)',
+  			toast: 'var(--z-toast)'
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
