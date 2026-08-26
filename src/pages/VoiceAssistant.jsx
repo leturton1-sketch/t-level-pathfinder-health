@@ -6,13 +6,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
+import ClinicalAssistant360 from "@/components/voice/ClinicalAssistant360";
 import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
 
 const STATUS = {
-  idle: { label: "Idle", color: "text-muted-foreground", dot: "bg-muted-foreground" },
-  listening: { label: "Listening", color: "text-clinical-teal", dot: "bg-clinical-teal animate-pulse" },
-  thinking: { label: "Thinking", color: "text-clinical-amber", dot: "bg-clinical-amber animate-pulse" },
-  speaking: { label: "Speaking", color: "text-clinical-green", dot: "bg-clinical-green animate-pulse" },
+  idle: { label: "Idle · ready", color: "text-slate-600", dot: "bg-sky-500" },
+  listening: { label: "Listening", color: "text-red-600", dot: "bg-red-500 animate-pulse" },
+  working: { label: "Working on task", color: "text-violet-700", dot: "bg-violet-500 animate-pulse" },
+  complete: { label: "Task complete", color: "text-emerald-700", dot: "bg-emerald-500" },
+  offline: { label: "Not working", color: "text-slate-600", dot: "bg-slate-500" },
 };
 
 export default function VoiceAssistant() {
@@ -38,8 +40,8 @@ export default function VoiceAssistant() {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, status]);
 
-  const speak = async (text) => {
-    setStatus("speaking");
+  const speakCompletion = async (text) => {
+    setStatus("complete");
     await synth.speak(text, { onEnd: () => setStatus(listeningRef.current ? "listening" : "idle") });
   };
 
@@ -48,7 +50,7 @@ export default function VoiceAssistant() {
     if (!text) return;
     setMessages((p) => [...p, { role: "user", content: text }]);
     if (!overrideText) setInput("");
-    setStatus("thinking");
+    setStatus("working");
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
       const res = await base44.integrations.Core.InvokeLLM({
@@ -56,10 +58,12 @@ export default function VoiceAssistant() {
       });
       const reply = typeof res === "string" ? res : res?.reply || "Sorry, I didn't catch that.";
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
-      await speak(reply);
+      await speakCompletion(reply);
     } catch {
-      setMessages((p) => [...p, { role: "assistant", content: "I'm having trouble connecting right now. Please try again." }]);
-      setStatus("idle");
+      const failureMessage = "I wasn't able to complete that task because the clinical assistant service is unavailable. Please try again.";
+      setMessages((p) => [...p, { role: "assistant", content: failureMessage }]);
+      setStatus("offline");
+      await synth.speak(failureMessage);
       if (listeningRef.current) { try { recognitionRef.current?.start(); } catch {} }
     }
   };
@@ -85,7 +89,10 @@ export default function VoiceAssistant() {
     r.lang = "en-GB";
     r.onstart = () => { setListening(true); setStatus("listening"); };
     r.onresult = (e) => handleSend(e.results[0][0].transcript);
-    r.onend = () => { setListening(false); if (!synth.speaking) setStatus("idle"); };
+    r.onend = () => {
+      setListening(false);
+      setStatus((current) => current === "listening" ? "idle" : current);
+    };
     r.onerror = () => { setListening(false); setStatus("idle"); };
     listeningRef.current = true;
     try { r.start(); } catch {}
@@ -122,6 +129,10 @@ export default function VoiceAssistant() {
       </div>
 
       <div className="mx-auto max-w-2xl px-4 py-4 pb-24 sm:px-6">
+        <div className="polished-glass-edge relative mb-4 overflow-hidden rounded-[32px] border border-white/90 bg-white/62 p-2 shadow-[0_18px_55px_-28px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl">
+          <ClinicalAssistant360 state={status} />
+        </div>
+
         {/* Messages */}
         <div className="space-y-3">
           {messages.map((m, i) => (
