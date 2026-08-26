@@ -389,7 +389,9 @@ const clonePart = (part) => ({
   shape: part.shape ? { ...part.shape, points: part.shape.points?.map((point) => [...point]) } : undefined,
   position: part.position ? [...part.position] : undefined,
   rotation: part.rotation ? [...part.rotation] : undefined,
-  scale: part.scale ? [...part.scale] : undefined,
+  // Some legacy primitives stored scale inside shape; promote it so the
+  // renderer applies it consistently to every regenerated mesh.
+  scale: part.scale ? [...part.scale] : part.shape?.scale ? [...part.shape.scale] : undefined,
 });
 
 function regenerateStructure(blueprint) {
