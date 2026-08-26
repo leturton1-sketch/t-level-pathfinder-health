@@ -150,7 +150,7 @@ export default function CommandCenterDashboard() {
             </div>
           </aside>
 
-          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[540px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 px-[18px] py-3 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl">
+          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[702px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 px-[18px] py-3 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
