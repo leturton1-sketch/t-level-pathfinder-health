@@ -65,7 +65,7 @@ function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
 
 function QuickLaunch({ icon: Icon, label, detail, onClick, tone }) {
   return (
-    <button onClick={onClick} className="ar-launch polished-glass-edge group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 px-3.5 py-2.5 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
+    <button onClick={onClick} className="ar-launch polished-glass-edge group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 px-4 py-3 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
       <div className="flex items-center gap-3">
         <span className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white shadow-[0_9px_0_-4px_rgba(15,23,42,.22),0_13px_24px_-14px_rgba(15,23,42,.75)] ${tone}`}>
           <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />
@@ -127,7 +127,7 @@ export default function CommandCenterDashboard() {
         </section>
 
         <section className="dashboard-grid grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)_320px]">
-          <aside className="sidebar-left grid grid-cols-2 gap-3 sm:grid-cols-4 xl:flex xl:flex-col xl:gap-2.5" aria-label="Quick launch">
+          <aside className="sidebar-left grid grid-cols-2 gap-3 sm:grid-cols-4 xl:flex xl:flex-col xl:gap-4" aria-label="Quick launch">
             <QuickLaunch icon={HeartPulse} label="NEWS2" detail="Score observations" tone="bg-gradient-to-br from-rose-400 to-red-600" onClick={() => navigate("/care-planning/news2")} />
             <QuickLaunch icon={BedDouble} label="Ward Sim" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
             <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
@@ -150,7 +150,7 @@ export default function CommandCenterDashboard() {
             </div>
           </aside>
 
-          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[702px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 px-[18px] py-3 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl">
+          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[820px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 px-[18px] py-3 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
