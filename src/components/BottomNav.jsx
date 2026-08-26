@@ -1,44 +1,15 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3 } from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
+import { getNavForRole } from "@/lib/navItems";
 
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getCurrentUser();
-
-  const studentNav = [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: BookOpen, label: "Theory", path: "/theory" },
-    { icon: ClipboardList, label: "Care Plans", path: "/care-planning" },
-    { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
-    { icon: BarChart3, label: "Progress", path: "/performance" },
-    { icon: User, label: "Profile", path: "/profile" },
-  ];
-
-  const tutorNav = [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: BookOpen, label: "Theory", path: "/theory" },
-    { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
-    { icon: Users, label: "Users", path: "/user-management" },
-    { icon: Library, label: "Library", path: "/knowledge-library" },
-  ];
-
-  const adminNav = [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: Users, label: "Users", path: "/user-management" },
-    { icon: Library, label: "Library", path: "/knowledge-library" },
-    { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
-    { icon: User, label: "Profile", path: "/profile" },
-  ];
-
-  let nav;
-  if (user?.role === "student") nav = studentNav;
-  else if (user?.role === "tutor") nav = tutorNav;
-  else nav = adminNav;
+  const nav = getNavForRole(user?.role);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-3 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-nav px-3 pb-3 pointer-events-none lg:hidden">
       <nav className="clinical-glass-nav pointer-events-auto relative mx-auto max-w-md rounded-[22px] px-2 py-1.5 opacity-55 transition-[opacity,transform] duration-700 hover:opacity-95 hover:-translate-y-0.5 focus-within:opacity-100 focus-within:-translate-y-0.5">
         <div className="flex items-center justify-around">
           {nav.map((item) => {
