@@ -216,10 +216,10 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   left: `${spot.x}%`,
                   top: `${spot.y}%`,
                   transform: selected && !editing
-                    ? `scale(${1 / selected.scale})`
-                    : "scale(1)",
+                    ? `translate(-50%, -50%) scale(${1 / selected.scale})`
+                    : "translate(-50%, -50%)",
                 }}
-                className={`campus-hotspot group absolute z-30 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
+                className={`campus-hotspot group absolute z-30 grid h-10 w-10 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
                 aria-label={editing ? `Move ${spot.label} pin` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
               >
