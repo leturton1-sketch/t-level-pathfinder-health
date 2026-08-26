@@ -135,7 +135,7 @@ export default function UserManagement() {
         </p>
       </div>
 
-      <div className="mb-5 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
+      <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
         <button
           type="button"
           role="tab"
@@ -240,7 +240,7 @@ export default function UserManagement() {
 
       {activeTab === "voice" && (
         <section className="polished-glass-edge overflow-hidden rounded-[28px] border border-white/90 bg-white/70 shadow-[0_20px_55px_-34px_rgba(15,23,42,.65),inset_1px_1px_2px_white] backdrop-blur-2xl">
-          <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-purple-50/70 p-5">
+          <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-purple-50/70 p-6">
             <div className="flex items-start gap-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-teal-700 text-white shadow-[0_9px_18px_-10px_rgba(8,145,178,.9),inset_1px_1px_1px_rgba(255,255,255,.7)]">
                 <Volume2 className="h-6 w-6" />
@@ -254,7 +254,7 @@ export default function UserManagement() {
             </div>
           </div>
 
-          <div className="grid gap-3 p-5 sm:grid-cols-2">
+          <div className="grid gap-3 p-6 sm:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
               <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Current engine</p>
               <p className="mt-1 text-sm font-bold capitalize text-slate-900">{voiceSynth.prefs.engine === "cloud" ? "Cloud HD" : "Browser"}</p>
@@ -269,7 +269,7 @@ export default function UserManagement() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-slate-200/70 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-slate-200/70 bg-slate-50/70 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-slate-600">Settings are saved for the current signed-in user and used by voice-enabled areas across Clinical Edge.</p>
             <button
               type="button"
