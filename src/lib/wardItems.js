@@ -23,6 +23,14 @@ export const WARD_ITEM_TYPES = [
   { type: "tv", label: "Wall TV / Screen" },
   { type: "table", label: "Table" },
   { type: "wall_cabinet", label: "Wall Cabinet Unit" },
+  { type: "medication_trolley", label: "Medication Trolley" },
+  { type: "resuscitation_trolley", label: "Resuscitation Trolley" },
+  { type: "wheelchair", label: "Wheelchair" },
+  { type: "patient_hoist", label: "Mobile Patient Hoist" },
+  { type: "oxygen_cylinder", label: "Oxygen Cylinder" },
+  { type: "commode", label: "Commode Chair" },
+  { type: "examination_couch", label: "Examination Couch" },
+  { type: "sanitiser_stand", label: "Hand Sanitiser Stand" },
 ];
 
 export const DEFAULT_PATIENTS = {
@@ -173,6 +181,14 @@ export function createWardItem(type, options = {}) {
     case "tv": return createTV();
     case "table": return createTable();
     case "wall_cabinet": return createWallCabinet();
+    case "medication_trolley": return createClinicalTrolley(0xB8D8CC);
+    case "resuscitation_trolley": return createClinicalTrolley(0xF28B82, true);
+    case "wheelchair": return createWheelchair();
+    case "patient_hoist": return createPatientHoist();
+    case "oxygen_cylinder": return createOxygenCylinder();
+    case "commode": return createCommode();
+    case "examination_couch": return createExaminationCouch();
+    case "sanitiser_stand": return createSanitiserStand();
     case "countertop": return createWallCabinet(); // backwards compatibility for saved layouts
     default: return new THREE.Group();
   }
