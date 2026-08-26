@@ -104,7 +104,7 @@ export default function CommandCenterDashboard() {
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:42px_42px]" />
 
       <div className="relative mx-auto max-w-[1560px] px-4 py-4 sm:px-6 lg:px-8">
-        <header className="polished-glass-edge relative mb-5 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-5 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
+        <header className="polished-glass-edge relative mb-6 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-6 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
             <div>
@@ -142,7 +142,7 @@ export default function CommandCenterDashboard() {
               </>
             )}
             <div className="hidden rounded-[24px] border border-white/70 bg-slate-900/82 p-4 text-white shadow-xl backdrop-blur-xl xl:block">
-              <ShieldCheck className="mb-5 h-5 w-5 text-cyan-300" />
+              <ShieldCheck className="mb-6 h-5 w-5 text-cyan-300" />
               <p className="text-[10px] uppercase tracking-[.18em] text-slate-400">Signed in</p>
               <p className="mt-1 text-sm font-bold">{user?.full_name || user?.username || "Clinical user"}</p>
               <p className="mt-1 text-[10px] capitalize text-slate-400">{user?.role?.replace("_", " ") || "Team member"}</p>
