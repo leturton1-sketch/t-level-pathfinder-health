@@ -496,3 +496,33 @@
 @keyframes ar-hologram-float { 0%,100% { transform: rotateX(8deg) rotateZ(-1.2deg) translateY(0); } 50% { transform: rotateX(9deg) rotateZ(-.7deg) translateY(-6px); } }
 @keyframes ar-scan { from { transform: translateY(0); } to { transform: translateY(520px); } }
 @media (prefers-reduced-motion: reduce) { .ar-command-centre .campus-plane { animation: none; } .ar-command-centre .campus-plane::after { animation: none; opacity: .18; } }
+
+/* Command centre interaction and accessibility refinements */
+.ar-command-centre .ar-launch .text-slate-500,
+.ar-command-centre .ar-stage :where(.text-slate-500,.text-slate-600),
+.ar-command-centre .ar-selected .text-slate-500,
+.ar-command-centre .ar-panel .polished-glass-edge .text-slate-500 {
+  color: #4A5568 !important;
+}
+.ar-command-centre .ar-stage {
+  box-shadow: 0 22px 58px -36px rgba(15,23,42,.58), inset 0 1px 2px rgba(255,255,255,.92) !important;
+}
+.ar-command-centre .campus-plane {
+  animation: none;
+  transform: none;
+  border-color: rgba(255,255,255,.92) !important;
+  box-shadow: 0 18px 42px -24px rgba(15,23,42,.52), inset 0 1px 2px rgba(255,255,255,.9) !important;
+}
+.ar-command-centre .campus-plane::after { display: none; }
+.ar-command-centre .campus-aerial-interactive {
+  transition: transform 1.6s cubic-bezier(.25,1,.5,1), filter 1.6s cubic-bezier(.25,1,.5,1), opacity .3s ease;
+}
+.campus-hotspot-pulse { animation: campus-hotspot-pulse 2.2s ease-out infinite; }
+@keyframes campus-hotspot-pulse {
+  0% { transform: translate(-50%,-50%) scale(.42); opacity: .9; }
+  100% { transform: translate(-50%,-50%) scale(1.45); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .campus-hotspot-pulse { animation: none; opacity: .35; }
+  .ar-command-centre .campus-aerial-interactive { transition-duration: .01ms !important; }
+}
