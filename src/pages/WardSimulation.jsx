@@ -488,7 +488,7 @@ export default function WardSimulation() {
       </div>
       {/* Top navigation bar */}
       <div className="z-20 bg-card border-b border-border shadow-sm">
-        <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 gap-2">
+        <div className="flex items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
