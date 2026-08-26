@@ -12,24 +12,26 @@ export default function CampusZoomMap() {
         <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_12%,rgba(255,255,255,.74),transparent_28%),radial-gradient(circle_at_82%_78%,rgba(14,165,233,.18),transparent_24%),linear-gradient(145deg,rgba(255,255,255,.24),transparent_34%,rgba(15,23,42,.12))]" />
         <span className="pointer-events-none absolute left-[8%] top-[7%] z-10 h-24 w-24 rounded-full bg-white/50 blur-3xl" />
         <span className="pointer-events-none absolute bottom-[4%] right-[9%] z-10 h-28 w-28 rounded-full bg-cyan-300/25 blur-3xl" />
-        <div className="health-location pointer-events-none absolute left-[51.8%] top-[64%] z-20 -translate-x-1/2 -translate-y-1/2">
-          <span className="health-ring absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-400/70 bg-cyan-300/10" />
-          <span className="health-ring health-ring-delay absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-500/80" />
-          <span className="relative grid h-10 w-10 place-items-center rounded-full border-[3px] border-white bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-[0_0_0_5px_rgba(14,165,233,.22),0_0_32px_rgba(6,182,212,.95)]">
-            <MapPin className="h-5 w-5" />
-          </span>
-          <span className="health-stem absolute left-1/2 top-9 h-20 w-px -translate-x-1/2 bg-gradient-to-b from-cyan-300 to-transparent" />
-          <div className="health-label absolute left-12 top-1/2 w-[250px] -translate-y-1/2 overflow-hidden rounded-2xl border border-white/95 bg-white/78 px-3.5 py-3 text-slate-950 shadow-[0_4px_0_-2px_rgba(118,90,176,.24),0_18px_38px_-16px_rgba(36,27,58,.72),inset_1px_1px_2px_rgba(255,255,255,.98)] backdrop-blur-2xl">
+        <div className="health-location pointer-events-none absolute left-[69%] top-[64%] z-20 w-[250px] -translate-x-1/2 -translate-y-1/2">
+          <div className="health-label relative overflow-hidden rounded-2xl border border-white/95 bg-white/78 px-4 py-3 text-slate-950 shadow-[0_4px_0_-2px_rgba(118,90,176,.24),0_18px_38px_-16px_rgba(36,27,58,.72),inset_1px_1px_2px_rgba(255,255,255,.98)] backdrop-blur-2xl">
             <span className="pointer-events-none absolute inset-x-4 top-0 h-px bg-white" />
             <span className="pointer-events-none absolute -right-5 -top-6 h-16 w-24 rotate-[-18deg] rounded-full bg-white/70 blur-xl" />
-            <div className="relative flex items-center gap-2.5">
+            <div className="relative flex items-center gap-2">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-purple-200/80 bg-purple-100/80 text-purple-700 shadow-[inset_1px_1px_1px_white,0_5px_12px_-8px_rgba(36,27,58,.7)]"><Building2 className="h-4 w-4" /></span>
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[.14em] text-purple-800 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">Destination located</p>
-                <p className="mt-0.5 text-[13px] font-black leading-tight text-slate-950 [text-shadow:0_1px_0_rgba(255,255,255,.95)]">Health Department</p>
-                <p className="mt-0.5 text-[10px] font-semibold text-slate-700 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">T Level Health Provision</p>
+                <p className="mt-1 text-[13px] font-black leading-tight text-slate-950 [text-shadow:0_1px_0_rgba(255,255,255,.95)]">Health Department</p>
+                <p className="mt-1 text-[10px] font-semibold text-slate-700 [text-shadow:0_1px_0_rgba(255,255,255,.9)]">T Level Health Provision</p>
               </div>
             </div>
+          </div>
+          <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2">
+            <span className="health-stem absolute bottom-full left-1/2 h-2 w-px -translate-x-1/2 bg-cyan-400/80" />
+            <span className="health-ring absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-400/70 bg-cyan-300/10" />
+            <span className="health-ring health-ring-delay absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-500/80" />
+            <span className="relative grid h-10 w-10 place-items-center rounded-full border-[3px] border-white bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-[0_0_0_5px_rgba(14,165,233,.22),0_0_32px_rgba(6,182,212,.95)]">
+              <MapPin className="h-5 w-5" />
+            </span>
           </div>
         </div>
       </div>
