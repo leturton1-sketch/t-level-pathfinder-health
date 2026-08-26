@@ -42,7 +42,7 @@ export default function CarePlanning() {
   });
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.14),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)] px-4 pb-28 pt-6 sm:px-6">
+    <div className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.14),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
       <main className="mx-auto max-w-6xl">
         <section className="polished-glass-edge mb-6 overflow-hidden rounded-[30px] border border-white/90 bg-white/86 p-5 shadow-[0_22px_50px_rgba(66,55,88,0.14),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
           <div className="flex items-start gap-4">
