@@ -10,7 +10,6 @@ export default function CampusZoomMap() {
         <div className="pointer-events-none absolute inset-0 z-10 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.28)_1px,transparent_1px),linear-gradient(90deg,rgba(15,94,184,.10)_1px,transparent_1px)] [background-size:34px_34px]" />
         <div className="map-reflection pointer-events-none absolute -left-[18%] -top-[35%] z-10 h-[78%] w-[72%] rotate-[-18deg] rounded-full bg-gradient-to-r from-white/70 via-cyan-100/35 to-transparent blur-2xl" />
         <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_18%_12%,rgba(255,255,255,.74),transparent_28%),radial-gradient(circle_at_82%_78%,rgba(14,165,233,.18),transparent_24%),linear-gradient(145deg,rgba(255,255,255,.24),transparent_34%,rgba(15,23,42,.12))]" />
-        <span className="pointer-events-none absolute left-[8%] top-[7%] z-10 h-24 w-24 rounded-full bg-white/50 blur-3xl" />
         <span className="pointer-events-none absolute bottom-[4%] right-[9%] z-10 h-28 w-28 rounded-full bg-cyan-300/25 blur-3xl" />
         <div className="health-location pointer-events-none absolute left-[50%] top-[41.5%] z-20 h-0 w-0">
           <div className="health-label absolute left-12 top-1/2 w-[250px] -translate-y-1/2 overflow-hidden rounded-2xl border border-white/95 bg-white/78 px-4 py-3 text-slate-950 shadow-[0_4px_0_-2px_rgba(118,90,176,.24),0_18px_38px_-16px_rgba(36,27,58,.72),inset_1px_1px_2px_rgba(255,255,255,.98)] backdrop-blur-2xl">
