@@ -208,7 +208,7 @@ export default function CommandCenterDashboard() {
               </div>
             </div>
 
-            <div className="ar-selected polished-glass-edge absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/92 via-slate-200/78 to-slate-300/62 px-4 py-3 shadow-[0_8px_0_-4px_rgba(100,116,139,.34),0_20px_35px_-18px_rgba(15,23,42,.62),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-6 before:-top-6 before:h-10 before:w-1/2 before:rotate-[-10deg] before:bg-white/70 before:blur-xl sm:left-6 sm:right-6">
+            <div className="ar-selected polished-glass-edge relative mt-4 flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/92 via-slate-200/78 to-slate-300/62 px-4 py-3 shadow-[0_8px_0_-4px_rgba(100,116,139,.34),0_20px_35px_-18px_rgba(15,23,42,.62),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-6 before:-top-6 before:h-10 before:w-1/2 before:rotate-[-10deg] before:bg-white/70 before:blur-xl">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white"><UserRound className="h-5 w-5" /></span>
                 <div className="min-w-0">
