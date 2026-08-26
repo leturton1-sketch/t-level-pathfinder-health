@@ -1,0 +1,156 @@
+{
+  "name": "HealthHubRecord",
+  "type": "object",
+  "properties": {
+    "clinic_name": {
+      "type": "string",
+      "title": "Clinic or health hub"
+    },
+    "clinic_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recorded_by_id": {
+      "type": "string"
+    },
+    "recorded_by_name": {
+      "type": "string"
+    },
+    "participant_reference": {
+      "type": "string",
+      "description": "Clinic identifier or participant initials; avoid unnecessary identifying data"
+    },
+    "age": {
+      "type": "number"
+    },
+    "consent_confirmed": {
+      "type": "boolean",
+      "default": false
+    },
+    "reason_for_check": {
+      "type": "string"
+    },
+    "height_cm": {
+      "type": "number"
+    },
+    "weight_kg": {
+      "type": "number"
+    },
+    "waist_cm": {
+      "type": "number"
+    },
+    "bmi": {
+      "type": "number"
+    },
+    "systolic_bp": {
+      "type": "number"
+    },
+    "diastolic_bp": {
+      "type": "number"
+    },
+    "pulse": {
+      "type": "number"
+    },
+    "respiratory_rate": {
+      "type": "number"
+    },
+    "spo2": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "smoking_status": {
+      "type": "string",
+      "enum": [
+        "never",
+        "former",
+        "current",
+        "prefer_not_to_say"
+      ]
+    },
+    "alcohol_level": {
+      "type": "string",
+      "enum": [
+        "none",
+        "within_guideline",
+        "above_guideline",
+        "unsure",
+        "prefer_not_to_say"
+      ]
+    },
+    "activity_minutes": {
+      "type": "number"
+    },
+    "fruit_veg_portions": {
+      "type": "number"
+    },
+    "sleep_quality": {
+      "type": "string",
+      "enum": [
+        "good",
+        "variable",
+        "poor",
+        "prefer_not_to_say"
+      ]
+    },
+    "wellbeing_score": {
+      "type": "number",
+      "description": "Self-rated wellbeing from 0 to 10"
+    },
+    "family_history": {
+      "type": "string"
+    },
+    "existing_conditions": {
+      "type": "string"
+    },
+    "current_medication": {
+      "type": "string"
+    },
+    "red_flag_symptoms": {
+      "type": "string"
+    },
+    "participant_goals": {
+      "type": "string"
+    },
+    "feedback_summary": {
+      "type": "string"
+    },
+    "feedback_strengths": {
+      "type": "string",
+      "description": "JSON array"
+    },
+    "feedback_recommendations": {
+      "type": "string",
+      "description": "JSON array"
+    },
+    "feedback_escalation": {
+      "type": "string",
+      "description": "JSON array"
+    },
+    "feedback_learning_prompts": {
+      "type": "string",
+      "description": "JSON array"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "completed"
+      ],
+      "default": "draft"
+    }
+  },
+  "required": [
+    "clinic_name",
+    "clinic_date",
+    "participant_reference",
+    "recorded_by_id",
+    "consent_confirmed",
+    "status"
+  ]
+}
