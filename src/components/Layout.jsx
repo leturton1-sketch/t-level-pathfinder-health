@@ -1,7 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import BottomNav from "./BottomNav";
 import AIAssistant from "./AIAssistant";
-import AppCommandHeader from "./AppCommandHeader";
 
 export default function Layout() {
   const location = useLocation();
@@ -9,12 +7,10 @@ export default function Layout() {
   const isVoiceAssistant = location.pathname === "/voice-assistant";
 
   return (
-    <div className={`clinical-global-theme min-h-screen bg-background ${isCommandCentre ? "" : "app-command-surface pb-16"}`}>
-      {!isCommandCentre && <AppCommandHeader />}
+    <div className={`clinical-global-theme min-h-screen bg-background ${isCommandCentre ? "" : "app-command-surface"}`}>
       <main className="min-h-screen">
         <Outlet />
       </main>
-      {!isCommandCentre && !isVoiceAssistant && <BottomNav />}
       {!isCommandCentre && !isVoiceAssistant && <AIAssistant />}
     </div>
   );
