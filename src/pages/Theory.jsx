@@ -46,7 +46,7 @@ export default function Theory() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.12),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)] px-4 pb-28 pt-6 sm:px-6">
+    <div className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.12),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
       <main className="mx-auto max-w-4xl">
         <section className="polished-glass-edge mb-6 overflow-hidden rounded-[28px] border border-white/90 bg-white/85 p-5 shadow-[0_20px_45px_rgba(66,55,88,0.13),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl sm:p-7">
           <div className="flex items-start gap-4">
