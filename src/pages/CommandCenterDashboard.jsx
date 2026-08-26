@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Activity, AlertTriangle, BedDouble, BookOpen, Brain, BriefcaseMedical, ClipboardHeart, Clock3, FilePenLine,
+  Activity, AlertTriangle, BedDouble, BookOpen, Brain, BriefcaseMedical, Clock3, FilePenLine,
   HeartPulse, LibraryBig, ShieldCheck, Sparkles, Stethoscope, UserCog, UserRound,
   UsersRound, Wifi,
 } from "lucide-react";
@@ -131,7 +131,7 @@ export default function CommandCenterDashboard() {
             <QuickLaunch icon={HeartPulse} label="NEWS2" detail="Score observations" tone="bg-gradient-to-br from-rose-400 to-red-600" onClick={() => navigate("/care-planning/news2")} />
             <QuickLaunch icon={BedDouble} label="Ward Sim" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
             <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
-            <QuickLaunch icon={ClipboardHeart} label="Health Hub" detail="Clinic checks and records" tone="bg-gradient-to-br from-emerald-300 to-emerald-700" onClick={() => navigate("/health-hub")} />
+            <QuickLaunch icon={HeartPulse} label="Health Hub" detail="Clinic checks and records" tone="bg-gradient-to-br from-emerald-300 to-emerald-700" onClick={() => navigate("/health-hub")} />
             <QuickLaunch icon={UserRound} label="User Profile" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
             <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
             <QuickLaunch icon={Brain} label="Anatomy & Pathophysiology" detail="3D body systems and patient lab" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />

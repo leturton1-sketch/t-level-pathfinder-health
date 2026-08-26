@@ -247,7 +247,7 @@ export default function HealthHub() {
       <header className="mx-auto mb-6 flex max-w-6xl flex-wrap items-center justify-between gap-4 rounded-[28px] border border-white/90 bg-white/80 p-6 shadow-xl backdrop-blur-2xl">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate("/")} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-tl-purple" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-700 text-white shadow-lg"><ClipboardHeart className="h-7 w-7" /></span>
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-700 text-white shadow-lg"><HeartPulse className="h-7 w-7" /></span>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[.2em] text-emerald-700">Clinic recording and learning</p>
             <h1 className="text-2xl font-black">Health Hub</h1>
@@ -259,7 +259,7 @@ export default function HealthHub() {
 
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/70 p-2 shadow-sm backdrop-blur-xl" role="tablist">
-          <button onClick={() => setTab("new")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "new" ? "bg-white text-tl-purple shadow" : "text-slate-600"}`}><ClipboardHeart className="mr-2 inline h-4 w-4" />Health & Wellbeing Check</button>
+          <button onClick={() => setTab("new")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "new" ? "bg-white text-tl-purple shadow" : "text-slate-600"}`}><HeartPulse className="mr-2 inline h-4 w-4" />Health & Wellbeing Check</button>
           <button onClick={() => setTab("records")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "records" ? "bg-white text-tl-purple shadow" : "text-slate-600"}`}><FileText className="mr-2 inline h-4 w-4" />Clinic records ({records.length})</button>
         </div>
 
