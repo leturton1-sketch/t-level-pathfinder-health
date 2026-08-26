@@ -27,6 +27,7 @@ export default function AIAssistant({ context = "general" }) {
   const listeningRef = useRef(false);
   const autoListenRef = useRef(autoListen);
   const listenTimerRef = useRef(null);
+  const assistantStateRef = useRef(state);
   const mutedRef = useRef(muted);
   const wardStateRef = useRef(null);
   const user = getCurrentUser();
@@ -38,6 +39,10 @@ export default function AIAssistant({ context = "general" }) {
   useEffect(() => {
     autoListenRef.current = autoListen;
   }, [autoListen]);
+
+  useEffect(() => {
+    assistantStateRef.current = state;
+  }, [state]);
 
   useEffect(() => () => {
     window.clearTimeout(listenTimerRef.current);
@@ -122,36 +127,82 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     }
   };
 
+  const scheduleNextListen = () => {
+    window.clearTimeout(listenTimerRef.current);
+    if (!autoListenRef.current) return;
+    listenTimerRef.current = window.setTimeout(() => {
+      const currentState = assistantStateRef.current;
+      if (autoListenRef.current && !listeningRef.current && currentState !== "speaking" && currentState !== "thinking") startRecognition();
+      else scheduleNextListen();
+    }, 8000);
+  };
+
+  const startRecognition = () => {
+    if (listeningRef.current) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setAutoListen(false);
+      autoListenRef.current = false;
+      window.localStorage.setItem("clinicaledge-auto-listen", "false");
+      alert("Voice input is not supported on this device.");
+      return;
+    }
+    synth.stop();
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-GB";
+    recognition.onstart = () => {
+      listeningRef.current = true;
+      setListening(true);
+      setState("listening");
+    };
+    recognition.onresult = (event) => {
+      const result = event.results[event.results.length - 1];
+      if (!result.isFinal) return;
+      const transcript = result[0].transcript.trim();
+      if (transcript) handleSend(transcript);
+    };
+    recognition.onerror = () => {};
+    recognition.onend = () => {
+      listeningRef.current = false;
+      setListening(false);
+      setState((current) => current === "listening" ? "idle" : current);
+      scheduleNextListen();
+    };
+    try { recognition.start(); } catch {
+      listeningRef.current = false;
+      setListening(false);
+      setState("idle");
+      scheduleNextListen();
+    }
+  };
+
   const toggleVoice = () => {
-    if (listening) {
+    if (listeningRef.current) {
       listeningRef.current = false;
       recognitionRef.current?.stop();
       setListening(false);
       setState("idle");
       return;
     }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) { alert("Voice input is not supported on this device."); return; }
-    // Interrupt current speech when starting to listen
-    synth.stop();
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = "en-GB";
-    recognition.onstart = () => { setListening(true); setState("listening"); };
-    recognition.onresult = (event) => {
-      const last = event.results.length - 1;
-      const transcript = event.results[last][0].transcript;
-      handleSend(transcript);
-    };
-    recognition.onerror = () => {};
-    recognition.onend = () => {
-      if (listeningRef.current) { try { recognition.start(); } catch (e) { setListening(false); setState("idle"); } }
-      else setListening(false);
-    };
-    listeningRef.current = true;
-    recognition.start();
+    startRecognition();
+  };
+
+  const toggleAutoListen = () => {
+    const enabled = !autoListenRef.current;
+    autoListenRef.current = enabled;
+    setAutoListen(enabled);
+    window.localStorage.setItem("clinicaledge-auto-listen", String(enabled));
+    window.clearTimeout(listenTimerRef.current);
+    if (enabled) startRecognition();
+    else {
+      listeningRef.current = false;
+      try { recognitionRef.current?.stop(); } catch {}
+      setListening(false);
+      setState("idle");
+    }
   };
 
   const toggleMute = () => {
