@@ -86,6 +86,8 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const [draggingId, setDraggingId] = useState(null);
   const mapRef = useRef(null);
   const editBaselineRef = useRef(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const draggedRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -157,11 +159,43 @@ export default function CampusZoomMap({ activeZone = "all" }) {
     setEditSpotId("health");
   };
 
-  const moveDraggedPin = (event) => {
-    if (!editing || !draggingId || !mapRef.current) return;
+  const positionFromPointer = (event, offset = { x: 0, y: 0 }) => {
+    if (!mapRef.current) return null;
     const rect = mapRef.current.getBoundingClientRect();
-    updatePosition(draggingId, "x", ((event.clientX - rect.left) / rect.width) * 100);
-    updatePosition(draggingId, "y", ((event.clientY - rect.top) / rect.height) * 100);
+    return {
+      x: ((event.clientX - rect.left - offset.x) / rect.width) * 100,
+      y: ((event.clientY - rect.top - offset.y) / rect.height) * 100,
+    };
+  };
+
+  const moveDraggedPin = (event) => {
+    if (!editing || !draggingId) return;
+    const position = positionFromPointer(event, dragOffsetRef.current);
+    if (!position) return;
+    draggedRef.current = true;
+    updatePosition(draggingId, "x", position.x);
+    updatePosition(draggingId, "y", position.y);
+  };
+
+  const placeSelectedPin = (event) => {
+    if (!editing || draggedRef.current || event.target.closest(".campus-hotspot")) {
+      draggedRef.current = false;
+      return;
+    }
+    const position = positionFromPointer(event);
+    if (!position) return;
+    updatePosition(editSpotId, "x", position.x);
+    updatePosition(editSpotId, "y", position.y);
+  };
+
+  const nudgePin = (event, spot) => {
+    if (!editing || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    const step = event.shiftKey ? 1 : 0.1;
+    if (event.key === "ArrowLeft") updatePosition(spot.id, "x", spot.x - step);
+    if (event.key === "ArrowRight") updatePosition(spot.id, "x", spot.x + step);
+    if (event.key === "ArrowUp") updatePosition(spot.id, "y", spot.y - step);
+    if (event.key === "ArrowDown") updatePosition(spot.id, "y", spot.y + step);
   };
 
   const mapStyle = selected && !editing
@@ -179,6 +213,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
         onPointerMove={moveDraggedPin}
         onPointerUp={() => setDraggingId(null)}
         onPointerCancel={() => setDraggingId(null)}
+        onClick={placeSelectedPin}
       >
         <div className="campus-map-world absolute inset-0" style={mapStyle}>
           <img
@@ -210,6 +245,14 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   event.preventDefault();
                   setEditSpotId(spot.id);
                   setDraggingId(spot.id);
+                  draggedRef.current = false;
+                  const rect = mapRef.current?.getBoundingClientRect();
+                  dragOffsetRef.current = rect
+                    ? {
+                        x: event.clientX - (rect.left + (spot.x / 100) * rect.width),
+                        y: event.clientY - (rect.top + (spot.y / 100) * rect.height),
+                      }
+                    : { x: 0, y: 0 };
                   event.currentTarget.setPointerCapture(event.pointerId);
                 }}
                 style={{
@@ -220,8 +263,9 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                     : "translate(-50%, -50%)",
                 }}
                 className={`campus-hotspot group absolute z-30 grid h-10 w-10 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
-                aria-label={editing ? `Move ${spot.label} pin` : `Focus map on ${spot.label}`}
+                aria-label={editing ? `Move ${spot.label} pin. Use arrow keys for precise positioning.` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
+                onKeyDown={(event) => nudgePin(event, spot)}
               >
                 <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
                 <span className={`relative grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_3px_rgba(255,255,255,.24),0_0_16px_rgba(34,211,238,.75)] transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
@@ -311,7 +355,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
               </button>
             </div>
             <p className="mt-2 flex items-center gap-1.5 text-[9px] font-semibold text-[#4A5568]">
-              <Check className="h-3 w-3 text-emerald-600" /> Drag a pin on the map or enter exact percentage coordinates.
+              <Check className="h-3 w-3 text-emerald-600" /> Drag without snapping, click the map to place the selected pin, or use arrow keys for 0.1% adjustments (Shift for 1%).
             </p>
           </div>
         ) : (
