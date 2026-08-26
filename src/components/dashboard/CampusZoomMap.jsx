@@ -51,6 +51,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const [editSpotId, setEditSpotId] = useState("health");
   const [draggingId, setDraggingId] = useState(null);
   const mapRef = useRef(null);
+  const editBaselineRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -86,11 +87,19 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   };
 
   const openEditor = () => {
+    editBaselineRef.current = hotspots.map((spot) => ({ id: spot.id, x: spot.x, y: spot.y }));
     setSelectedId(null);
     setEditing(true);
   };
 
   const closeEditor = () => {
+    if (editBaselineRef.current) {
+      setHotspots((current) => current.map((spot) => {
+        const position = editBaselineRef.current.find((item) => item.id === spot.id);
+        return position ? { ...spot, x: position.x, y: position.y } : spot;
+      }));
+    }
+    editBaselineRef.current = null;
     setDraggingId(null);
     setEditing(false);
   };
@@ -104,6 +113,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const savePositions = () => {
     const positions = hotspots.map(({ id, x, y }) => ({ id, x, y }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+    editBaselineRef.current = null;
     setEditing(false);
     setDraggingId(null);
   };
@@ -111,7 +121,6 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const restoreDefaults = () => {
     setHotspots(DEFAULT_HOTSPOTS);
     setEditSpotId("health");
-    localStorage.removeItem(STORAGE_KEY);
   };
 
   const moveDraggedPin = (event) => {
