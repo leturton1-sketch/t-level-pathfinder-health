@@ -2,7 +2,7 @@ import { Building2, MapPin } from "lucide-react";
 
 export default function CampusZoomMap() {
   return (
-    <div className="relative mx-auto h-[390px] max-w-[920px] [perspective:1400px]">
+    <div className="relative left-1/2 h-[488px] w-full max-w-[1150px] -translate-x-1/2 [perspective:1750px]">
       <div className="absolute inset-[9%_3%_2%] translate-y-7 rounded-[30px] bg-slate-700/25 blur-2xl" />
       <div className="absolute inset-[5%_2%_7%] translate-x-2 translate-y-5 rounded-[26px] border border-slate-400/30 bg-slate-500/35 shadow-xl [transform:rotateX(8deg)_rotateZ(-1.2deg)]" />
       <div className="campus-plane absolute inset-[1%_2%_11%] overflow-hidden rounded-[26px] border-[6px] border-white/90 bg-slate-100 shadow-[0_12px_0_-5px_rgba(100,116,139,.4),0_30px_55px_-26px_rgba(15,23,42,.75),inset_2px_2px_3px_white] [transform:rotateX(8deg)_rotateZ(-1.2deg)] [transform-style:preserve-3d]">
