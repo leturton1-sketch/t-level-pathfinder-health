@@ -103,7 +103,7 @@ export default function VoiceAssistant() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_50%_0%,rgba(220,210,238,.58),transparent_34%),linear-gradient(145deg,#faf9fb,#f2eef7)] pb-28">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-card/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="mx-auto flex max-w-2xl items-center gap-4 px-4 py-3 sm:px-6">
           <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-muted" aria-label="Back">
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
