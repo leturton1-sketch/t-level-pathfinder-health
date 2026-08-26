@@ -47,7 +47,7 @@ export const BODY_SHELLS = {
 };
 
 // Segmented anatomical structures. `genders`: 'both' | 'male' | 'female'.
-export const ANATOMY_STRUCTURES = [
+const STRUCTURE_BLUEPRINTS = [
   // ── SKELETAL ──
   { id: "skull", name: "Skull / Cranium", system: "skeletal", genders: "both", shape: { type: "sphere", radius: 0.095 }, position: [0, 1.64, 0], scale: [1, 0.95, 1.05],
     function: "Protects the brain and forms the structure of the face. Comprises 22 bones divided into cranial and facial bones.",
@@ -266,3 +266,145 @@ export const ANATOMY_STRUCTURES = [
     function: "A one-way translucent vessel network returns interstitial fluid to the circulation and transports immune cells.",
     clinicalNote: "Impaired drainage causes lymphoedema; assess swelling, skin integrity, infection and limb measurements." },
 ];
+
+// Canonical placement atlas. Every visible body part is regenerated from this
+// shared coordinate system so systems remain aligned when layers are toggled.
+// Coordinates use anatomical position: patient-left = -X, superior = +Y,
+// anterior = +Z. The right kidney sits lower than the left because of the liver.
+const ANATOMICAL_ATLAS = {
+  skull: { position: [0, 1.64, 0], scale: [1, 0.95, 1.05] },
+  spine_bone: { position: [0, 1.235, -0.082] },
+  ribcage: { parts: [
+    { shape: { type: "torus", radius: 0.125, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.20, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
+    { shape: { type: "torus", radius: 0.138, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.26, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
+    { shape: { type: "torus", radius: 0.148, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.32, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
+    { shape: { type: "torus", radius: 0.15, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.38, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
+    { shape: { type: "torus", radius: 0.142, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.44, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
+  ] },
+  pelvis: { position: [0, 0.895, -0.015], rotation: [Math.PI / 2, 0, 0] },
+  femurs: { parts: [
+    { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [-0.065, 0.61, 0] },
+    { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [0.065, 0.61, 0] },
+  ] },
+
+  brain: { position: [0, 1.642, 0.008], scale: [1, 0.88, 1.1] },
+  cerebellum: { position: [0, 1.595, -0.045] },
+  spinal_cord: { position: [0, 1.235, -0.078] },
+
+  trachea: { position: [0, 1.485, 0.025] },
+  lungs: { parts: [
+    { shape: { type: "sphere", radius: 0.071, scale: [0.78, 1.52, 0.88] }, position: [-0.092, 1.315, 0.012] },
+    { shape: { type: "sphere", radius: 0.076, scale: [0.84, 1.58, 0.92] }, position: [0.094, 1.31, 0.012] },
+  ] },
+  diaphragm: { position: [0, 1.145, -0.005], scale: [1.2, 0.22, 0.85] },
+
+  heart: { position: [-0.032, 1.285, 0.052], rotation: [0, 0, -0.18] },
+  aorta: { shape: { type: "tube", radius: 0.014, points: [[-0.025,1.27,0.035],[-0.025,1.37,0.025],[-0.005,1.425,-0.005],[0.025,1.42,-0.025],[0.035,1.34,-0.04],[0.035,1.16,-0.055],[0.03,0.94,-0.055]] } },
+  vena_cava: { shape: { type: "tube", radius: 0.016, points: [[0.028,1.47,-0.045],[0.028,1.30,-0.045],[0.03,1.16,-0.055],[0.025,0.95,-0.05],[0.01,0.88,-0.02]] } },
+  arterial_tree: { parts: [
+    { shape: { type: "tube", radius: 0.007, points: [[0,1.42,-0.01],[0.1,1.44,0],[0.18,1.38,0],[0.26,1.26,0],[0.32,1.12,0]] } },
+    { shape: { type: "tube", radius: 0.007, points: [[0,1.42,-0.01],[-0.1,1.44,0],[-0.18,1.38,0],[-0.26,1.26,0],[-0.32,1.12,0]] } },
+    { shape: { type: "tube", radius: 0.008, points: [[0.03,0.94,-0.04],[0.075,0.82,0],[0.08,0.55,0],[0.075,0.18,0]] } },
+    { shape: { type: "tube", radius: 0.008, points: [[0.03,0.94,-0.04],[-0.075,0.82,0],[-0.08,0.55,0],[-0.075,0.18,0]] } },
+    { shape: { type: "tube", radius: 0.0045, points: [[0,1.42,-0.01],[0,1.53,0],[0,1.59,0]] } },
+  ] },
+  venous_tree: { parts: [
+    { shape: { type: "tube", radius: 0.0065, points: [[0.32,1.12,0.025],[0.26,1.26,0.025],[0.18,1.38,0.015],[0.08,1.43,-0.015],[0.028,1.4,-0.04]] } },
+    { shape: { type: "tube", radius: 0.0065, points: [[-0.32,1.12,0.025],[-0.26,1.26,0.025],[-0.18,1.38,0.015],[-0.08,1.43,-0.015],[0.028,1.4,-0.04]] } },
+    { shape: { type: "tube", radius: 0.0075, points: [[0.075,0.18,0.02],[0.08,0.55,0.01],[0.06,0.82,-0.01],[0.02,0.94,-0.04]] } },
+    { shape: { type: "tube", radius: 0.0075, points: [[-0.075,0.18,0.02],[-0.08,0.55,0.01],[-0.06,0.82,-0.01],[0.02,0.94,-0.04]] } },
+  ] },
+
+  esophagus: { position: [0, 1.34, -0.052] },
+  stomach: { position: [-0.065, 1.085, 0.015], rotation: [0, 0, 0.25] },
+  liver: { position: [0.07, 1.12, 0.02], rotation: [0, 0, -0.08] },
+  gallbladder: { position: [0.092, 1.075, 0.035] },
+  pancreas: { position: [-0.005, 1.065, -0.045], rotation: [0, 0, Math.PI / 2] },
+  spleen: { position: [-0.12, 1.11, -0.035] },
+  small_intestine: { position: [0, 0.97, 0.018], scale: [1.25, 0.88, 0.78] },
+  large_intestine: { shape: { type: "tube", radius: 0.018, points: [[0.09,0.9,0.02],[0.09,1.06,0.02],[0.05,1.105,0.02],[-0.05,1.105,0.02],[-0.09,1.06,0.02],[-0.09,0.9,0.02],[-0.05,0.865,0.015],[0,0.85,0.01]] } },
+
+  kidneys: { parts: [
+    { shape: { type: "sphere", radius: 0.04, scale: [0.72,1.12,0.8] }, position: [-0.09, 1.055, -0.075] },
+    { shape: { type: "sphere", radius: 0.04, scale: [0.72,1.12,0.8] }, position: [0.09, 1.025, -0.075] },
+  ] },
+  ureters: { parts: [
+    { shape: { type: "tube", radius: 0.0045, points: [[-0.09,1.02,-0.07],[-0.065,0.95,-0.055],[-0.025,0.875,0.005]] } },
+    { shape: { type: "tube", radius: 0.0045, points: [[0.09,0.99,-0.07],[0.065,0.94,-0.055],[0.025,0.875,0.005]] } },
+  ] },
+  bladder: { position: [0, 0.855, 0.035] },
+
+  thyroid: { position: [0, 1.505, 0.032] },
+  pancreas_endocrine: { position: [-0.005, 1.065, -0.042], rotation: [0, 0, Math.PI / 2] },
+  adrenal_glands: { parts: [
+    { shape: { type: "sphere", radius: 0.016, scale: [1,0.65,0.8] }, position: [-0.09,1.105,-0.07] },
+    { shape: { type: "sphere", radius: 0.016, scale: [1,0.65,0.8] }, position: [0.09,1.075,-0.07] },
+  ] },
+
+  prostate: { position: [0, 0.805, 0.018] },
+  testes: { parts: [
+    { shape: { type: "sphere", radius: 0.024 }, position: [-0.025, 0.69, 0.045] },
+    { shape: { type: "sphere", radius: 0.024 }, position: [0.025, 0.69, 0.045] },
+  ] },
+  penis: { position: [0, 0.73, 0.06], rotation: [0.3, 0, 0] },
+  ovaries: { parts: [
+    { shape: { type: "sphere", radius: 0.018, scale: [1.15,0.72,0.9] }, position: [-0.06, 0.89, -0.005] },
+    { shape: { type: "sphere", radius: 0.018, scale: [1.15,0.72,0.9] }, position: [0.06, 0.89, -0.005] },
+  ] },
+  uterus: { position: [0, 0.855, -0.005] },
+  fallopian: { parts: [
+    { shape: { type: "capsule", radius: 0.0045, length: 0.075 }, position: [-0.038, 0.89, -0.005], rotation: [0, 0, -0.48] },
+    { shape: { type: "capsule", radius: 0.0045, length: 0.075 }, position: [0.038, 0.89, -0.005], rotation: [0, 0, 0.48] },
+  ] },
+  vagina: { position: [0, 0.78, 0.015] },
+
+  skin: { position: [0, 1.18, 0], scale: [1.55, 3.3, 0.9] },
+  major_muscles: { parts: [
+    { shape: { type: "sphere", radius: 0.072, scale: [1.12,0.58,0.4] }, position: [-0.072,1.37,0.052] },
+    { shape: { type: "sphere", radius: 0.072, scale: [1.12,0.58,0.4] }, position: [0.072,1.37,0.052] },
+    { shape: { type: "capsule", radius: 0.044, length: 0.23 }, position: [0,1.15,0.04] },
+    { shape: { type: "capsule", radius: 0.048, length: 0.57 }, position: [-0.07,0.52,0] },
+    { shape: { type: "capsule", radius: 0.048, length: 0.57 }, position: [0.07,0.52,0] },
+  ] },
+
+  lymph_nodes: { parts: [
+    { shape: { type: "sphere", radius: 0.012 }, position: [-0.055,1.48,0.02] },
+    { shape: { type: "sphere", radius: 0.012 }, position: [0.055,1.48,0.02] },
+    { shape: { type: "sphere", radius: 0.014 }, position: [-0.135,1.36,0.02] },
+    { shape: { type: "sphere", radius: 0.014 }, position: [0.135,1.36,0.02] },
+    { shape: { type: "sphere", radius: 0.014 }, position: [-0.075,0.89,0.015] },
+    { shape: { type: "sphere", radius: 0.014 }, position: [0.075,0.89,0.015] },
+  ] },
+  lymph_vessels: { parts: [
+    { shape: { type: "tube", radius: 0.004, points: [[0,0.87,0.025],[0.015,1.08,0.015],[0.01,1.31,0.01],[0,1.49,0.01]] } },
+    { shape: { type: "tube", radius: 0.003, points: [[0.075,0.2,0.025],[0.075,0.62,0.02],[0.055,0.87,0.02],[0,1.0,0.02]] } },
+    { shape: { type: "tube", radius: 0.003, points: [[-0.075,0.2,0.025],[-0.075,0.62,0.02],[-0.055,0.87,0.02],[0,1.0,0.02]] } },
+    { shape: { type: "tube", radius: 0.003, points: [[0.31,1.12,0.03],[0.22,1.29,0.025],[0.12,1.4,0.02],[0,1.45,0.015]] } },
+    { shape: { type: "tube", radius: 0.003, points: [[-0.31,1.12,0.03],[-0.22,1.29,0.025],[-0.12,1.4,0.02],[0,1.45,0.015]] } },
+  ] },
+};
+
+const clonePart = (part) => ({
+  ...part,
+  shape: part.shape ? { ...part.shape, points: part.shape.points?.map((point) => [...point]) } : undefined,
+  position: part.position ? [...part.position] : undefined,
+  rotation: part.rotation ? [...part.rotation] : undefined,
+  scale: part.scale ? [...part.scale] : undefined,
+});
+
+function regenerateStructure(blueprint) {
+  const placement = ANATOMICAL_ATLAS[blueprint.id];
+  if (!placement) throw new Error(`Missing canonical anatomical placement for ${blueprint.id}`);
+  const regenerated = {
+    ...blueprint,
+    ...placement,
+    shape: placement.shape ? clonePart({ shape: placement.shape }).shape : blueprint.shape ? clonePart({ shape: blueprint.shape }).shape : undefined,
+    parts: placement.parts ? placement.parts.map(clonePart) : undefined,
+    position: placement.position ? [...placement.position] : undefined,
+    rotation: placement.rotation ? [...placement.rotation] : undefined,
+    scale: placement.scale ? [...placement.scale] : blueprint.scale ? [...blueprint.scale] : undefined,
+  };
+  return regenerated;
+}
+
+export const ANATOMY_STRUCTURES = STRUCTURE_BLUEPRINTS.map(regenerateStructure);
