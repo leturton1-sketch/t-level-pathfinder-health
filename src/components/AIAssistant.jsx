@@ -217,13 +217,14 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     if (listeningRef.current) setState("listening"); else setState("idle");
   };
 
-  const Waveform = ({ state }) => {
-    const isActive = ["thinking", "speaking", "listening"].includes(state);
+  const Waveform = ({ state: currentState, monitoring = false }) => {
+    const isActive = monitoring || ["thinking", "speaking", "listening"].includes(currentState);
+    const colour = currentState === "listening" ? "bg-red-500" : currentState === "thinking" ? "bg-amber-500" : "bg-clinical-teal";
     return (
-      <div className="flex items-end gap-0.5 h-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className={`w-1 rounded-full ${isActive ? "bg-clinical-teal waveform-bar" : "bg-slate-400/40"}`}
-            style={{ height: isActive ? "100%" : "30%", animationDelay: `${i * 0.1}s` }} />
+      <div className="flex h-5 items-center gap-0.5" aria-label={currentState === "listening" ? "Microphone listening waveform" : monitoring ? "Voice monitoring enabled" : "Assistant idle"}>
+        {Array.from({ length: 9 }).map((_, i) => (
+          <span key={i} className={`w-0.5 rounded-full transition-all ${isActive ? `${colour} waveform-bar` : "bg-slate-300"}`}
+            style={{ height: isActive ? `${35 + ((i * 37) % 65)}%` : `${20 + ((i * 13) % 25)}%`, animationDelay: `${i * 0.07}s`, animationDuration: `${0.55 + (i % 4) * 0.12}s` }} />
         ))}
       </div>
     );
@@ -232,15 +233,26 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
   if (!expanded) {
     return (
       <div className="fixed bottom-20 right-4 z-50">
-        <button onClick={() => setExpanded(true)}
-          className="group flex items-center gap-2 rounded-full border border-clinical-teal/40 bg-white/90 backdrop-blur-md px-4 py-2.5 shadow-lg hover:border-clinical-teal transition-all">
-          <div className="relative">
-            <Bot className="w-5 h-5 text-clinical-teal" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-clinical-green animate-pulse" />
-          </div>
-          <Waveform state={state} />
-          <span className={`text-xs font-medium ${AI_STATES[state].color}`}>{AI_STATES[state].label}</span>
-        </button>
+        <div className="flex items-center overflow-hidden rounded-full border border-clinical-teal/35 bg-white/90 shadow-lg backdrop-blur-xl">
+          <button type="button" onClick={() => setExpanded(true)}
+            className="group flex items-center gap-2 px-4 py-2.5 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
+            <span className="relative">
+              {listening ? <Mic className="h-5 w-5 animate-pulse text-red-600" /> : <Bot className="h-5 w-5 text-clinical-teal" />}
+              <span className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full ${listening ? "bg-red-500" : autoListen ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
+            </span>
+            <Waveform state={state} monitoring={autoListen} />
+            <span className={`text-xs font-bold ${listening ? "text-red-600" : autoListen ? "text-emerald-700" : AI_STATES[state].color}`}>
+              {listening ? "Listening…" : autoListen ? "Voice on" : AI_STATES[state].label}
+            </span>
+          </button>
+          <button type="button" onClick={toggleAutoListen}
+            className={`mr-1 grid h-9 w-9 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
+            title={autoListen ? "Turn off periodic command listening" : "Turn on periodic command listening"}
+            aria-label={autoListen ? "Voice command monitoring on" : "Voice command monitoring off"}
+            aria-pressed={autoListen}>
+            {autoListen ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
     );
   }
@@ -255,7 +267,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
           <div>
             <div className="text-sm font-heading font-bold text-slate-800">AI Clinical Assistant</div>
             <div className={`text-xs ${AI_STATES[state].color} flex items-center gap-1`}>
-              <Waveform state={state} /> {AI_STATES[state].label}
+              <Waveform state={state} monitoring={autoListen} /> {AI_STATES[state].label}
               {muted && <span className="text-clinical-red">(muted)</span>}
             </div>
           </div>
