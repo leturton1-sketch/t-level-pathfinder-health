@@ -41,6 +41,25 @@
     --font-body: 'Inter', Arial, sans-serif;
     --font-display: 'Russo One', Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* 8pt spatial grid with a 4px half-step for compact controls */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --page-gutter: var(--space-4);
+    --page-block-start: var(--space-6);
+    --page-block-end: 6rem;
+  }
+
+  @media (min-width: 640px) {
+    :root { --page-gutter: var(--space-6); }
+  }
+
+  @media (min-width: 1024px) {
+    :root { --page-gutter: var(--space-8); }
   }
 }
 
@@ -162,6 +181,38 @@
 }
 
 @layer components {
+  /* Shared page rhythm: 16/24/32px gutters and a 24px section cadence. */
+  .clinical-page-shell {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+    padding-block-start: var(--page-block-start);
+    padding-block-end: var(--page-block-end);
+  }
+
+  .clinical-page-shell--narrow { max-width: 48rem; }
+  .clinical-page-shell--standard { max-width: 64rem; }
+  .clinical-page-shell--wide { max-width: 80rem; }
+
+  .clinical-section-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .clinical-component-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .clinical-inline-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
   .clinical-global-theme {
     position: relative;
     isolation: isolate;
