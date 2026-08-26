@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Building2, FlaskConical, HeartPulse, MapPin, RotateCcw, Trophy } from "lucide-react";
 
 const HOTSPOTS = [
@@ -8,6 +8,7 @@ const HOTSPOTS = [
     detail: "T Level Health Provision",
     x: 50,
     y: 41.5,
+    scale: 2.6,
     filters: ["suite-a", "suite-b"],
     icon: HeartPulse,
     colour: "from-pink-500 to-rose-600",
@@ -16,8 +17,9 @@ const HOTSPOTS = [
     id: "sports",
     label: "Sports Pitches",
     detail: "Outdoor learning zone",
-    x: 61,
-    y: 70,
+    x: 70,
+    y: 65,
+    scale: 2.2,
     filters: ["health-theory-101"],
     icon: Trophy,
     colour: "from-amber-400 to-orange-600",
@@ -26,8 +28,9 @@ const HOTSPOTS = [
     id: "labs",
     label: "Laboratory / Informatics",
     detail: "Practical science and digital labs",
-    x: 43,
-    y: 31,
+    x: 33,
+    y: 48,
+    scale: 2.4,
     filters: ["laboratory-informatics"],
     icon: FlaskConical,
     colour: "from-violet-500 to-indigo-700",
@@ -38,6 +41,15 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const [selectedId, setSelectedId] = useState(null);
   const [resetView, setResetView] = useState(false);
   const selected = useMemo(() => HOTSPOTS.find((spot) => spot.id === selectedId), [selectedId]);
+
+  useEffect(() => {
+    if (activeZone === "all") return;
+    const filteredHotspot = HOTSPOTS.find((spot) => spot.filters.includes(activeZone));
+    if (filteredHotspot) {
+      setResetView(false);
+      setSelectedId(filteredHotspot.id);
+    }
+  }, [activeZone]);
 
   const focusHotspot = (spot) => {
     setResetView(false);
@@ -53,7 +65,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
     ? {
         animation: "none",
         transformOrigin: `${selected.x}% ${selected.y}%`,
-        transform: "scale(2.05)",
+        transform: `scale(${selected.scale})`,
       }
     : resetView
       ? { animation: "none", transformOrigin: "50% 41.5%", transform: "scale(1.08)" }
