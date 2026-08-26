@@ -74,7 +74,7 @@ export default function Performance() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
