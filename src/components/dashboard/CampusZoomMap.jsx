@@ -154,8 +154,8 @@ export default function CampusZoomMap({ activeZone = "all" }) {
           />
           <span
             aria-hidden="true"
-            className="static-campus-pin-repair pointer-events-none absolute z-[9] h-[6.8%] w-[4.2%] -translate-x-1/2 -translate-y-1/2 bg-[#d6ccb4]"
-            style={{ left: "57.55%", top: "67.6%" }}
+            className="static-campus-pin-repair pointer-events-none absolute z-[9] h-[6.8%] w-[7.2%] -translate-x-1/2 -translate-y-1/2 bg-[#d6ccb4]"
+            style={{ left: "62.85%", top: "67.6%" }}
           />
           <div className="pointer-events-none absolute inset-0 z-10 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.34)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,.10)_1px,transparent_1px)] [background-size:32px_32px]" />
           <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-white/20 via-transparent to-slate-900/10" />
