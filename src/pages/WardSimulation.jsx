@@ -481,7 +481,7 @@ export default function WardSimulation() {
     <div className="fixed inset-0 bg-background flex flex-col">
       {/* Status bar */}
       <div className="bg-primary text-white">
-        <div className="flex items-center justify-between px-4 py-1 max-w-6xl mx-auto text-[10px] font-heading tracking-wider uppercase">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 text-[10px] font-heading uppercase tracking-wider sm:px-6 lg:px-8">
           <span>Ward Simulation · Live</span>
           <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Monitoring</span>
         </div>
