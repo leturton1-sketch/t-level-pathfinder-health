@@ -191,8 +191,6 @@ export default function HealthHub() {
         recorded_by_name: check.clinician_name.trim(),
         clinician_name: check.clinician_name.trim(),
         clinician_designation: check.clinician_designation.trim(),
-        next_check_months: null,
-        next_check_date: null,
         participant_reference: check.participant_reference.trim(),
         age: numberOrNull(check.age),
         consent_confirmed: true,
@@ -251,20 +249,21 @@ export default function HealthHub() {
 
   const updateFollowUp = async (event) => {
     const months = event.target.value;
+    if (!months) return;
     const sourceDate = selectedRecord?.clinic_date || check.clinic_date;
     const nextDate = calculateNextCheckDate(sourceDate, months);
     setCheck((current) => ({ ...current, next_check_months: months, next_check_date: nextDate }));
     if (selectedRecord) {
-      setSelectedRecord((current) => ({ ...current, next_check_months: months ? Number(months) : null, next_check_date: nextDate || null }));
+      setSelectedRecord((current) => ({ ...current, next_check_months: Number(months), next_check_date: nextDate }));
     }
     const recordId = selectedRecord?.id || savedRecordId;
     if (!recordId) return;
     try {
       await base44.entities.HealthHubRecord.update(recordId, {
-        next_check_months: months ? Number(months) : null,
-        next_check_date: nextDate || null,
+        next_check_months: Number(months),
+        next_check_date: nextDate,
       });
-      setMessage(months ? `Next check-up scheduled for ${nextDate}.` : "Next check-up interval removed.");
+      setMessage(`Next check-up scheduled for ${nextDate}.`);
       loadRecords();
     } catch {
       setMessage("The follow-up interval could not be saved. Please try again.");
@@ -386,7 +385,7 @@ export default function HealthHub() {
               ))}
               {!visibleRecords.length && <p className="col-span-full py-12 text-center text-sm text-slate-500">No matching Health Hub records.</p>}
             </div>
-            {selectedRecord && <div className="mt-6"><FeedbackSheet feedback={feedback} reference={selectedRecord.participant_reference} clinicianName={selectedRecord.clinician_name || selectedRecord.recorded_by_name} clinicianDesignation={selectedRecord.clinician_designation} checkDate={selectedRecord.clinic_date} followUpMonths={selectedRecord.next_check_months || ""} followUpDate={selectedRecord.next_check_date} onFollowUpChange={updateFollowUp} onClose={() => { setSelectedRecord(null); setFeedback(null); }} onPrint={() => window.print()} /></div>
+            {selectedRecord && <div className="mt-6"><FeedbackSheet feedback={feedback} reference={selectedRecord.participant_reference} clinicianName={selectedRecord.clinician_name || selectedRecord.recorded_by_name} clinicianDesignation={selectedRecord.clinician_designation} checkDate={selectedRecord.clinic_date} followUpMonths={selectedRecord.next_check_months || ""} followUpDate={selectedRecord.next_check_date} onFollowUpChange={updateFollowUp} onClose={() => { setSelectedRecord(null); setFeedback(null); }} onPrint={() => window.print()} /></div>}
           </section>
         )}
 
@@ -420,7 +419,7 @@ function FeedbackSheet({ feedback, reference, clinicianName, clinicianDesignatio
         <label className="block text-sm font-black text-emerald-950" htmlFor="next-check-up">Next health and wellbeing check</label>
         <p className="mt-1 text-xs text-emerald-800">Select the agreed review interval after discussing the formative feedback.</p>
         <select id="next-check-up" className="mt-3 w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-slate-900" value={followUpMonths || ""} onChange={onFollowUpChange}>
-          <option value="">No interval selected</option>
+          <option value="" disabled>Select follow-up interval</option>
           <option value="1">1 month</option>
           <option value="2">2 months</option>
           <option value="3">3 months</option>
