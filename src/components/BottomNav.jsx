@@ -119,7 +119,7 @@ export default function BottomNav() {
   return (
     <div
       ref={dragRef}
-      className="clinical-glass-nav fixed z-40 max-w-md rounded-[22px] px-2 py-1.5 opacity-55 transition-[opacity] duration-500 hover:opacity-95 focus-within:opacity-100 select-none"
+      className="clinical-glass-nav fixed z-40 max-w-lg rounded-[22px] px-3 py-2.5 opacity-55 transition-[opacity] duration-500 hover:opacity-95 focus-within:opacity-100 select-none"
       style={{ left: pos.x, top: pos.y, touchAction: "none", cursor: dragging ? "grabbing" : "default" }}
     >
       {/* Drag handle */}
@@ -141,7 +141,7 @@ export default function BottomNav() {
               key={item.path}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={() => { if (!movedRef.current) navigate(item.path); }}
-              className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+              className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
