@@ -420,7 +420,7 @@
   .map-reflection { animation: map-reflection-settle 24s ease-in-out 1 forwards; }
 
   @keyframes aerial-campus-zoom {
-    0%, 8% { transform: scale(1); filter: saturate(.9) brightness(1.03); }
+    0%, 8% { transform: scale(1.15); filter: saturate(.9) brightness(1.03); }
     68%, 100% { transform: scale(2.15); filter: saturate(1.08) brightness(1.01) contrast(1.03); }
   }
 
