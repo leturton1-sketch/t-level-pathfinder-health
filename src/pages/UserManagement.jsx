@@ -236,6 +236,61 @@ export default function UserManagement() {
           )}
         </div>
       )}
+      </div>
+
+      {activeTab === "voice" && (
+        <section className="polished-glass-edge overflow-hidden rounded-[28px] border border-white/90 bg-white/70 shadow-[0_20px_55px_-34px_rgba(15,23,42,.65),inset_1px_1px_2px_white] backdrop-blur-2xl">
+          <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-purple-50/70 p-5">
+            <div className="flex items-start gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-teal-700 text-white shadow-[0_9px_18px_-10px_rgba(8,145,178,.9),inset_1px_1px_1px_rgba(255,255,255,.7)]">
+                <Volume2 className="h-6 w-6" />
+              </span>
+              <div>
+                <h2 className="text-base font-bold text-slate-900">UK Voice Configuration</h2>
+                <p className="mt-1 text-sm leading-5 text-slate-600">
+                  Manage the application’s speech engine, regional dialect, voice model, system voice, pitch, speed, stability and volume from this single location.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 p-5 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+              <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Current engine</p>
+              <p className="mt-1 text-sm font-bold capitalize text-slate-900">{voiceSynth.prefs.engine === "cloud" ? "Cloud HD" : "Browser"}</p>
+              <p className="mt-1 text-xs text-slate-500">Profile: {voiceSynth.prefs.profileId}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+              <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Speech tuning</p>
+              <p className="mt-1 text-sm font-bold text-slate-900">
+                {Number(voiceSynth.prefs.rate).toFixed(2)}× speed · {Number(voiceSynth.prefs.pitch).toFixed(2)}× pitch
+              </p>
+              <p className="mt-1 text-xs text-slate-500">{Math.round(voiceSynth.prefs.volume * 100)}% volume</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-slate-200/70 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-slate-600">Settings are saved for the current signed-in user and used by voice-enabled areas across Clinical Edge.</p>
+            <button
+              type="button"
+              onClick={() => setVoiceSettingsOpen(true)}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-clinical-teal px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <Settings2 className="h-4 w-4" /> Configure Voice
+            </button>
+          </div>
+        </section>
+      )}
+
+      <VoiceSettings
+        open={voiceSettingsOpen}
+        onClose={() => setVoiceSettingsOpen(false)}
+        synth={voiceSynth}
+        onSaved={() => {
+          toast({ title: "Voice settings saved", description: "The UK voice configuration has been updated." });
+          setTimeout(() => voiceSynth.speak("Voice settings saved. Your regional voice is ready."), 80);
+        }}
+      />
 
       {/* Create user modal */}
       {showCreate && (
