@@ -407,17 +407,17 @@
   }
 
   .campus-aerial {
-    animation: aerial-campus-zoom 18s cubic-bezier(.42, 0, .18, 1) 1 forwards;
-    transform-origin: 51.8% 64%;
+    animation: aerial-campus-zoom 24s cubic-bezier(.42, 0, .18, 1) 1 forwards;
+    transform-origin: 50% 41.5%;
     will-change: transform, filter;
   }
 
-  .health-location { animation: health-location-reveal 18s ease-in-out 1 forwards; }
+  .health-location { animation: health-location-reveal 24s ease-in-out 1 forwards; }
   .health-ring { animation: health-location-pulse 2.2s ease-out infinite; }
   .health-ring-delay { animation-delay: .75s; }
-  .health-label { animation: health-label-reveal 18s ease-in-out 1 forwards; }
-  .campus-progress { animation: campus-journey-progress 18s linear 1 forwards; }
-  .map-reflection { animation: map-reflection-settle 18s ease-in-out 1 forwards; }
+  .health-label { animation: health-label-reveal 24s ease-in-out 1 forwards; }
+  .campus-progress { animation: campus-journey-progress 24s linear 1 forwards; }
+  .map-reflection { animation: map-reflection-settle 24s ease-in-out 1 forwards; }
 
   @keyframes aerial-campus-zoom {
     0%, 8% { transform: scale(1); filter: saturate(.9) brightness(1.03); }
