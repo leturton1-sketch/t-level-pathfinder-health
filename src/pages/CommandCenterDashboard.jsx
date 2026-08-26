@@ -24,10 +24,12 @@ const roomStyles = {
 };
 
 const areaLegend = [
-  { id: "suite-a", label: "Clinical Suite A", colour: "bg-pink-400" },
-  { id: "suite-b", label: "Clinical Suite B", colour: "bg-emerald-500" },
-  { id: "health-theory-101", label: "Health Theory 101", colour: "bg-yellow-400" },
-  { id: "laboratory-informatics", label: "Laboratory / Informatics", colour: "bg-violet-500" },
+  { id: "suite-a", label: "Health Department", colour: "bg-pink-400" },
+  { id: "reception", label: "Reception", colour: "bg-violet-500" },
+  { id: "animal-care", label: "Animal Care & Management", colour: "bg-emerald-500" },
+  { id: "refectory", label: "Refectory", colour: "bg-orange-400" },
+  { id: "sport", label: "Sport Department", colour: "bg-blue-500" },
+  { id: "english-maths", label: "English & Mathematics", colour: "bg-fuchsia-500" },
 ];
 
 const staff = [
