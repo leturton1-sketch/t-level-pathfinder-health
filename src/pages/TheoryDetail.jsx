@@ -110,7 +110,7 @@ export default function TheoryDetail() {
       </header>
 
       <main className="mx-auto max-w-4xl px-4 pb-32 pt-6 sm:px-6">
-        <section className="polished-glass-edge mb-5 rounded-[24px] border border-white/90 bg-white/82 p-4 shadow-[0_14px_32px_rgba(66,55,88,0.11),inset_0_1px_0_white] backdrop-blur-xl sm:p-5" aria-labelledby="mapping-heading">
+        <section className="polished-glass-edge mb-6 rounded-[24px] border border-white/90 bg-white/82 p-4 shadow-[0_14px_32px_rgba(66,55,88,0.11),inset_0_1px_0_white] backdrop-blur-xl sm:p-6" aria-labelledby="mapping-heading">
           <div className="mb-3 flex items-center gap-2">
             <Target className="h-4 w-4 text-tl-purple" aria-hidden="true" />
             <h2 id="mapping-heading" className="text-sm font-bold text-slate-900">Specification mapping</h2>
@@ -118,19 +118,19 @@ export default function TheoryDetail() {
           <SKBadgeGroup skCodes={module.sk_codes || []} poCodes={module.performance_outcomes || []} />
         </section>
 
-        <article className="polished-glass-edge mb-6 rounded-[28px] border border-white/90 bg-white/92 p-5 shadow-[0_20px_46px_rgba(66,55,88,0.13),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
+        <article className="polished-glass-edge mb-6 rounded-[28px] border border-white/90 bg-white/92 p-6 shadow-[0_20px_46px_rgba(66,55,88,0.13),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
           <ReactMarkdown
             components={{
-              h1: ({ node, ...props }) => <h1 className="mb-5 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl" {...props} />,
+              h1: ({ node, ...props }) => <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl" {...props} />,
               h2: ({ node, ...props }) => <h2 className="mb-3 mt-8 border-b border-tl-purple/15 pb-2 text-xl font-extrabold tracking-tight text-slate-950 first:mt-0 sm:text-2xl" {...props} />,
               h3: ({ node, ...props }) => <h3 className="mb-2 mt-6 text-lg font-bold text-tl-purple sm:text-xl" {...props} />,
               p: ({ node, ...props }) => <p className="mb-4 text-[15px] leading-7 text-slate-800 sm:text-base" {...props} />,
               li: ({ node, ...props }) => <li className="pl-1 text-[15px] leading-7 text-slate-800 marker:text-tl-purple sm:text-base" {...props} />,
-              ul: ({ node, ...props }) => <ul className="mb-5 ml-5 list-disc space-y-1.5" {...props} />,
-              ol: ({ node, ...props }) => <ol className="mb-5 ml-5 list-decimal space-y-1.5" {...props} />,
+              ul: ({ node, ...props }) => <ul className="mb-6 ml-6 list-disc space-y-1.5" {...props} />,
+              ol: ({ node, ...props }) => <ol className="mb-6 ml-6 list-decimal space-y-1.5" {...props} />,
               strong: ({ node, ...props }) => <strong className="font-extrabold text-slate-950" {...props} />,
-              blockquote: ({ node, ...props }) => <blockquote className="my-5 rounded-r-xl border-l-4 border-tl-purple bg-tl-purple/8 px-4 py-3 text-slate-800" {...props} />,
-              table: ({ node, ...props }) => <div className="my-5 overflow-x-auto rounded-xl border border-slate-200"><table className="w-full border-collapse text-left text-sm text-slate-800" {...props} /></div>,
+              blockquote: ({ node, ...props }) => <blockquote className="my-6 rounded-r-xl border-l-4 border-tl-purple bg-tl-purple/8 px-4 py-3 text-slate-800" {...props} />,
+              table: ({ node, ...props }) => <div className="my-6 overflow-x-auto rounded-xl border border-slate-200"><table className="w-full border-collapse text-left text-sm text-slate-800" {...props} /></div>,
               th: ({ node, ...props }) => <th className="bg-tl-purple/10 px-3 py-2.5 font-bold text-slate-950" {...props} />,
               td: ({ node, ...props }) => <td className="border-t border-slate-200 px-3 py-2.5 align-top" {...props} />,
             }}
@@ -140,7 +140,7 @@ export default function TheoryDetail() {
         </article>
 
         {module.references?.length > 0 && (
-          <section className="mb-6 rounded-[22px] border border-tl-purple/18 bg-gradient-to-br from-white to-violet-50/80 p-5 shadow-[0_12px_28px_rgba(66,55,88,0.09),inset_0_1px_0_white]" aria-labelledby="references-heading">
+          <section className="mb-6 rounded-[22px] border border-tl-purple/18 bg-gradient-to-br from-white to-violet-50/80 p-6 shadow-[0_12px_28px_rgba(66,55,88,0.09),inset_0_1px_0_white]" aria-labelledby="references-heading">
             <h2 id="references-heading" className="mb-3 flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.08em] text-slate-900">
               <BookMarked className="h-4 w-4 text-tl-purple" aria-hidden="true" /> Evidence & references
             </h2>
@@ -154,8 +154,8 @@ export default function TheoryDetail() {
           </section>
         )}
 
-        <section className="mb-6 rounded-[28px] border border-tl-purple/20 bg-white/90 p-5 shadow-[0_18px_40px_rgba(66,55,88,0.12),inset_0_1px_0_white] backdrop-blur-xl sm:p-7" aria-labelledby="knowledge-check-heading">
-          <h2 id="knowledge-check-heading" className="mb-5 flex items-center gap-2 text-lg font-extrabold text-slate-950">
+        <section className="mb-6 rounded-[28px] border border-tl-purple/20 bg-white/90 p-6 shadow-[0_18px_40px_rgba(66,55,88,0.12),inset_0_1px_0_white] backdrop-blur-xl sm:p-8" aria-labelledby="knowledge-check-heading">
+          <h2 id="knowledge-check-heading" className="mb-6 flex items-center gap-2 text-lg font-extrabold text-slate-950">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-tl-purple/12 text-tl-purple"><CheckCircle className="h-5 w-5" aria-hidden="true" /></span>
             Knowledge Check
           </h2>
