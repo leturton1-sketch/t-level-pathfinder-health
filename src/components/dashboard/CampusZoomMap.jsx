@@ -187,7 +187,9 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   };
 
   const placeSelectedPin = (event) => {
-    if (!editing || draggedRef.current || event.target.closest(".campus-hotspot")) {
+    const target = event.target instanceof Element ? event.target : null;
+    const isInteractiveOverlay = target?.closest(".campus-hotspot, .campus-map-controls");
+    if (!editing || draggedRef.current || isInteractiveOverlay) {
       draggedRef.current = false;
       return;
     }
@@ -295,7 +297,11 @@ export default function CampusZoomMap({ activeZone = "all" }) {
           })}
         </div>
 
-        <div className="absolute right-3 top-3 z-40 flex items-center gap-2 rounded-xl border border-white/90 bg-white/88 p-1.5 shadow-lg backdrop-blur-xl">
+        <div
+          className="campus-map-controls absolute right-3 top-3 z-40 flex items-center gap-2 rounded-xl border border-white/90 bg-white/88 p-1.5 shadow-lg backdrop-blur-xl"
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
           <span className="hidden px-2 text-[9px] font-bold uppercase tracking-[.12em] text-[#4A5568] sm:inline">
             Map controls
           </span>
