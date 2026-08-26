@@ -93,7 +93,7 @@ export default function ScenarioAuthoring() {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border shadow-sm">
-        <div className="max-w-4xl mx-auto px-3 py-2.5 sm:px-4">
+        <div className="mx-auto max-w-4xl px-4 py-2 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <button onClick={() => navigate("/")} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground shrink-0">←</button>
