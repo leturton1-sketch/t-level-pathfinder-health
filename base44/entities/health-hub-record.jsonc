@@ -20,6 +20,25 @@
     "recorded_by_name": {
       "type": "string"
     },
+    "clinician_name": {
+      "type": "string"
+    },
+    "clinician_designation": {
+      "type": "string"
+    },
+    "next_check_months": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        3,
+        6
+      ]
+    },
+    "next_check_date": {
+      "type": "string",
+      "format": "date"
+    },
     "participant_reference": {
       "type": "string",
       "description": "Clinic identifier or participant initials; avoid unnecessary identifying data"
