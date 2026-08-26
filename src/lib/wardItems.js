@@ -411,3 +411,129 @@ function createWallCabinet() {
   glow.position.set(0, 1.2, 0.8); g.add(glow);
   return g;
 }
+
+function addCaster(group, x, z) {
+  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.05, 12), M.metal);
+  wheel.rotation.z = Math.PI / 2;
+  wheel.position.set(x, 0.09, z);
+  group.add(wheel);
+}
+
+function createClinicalTrolley(colour, isEmergency = false) {
+  const g = new THREE.Group();
+  const bodyMaterial = new THREE.MeshPhysicalMaterial({ color: colour, roughness: 0.3, clearcoat: 0.55 });
+  const body = new THREE.Mesh(new RoundedBoxGeometry(0.9, 1.05, 0.62, 4, 0.08), bodyMaterial);
+  body.position.y = 0.68; body.castShadow = true; g.add(body);
+  const top = new THREE.Mesh(new RoundedBoxGeometry(0.96, 0.07, 0.68, 4, 0.05), M.cabinetTop);
+  top.position.y = 1.23; g.add(top);
+  [-0.15, 0.15, 0.45].forEach((y) => {
+    const drawer = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.2, 0.035), M.cabinetTop);
+    drawer.position.set(0, y + 0.55, 0.33); g.add(drawer);
+    const pull = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.025, 0.03), M.metal);
+    pull.position.set(0, y + 0.55, 0.36); g.add(pull);
+  });
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(1.12, 0.05, 0.05), M.metal);
+  handle.position.set(0, 1.05, -0.38); g.add(handle);
+  [[-0.36, -0.24], [0.36, -0.24], [-0.36, 0.24], [0.36, 0.24]].forEach(([x, z]) => addCaster(g, x, z));
+  if (isEmergency) {
+    const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.38, 0.04), M.porcelain);
+    const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.1, 0.04), M.porcelain);
+    crossV.position.set(0, 0.85, 0.36); crossH.position.copy(crossV.position); g.add(crossV, crossH);
+  }
+  return g;
+}
+
+function createWheelchair() {
+  const g = new THREE.Group();
+  const upholstery = new THREE.MeshPhysicalMaterial({ color: 0x6E83A8, roughness: 0.45, clearcoat: 0.25 });
+  const seat = new THREE.Mesh(new RoundedBoxGeometry(0.62, 0.08, 0.58, 4, 0.05), upholstery);
+  seat.position.y = 0.62; g.add(seat);
+  const back = new THREE.Mesh(new RoundedBoxGeometry(0.62, 0.72, 0.08, 4, 0.05), upholstery);
+  back.position.set(0, 0.94, -0.27); g.add(back);
+  [-0.4, 0.4].forEach((x) => {
+    const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.055, 10, 28), M.metal);
+    wheel.rotation.y = Math.PI / 2; wheel.position.set(x, 0.43, 0); g.add(wheel);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.55), M.metal);
+    arm.position.set(x, 0.86, 0); g.add(arm);
+  });
+  const footrest = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.05, 0.25), M.metal);
+  footrest.position.set(0, 0.23, 0.48); g.add(footrest);
+  return g;
+}
+
+function createPatientHoist() {
+  const g = new THREE.Group();
+  [-0.43, 0.43].forEach((x) => {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 1.4), M.metal);
+    base.position.set(x, 0.12, 0.2); g.add(base);
+    addCaster(g, x, -0.45); addCaster(g, x, 0.78);
+  });
+  const mast = new THREE.Mesh(new THREE.BoxGeometry(0.13, 1.9, 0.13), M.metal);
+  mast.position.set(0, 1.02, -0.46); g.add(mast);
+  const boom = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.45), M.metal);
+  boom.rotation.x = -0.18; boom.position.set(0, 1.82, 0.15); g.add(boom);
+  const sling = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.85, 0.6),
+    new THREE.MeshPhysicalMaterial({ color: 0xB8D8CC, transparent: true, opacity: 0.72, side: THREE.DoubleSide, roughness: 0.7 })
+  );
+  sling.rotation.x = -Math.PI / 2; sling.position.set(0, 1.25, 0.72); g.add(sling);
+  return g;
+}
+
+function createOxygenCylinder() {
+  const g = new THREE.Group();
+  const cylinderMaterial = new THREE.MeshPhysicalMaterial({ color: 0xDCE8E1, roughness: 0.3, metalness: 0.25, clearcoat: 0.55 });
+  const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.27, 1.25, 20), cylinderMaterial);
+  bottle.position.y = 0.7; g.add(bottle);
+  const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.23, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), cylinderMaterial);
+  shoulder.position.y = 1.33; g.add(shoulder);
+  const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.18, 10), M.metal);
+  valve.position.y = 1.52; g.add(valve);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.035, 8, 20), M.metal);
+  ring.rotation.x = Math.PI / 2; ring.position.y = 0.12; g.add(ring);
+  return g;
+}
+
+function createCommode() {
+  const g = new THREE.Group();
+  const seat = new THREE.Mesh(new RoundedBoxGeometry(0.66, 0.08, 0.62, 4, 0.05), M.porcelain);
+  seat.position.y = 0.62; g.add(seat);
+  const opening = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.045, 10, 24), M.metal);
+  opening.rotation.x = Math.PI / 2; opening.position.y = 0.68; g.add(opening);
+  const back = new THREE.Mesh(new RoundedBoxGeometry(0.66, 0.55, 0.08, 4, 0.04), M.cabinet);
+  back.position.set(0, 0.95, -0.28); g.add(back);
+  [[-0.26, -0.24], [0.26, -0.24], [-0.26, 0.24], [0.26, 0.24]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.62, 8), M.metal);
+    leg.position.set(x, 0.31, z); g.add(leg);
+  });
+  return g;
+}
+
+function createExaminationCouch() {
+  const g = new THREE.Group();
+  const base = new THREE.Mesh(new RoundedBoxGeometry(1.15, 0.52, 2.45, 5, 0.09), M.cabinet);
+  base.position.y = 0.34; g.add(base);
+  const cushion = new THREE.Mesh(
+    new RoundedBoxGeometry(1.22, 0.14, 2.5, 5, 0.08),
+    new THREE.MeshPhysicalMaterial({ color: 0xAFCFE7, roughness: 0.48, clearcoat: 0.28 })
+  );
+  cushion.position.y = 0.72; g.add(cushion);
+  const head = new THREE.Mesh(new RoundedBoxGeometry(1.22, 0.14, 0.72, 5, 0.08), M.mattress);
+  head.rotation.x = -0.25; head.position.set(0, 0.84, -0.9); g.add(head);
+  return g;
+}
+
+function createSanitiserStand() {
+  const g = new THREE.Group();
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.05, 18), M.metal);
+  base.position.y = 0.03; g.add(base);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.35, 10), M.metal);
+  pole.position.y = 0.7; g.add(pole);
+  const dispenser = new THREE.Mesh(new RoundedBoxGeometry(0.34, 0.5, 0.24, 4, 0.05), M.porcelain);
+  dispenser.position.set(0, 1.35, 0); g.add(dispenser);
+  const window = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.2), M.screenNormal);
+  window.position.set(0, 1.4, 0.125); g.add(window);
+  const nozzle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.12), M.metal);
+  nozzle.position.set(0, 1.13, 0.12); g.add(nozzle);
+  return g;
+}
