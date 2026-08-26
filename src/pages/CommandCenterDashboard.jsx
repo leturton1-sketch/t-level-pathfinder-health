@@ -103,7 +103,7 @@ export default function CommandCenterDashboard() {
     <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.98),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(220,210,238,.55),transparent_32%),linear-gradient(145deg,#faf9fb_0%,#f2eef7_48%,#f8f6fa_100%)] pb-24 text-[#15131A]">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:42px_42px]" />
 
-      <div className="relative mx-auto max-w-[1560px] px-4 py-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-[1950px] px-4 py-4 sm:px-6 lg:px-8">
         <header className="polished-glass-edge relative mb-6 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-6 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
@@ -150,7 +150,7 @@ export default function CommandCenterDashboard() {
             </div>
           </aside>
 
-          <section className="polished-glass-edge relative min-h-[510px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
+          <section className="polished-glass-edge relative min-h-[638px] overflow-hidden rounded-[34px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-4 shadow-[0_14px_0_-7px_rgba(100,116,139,.32),0_38px_90px_-40px_rgba(15,23,42,.72),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-24 before:-top-20 before:h-40 before:w-3/4 before:rotate-[-12deg] before:rounded-full before:bg-white/62 before:blur-2xl sm:p-6">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
