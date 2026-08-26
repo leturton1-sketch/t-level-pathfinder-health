@@ -311,7 +311,9 @@ export default function HealthHub() {
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><UserRound className="h-5 w-5 text-tl-purple" />Clinic details and consent</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Clinic or health hub" required><input className={inputClass} value={check.clinic_name} onChange={set("clinic_name")} /></Field>
-                  <Field label="Date" required><input type="date" className={inputClass} value={check.clinic_date} onChange={set("clinic_date")} /></Field>
+                  <Field label="Check date" required><input type="date" className={inputClass} value={check.clinic_date} onChange={set("clinic_date")} /></Field>
+                  <Field label="Clinician name" required><input className={inputClass} value={check.clinician_name} onChange={set("clinician_name")} /></Field>
+                  <Field label="Clinician designation" required><input className={inputClass} placeholder="e.g. Registered Nurse, Health Practitioner" value={check.clinician_designation} onChange={set("clinician_designation")} /></Field>
                   <Field label="Participant reference or initials" required hint="Use the minimum identifying information needed for this training record."><input className={inputClass} value={check.participant_reference} onChange={set("participant_reference")} /></Field>
                   <Field label="Age"><input type="number" min="16" max="120" className={inputClass} value={check.age} onChange={set("age")} /></Field>
                   <div className="sm:col-span-2"><Field label="Reason for check"><textarea rows="2" className={inputClass} value={check.reason_for_check} onChange={set("reason_for_check")} /></Field></div>
@@ -365,7 +367,7 @@ export default function HealthHub() {
                 <h2 className="mt-4 text-lg font-black">Safe use</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-300">This learning tool supports documentation and formative discussion. It does not diagnose illness or replace a qualified clinician, validated risk calculator or local pathway.</p>
               </div>
-              {feedback && <FeedbackSheet feedback={feedback} reference={check.participant_reference} onPrint={() => window.print()} />}
+              {feedback && <FeedbackSheet feedback={feedback} reference={check.participant_reference} clinicianName={check.clinician_name} clinicianDesignation={check.clinician_designation} checkDate={check.clinic_date} followUpMonths={check.next_check_months} followUpDate={check.next_check_date} onFollowUpChange={updateFollowUp} onPrint={() => window.print()} />}
             </aside>
           </div>
         ) : (
@@ -378,12 +380,13 @@ export default function HealthHub() {
               {visibleRecords.map((record) => (
                 <button key={record.id} onClick={() => viewRecord(record)} className="rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-tl-purple/30 hover:shadow-md">
                   <div className="flex items-start justify-between gap-3"><div><p className="font-black">{record.participant_reference}</p><p className="text-xs text-slate-500">{record.clinic_name}</p></div><CheckCircle2 className="h-5 w-5 text-emerald-600" /></div>
+                  <p className="mt-2 text-xs font-semibold text-slate-600">{record.clinician_name || record.recorded_by_name}{record.clinician_designation ? ` · ${record.clinician_designation}` : ""}</p>
                   <div className="mt-4 flex justify-between text-xs text-slate-600"><span>{record.clinic_date}</span><span>BP {record.systolic_bp}/{record.diastolic_bp}</span><span>BMI {record.bmi || "—"}</span></div>
                 </button>
               ))}
               {!visibleRecords.length && <p className="col-span-full py-12 text-center text-sm text-slate-500">No matching Health Hub records.</p>}
             </div>
-            {selectedRecord && <div className="mt-6"><FeedbackSheet feedback={feedback} reference={selectedRecord.participant_reference} onClose={() => { setSelectedRecord(null); setFeedback(null); }} onPrint={() => window.print()} /></div>}
+            {selectedRecord && <div className="mt-6"><FeedbackSheet feedback={feedback} reference={selectedRecord.participant_reference} clinicianName={selectedRecord.clinician_name || selectedRecord.recorded_by_name} clinicianDesignation={selectedRecord.clinician_designation} checkDate={selectedRecord.clinic_date} followUpMonths={selectedRecord.next_check_months || ""} followUpDate={selectedRecord.next_check_date} onFollowUpChange={updateFollowUp} onClose={() => { setSelectedRecord(null); setFeedback(null); }} onPrint={() => window.print()} /></div>
           </section>
         )}
 
