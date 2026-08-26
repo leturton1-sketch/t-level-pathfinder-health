@@ -40,7 +40,7 @@ export default function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-background px-4 pt-6 pb-24 max-w-3xl mx-auto">
+    <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">
       {/* Profile header */}
       <div className="flex items-center gap-4 mb-6">
         <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${
