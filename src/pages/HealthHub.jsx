@@ -183,12 +183,16 @@ export default function HealthHub() {
     setFeedback(result);
     setSaving(true);
     try {
-      await base44.entities.HealthHubRecord.create({
+      const savedRecord = await base44.entities.HealthHubRecord.create({
         clinic_name: check.clinic_name.trim(),
         clinic_date: check.clinic_date,
         recorded_at: new Date().toISOString(),
         recorded_by_id: user?.id || user?.username || "unknown",
-        recorded_by_name: user?.full_name || user?.username || "Clinical user",
+        recorded_by_name: check.clinician_name.trim(),
+        clinician_name: check.clinician_name.trim(),
+        clinician_designation: check.clinician_designation.trim(),
+        next_check_months: null,
+        next_check_date: null,
         participant_reference: check.participant_reference.trim(),
         age: numberOrNull(check.age),
         consent_confirmed: true,
@@ -221,7 +225,8 @@ export default function HealthHub() {
         feedback_learning_prompts: JSON.stringify(result.learningPrompts),
         status: "completed",
       });
-      setMessage("Health & Wellbeing Check saved and formative feedback generated.");
+      setSavedRecordId(savedRecord?.id || null);
+      setMessage("Health & Wellbeing Check saved and formative feedback generated. Select the next check-up interval on the feedback sheet.");
       loadRecords();
     } catch {
       setMessage("Feedback was generated, but the clinic record could not be saved. Please try again.");
@@ -231,8 +236,9 @@ export default function HealthHub() {
   };
 
   const startNew = () => {
-    setCheck(emptyCheck());
+    setCheck(emptyCheck(user));
     setFeedback(null);
+    setSavedRecordId(null);
     setSelectedRecord(null);
     setMessage("");
     setTab("new");
@@ -242,6 +248,28 @@ export default function HealthHub() {
     [record.participant_reference, record.clinic_name, record.recorded_by_name]
       .some((value) => String(value || "").toLowerCase().includes(search.toLowerCase()))
   );
+
+  const updateFollowUp = async (event) => {
+    const months = event.target.value;
+    const sourceDate = selectedRecord?.clinic_date || check.clinic_date;
+    const nextDate = calculateNextCheckDate(sourceDate, months);
+    setCheck((current) => ({ ...current, next_check_months: months, next_check_date: nextDate }));
+    if (selectedRecord) {
+      setSelectedRecord((current) => ({ ...current, next_check_months: months ? Number(months) : null, next_check_date: nextDate || null }));
+    }
+    const recordId = selectedRecord?.id || savedRecordId;
+    if (!recordId) return;
+    try {
+      await base44.entities.HealthHubRecord.update(recordId, {
+        next_check_months: months ? Number(months) : null,
+        next_check_date: nextDate || null,
+      });
+      setMessage(months ? `Next check-up scheduled for ${nextDate}.` : "Next check-up interval removed.");
+      loadRecords();
+    } catch {
+      setMessage("The follow-up interval could not be saved. Please try again.");
+    }
+  };
 
   const viewRecord = (record) => {
     setSelectedRecord(record);
