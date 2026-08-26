@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Bot, Send, Mic, Settings2, Square, Volume2, VolumeX, ArrowLeft } from "lucide-react";
+import { Bot, Send, Mic, Square, Volume2, VolumeX, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import AudioVisualizer from "@/components/voice/AudioVisualizer";
-import VoiceSettings from "@/components/voice/VoiceSettings";
 import ClinicianHead3D from "@/components/voice/ClinicianHead3D";
 import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
 
@@ -26,7 +25,6 @@ export default function VoiceAssistant() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("idle");
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const listeningRef = useRef(false);
@@ -122,9 +120,6 @@ export default function VoiceAssistant() {
           <button onClick={toggleMute} className="p-2 rounded-lg hover:bg-muted" title="Mute" aria-label="Mute">
             {synth.prefs.muted ? <VolumeX className="w-5 h-5 text-clinical-red" /> : <Volume2 className="w-5 h-5 text-muted-foreground" />}
           </button>
-          <button onClick={() => setSettingsOpen(true)} className="p-2 rounded-lg hover:bg-muted" title="Voice settings" aria-label="Voice settings">
-            <Settings2 className="w-5 h-5 text-muted-foreground" />
-          </button>
         </div>
       </div>
 
@@ -179,12 +174,6 @@ export default function VoiceAssistant() {
         </div>
       </div>
 
-      <VoiceSettings
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        onSaved={() => toast({ title: "Voice settings saved", description: "Your voice preferences have been saved." })}
-        synth={synth}
-      />
     </div>
   );
 }
