@@ -240,7 +240,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
 
           {hotspots.map((spot) => {
             const Icon = spot.icon;
-            const matchesFilter = activeZone === "all" || spot.filters.includes(activeZone);
+            const matchesFilter = !selectedId || activeZone === "all" || spot.filters.includes(activeZone);
             const isSelected = selectedId === spot.id;
             const isBeingEdited = editing && editSpotId === spot.id;
 
@@ -269,7 +269,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   top: `${spot.y}%`,
                   transform: "translate(-50%, -50%)",
                 }}
-                className={`campus-hotspot group absolute z-30 grid h-10 w-10 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-20 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
+                className={`campus-hotspot group absolute z-30 grid h-10 w-10 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-40 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
                 aria-label={editing ? `Move ${spot.label} pin. Use arrow keys for precise positioning.` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
                 onKeyDown={(event) => nudgePin(event, spot)}
