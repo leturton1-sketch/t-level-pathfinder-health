@@ -6,6 +6,7 @@ import { SKBadgeGroup } from "@/components/SKBadge";
 import { WARD_PATIENTS } from "@/lib/wardPatients";
 import { SBAR_PATIENTS } from "@/lib/sbarDatabase";
 import { getCurrentUser } from "@/lib/clinicalAuth";
+import DecisionTreeEditor from "@/components/scenario/DecisionTreeEditor";
 import {
   User, Heart, Activity, Thermometer, Wind, Droplet, Brain, Save,
   X, Sparkles, Copy, AlertCircle, FileText, ChevronRight, ChevronDown,
@@ -351,6 +352,13 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
               placeholder="Key learning points for the post-scenario debrief…"
               rows={2}
               className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-clinical-teal/50 resize-y" />
+          </div>
+
+          {/* Branching pathways */}
+          <div>
+            <label className="text-[11px] font-heading font-semibold text-slate-500 mb-1.5 block">Decision Pathway</label>
+            <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">Build the branching clinical decisions a student works through. Mark the correct response on each option and link it to the next node, or end the scenario for the debrief.</p>
+            <DecisionTreeEditor value={draft.decision_tree} onChange={(json) => update({ decision_tree: json })} />
           </div>
 
           {/* SK / PO codes */}
