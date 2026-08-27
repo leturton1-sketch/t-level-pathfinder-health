@@ -302,8 +302,15 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
         <div className="flex items-center overflow-hidden rounded-full border border-clinical-teal/35 bg-white/80 shadow-lg backdrop-blur-xl">
           <button type="button" onClick={() => setExpanded((v) => !v)}
             className="group flex items-center gap-2 px-3.5 py-2 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
-            <Waveform state={state} red reactive />
-            <span className={`text-[11px] font-bold text-red-600 transition-opacity ${state === "thinking" || state === "speaking" ? "opacity-100" : "opacity-80"}`}>A.R.T.I.E</span>
+            <video
+              src="https://media.base44.com/videos/public/6a4759cc86fe95039e31fd09/28db769ba_generate_a_futuristic_wire_.mp4"
+              className="h-8 w-8 rounded-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+            <span className="text-[11px] font-bold text-red-600">A.R.T.I.E</span>
           </button>
           <button type="button" onClick={toggleAutoListen}
             className={`mr-1 grid h-8 w-8 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
