@@ -132,6 +132,8 @@ export default function Ward3D({
   const rotateRef = useRef({ active: false, itemId: null, centerX: 0, centerZ: 0, startAngle: 0, startRotY: 0 });
   const hoveredBedRef = useRef(null);
   const stateRef = useRef({});
+  const dayNightModeRef = useRef(dayNightMode);
+  dayNightModeRef.current = dayNightMode;
   const [bedTooltip, setBedTooltip] = useState(null);
 
   stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, dayNightMode, onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick };
@@ -209,13 +211,15 @@ export default function Ward3D({
     const LIGHT_ON = 0.45;   // darkness at which strips begin activating
     const LIGHT_OFF = 0.4;   // hysteresis so they don't strobe at the threshold
     const resolveDark = () => {
-      if (dayNightMode === "day") return 0;
-      if (dayNightMode === "night") return 1;
+      const mode = dayNightModeRef.current;
+      if (mode === "day") return 0;
+      if (mode === "night") return 1;
       return computeDarkness(new Date());
     };
     let targetDark = resolveDark();
     let currentDark = targetDark;
     let prevDark = currentDark;
+    let lastMode = dayNightModeRef.current;
     let flickerStart = 0;
     const dayBg = new THREE.Color(0xFAFAFA);
     const nightBg = new THREE.Color(0x141A24);
@@ -486,6 +490,12 @@ export default function Ward3D({
 
       // Day/night lighting — smooth lerp toward the time-driven target, with a
       // decaying fluorescent warm-up flicker during dusk/dawn transitions.
+      // Read the mode from a ref so toggling day/night doesn't rebuild the scene.
+      if (dayNightModeRef.current !== lastMode) {
+        lastMode = dayNightModeRef.current;
+        targetDark = resolveDark();
+        flickerStart = nowMs;
+      }
       currentDark += (targetDark - currentDark) * 0.045;
       const nowMs = performance.now();
       const crossedOn = prevDark < LIGHT_ON && currentDark >= LIGHT_ON;
@@ -552,7 +562,7 @@ export default function Ward3D({
       renderer.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
-  }, [editMode, suite, dayNightMode]);
+  }, [editMode, suite]);
 
   // Camera command
   useEffect(() => {
