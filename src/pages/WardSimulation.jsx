@@ -18,7 +18,7 @@ import { useWardNarration } from "@/hooks/useWardNarration";
 import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
-  Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle, Power,
+  Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle, Power, Info,
 } from "lucide-react";
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
@@ -655,10 +655,21 @@ export default function WardSimulation() {
           />
         )}
 
-        {/* Hint */}
+        {/* Instructions (top-left) — view patient details */}
         {!activeScenario && !adlScenario && !editMode && !showPatientPanel && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-card/80 backdrop-blur-sm px-4 py-2 text-xs text-muted-foreground border border-border shadow-sm">
-            Click a bed to view patient details →
+          <div className="absolute top-3 left-3 z-10 w-64 rounded-xl bg-card/90 backdrop-blur-md border border-border shadow-lg p-3">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Info className="w-3.5 h-3.5 text-clinical-teal" />
+              <h3 className="text-xs font-heading font-bold text-foreground uppercase tracking-wide">Instructions</h3>
+            </div>
+            <p className="text-[11px] text-muted-foreground mb-2">Click a bed in the ward to load that patient, then use the button below to view their details.</p>
+            <button
+              onClick={() => selectedBed && setShowPatientPanel(true)}
+              disabled={!selectedBed}
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-clinical-teal text-white px-2.5 py-1.5 text-xs font-heading font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
+            >
+              <User className="w-3.5 h-3.5" /> View Patient Details
+            </button>
           </div>
         )}
       </div>
@@ -694,6 +705,12 @@ export default function WardSimulation() {
             <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
               <h2 className="font-heading font-bold text-sm text-foreground">Scenarios</h2>
               <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
+            </div>
+            <div className="p-3 pb-0">
+              <button onClick={handleEndSimulationRequest}
+                className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-clinical-red/10 border border-clinical-red/30 px-2.5 py-2 text-xs font-heading font-semibold text-clinical-red hover:bg-clinical-red/20 transition-colors">
+                <Power className="w-3.5 h-3.5" /> End Simulation
+              </button>
             </div>
             <div className="p-3 space-y-3">
               {scenarios.map((scenario, idx) => (
