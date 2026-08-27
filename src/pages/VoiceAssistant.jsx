@@ -106,7 +106,7 @@ export default function VoiceAssistant() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_50%_0%,rgba(220,210,238,.58),transparent_34%),linear-gradient(145deg,#faf9fb,#f2eef7)] pb-28">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_50%_0%,rgba(220,210,238,.58),transparent_34%),linear-gradient(145deg,#faf9fb,#f2eef7)] pb-10">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="mx-auto flex max-w-2xl items-center gap-4 px-4 py-3 sm:px-6">
@@ -141,6 +141,32 @@ export default function VoiceAssistant() {
           />
         </div>
 
+        {/* Input bar */}
+        <div className="mb-4 rounded-2xl border border-white/90 bg-white/96 shadow-[0_8px_24px_-18px_rgba(15,23,42,.55)] backdrop-blur-xl">
+          <div className="flex items-center gap-2 px-3 py-2.5">
+            <button onClick={toggleMic}
+              className={`p-2 rounded-xl transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-muted text-muted-foreground hover:text-clinical-teal"}`}
+              aria-label="Microphone">
+              <Mic className="w-4 h-4" />
+            </button>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Type or speak…"
+              className="flex-1 bg-muted border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-clinical-teal/50"
+            />
+            <button onClick={() => synth.stop()} disabled={status !== "speaking"}
+              className="p-2 rounded-xl bg-muted text-muted-foreground disabled:opacity-30" aria-label="Stop speaking">
+              <Square className="w-4 h-4" />
+            </button>
+            <button onClick={() => handleSend()} disabled={!input.trim()}
+              className="p-2 rounded-xl bg-clinical-teal text-white disabled:opacity-40 hover:opacity-90 transition-opacity" aria-label="Send">
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
         {/* Messages */}
         <div className="space-y-3">
           {messages.map((m, i) => (
@@ -153,32 +179,6 @@ export default function VoiceAssistant() {
             </div>
           ))}
           <div ref={endRef} />
-        </div>
-      </div>
-
-      {/* Input bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/90 bg-white/96 shadow-[0_-12px_34px_-24px_rgba(15,23,42,.55)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3 sm:px-6">
-          <button onClick={toggleMic}
-            className={`p-2.5 rounded-xl transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-muted text-muted-foreground hover:text-clinical-teal"}`}
-            aria-label="Microphone">
-            <Mic className="w-5 h-5" />
-          </button>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type or speak…"
-            className="flex-1 bg-muted border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-clinical-teal/50"
-          />
-          <button onClick={() => synth.stop()} disabled={status !== "speaking"}
-            className="p-2.5 rounded-xl bg-muted text-muted-foreground disabled:opacity-30" aria-label="Stop speaking">
-            <Square className="w-5 h-5" />
-          </button>
-          <button onClick={() => handleSend()} disabled={!input.trim()}
-            className="p-2.5 rounded-xl bg-clinical-teal text-white disabled:opacity-40 hover:opacity-90 transition-opacity" aria-label="Send">
-            <Send className="w-5 h-5" />
-          </button>
         </div>
       </div>
 
