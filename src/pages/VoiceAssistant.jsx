@@ -6,8 +6,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
-import ClinicalAssistant360 from "@/components/voice/ClinicalAssistant360";
 import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
+
+const ASSISTANT_VIDEO_URL = "https://media.base44.com/videos/public/6a4759cc86fe95039e31fd09/03010c07f_generate_a_futuristic_wire_1.mp4";
 
 const STATUS = {
   idle: { label: "Idle · ready", color: "text-slate-600", dot: "bg-sky-500" },
@@ -130,7 +131,14 @@ export default function VoiceAssistant() {
 
       <div className="mx-auto max-w-2xl px-4 py-4 pb-24 sm:px-6">
         <div className="polished-glass-edge relative mb-4 overflow-hidden rounded-[32px] border border-white/90 bg-white/62 p-2 shadow-[0_18px_55px_-28px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl">
-          <ClinicalAssistant360 state={status} />
+          <video
+            src={ASSISTANT_VIDEO_URL}
+            className="w-full h-auto rounded-[24px] object-cover"
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
         </div>
 
         {/* Messages */}
