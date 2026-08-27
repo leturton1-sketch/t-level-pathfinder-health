@@ -491,13 +491,13 @@ export default function Ward3D({
       // Day/night lighting — smooth lerp toward the time-driven target, with a
       // decaying fluorescent warm-up flicker during dusk/dawn transitions.
       // Read the mode from a ref so toggling day/night doesn't rebuild the scene.
+      const nowMs = performance.now();
       if (dayNightModeRef.current !== lastMode) {
         lastMode = dayNightModeRef.current;
         targetDark = resolveDark();
         flickerStart = nowMs;
       }
       currentDark += (targetDark - currentDark) * 0.045;
-      const nowMs = performance.now();
       const crossedOn = prevDark < LIGHT_ON && currentDark >= LIGHT_ON;
       const crossedOff = prevDark >= LIGHT_OFF && currentDark < LIGHT_OFF;
       if (crossedOn) { lightingAudio.turnOn(); flickerStart = nowMs; }
