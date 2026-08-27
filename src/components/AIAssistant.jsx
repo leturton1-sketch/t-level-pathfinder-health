@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, X, Send, Mic, Volume2, VolumeX, Square, GripVertical, ArrowLeft, ArrowRight } from "lucide-react";
+import { Bot, X, Send, Mic, Volume2, VolumeX, Square, GripVertical } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
@@ -291,20 +291,10 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
       {/* Toggle — always visible so the panel opens beside it */}
       <div className="fixed bottom-20 right-4 z-50">
         <div className="flex items-center overflow-hidden rounded-full border border-clinical-teal/35 bg-white/80 shadow-lg backdrop-blur-xl">
-          <button type="button" onClick={() => navigate(-1)} title="Go back"
-            className="grid h-8 w-8 place-items-center rounded-full border border-slate-200 bg-slate-100 text-slate-500 transition hover:text-clinical-teal" aria-label="Go back">
-            <ArrowLeft className="h-3.5 w-3.5" />
-          </button>
-          <button type="button" onClick={() => navigate(1)} title="Go forward"
-            className="grid h-8 w-8 place-items-center rounded-full border border-slate-200 bg-slate-100 text-slate-500 transition hover:text-clinical-teal" aria-label="Go forward">
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
           <button type="button" onClick={() => setExpanded((v) => !v)}
             className="group flex items-center gap-2 px-3.5 py-2 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
-            <Waveform state={state} monitoring={autoListen} />
-            <span className={`text-[11px] font-bold ${listening ? "text-red-600" : autoListen ? "text-emerald-700" : AI_STATES[state].color}`}>
-              {listening ? "Listening…" : autoListen ? "Voice on" : AI_STATES[state].label}
-            </span>
+            <Waveform state="listening" />
+            <span className="text-[11px] font-bold text-red-600">A.R.T.I.E</span>
           </button>
           <button type="button" onClick={toggleAutoListen}
             className={`mr-1 grid h-8 w-8 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
