@@ -301,6 +301,7 @@ export default function Ward3D({
                 startRotY: item.rotationY || 0,
               };
               controls.enabled = false;
+              renderer.domElement.style.cursor = "grabbing";
             }
             return;
           }
@@ -314,11 +315,17 @@ export default function Ward3D({
       const st = stateRef.current;
       getMouse(event);
       if (rotateRef.current.active) {
+        renderer.domElement.style.cursor = "grabbing";
         const groundHits = raycaster.intersectObject(ground, false);
         if (groundHits.length > 0) {
           const pt = groundHits[0].point;
           const angle = Math.atan2(pt.z - rotateRef.current.centerZ, pt.x - rotateRef.current.centerX);
-          const newRot = rotateRef.current.startRotY + (angle - rotateRef.current.startAngle);
+          let newRot = rotateRef.current.startRotY + (angle - rotateRef.current.startAngle);
+          // Snap to 15° increments when grid snapping is enabled for precise alignment
+          if (st.snapToGrid) {
+            const SNAP = Math.PI / 12;
+            newRot = Math.round(newRot / SNAP) * SNAP;
+          }
           const mesh = itemsMapRef.current.get(rotateRef.current.itemId);
           if (mesh) mesh.rotation.y = newRot;
         }
@@ -395,6 +402,18 @@ export default function Ward3D({
           hoveredBedRef.current = bedId;
           renderer.domElement.style.cursor = bedId ? "pointer" : "default";
         }
+      } else if (!dragRef.current.itemId && !rotateRef.current.active) {
+        // Edit mode: show grab cursor when hovering the rotation knob
+        const knobHits = raycaster.intersectObjects(itemsArrayRef.current, true);
+        let onKnob = false;
+        if (knobHits.length > 0) {
+          let walker = knobHits[0].object;
+          while (walker.parent) {
+            if (walker.name === "rotationHandle" || walker.name === "rotationKnob") { onKnob = true; break; }
+            walker = walker.parent;
+          }
+        }
+        renderer.domElement.style.cursor = onKnob ? "grab" : "default";
       }
     };
 
@@ -658,12 +677,18 @@ export default function Ward3D({
         );
         rotRing.rotation.x = Math.PI / 2;
         const knob = new THREE.Mesh(
-          new THREE.SphereGeometry(0.2, 16, 12),
-          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.5, roughness: 0.3 })
+          new THREE.SphereGeometry(0.24, 20, 16),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.6, roughness: 0.25 })
         );
         knob.position.set(1.7, 0, 0);
         knob.name = "rotationKnob";
-        rotHandle.add(rotRing, knob);
+        const knobGlow = new THREE.Mesh(
+          new THREE.SphereGeometry(0.36, 20, 16),
+          new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.2 })
+        );
+        knobGlow.position.set(1.7, 0, 0);
+        knobGlow.name = "rotationKnob";
+        rotHandle.add(rotRing, knob, knobGlow);
         rotHandle.position.set(0, 2.4, 0);
         mesh.add(rotHandle);
       }
@@ -689,7 +714,7 @@ export default function Ward3D({
       <div className="absolute top-3 left-3 flex items-center gap-2">
         <div className="polished-glass-edge pointer-events-none whitespace-nowrap rounded-xl border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-lg backdrop-blur-xl">
           {editMode
-            ? "EDIT MODE · Drag the blue knob to rotate · Drag body to move · Select for rotate/delete controls · Scroll to zoom"
+            ? "EDIT MODE · Drag the blue knob to rotate (snaps to 15°) · Drag body to move · Scroll to zoom"
             : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
         </div>
         {editMode && (
