@@ -15,13 +15,22 @@ const AI_STATES = {
 };
 
 // Module-scope Waveform avoids re-creating the component on every parent render.
-function Waveform({ state: currentState, monitoring = false }) {
-  const colour = currentState === "listening" ? "bg-red-500" : currentState === "thinking" ? "bg-amber-500" : currentState === "speaking" ? "bg-clinical-green" : "bg-clinical-teal";
+// `red` forces a red palette; `reactive` speeds up the bars while thinking/speaking.
+function Waveform({ state: currentState, monitoring = false, red = false, reactive = false }) {
+  const colour = red
+    ? "bg-red-500"
+    : currentState === "listening" ? "bg-red-500" : currentState === "thinking" ? "bg-amber-500" : currentState === "speaking" ? "bg-clinical-green" : "bg-clinical-teal";
+  const active = reactive && (currentState === "thinking" || currentState === "speaking" || currentState === "listening");
   return (
     <div className="flex h-5 items-center gap-0.5" aria-label={currentState === "listening" ? "Microphone listening waveform" : monitoring ? "Voice monitoring enabled" : "Assistant idle"}>
       {Array.from({ length: 9 }).map((_, i) => (
         <span key={i} className={`w-0.5 rounded-full ${colour} waveform-bar`}
-          style={{ height: `${35 + ((i * 37) % 65)}%`, animationDelay: `${i * 0.07}s`, animationDuration: `${0.55 + (i % 4) * 0.12}s` }} />
+          style={{
+            height: `${active ? 55 + ((i * 41) % 45) : 35 + ((i * 37) % 65)}%`,
+            animationDelay: `${i * 0.07}s`,
+            animationDuration: `${active ? 0.32 + (i % 4) * 0.06 : 0.55 + (i % 4) * 0.12}s`,
+            opacity: active ? 1 : 0.6,
+          }} />
       ))}
     </div>
   );
@@ -293,8 +302,8 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
         <div className="flex items-center overflow-hidden rounded-full border border-clinical-teal/35 bg-white/80 shadow-lg backdrop-blur-xl">
           <button type="button" onClick={() => setExpanded((v) => !v)}
             className="group flex items-center gap-2 px-3.5 py-2 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
-            <Waveform state="listening" />
-            <span className="text-[11px] font-bold text-red-600">A.R.T.I.E</span>
+            <Waveform state={state} red reactive />
+            <span className={`text-[11px] font-bold text-red-600 transition-opacity ${state === "thinking" || state === "speaking" ? "opacity-100" : "opacity-80"}`}>A.R.T.I.E</span>
           </button>
           <button type="button" onClick={toggleAutoListen}
             className={`mr-1 grid h-8 w-8 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
