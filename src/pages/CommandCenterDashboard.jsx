@@ -50,17 +50,17 @@ function Sparkline() {
 
 function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
   return (
-    <article className="ar-kpi polished-glass-edge group relative overflow-hidden rounded-[22px] border border-white/80 bg-gradient-to-br from-slate-100/88 via-slate-200/72 to-slate-300/54 p-4 shadow-[0_10px_0_-5px_rgba(100,116,139,.28),0_26px_50px_-24px_rgba(15,23,42,.52),inset_1px_1px_1px_rgba(255,255,255,.95),inset_-1px_-1px_1px_rgba(71,85,105,.14)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-10 before:-top-16 before:h-28 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/65 before:blur-xl after:pointer-events-none after:absolute after:inset-x-4 after:bottom-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/90 after:to-transparent hover:-translate-y-2 hover:rotate-[.35deg] hover:shadow-[0_15px_0_-7px_rgba(100,116,139,.3),0_35px_62px_-24px_rgba(15,23,42,.58)]">
+    <article className="ar-kpi polished-glass-edge group relative overflow-hidden rounded-[18px] border border-white/80 bg-gradient-to-br from-slate-100/88 via-slate-200/72 to-slate-300/54 p-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.28),0_26px_50px_-24px_rgba(15,23,42,.52),inset_1px_1px_1px_rgba(255,255,255,.95),inset_-1px_-1px_1px_rgba(71,85,105,.14)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-10 before:-top-16 before:h-28 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/65 before:blur-xl after:pointer-events-none after:absolute after:inset-x-4 after:bottom-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/90 after:to-transparent hover:-translate-y-2 hover:rotate-[.35deg] hover:shadow-[0_15px_0_-7px_rgba(100,116,139,.3),0_35px_62px_-24px_rgba(15,23,42,.58)]">
       <div className={`absolute inset-x-0 top-0 h-1 ${tone}`} />
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">{label}</p>
-          <p className="mt-1 text-3xl font-black tracking-tight text-slate-900">{value}</p>
+          <p className="text-[9px] font-bold uppercase tracking-[.16em] text-slate-500">{label}</p>
+          <p className="mt-0.5 text-2xl font-black tracking-tight text-slate-900">{value}</p>
         </div>
-        <span className={`rounded-2xl p-2.5 text-white shadow-lg ${tone}`}><Icon className="h-5 w-5" /></span>
+        <span className={`rounded-xl p-2 text-white shadow-lg ${tone}`}><Icon className="h-4 w-4" /></span>
       </div>
       {children}
-      <p className="mt-1 text-[11px] font-medium text-slate-500">{note}</p>
+      <p className="mt-1 text-[10px] font-medium text-slate-500">{note}</p>
     </article>
   );
 }
