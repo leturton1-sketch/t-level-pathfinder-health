@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Activity, AlertTriangle, BedDouble, BookOpen, Brain, BriefcaseMedical, Clock3, FilePenLine,
-  HeartPulse, LibraryBig, ShieldCheck, Sparkles, Stethoscope, UserCog, UserRound,
+  GraduationCap, HeartPulse, LibraryBig, ShieldCheck, Sparkles, Stethoscope, UserCog, UserRound,
   UsersRound, Wifi,
 } from "lucide-react";
 import { getCurrentUser, isAdmin, isLoggedIn } from "@/lib/clinicalAuth";
@@ -139,6 +139,7 @@ export default function CommandCenterDashboard() {
             <QuickLaunch icon={BedDouble} label="Ward Sim" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
             <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
             <QuickLaunch icon={HeartPulse} label="Health Hub" detail="Clinic checks and records" tone="bg-gradient-to-br from-emerald-300 to-emerald-700" onClick={() => navigate("/health-hub")} />
+            <QuickLaunch icon={GraduationCap} label="Clinical Skills Academy" detail="Practical learning pathways" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/clinical-skills-academy")} />
             <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
               <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Learning & account</span>
               <span className="h-px flex-1 bg-slate-300/80" />
