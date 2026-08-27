@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3, GripHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3, GripHorizontal } from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 
 const STORAGE_KEY = "clinicaledge_nav_pos";
@@ -142,7 +142,6 @@ export default function BottomNav() {
             aria-label="Go back"
             className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
           >
-            <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onPointerDown={(e) => e.stopPropagation()}
@@ -151,7 +150,6 @@ export default function BottomNav() {
             aria-label="Go forward"
             className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
           >
-            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
         {nav.map((item) => {
