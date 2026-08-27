@@ -31,6 +31,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const VoiceAssistant = lazy(() => import('./pages/VoiceAssistant'));
 const AnatomyPhysiology = lazy(() => import('./pages/AnatomyPhysiology'));
 const HealthHub = lazy(() => import('./pages/HealthHub'));
+const ClinicalSkillsAcademy = lazy(() => import('./pages/ClinicalSkillsAcademy'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
         <Route path="/interactive-learning" element={<InteractiveLearning />} />
         <Route path="/anatomy-physiology" element={<AnatomyPhysiology />} />
         <Route path="/health-hub" element={<HealthHub />} />
+        <Route path="/clinical-skills-academy" element={<ClinicalSkillsAcademy />} />
         <Route path="/performance" element={<Performance />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/scenario-authoring" element={<ScenarioAuthoring />} />
