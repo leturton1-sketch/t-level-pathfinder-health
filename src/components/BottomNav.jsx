@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3, GripHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3, GripHorizontal } from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 
 const STORAGE_KEY = "clinicaledge_nav_pos";
@@ -134,26 +134,6 @@ export default function BottomNav() {
       </button>
 
       <div className="flex items-center justify-around">
-        <div className="flex items-center gap-0.5 pr-2 mr-1 border-r border-border">
-          <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => { if (!movedRef.current) navigate(-1); }}
-            title="Back"
-            aria-label="Go back"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => { if (!movedRef.current) navigate(1); }}
-            title="Forward"
-            aria-label="Go forward"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
         {nav.map((item) => {
           const isActive = location.pathname === item.path;
           return (
