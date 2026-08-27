@@ -113,7 +113,7 @@ function disposeMesh(child) {
 export default function Ward3D({
   items = [], editMode = false, selectedItemId = null, snapToGrid = true,
   selectedItemForPlacement = null, suite = "both", cameraCommand = null,
-  onItemSelect, onItemMove, onItemPlace, onBedClick, onSelectItemType,
+  onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick, onSelectItemType,
   activeCallBed = null,
 }) {
   const containerRef = useRef(null);
@@ -128,11 +128,12 @@ export default function Ward3D({
   const animFrameRef = useRef(null);
   const cameraTargetRef = useRef(null);
   const dragRef = useRef({ active: false, itemId: null, startX: 0, startY: 0, moved: false });
+  const rotateRef = useRef({ active: false, itemId: null, centerX: 0, centerZ: 0, startAngle: 0, startRotY: 0 });
   const hoveredBedRef = useRef(null);
   const stateRef = useRef({});
   const [bedTooltip, setBedTooltip] = useState(null);
 
-  stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, onItemSelect, onItemMove, onItemPlace, onBedClick };
+  stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick };
 
   // Filter items by visible suite
   const visibleItems = suite === "A" ? items.filter(i => i.x < -15)
@@ -266,9 +267,34 @@ export default function Ward3D({
       const hits = raycaster.intersectObjects(itemsArrayRef.current, true);
       if (hits.length > 0) {
         let obj = hits[0].object;
-        while (obj.parent && !obj.userData.itemId) obj = obj.parent;
-        if (obj.userData.itemId) {
-          dragRef.current = { active: false, itemId: obj.userData.itemId, startX: event.clientX, startY: event.clientY, moved: false };
+        // Detect clicks on a rotation handle (child of a selected item)
+        let onHandle = false;
+        let walker = obj;
+        while (walker.parent) {
+          if (walker.name === "rotationHandle") { onHandle = true; break; }
+          walker = walker.parent;
+        }
+        let parent = obj;
+        while (parent.parent && !parent.userData.itemId) parent = parent.parent;
+        if (parent.userData.itemId) {
+          if (onHandle) {
+            const item = st.items.find(i => i.id === parent.userData.itemId);
+            const groundHits = raycaster.intersectObject(ground, false);
+            const pt = groundHits[0]?.point;
+            if (item && pt) {
+              rotateRef.current = {
+                active: true,
+                itemId: parent.userData.itemId,
+                centerX: item.x,
+                centerZ: item.z,
+                startAngle: Math.atan2(pt.z - item.z, pt.x - item.x),
+                startRotY: item.rotationY || 0,
+              };
+              controls.enabled = false;
+            }
+            return;
+          }
+          dragRef.current = { active: false, itemId: parent.userData.itemId, startX: event.clientX, startY: event.clientY, moved: false };
           controls.enabled = false;
         }
       }
@@ -277,6 +303,17 @@ export default function Ward3D({
     const onPointerMove = (event) => {
       const st = stateRef.current;
       getMouse(event);
+      if (rotateRef.current.active) {
+        const groundHits = raycaster.intersectObject(ground, false);
+        if (groundHits.length > 0) {
+          const pt = groundHits[0].point;
+          const angle = Math.atan2(pt.z - rotateRef.current.centerZ, pt.x - rotateRef.current.centerX);
+          const newRot = rotateRef.current.startRotY + (angle - rotateRef.current.startAngle);
+          const mesh = itemsMapRef.current.get(rotateRef.current.itemId);
+          if (mesh) mesh.rotation.y = newRot;
+        }
+        return;
+      }
       if (dragRef.current.itemId && !dragRef.current.active) {
         const dx = event.clientX - dragRef.current.startX;
         const dy = event.clientY - dragRef.current.startY;
@@ -354,6 +391,13 @@ export default function Ward3D({
     const onPointerUp = (event) => {
       const st = stateRef.current;
       if (st.editMode) {
+        if (rotateRef.current.active) {
+          const mesh = itemsMapRef.current.get(rotateRef.current.itemId);
+          if (mesh) st.onItemRotate?.(rotateRef.current.itemId, mesh.rotation.y);
+          controls.enabled = true;
+          rotateRef.current = { active: false, itemId: null, centerX: 0, centerZ: 0, startAngle: 0, startRotY: 0 };
+          return;
+        }
         if (dragRef.current.itemId) {
           if (dragRef.current.active) {
             const mesh = itemsMapRef.current.get(dragRef.current.itemId);
@@ -536,6 +580,8 @@ export default function Ward3D({
       if (ring) { mesh.remove(ring); ring.geometry.dispose(); ring.material.dispose(); }
       const callMarker = mesh.children.find(c => c.name === "callBellMarker");
       if (callMarker) { mesh.remove(callMarker); callMarker.traverse(disposeMesh); }
+      const rotHandle = mesh.children.find(c => c.name === "rotationHandle");
+      if (rotHandle) { mesh.remove(rotHandle); rotHandle.traverse(disposeMesh); }
     });
 
     if (!editMode && !visibleItems.length) { return; }
@@ -580,13 +626,30 @@ export default function Ward3D({
         marker.add(halo, bell, light);
         mesh.add(marker);
       }
-      if (item.id === selectedItemId) {
+      if (item.id === selectedItemId && editMode) {
         const ring = new THREE.Mesh(
           new THREE.RingGeometry(0.9, 1.15, 32),
           new THREE.MeshBasicMaterial({ color: 0x4488ff, side: THREE.DoubleSide, transparent: true, opacity: 0.5 })
         );
         ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; ring.name = "selectionRing";
         mesh.add(ring);
+        // Free-rotation gizmo: drag the knob around the item to rotate it.
+        const rotHandle = new THREE.Group();
+        rotHandle.name = "rotationHandle";
+        const rotRing = new THREE.Mesh(
+          new THREE.TorusGeometry(1.7, 0.035, 8, 48),
+          new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 })
+        );
+        rotRing.rotation.x = Math.PI / 2;
+        const knob = new THREE.Mesh(
+          new THREE.SphereGeometry(0.2, 16, 12),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.5, roughness: 0.3 })
+        );
+        knob.position.set(1.7, 0, 0);
+        knob.name = "rotationKnob";
+        rotHandle.add(rotRing, knob);
+        rotHandle.position.set(0, 2.4, 0);
+        mesh.add(rotHandle);
       }
     });
 
@@ -610,7 +673,7 @@ export default function Ward3D({
       <div className="absolute top-3 left-3 flex items-center gap-2">
         <div className="polished-glass-edge pointer-events-none whitespace-nowrap rounded-xl border border-white/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-lg backdrop-blur-xl">
           {editMode
-            ? "EDIT MODE · Every item is moveable and rotatable · Select an item for rotate/delete controls · Drag to position · Scroll to zoom"
+            ? "EDIT MODE · Drag the blue knob to rotate · Drag body to move · Select for rotate/delete controls · Scroll to zoom"
             : "Left-drag to orbit · Scroll to zoom · Click a bed to inspect"}
         </div>
         {editMode && (

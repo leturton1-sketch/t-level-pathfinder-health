@@ -217,6 +217,10 @@ export default function WardSimulation() {
     modifyItems(items.map(i => i.id === itemId ? { ...i, x, z, ...(rotationY != null ? { rotationY } : {}) } : i));
   };
 
+  const handleItemRotate = (itemId, rotationY) => {
+    modifyItems(items.map(i => i.id === itemId ? { ...i, rotationY } : i));
+  };
+
   const handleItemSelect = (itemId) => {
     setSelectedItemId(itemId);
     setSelectedItemForPlacement(null);
@@ -592,6 +596,7 @@ export default function WardSimulation() {
           onItemSelect={handleItemSelect}
           onItemMove={handleItemMove}
           onItemPlace={handleItemPlace}
+          onItemRotate={handleItemRotate}
           onBedClick={handleBedClick}
           onSelectItemType={(type) => { setSelectedItemForPlacement(type); setSelectedItemId(null); }}
           activeCallBed={activeCallBed}
