@@ -18,7 +18,7 @@ import { useWardNarration } from "@/hooks/useWardNarration";
 import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
-  Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle,
+  Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle, Power,
 } from "lucide-react";
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
@@ -239,6 +239,8 @@ export default function WardSimulation() {
 
   const handleResetLayoutRequest = () => { setConfirmAction({ type: "reset" }); };
 
+  const handleEndSimulationRequest = () => { setConfirmAction({ type: "end" }); };
+
   const confirmAction_yes = () => {
     if (confirmAction?.type === "delete" && selectedItemId) {
       modifyItems(items.filter(i => i.id !== selectedItemId));
@@ -246,6 +248,19 @@ export default function WardSimulation() {
     } else if (confirmAction?.type === "reset") {
       modifyItems(generateDefaultItems());
       setSelectedItemId(null);
+    } else if (confirmAction?.type === "end") {
+      // End the simulation session: clear scenarios, patients, alarms and scores
+      setActiveScenario(null);
+      setAdlScenario(null);
+      setVitals(null);
+      setDecisions([]);
+      setActiveCallBed(null);
+      setShowPatientPanel(false);
+      setSelectedBed(null);
+      setShowDebrief(false);
+      setShowScenarioList(false);
+      narration.stop();
+      setCameraCommand({ type: "reset", nonce: Date.now() });
     }
     setConfirmAction(null);
   };
@@ -539,13 +554,18 @@ export default function WardSimulation() {
         </div>
 
         {/* Scenario indicator */}
-        {activeScenario && !editMode && (
+        {(activeScenario || adlScenario) && !editMode && (
           <div className="flex items-center justify-between px-4 py-2 bg-secondary/40 border-t border-border">
             <div className="flex items-center gap-3">
               <button onClick={exitScenario} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /> Exit Scenario</button>
-              <div className="text-xs"><span className="text-muted-foreground">Active: </span><span className="font-semibold text-foreground">{activeScenario.name}</span></div>
+              <div className="text-xs"><span className="text-muted-foreground">Active: </span><span className="font-semibold text-foreground">{activeScenario?.name || adlScenario?.name || "ADL Simulation"}</span></div>
             </div>
-            <NEWS2Badge score={activeScenario.initial_news2} size="sm" />
+            <div className="flex items-center gap-2">
+              {activeScenario && <NEWS2Badge score={activeScenario.initial_news2} size="sm" />}
+              <button onClick={handleEndSimulationRequest} className="flex items-center gap-1.5 rounded-lg bg-clinical-red/10 border border-clinical-red/30 px-2.5 py-1.5 text-xs font-heading font-semibold text-clinical-red hover:bg-clinical-red/20 transition-colors">
+                <Power className="w-3.5 h-3.5" /><span className="hidden sm:inline">End Simulation</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -649,12 +669,14 @@ export default function WardSimulation() {
           <div className="bg-card rounded-xl shadow-2xl p-6 max-w-sm w-[90%]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-3">
               <AlertTriangle className="w-6 h-6 text-clinical-amber" />
-              <h2 className="font-heading font-bold text-foreground">{confirmAction.type === "delete" ? "Delete Item?" : "Reset Layout?"}</h2>
+              <h2 className="font-heading font-bold text-foreground">{confirmAction.type === "delete" ? "Delete Item?" : confirmAction.type === "reset" ? "Reset Layout?" : "End Simulation?"}</h2>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               {confirmAction.type === "delete"
                 ? "Are you sure you want to delete this item? This action cannot be undone (except via Undo)."
-                : "Are you sure you want to reset the layout to defaults? All current placements will be lost."}
+                : confirmAction.type === "reset"
+                  ? "Are you sure you want to reset the layout to defaults? All current placements will be lost."
+                  : "This will end the current simulation session — the active scenario, patient vitals, NEWS2 scores, alarm bells and call lights will be cleared, and the ward will return to an empty monitoring state."}
             </p>
             <div className="flex gap-2">
               <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 rounded-lg border border-border text-foreground text-sm font-heading font-semibold hover:bg-secondary/40">Cancel</button>
