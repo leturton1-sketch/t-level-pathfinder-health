@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import AIAssistant from "./AIAssistant";
+import BottomNav from "./BottomNav";
 
 export default function Layout() {
   const location = useLocation();
@@ -11,6 +12,7 @@ export default function Layout() {
       <main className="min-h-screen">
         <Outlet />
       </main>
+      <BottomNav />
       {!isCommandCentre && !isVoiceAssistant && <AIAssistant />}
     </div>
   );
