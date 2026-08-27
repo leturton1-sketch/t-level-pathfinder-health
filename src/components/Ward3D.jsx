@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createWardItem, createTextTexture, clampToBounds, checkCollision, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
+import { computeDarkness, createLightingAudio } from "@/lib/wardDayNight";
 import WardItemDropdown from "@/components/WardItemDropdown";
 import { getPatientForBed } from "@/lib/wardPatients";
 
@@ -90,11 +91,17 @@ function buildWard(scene, offset, label, wallsRef) {
   rightWall.castShadow = true; rightWall.receiveShadow = true;
   scene.add(rightWall); wallsRef.current.push(rightWall);
 
-  // Ceiling lights — long thin fixtures
+  // Ceiling lights — long thin fixtures (day/night controlled)
   const lightMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xF8F8FF, emissiveIntensity: 0.6, roughness: 0.3 });
   [-4, 4].forEach(x => {
     const light = new THREE.Mesh(new THREE.BoxGeometry(8, 0.1, 0.4), lightMat);
-    light.position.set(ox + x, 3.3, oz); scene.add(light);
+    light.position.set(ox + x, 3.3, oz);
+    light.userData.isStripLight = true;
+    const pl = new THREE.PointLight(0xEEF2FF, 0, 14);
+    pl.position.set(0, -0.2, 0);
+    light.add(pl);
+    light.userData.pointLight = pl;
+    scene.add(light);
   });
 
   }
@@ -186,8 +193,8 @@ export default function Ward3D({
     controlsRef.current = controls;
 
     // Bright medical studio lighting with soft grey-green bounce
-    scene.add(new THREE.HemisphereLight(0xFFFFFF, 0xB8CEC2, 1.1));
-    scene.add(new THREE.AmbientLight(0xFFFFFF, 0.72));
+    const hemiLight = new THREE.HemisphereLight(0xFFFFFF, 0xB8CEC2, 1.1); scene.add(hemiLight);
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.72); scene.add(ambientLight);
     const sunLight = new THREE.DirectionalLight(0xFFFDF8, 1.15);
     sunLight.position.set(10, 25, 10); sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 1024; sunLight.shadow.mapSize.height = 1024;
@@ -195,10 +202,26 @@ export default function Ward3D({
     const fillLight = new THREE.DirectionalLight(0xDFF7EA, 0.55);
     fillLight.position.set(-10, 15, -10); scene.add(fillLight);
 
+    // Day/night lighting driven by local time — strip lights flicker on at dusk with audio
+    const lightingAudio = createLightingAudio();
+    let targetDark = computeDarkness(new Date());
+    let currentDark = targetDark;
+    let prevDark = currentDark;
+    let flickerUntil = 0;
+    const dayBg = new THREE.Color(0xFAFAFA);
+    const nightBg = new THREE.Color(0x141A24);
+    const darkTimer = setInterval(() => { targetDark = computeDarkness(new Date()); }, 60000);
+
     // Build wards
     wallsRef.current = [];
     const suitesToBuild = suite === "all" ? ["A", "B", "C", "D"] : [suite];
     suitesToBuild.forEach(s => buildWard(scene, SUITE_OFFSETS[s], SUITE_LABELS[s], wallsRef));
+
+    // Collect ceiling strip-light fixtures for day/night control
+    const stripLights = [];
+    scene.traverse((obj) => {
+      if (obj.userData?.isStripLight) stripLights.push({ mesh: obj, light: obj.userData.pointLight });
+    });
 
     // Ground for raycasting
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshBasicMaterial({ visible: false }));
@@ -392,6 +415,30 @@ export default function Ward3D({
         }
       });
 
+      // Day/night lighting transition
+      currentDark += (targetDark - currentDark) * 0.02;
+      if (prevDark < 0.5 && currentDark >= 0.5) { lightingAudio.turnOn(); flickerUntil = performance.now() + 2500; }
+      else if (prevDark >= 0.5 && currentDark < 0.5) { lightingAudio.turnOff(); }
+      prevDark = currentDark;
+      const _d = currentDark;
+      hemiLight.intensity = 1.1 * (1 - 0.75 * _d);
+      ambientLight.intensity = 0.72 * (1 - 0.75 * _d);
+      sunLight.intensity = 1.15 * (1 - 0.9 * _d);
+      fillLight.intensity = 0.55 * (1 - 0.85 * _d);
+      renderer.toneMappingExposure = 1.18 - 0.55 * _d;
+      scene.background.lerpColors(dayBg, nightBg, _d);
+      scene.fog.color.lerpColors(dayBg, nightBg, _d);
+      const _flickering = performance.now() < flickerUntil;
+      stripLights.forEach(({ mesh, light }) => {
+        if (_d > 0.5) {
+          mesh.material.emissiveIntensity = _flickering ? (Math.random() < 0.18 ? 0.1 : 1.0 + Math.random() * 0.5) : 1.3;
+          light.intensity = 0.9 * _d;
+        } else {
+          mesh.material.emissiveIntensity = 0.6;
+          light.intensity = 0;
+        }
+      });
+
       // Camera lerp
       if (cameraTargetRef.current) {
         camera.position.lerp(cameraTargetRef.current.pos, 0.08);
@@ -413,6 +460,8 @@ export default function Ward3D({
 
     return () => {
       cancelAnimationFrame(animFrameRef.current);
+      clearInterval(darkTimer);
+      lightingAudio.dispose();
       window.removeEventListener("resize", handleResize);
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       renderer.domElement.removeEventListener("pointermove", onPointerMove);

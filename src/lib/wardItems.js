@@ -31,6 +31,8 @@ export const WARD_ITEM_TYPES = [
   { type: "commode", label: "Commode Chair" },
   { type: "examination_couch", label: "Examination Couch" },
   { type: "sanitiser_stand", label: "Hand Sanitiser Stand" },
+  { type: "window_half", label: "Half Window" },
+  { type: "door", label: "Door" },
 ];
 
 export const DEFAULT_PATIENTS = {
@@ -189,6 +191,8 @@ export function createWardItem(type, options = {}) {
     case "commode": return createCommode();
     case "examination_couch": return createExaminationCouch();
     case "sanitiser_stand": return createSanitiserStand();
+    case "window_half": return createWindowHalf();
+    case "door": return createDoor();
     case "countertop": return createWallCabinet(); // backwards compatibility for saved layouts
     default: return new THREE.Group();
   }
@@ -535,5 +539,46 @@ function createSanitiserStand() {
   window.position.set(0, 1.4, 0.125); g.add(window);
   const nozzle = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.12), M.metal);
   nozzle.position.set(0, 1.13, 0.12); g.add(nozzle);
+  return g;
+}
+
+function createWindowHalf() {
+  const g = new THREE.Group();
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0xF0F2F4, roughness: 0.4, metalness: 0.2 });
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    color: 0xBFE3F2, roughness: 0.05, metalness: 0,
+    transmission: 0.7, transparent: true, opacity: 0.55, clearcoat: 1, side: THREE.DoubleSide,
+  });
+  const w = 2.2, h = 1.2, sillY = 1.0, centreY = sillY + h / 2;
+  const glass = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.04), glassMat);
+  glass.position.set(0, centreY, 0); g.add(glass);
+  const sill = new THREE.Mesh(new THREE.BoxGeometry(w + 0.24, 0.12, 0.16), frameMat);
+  sill.position.set(0, sillY - 0.06, 0); sill.castShadow = true; g.add(sill);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(w + 0.24, 0.1, 0.14), frameMat);
+  top.position.set(0, centreY + h / 2 + 0.05, 0); g.add(top);
+  [-w / 2, w / 2].forEach((x) => {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(0.1, h, 0.14), frameMat);
+    side.position.set(x, centreY, 0); g.add(side);
+  });
+  const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, 0.05), frameMat);
+  mullion.position.set(0, centreY, 0); g.add(mullion);
+  return g;
+}
+
+function createDoor() {
+  const g = new THREE.Group();
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0xE8E2D8, roughness: 0.5 });
+  const doorMat = new THREE.MeshPhysicalMaterial({ color: 0xC9D6DE, roughness: 0.35, clearcoat: 0.5 });
+  const w = 1.1, h = 2.2;
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.06), doorMat);
+  panel.position.set(0, h / 2, 0); panel.castShadow = true; g.add(panel);
+  [-w / 2 - 0.06, w / 2 + 0.06].forEach((x) => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, h + 0.2, 0.12), frameMat);
+    post.position.set(x, h / 2, 0); post.castShadow = true; g.add(post);
+  });
+  const top = new THREE.Mesh(new THREE.BoxGeometry(w + 0.24, 0.12, 0.12), frameMat);
+  top.position.set(0, h + 0.06, 0); g.add(top);
+  const handle = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 10), M.metal);
+  handle.position.set(w / 2 - 0.12, h / 2, 0.05); g.add(handle);
   return g;
 }
