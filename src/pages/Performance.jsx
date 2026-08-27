@@ -8,6 +8,7 @@ import CompetencyRadar from "@/components/performance/CompetencyRadar";
 import KnowledgeCheckChart from "@/components/performance/KnowledgeCheckChart";
 import SKCoverageMatrix from "@/components/performance/SKCoverageMatrix";
 import AreaProgressCard from "@/components/performance/AreaProgressCard";
+import ProgressOverTime from "@/components/performance/ProgressOverTime";
 import { ArrowLeft, BarChart3, BookOpen, Target, Stethoscope, ClipboardList, TrendingUp } from "lucide-react";
 
 export default function Performance() {
@@ -114,6 +115,13 @@ export default function Performance() {
         {areaData.filter((a) => a.quiz).length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-6">No knowledge checks completed yet. Take a quiz from the Theory modules!</p>
         )}
+      </div>
+
+      {/* Progress over time */}
+      <div className="rounded-xl border border-border bg-card p-4 mb-4">
+        <h2 className="text-sm font-bold text-foreground mb-1">Progress Over Time</h2>
+        <p className="text-xs text-muted-foreground mb-2">Student development across assessments and skill categories</p>
+        <ProgressOverTime results={results} submissions={submissions} />
       </div>
 
       {/* Area cards */}
