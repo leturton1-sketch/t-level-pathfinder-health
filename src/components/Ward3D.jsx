@@ -134,6 +134,8 @@ export default function Ward3D({
   const stateRef = useRef({});
   const dayNightModeRef = useRef(dayNightMode);
   dayNightModeRef.current = dayNightMode;
+  const editModeRef = useRef(editMode);
+  editModeRef.current = editMode;
   const [bedTooltip, setBedTooltip] = useState(null);
 
   stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, dayNightMode, onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick };
@@ -189,11 +191,9 @@ export default function Ward3D({
     controls.minDistance = 3;
     controls.maxDistance = 120;
     controls.target.set(camTarget.x, camTarget.y, camTarget.z);
-    if (editMode) {
-      controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE };
-    } else {
-      controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
-    }
+    controls.mouseButtons = editModeRef.current
+      ? { LEFT: null, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
+      : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     controlsRef.current = controls;
 
     // Bright medical studio lighting with soft grey-green bounce
@@ -225,10 +225,9 @@ export default function Ward3D({
     const nightBg = new THREE.Color(0x141A24);
     const darkTimer = setInterval(() => { targetDark = resolveDark(); }, 5000);
 
-    // Build wards
+    // Always build all 4 wards — suite changes are handled by camera, not scene rebuild
     wallsRef.current = [];
-    const suitesToBuild = suite === "all" ? ["A", "B", "C", "D"] : [suite];
-    suitesToBuild.forEach(s => buildWard(scene, SUITE_OFFSETS[s], SUITE_LABELS[s], wallsRef));
+    ["A", "B", "C", "D"].forEach(s => buildWard(scene, SUITE_OFFSETS[s], SUITE_LABELS[s], wallsRef));
 
     // Collect ceiling strip-light fixtures for day/night control
     const stripLights = [];
@@ -241,12 +240,11 @@ export default function Ward3D({
     ground.rotation.x = -Math.PI / 2; ground.position.y = 0; scene.add(ground);
     groundRef.current = ground;
 
-    // Grid in edit mode
-    if (editMode) {
-      const grid = new THREE.GridHelper(100, 100, 0x2C3E50, 0xAABBCC);
-      grid.position.y = 0.01; grid.material.opacity = 0.3; grid.material.transparent = true;
-      scene.add(grid);
-    }
+    // Grid — created once, visibility toggled by editModeRef in the animation loop
+    const grid = new THREE.GridHelper(100, 100, 0x2C3E50, 0xAABBCC);
+    grid.position.y = 0.01; grid.material.opacity = 0.3; grid.material.transparent = true;
+    grid.visible = editModeRef.current;
+    scene.add(grid);
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -549,6 +547,12 @@ export default function Ward3D({
         light.intensity = lit * 0.9 * stutter;
       });
 
+      // Sync edit-mode visuals without rebuilding the scene
+      grid.visible = editModeRef.current;
+      controls.mouseButtons = editModeRef.current
+        ? { LEFT: null, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
+        : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+
       // Camera lerp
       if (cameraTargetRef.current) {
         camera.position.lerp(cameraTargetRef.current.pos, 0.08);
@@ -582,7 +586,8 @@ export default function Ward3D({
       renderer.forceContextLoss();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
-  }, [editMode, suite]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Camera command
   useEffect(() => {
