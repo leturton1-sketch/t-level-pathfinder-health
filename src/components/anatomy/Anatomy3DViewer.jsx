@@ -83,7 +83,7 @@ function createClinicalTextures(renderer) {
   return { map, tissueMap, muscleMap, boneMap, roughnessMap, textures };
 }
 
-export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full" }) {
+export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [] }) {
   const mountRef = useRef(null);
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
@@ -97,6 +97,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
   const pathologyRef = useRef(null);
   pathologyRef.current = pathologyStructureId;
   const controlsRef = useRef({ reset: null });  // set by setup effect
+  const customGroupRef = useRef(null);          // admin-added structures container
+  const customGroupsRef = useRef({});           // id -> THREE.Group (custom)
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
 
@@ -246,6 +248,11 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     // Structures
     const structGroup = new THREE.Group();
     scene.add(structGroup);
+
+    // Admin-added custom structures container
+    const customGroup = new THREE.Group();
+    scene.add(customGroup);
+    customGroupRef.current = customGroup;
     ANATOMY_STRUCTURES.forEach((s) => {
       const grp = new THREE.Group();
       grp.userData.id = s.id;
@@ -462,12 +469,24 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
 
   useEffect(() => {
     controlsRef.current.setView?.(viewMode);
-    const clippingPlanes = viewMode === "cross-section" ? [clippingPlaneRef.current] : [];
-    materialsRef.current.forEach((material) => {
-      material.clippingPlanes = clippingPlanes;
-      material.clipShadows = viewMode === "cross-section";
-      material.needsUpdate = true;
-    });
+    // Global cross-section clips only the body shell/surface; per-structure
+    // clipping is handled in the visibility effect below so admin cuts persist.
+    const planes = viewMode === "cross-section" ? [clippingPlaneRef.current] : [];
+    if (shellRef.current) {
+      shellRef.current.mat.clippingPlanes = planes;
+      shellRef.current.mat.clipShadows = viewMode === "cross-section";
+      shellRef.current.mat.needsUpdate = true;
+    }
+    const imported = importedSurfaceRef.current;
+    if (imported) {
+      imported.traverse((m) => {
+        if (m.isMesh) {
+          m.material.clippingPlanes = planes;
+          m.material.clipShadows = viewMode === "cross-section";
+          m.material.needsUpdate = true;
+        }
+      });
+    }
   }, [viewMode]);
 
   // ── Rebuild shell on gender change ──
@@ -480,12 +499,31 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     sh.group.visible = gender !== "male" || !imported;
   }, [gender]);
 
-  // ── Visibility: gender + active systems + isolate ──
+  // ── Visibility: gender + active systems + isolate + admin overrides ──
   useEffect(() => {
     const isolated = isolatedId;
+    const hidden = new Set(hiddenStructures || []);
+    const clipped = new Set(clippedStructures || []);
+    const overrides = structureOverrides || {};
+    const globalClip = viewMode === "cross-section" ? [clippingPlaneRef.current] : [];
     Object.entries(groupsRef.current).forEach(([id, grp]) => {
       const def = ANATOMY_STRUCTURES.find((s) => s.id === id);
-      if (!def) return;
+      // Apply admin position/rotation overrides
+      const ov = overrides[id];
+      if (ov?.position) grp.position.set(ov.position[0], ov.position[1], ov.position[2]);
+      if (ov?.rotation) grp.rotation.set(ov.rotation[0], ov.rotation[1], ov.rotation[2]);
+      if (!def) {
+        // Custom admin-added structure
+        grp.visible = !hidden.has(id);
+        grp.traverse((m) => {
+          if (m.isMesh) {
+            m.material.clippingPlanes = clipped.has(id) ? [clippingPlaneRef.current] : globalClip;
+            m.material.clipShadows = clipped.has(id) || viewMode === "cross-section";
+            m.material.needsUpdate = true;
+          }
+        });
+        return;
+      }
       let visible;
       if (isolated) {
         visible = id === isolated;
@@ -494,6 +532,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         const systemActive = activeSystems.includes(def.system);
         visible = genderMatch && systemActive;
       }
+      visible = visible && !hidden.has(id);
       grp.visible = visible;
       if (visible) {
         grp.traverse((m) => {
@@ -503,6 +542,9 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
             m.material.depthWrite = id === isolated ? true : (m.material.userData.educationalDepthWrite ?? true);
             m.material.wireframe = false;
             m.material.emissive = new THREE.Color(0x000000);
+            m.material.clippingPlanes = clipped.has(id) ? [clippingPlaneRef.current] : globalClip;
+            m.material.clipShadows = clipped.has(id) || viewMode === "cross-section";
+            m.material.needsUpdate = true;
           }
         });
         grp.scale.setScalar(1);
@@ -512,7 +554,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     if (shellRef.current) {
       shellRef.current.mat.opacity = isolated ? 0.03 : 0.16;
     }
-  }, [gender, activeSystems, isolatedId]);
+  }, [gender, activeSystems, isolatedId, hiddenStructures, structureOverrides, clippedStructures, viewMode]);
 
   // ── Selected highlight ──
   useEffect(() => {
@@ -534,6 +576,47 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     if (!reconstructId) { reconstructAnimRef.current.active = false; return; }
     reconstructAnimRef.current = { active: true, t: 0, id: reconstructId };
   }, [reconstructId]);
+
+  // ── Admin custom structures (add/remove at runtime) ──
+  useEffect(() => {
+    const group = customGroupRef.current;
+    if (!group) return;
+    // Dispose & remove previous custom groups
+    Object.values(customGroupsRef.current).forEach((grp) => {
+      grp.traverse((m) => { if (m.isMesh) m.geometry?.dispose?.(); });
+      group.remove(grp);
+      if (grp.userData.id) {
+        delete groupsRef.current[grp.userData.id];
+        delete baseColorsRef.current[grp.userData.id];
+      }
+    });
+    customGroupsRef.current = {};
+    (customStructures || []).forEach((c) => {
+      const color = new THREE.Color(c.color ?? 0x765AB0);
+      const mat = new THREE.MeshPhysicalMaterial({
+        color, metalness: 0, roughness: 0.5, transparent: true, opacity: 0.92,
+        side: THREE.DoubleSide, clearcoat: 0.12, depthWrite: true,
+      });
+      mat.userData.educationalOpacity = 0.92;
+      mat.userData.educationalDepthWrite = true;
+      materialsRef.current.push(mat);
+      const grp = new THREE.Group();
+      grp.userData.id = c.id;
+      grp.userData.custom = true;
+      const mesh = new THREE.Mesh(buildGeometry(c.shape), mat);
+      if (c.position) mesh.position.set(c.position[0], c.position[1], c.position[2]);
+      if (c.rotation) mesh.rotation.set(c.rotation[0], c.rotation[1], c.rotation[2]);
+      if (c.scale) mesh.scale.set(c.scale[0], c.scale[1], c.scale[2]);
+      mesh.userData.id = c.id;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      grp.add(mesh);
+      group.add(grp);
+      customGroupsRef.current[c.id] = grp;
+      groupsRef.current[c.id] = grp;
+      baseColorsRef.current[c.id] = color;
+    });
+  }, [customStructures]);
 
   // ── Reset camera ──
   useEffect(() => {

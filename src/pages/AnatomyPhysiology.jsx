@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
+import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
+import { isAdmin } from "@/lib/clinicalAuth";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
 
@@ -12,6 +14,16 @@ function Explorer() {
   const [removed, setRemoved] = useState([]);
   const [selectedId, setSelectedId] = useState("skin");
   const [viewMode, setViewMode] = useState("full");
+  const [editMode, setEditMode] = useState(false);
+  const [overrides, setOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_overrides") || "{}"); } catch { return {}; } });
+  const [hidden, setHidden] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_hidden") || "[]"); } catch { return []; } });
+  const [clipped, setClipped] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_clipped") || "[]"); } catch { return []; } });
+  const [custom, setCustom] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_custom") || "[]"); } catch { return []; } });
+  const isAdminUser = isAdmin();
+  useEffect(() => { localStorage.setItem("anatomy_admin_overrides", JSON.stringify(overrides)); }, [overrides]);
+  useEffect(() => { localStorage.setItem("anatomy_admin_hidden", JSON.stringify(hidden)); }, [hidden]);
+  useEffect(() => { localStorage.setItem("anatomy_admin_clipped", JSON.stringify(clipped)); }, [clipped]);
+  useEffect(() => { localStorage.setItem("anatomy_admin_custom", JSON.stringify(custom)); }, [custom]);
   const activeSystems = BODY_LAYER_ORDER.filter((system) => !removed.includes(system));
   const selected = ANATOMY_STRUCTURES.find((item) => item.id === selectedId);
   const nextVisible = BODY_LAYER_ORDER.find((system) => activeSystems.includes(system));
@@ -21,7 +33,19 @@ function Explorer() {
     setSelectedId(null);
   };
 
-  return <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
+  return <>
+  {editMode && isAdminUser && (
+    <div className="mb-4">
+      <AnatomyAdminPanel
+        selectedId={selectedId}
+        overrides={overrides} setOverrides={setOverrides}
+        hidden={hidden} setHidden={setHidden}
+        clipped={clipped} setClipped={setClipped}
+        custom={custom} setCustom={setCustom}
+      />
+    </div>
+  )}
+  <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
     <aside className={`${panel} p-4`}>
       <div className="mb-4 flex rounded-xl bg-slate-200/70 p-1">
         {["male","female"].map((sex) => <button key={sex} onClick={() => setGender(sex)} className={`flex-1 rounded-lg px-3 py-2 text-xs font-black capitalize transition ${gender === sex ? "bg-violet-600 text-white shadow" : "text-slate-600"}`}>{sex}</button>)}
@@ -56,13 +80,18 @@ function Explorer() {
           <Icon className="h-3.5 w-3.5"/>{label}
         </button>)}
       </div>
+      {isAdminUser && (
+        <button onClick={() => setEditMode((v) => !v)} className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${editMode ? "border-rose-500 bg-rose-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-rose-300"}`}>
+          <Wrench className="h-3.5 w-3.5"/>{editMode ? "Exit edit" : "Edit anatomy"}
+        </button>
+      )}
       <div className="relative h-[620px] overflow-hidden rounded-[22px] border border-slate-200 bg-[#F8FAFC]">
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
           <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · SEMI-TRANSPARENT</span>
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
           <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">DIAPHRAGM · FROSTED</span>
         </div>
-        <Anatomy3DViewer gender={gender} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode}/>
+        <Anatomy3DViewer gender={gender} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={overrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
@@ -75,7 +104,8 @@ function Explorer() {
         <div className="mt-3 rounded-2xl border border-cyan-200 bg-cyan-50/80 p-4"><p className="flex items-center gap-2 text-xs font-black text-cyan-900"><Stethoscope className="h-4 w-4"/> Clinical connection</p><p className="mt-2 text-sm leading-6 text-cyan-950">{selected.clinicalNote}</p></div>
       </> : <div className="grid min-h-[400px] place-items-center text-center"><div><Info className="mx-auto h-10 w-10 text-violet-500"/><h2 className="mt-3 font-black text-slate-900">Select a body part</h2><p className="mt-2 text-sm text-slate-600">Click any visible structure to explore its anatomy, physiology and clinical relevance.</p></div></div>}
     </aside>
-  </div>;
+  </div>
+  </>;
 }
 
 function Pathophysiology() {
