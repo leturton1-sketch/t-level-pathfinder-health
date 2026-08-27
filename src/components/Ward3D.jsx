@@ -171,7 +171,7 @@ export default function Ward3D({
     camera.position.set(camPos.x, camPos.y, camPos.z);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false, powerPreference: "high-performance" });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -579,6 +579,7 @@ export default function Ward3D({
       renderer.domElement.removeEventListener("pointerleave", onPointerLeave);
       controls.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
   }, [editMode, suite]);
