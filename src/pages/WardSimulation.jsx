@@ -19,6 +19,7 @@ import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
   Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle, Power, Info,
+  Sun, Moon,
 } from "lucide-react";
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
@@ -52,6 +53,7 @@ export default function WardSimulation() {
   const [selectedItemForPlacement, setSelectedItemForPlacement] = useState(null);
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [suite, setSuite] = useState("all");
+  const [dayNightMode, setDayNightMode] = useState("auto");
   const [cameraCommand, setCameraCommand] = useState({ type: "reset", nonce: 0 });
   const [saveStatus, setSaveStatus] = useState("");
 
@@ -531,6 +533,17 @@ export default function WardSimulation() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setDayNightMode(prev => prev === "day" ? "night" : prev === "night" ? "auto" : "day")}
+              className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40 transition-colors"
+              aria-label={`Ward environment: ${dayNightMode}`}
+              title={`Ward environment: ${dayNightMode === "auto" ? "Auto (local time)" : dayNightMode === "day" ? "Day" : "Night"} — click to toggle`}
+            >
+              {dayNightMode === "night"
+                ? <Moon className="w-3.5 h-3.5 text-clinical-amber" />
+                : <Sun className="w-3.5 h-3.5 text-clinical-amber" />}
+              <span className="hidden lg:inline">{dayNightMode === "auto" ? "Auto" : dayNightMode === "day" ? "Day" : "Night"}</span>
+            </button>
             <button onClick={resetCamera} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40 transition-colors" aria-label="Reset camera">
               <Camera className="w-3.5 h-3.5" /><span className="hidden lg:inline">Reset View</span>
             </button>
@@ -592,6 +605,7 @@ export default function WardSimulation() {
           snapToGrid={snapToGrid}
           selectedItemForPlacement={selectedItemForPlacement}
           suite={suite}
+          dayNightMode={dayNightMode}
           cameraCommand={cameraCommand}
           onItemSelect={handleItemSelect}
           onItemMove={handleItemMove}

@@ -113,6 +113,7 @@ function disposeMesh(child) {
 export default function Ward3D({
   items = [], editMode = false, selectedItemId = null, snapToGrid = true,
   selectedItemForPlacement = null, suite = "both", cameraCommand = null,
+  dayNightMode = "auto",
   onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick, onSelectItemType,
   activeCallBed = null,
 }) {
@@ -133,7 +134,7 @@ export default function Ward3D({
   const stateRef = useRef({});
   const [bedTooltip, setBedTooltip] = useState(null);
 
-  stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick };
+  stateRef.current = { editMode, snapToGrid, items, selectedItemId, selectedItemForPlacement, dayNightMode, onItemSelect, onItemMove, onItemPlace, onItemRotate, onBedClick };
 
   // Filter items by visible suite
   const visibleItems = suite === "A" ? items.filter(i => i.x < -15)
@@ -207,13 +208,18 @@ export default function Ward3D({
     const lightingAudio = createLightingAudio();
     const LIGHT_ON = 0.45;   // darkness at which strips begin activating
     const LIGHT_OFF = 0.4;   // hysteresis so they don't strobe at the threshold
-    let targetDark = computeDarkness(new Date());
+    const resolveDark = () => {
+      if (dayNightMode === "day") return 0;
+      if (dayNightMode === "night") return 1;
+      return computeDarkness(new Date());
+    };
+    let targetDark = resolveDark();
     let currentDark = targetDark;
     let prevDark = currentDark;
     let flickerStart = 0;
     const dayBg = new THREE.Color(0xFAFAFA);
     const nightBg = new THREE.Color(0x141A24);
-    const darkTimer = setInterval(() => { targetDark = computeDarkness(new Date()); }, 5000);
+    const darkTimer = setInterval(() => { targetDark = resolveDark(); }, 5000);
 
     // Build wards
     wallsRef.current = [];
@@ -546,7 +552,7 @@ export default function Ward3D({
       renderer.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
-  }, [editMode, suite]);
+  }, [editMode, suite, dayNightMode]);
 
   // Camera command
   useEffect(() => {
