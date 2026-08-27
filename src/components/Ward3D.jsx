@@ -204,13 +204,15 @@ export default function Ward3D({
 
     // Day/night lighting driven by local time — strip lights flicker on at dusk with audio
     const lightingAudio = createLightingAudio();
+    const LIGHT_ON = 0.45;   // darkness at which strips begin activating
+    const LIGHT_OFF = 0.4;   // hysteresis so they don't strobe at the threshold
     let targetDark = computeDarkness(new Date());
     let currentDark = targetDark;
     let prevDark = currentDark;
-    let flickerUntil = 0;
+    let flickerStart = 0;
     const dayBg = new THREE.Color(0xFAFAFA);
     const nightBg = new THREE.Color(0x141A24);
-    const darkTimer = setInterval(() => { targetDark = computeDarkness(new Date()); }, 60000);
+    const darkTimer = setInterval(() => { targetDark = computeDarkness(new Date()); }, 5000);
 
     // Build wards
     wallsRef.current = [];
@@ -415,28 +417,40 @@ export default function Ward3D({
         }
       });
 
-      // Day/night lighting transition
-      currentDark += (targetDark - currentDark) * 0.02;
-      if (prevDark < 0.5 && currentDark >= 0.5) { lightingAudio.turnOn(); flickerUntil = performance.now() + 2500; }
-      else if (prevDark >= 0.5 && currentDark < 0.5) { lightingAudio.turnOff(); }
+      // Day/night lighting — smooth lerp toward the time-driven target, with a
+      // decaying fluorescent warm-up flicker during dusk/dawn transitions.
+      currentDark += (targetDark - currentDark) * 0.045;
+      const nowMs = performance.now();
+      const crossedOn = prevDark < LIGHT_ON && currentDark >= LIGHT_ON;
+      const crossedOff = prevDark >= LIGHT_OFF && currentDark < LIGHT_OFF;
+      if (crossedOn) { lightingAudio.turnOn(); flickerStart = nowMs; }
+      else if (crossedOff) { lightingAudio.turnOff(); flickerStart = nowMs; }
       prevDark = currentDark;
       const _d = currentDark;
-      hemiLight.intensity = 1.1 * (1 - 0.75 * _d);
-      ambientLight.intensity = 0.72 * (1 - 0.75 * _d);
-      sunLight.intensity = 1.15 * (1 - 0.9 * _d);
+      const lit = Math.min(1, Math.max(0, (_d - 0.3) / 0.35));       // strip activation 0→1
+      const warmAge = flickerStart ? (nowMs - flickerStart) / 2600 : 1;
+      const flickerStrength = warmAge < 1 ? (1 - warmAge) : 0;        // fades over ~2.6s
+      const shimmer = _d > 0.6 ? 0.05 * Math.sin(nowMs * 0.004) : 0;  // gentle night flutter
+
+      hemiLight.intensity = 1.1 * (1 - 0.78 * _d);
+      ambientLight.intensity = 0.72 * (1 - 0.78 * _d);
+      sunLight.intensity = 1.15 * (1 - 0.92 * _d);
       fillLight.intensity = 0.55 * (1 - 0.85 * _d);
       renderer.toneMappingExposure = 1.18 - 0.55 * _d;
       scene.background.lerpColors(dayBg, nightBg, _d);
       scene.fog.color.lerpColors(dayBg, nightBg, _d);
-      const _flickering = performance.now() < flickerUntil;
-      stripLights.forEach(({ mesh, light }) => {
-        if (_d > 0.5) {
-          mesh.material.emissiveIntensity = _flickering ? (Math.random() < 0.18 ? 0.1 : 1.0 + Math.random() * 0.5) : 1.3;
-          light.intensity = 0.9 * _d;
-        } else {
-          mesh.material.emissiveIntensity = 0.6;
-          light.intensity = 0;
+
+      stripLights.forEach(({ mesh, light }, idx) => {
+        let stutter = 1;
+        if (flickerStrength > 0) {
+          // Periodic dropout bursts that fade as the tube warms up / cools down.
+          const s1 = Math.sin(nowMs * 0.035 + idx * 1.3);
+          const s2 = Math.sin(nowMs * 0.07 + idx * 2.1);
+          stutter = (s1 > 0.6 || s2 > 0.72) ? 0.18 : 1;
+          stutter = 1 - flickerStrength * (1 - stutter);
         }
+        mesh.material.emissiveIntensity = Math.max(0, 0.6 * (1 - lit) + 1.4 * lit * stutter + shimmer);
+        light.intensity = lit * 0.9 * stutter;
       });
 
       // Camera lerp
