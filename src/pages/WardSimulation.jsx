@@ -203,18 +203,18 @@ export default function WardSimulation() {
   };
 
   // --- Item handlers ---
-  const handleItemPlace = (type, x, z) => {
+  const handleItemPlace = (type, x, z, rotationY) => {
     const suitePrefix = x >= 0 ? "B" : "A";
     const bedCount = items.filter(i => i.type === "bed" && (suitePrefix === "B" ? i.x >= 0 : i.x < 0)).length;
     const designation = type === "bed" ? `${suitePrefix}${bedCount + 1}` : null;
-    const newItem = { id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, type, x, z, rotationY: 0, designation };
+    const newItem = { id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, type, x, z, rotationY: rotationY ?? 0, designation };
     modifyItems([...items, newItem]);
     setSelectedItemId(newItem.id);
     setSelectedItemForPlacement(null);
   };
 
-  const handleItemMove = (itemId, x, z) => {
-    modifyItems(items.map(i => i.id === itemId ? { ...i, x, z } : i));
+  const handleItemMove = (itemId, x, z, rotationY) => {
+    modifyItems(items.map(i => i.id === itemId ? { ...i, x, z, ...(rotationY != null ? { rotationY } : {}) } : i));
   };
 
   const handleItemSelect = (itemId) => {

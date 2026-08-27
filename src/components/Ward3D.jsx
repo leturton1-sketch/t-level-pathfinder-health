@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createWardItem, createTextTexture, clampToBounds, checkCollision, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
+import { createWardItem, createTextTexture, clampToBounds, checkCollision, snapToWall, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import { computeDarkness, createLightingAudio } from "@/lib/wardDayNight";
 import WardItemDropdown from "@/components/WardItemDropdown";
 import { getPatientForBed } from "@/lib/wardPatients";
@@ -246,6 +246,19 @@ export default function Ward3D({
       raycaster.setFromCamera(mouse, camera);
     };
 
+    // Wall-aware placement resolution: windows/doors snap to the nearest suite
+    // wall line (with correct facing rotation); other items use grid + bounds.
+    const resolveSnap = (type, x, z, snapToGrid) => {
+      if (type === "window_half" || type === "door") {
+        const wall = snapToWall(type, x, z);
+        if (wall) return { x: wall.x, z: wall.z, rotationY: wall.rotationY, snapped: true };
+      }
+      let nx = x, nz = z;
+      if (snapToGrid) { nx = Math.round(nx); nz = Math.round(nz); }
+      const clamped = clampToBounds(nx, nz);
+      return { x: clamped.x, z: clamped.z, rotationY: undefined, snapped: false };
+    };
+
     const onPointerDown = (event) => {
       const st = stateRef.current;
       if (!st.editMode) return;
@@ -273,12 +286,14 @@ export default function Ward3D({
         const groundHits = raycaster.intersectObject(ground, false);
         if (groundHits.length > 0) {
           const pt = groundHits[0].point;
-          let x = pt.x, z = pt.z;
-          if (st.snapToGrid) { x = Math.round(x); z = Math.round(z); }
-          const clamped = clampToBounds(x, z);
-          if (!checkCollision(dragRef.current.itemId, clamped.x, clamped.z, st.items)) {
+          const draggedItem = st.items.find(i => i.id === dragRef.current.itemId);
+          const snap = resolveSnap(draggedItem?.type, pt.x, pt.z, st.snapToGrid);
+          if (!checkCollision(dragRef.current.itemId, snap.x, snap.z, st.items)) {
             const mesh = itemsMapRef.current.get(dragRef.current.itemId);
-            if (mesh) mesh.position.set(clamped.x, 0, clamped.z);
+            if (mesh) {
+              mesh.position.set(snap.x, 0, snap.z);
+              mesh.rotation.y = snap.snapped ? snap.rotationY : (draggedItem?.rotationY || 0);
+            }
           }
         }
         return;
@@ -342,7 +357,11 @@ export default function Ward3D({
         if (dragRef.current.itemId) {
           if (dragRef.current.active) {
             const mesh = itemsMapRef.current.get(dragRef.current.itemId);
-            if (mesh) st.onItemMove?.(dragRef.current.itemId, mesh.position.x, mesh.position.z);
+            if (mesh) {
+              const draggedItem = st.items.find(i => i.id === dragRef.current.itemId);
+              const snap = resolveSnap(draggedItem?.type, mesh.position.x, mesh.position.z, st.snapToGrid);
+              st.onItemMove?.(dragRef.current.itemId, snap.x, snap.z, snap.snapped ? snap.rotationY : undefined);
+            }
           } else {
             st.onItemSelect?.(dragRef.current.itemId);
           }
@@ -355,11 +374,9 @@ export default function Ward3D({
           const groundHits = raycaster.intersectObject(ground, false);
           if (groundHits.length > 0) {
             const pt = groundHits[0].point;
-            let x = pt.x, z = pt.z;
-            if (st.snapToGrid) { x = Math.round(x); z = Math.round(z); }
-            const clamped = clampToBounds(x, z);
-            if (!checkCollision(null, clamped.x, clamped.z, st.items)) {
-              st.onItemPlace?.(st.selectedItemForPlacement, clamped.x, clamped.z);
+            const snap = resolveSnap(st.selectedItemForPlacement, pt.x, pt.z, st.snapToGrid);
+            if (!checkCollision(null, snap.x, snap.z, st.items)) {
+              st.onItemPlace?.(st.selectedItemForPlacement, snap.x, snap.z, snap.snapped ? snap.rotationY : undefined);
             }
           }
         } else if (st.selectedItemId) {

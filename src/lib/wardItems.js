@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 export const WARD_BOUNDS = { minX: -45, maxX: 45, minZ: -10, maxZ: 35 };
+export const WARD_W = 20;
+export const WARD_D = 16;
 export const SUITE_OFFSET_A = { x: -30, z: 0 };
 export const SUITE_OFFSET_B = { x: 0, z: 0 };
 export const SUITE_OFFSET_C = { x: 30, z: 0 };
@@ -119,6 +121,38 @@ export function checkCollision(itemId, x, z, items, minDist = 1.5) {
 
 export function clampToBounds(x, z) {
   return { x: Math.max(WARD_BOUNDS.minX, Math.min(WARD_BOUNDS.maxX, x)), z: Math.max(WARD_BOUNDS.minZ, Math.min(WARD_BOUNDS.maxZ, z)) };
+}
+
+// Snaps windows and doors onto the nearest suite wall line so they align
+// perfectly with the wall geometry. Returns { x, z, rotationY } or null when
+// no wall is within range.
+export function snapToWall(type, x, z) {
+  if (type !== "window_half" && type !== "door") return null;
+  const halfW = WARD_W / 2;
+  const halfD = WARD_D / 2;
+  const SNAP_RANGE = 3;
+  const candidates = [];
+  for (const o of Object.values(SUITE_OFFSETS)) {
+    candidates.push({ axis: "z", coord: o.z - halfD, min: o.x - halfW + 1.2, max: o.x + halfW - 1.2, rot: 0 });
+    candidates.push({ axis: "x", coord: o.x - halfW, min: o.z - halfD + 1.2, max: o.z + halfD - 1.2, rot: Math.PI / 2 });
+    candidates.push({ axis: "x", coord: o.x + halfW, min: o.z - halfD + 1.2, max: o.z + halfD - 1.2, rot: -Math.PI / 2 });
+  }
+  let best = null;
+  for (const c of candidates) {
+    const dist = c.axis === "z" ? Math.abs(z - c.coord) : Math.abs(x - c.coord);
+    if (dist > SNAP_RANGE) continue;
+    if (!best || dist < best.dist) best = { ...c, dist };
+  }
+  if (!best) return null;
+  let sx = x, sz = z;
+  if (best.axis === "z") {
+    sz = best.coord;
+    sx = Math.max(best.min, Math.min(best.max, x));
+  } else {
+    sx = best.coord;
+    sz = Math.max(best.min, Math.min(best.max, z));
+  }
+  return { x: sx, z: sz, rotationY: best.rot };
 }
 
 export function createTextTexture(text, w = 128, h = 48, color = "#2C3E50", bg = "transparent") {
