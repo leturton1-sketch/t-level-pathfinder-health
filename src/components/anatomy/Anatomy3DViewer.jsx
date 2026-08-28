@@ -471,16 +471,14 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         if (ra.t >= 1) { ra.active = false; }
       }
       const pathologyId = pathologyRef.current;
-      const heart = groupsRef.current.heart;
-      if (heart?.visible && pathologyId !== "heart" && !ra.active) {
-        const beatPhase = clock.elapsedTime % 0.82;
-        const beat = beatPhase < 0.12 ? Math.sin((beatPhase / 0.12) * Math.PI) : 0;
-        heart.scale.setScalar(1 + beat * 0.075);
-      }
-      const lungs = groupsRef.current.lungs;
-      if (lungs?.visible && pathologyId !== "lungs" && !ra.active) {
-        const breath = Math.sin(clock.elapsedTime * 1.35) * 0.035;
-        lungs.scale.set(1 + breath * 0.45, 1 + breath, 1 + breath * 0.6);
+      // Muscular system animation: a slow, subtle contraction/relax cycle.
+      // It only scales INWARD from the resting pose (never above 1), so muscle
+      // bulk never expands beyond the body surface. Replaces the legacy
+      // heartbeat and lung-breathing animations.
+      const muscles = groupsRef.current.major_muscles;
+      if (muscles?.visible && pathologyId !== "major_muscles" && !ra.active) {
+        const flex = (Math.sin(clock.elapsedTime * 1.6) + 1) * 0.5; // 0..1
+        muscles.scale.setScalar(1 - flex * 0.04); // contract up to 4%, stay within body
       }
       Object.entries(groupsRef.current).forEach(([id, grp]) => {
         if (id !== pathologyId || !grp.visible || reconstructAnimRef.current.active) return;
