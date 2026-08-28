@@ -102,6 +102,8 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
   const neonOutlineRef = useRef(null);          // integumentary neon outline group
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
+  const selectedIdRef = useRef(selectedId);
+  selectedIdRef.current = selectedId;
 
   // ── Scene setup (once) ──
   useEffect(() => {
@@ -444,6 +446,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
 
     // ── Render loop ──
     const clock = new THREE.Clock();
+    const nerveColor = new THREE.Color(0xfde047);
     let raf = 0;
     const animate = () => {
       raf = requestAnimationFrame(animate);
@@ -479,6 +482,30 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       if (muscles?.visible && pathologyId !== "major_muscles" && !ra.active) {
         const flex = (Math.sin(clock.elapsedTime * 1.6) + 1) * 0.5; // 0..1
         muscles.scale.setScalar(1 - flex * 0.04); // contract up to 4%, stay within body
+      }
+      // Nervous system animation: a slow neural signal pulse travelling from
+      // the brain down the spinal cord. Emissive glow oscillates with a phase
+      // offset (so the signal appears to descend) plus a tiny brain scale
+      // pulse that stays well within the cranial vault.
+      const selId = selectedIdRef.current;
+      const brain = groupsRef.current.brain;
+      const cord = groupsRef.current.spinal_cord;
+      if (brain?.visible && pathologyId !== "brain" && selId !== "brain" && !ra.active) {
+        const brainPulse = (Math.sin(clock.elapsedTime * 2.2) + 1) * 0.5;
+        brain.scale.setScalar(1 + brainPulse * 0.015);
+        brain.traverse((m) => {
+          if (!m.isMesh || m.material.userData.isNeonOutline) return;
+          m.material.emissive = nerveColor;
+          m.material.emissiveIntensity = 0.15 + brainPulse * 0.35;
+        });
+      }
+      if (cord?.visible && pathologyId !== "spinal_cord" && selId !== "spinal_cord" && !ra.active) {
+        const cordPulse = (Math.sin(clock.elapsedTime * 2.2 - 1.2) + 1) * 0.5;
+        cord.traverse((m) => {
+          if (!m.isMesh || m.material.userData.isNeonOutline) return;
+          m.material.emissive = nerveColor;
+          m.material.emissiveIntensity = 0.1 + cordPulse * 0.3;
+        });
       }
       Object.entries(groupsRef.current).forEach(([id, grp]) => {
         if (id !== pathologyId || !grp.visible || reconstructAnimRef.current.active) return;
