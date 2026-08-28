@@ -68,7 +68,10 @@ const PATHWAYS = [
 
 export default function ClinicalSkillsAcademy() {
   const navigate = useNavigate();
-  const [activePathway, setActivePathway] = useState("all");
+  const [activePathway, setActivePathway] = useState(() => {
+    const focus = new URLSearchParams(window.location.search).get("pathway");
+    return focus || "all";
+  });
   const [query, setQuery] = useState("");
 
   const visiblePathways = useMemo(() => {
