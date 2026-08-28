@@ -7,7 +7,6 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-import Login from './pages/Login';
 import Layout from './components/Layout';
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
@@ -64,7 +63,6 @@ const AuthenticatedApp = () => {
       </div>
     }>
     <Routes>
-      <Route path="/login" element={<Login />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/theory" element={<Theory />} />
