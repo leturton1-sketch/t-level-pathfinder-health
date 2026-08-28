@@ -83,7 +83,7 @@ function createClinicalTextures(renderer) {
   return { map, tissueMap, muscleMap, boneMap, roughnessMap, textures };
 }
 
-export default function Anatomy3DViewer({ gender, activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [] }) {
+export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [] }) {
   const mountRef = useRef(null);
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
@@ -91,8 +91,8 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
   const importedSurfaceRef = useRef(null);
   const materialsRef = useRef([]);
   const clippingPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.015));
-  const genderRef = useRef(gender);
-  genderRef.current = gender;
+  const genitaliaRef = useRef(genitalia);
+  genitaliaRef.current = genitalia;
   const reconstructAnimRef = useRef({ active: false, t: 0 });
   const pathologyRef = useRef(null);
   pathologyRef.current = pathologyStructureId;
@@ -215,7 +215,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         shellGroup.add(mesh);
       });
     };
-    buildShell(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
+    buildShell(BODY_SHELLS.male.parts);
     scene.add(shellGroup);
     shellRef.current = { group: shellGroup, mat: shellMat, build: buildShell };
 
@@ -259,7 +259,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         neonGroup.add(wm);
       });
     };
-    buildNeonOutline(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
+    buildNeonOutline(BODY_SHELLS.male.parts);
     scene.add(neonGroup);
     neonOutlineRef.current = { group: neonGroup, mat: neonMat, build: buildNeonOutline, buildFromObject: buildNeonFromObject };
     groupsRef.current["skin"] = neonGroup;
@@ -283,13 +283,13 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
           mesh.castShadow = true;
           mesh.receiveShadow = true;
         });
-        object.visible = genderRef.current === "male";
-        shellGroup.visible = genderRef.current !== "male";
+        object.visible = true;
+        shellGroup.visible = false;
         scene.add(object);
         importedSurfaceRef.current = object;
         // Conform the integumentary neon outline to the real imported surface
         // so it traces the visible body, not the procedural fallback shell.
-        if (genderRef.current === "male" && neonOutlineRef.current) {
+        if (neonOutlineRef.current) {
           neonOutlineRef.current.buildFromObject(object);
         }
       },
@@ -542,21 +542,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     }
   }, [viewMode]);
 
-  // ── Rebuild shell on gender change ──
-  useEffect(() => {
-    const sh = shellRef.current;
-    if (!sh) return;
-    sh.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
-    const imported = importedSurfaceRef.current;
-    if (imported) imported.visible = gender === "male";
-    sh.group.visible = gender !== "male" || !imported;
-    if (neonOutlineRef.current) {
-      if (gender === "male" && imported) neonOutlineRef.current.buildFromObject(imported);
-      else neonOutlineRef.current.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
-    }
-  }, [gender]);
-
-  // ── Visibility: gender + active systems + isolate + admin overrides ──
+  // ── Visibility: genitalia + active systems + isolate + admin overrides ──
   useEffect(() => {
     const isolated = isolatedId;
     const hidden = new Set(hiddenStructures || []);
@@ -585,7 +571,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       if (isolated) {
         visible = id === isolated;
       } else {
-        const genderMatch = def.genders === "both" || def.genders === gender;
+        const genderMatch = def.genders === "both" || def.genders === genitaliaRef.current;
         const systemActive = activeSystems.includes(def.system);
         visible = genderMatch && systemActive;
       }
@@ -610,14 +596,16 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
           m.material.clipShadows = clipped.has(id) || viewMode === "cross-section";
           m.material.needsUpdate = true;
         });
-        grp.scale.setScalar(1);
+        // Preserve the OBJ-conformed scale of the integumentary neon outline
+        // so toggling the layer off/on keeps it aligned with the visible body.
+        if (id !== "skin") grp.scale.setScalar(1);
       }
     });
     // Dim shell when isolating
     if (shellRef.current) {
       shellRef.current.mat.opacity = isolated ? 0.03 : 0.16;
     }
-  }, [gender, activeSystems, isolatedId, hiddenStructures, structureOverrides, clippedStructures, viewMode]);
+  }, [genitalia, activeSystems, isolatedId, hiddenStructures, structureOverrides, clippedStructures, viewMode]);
 
   // ── Selected highlight ──
   useEffect(() => {

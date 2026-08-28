@@ -10,7 +10,7 @@ const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-grad
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
 
 function Explorer() {
-  const [gender, setGender] = useState("male");
+  const [genitalia, setGenitalia] = useState("male");
   const [removed, setRemoved] = useState([]);
   const [selectedId, setSelectedId] = useState("skin");
   const [viewMode, setViewMode] = useState("full");
@@ -47,9 +47,6 @@ function Explorer() {
   )}
   <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
     <aside className={`${panel} p-4`}>
-      <div className="mb-4 flex rounded-xl bg-slate-200/70 p-1">
-        {["male","female"].map((sex) => <button key={sex} onClick={() => setGender(sex)} className={`flex-1 rounded-lg px-3 py-2 text-xs font-black capitalize transition ${gender === sex ? "bg-violet-600 text-white shadow" : "text-slate-600"}`}>{sex}</button>)}
-      </div>
       <p className="mb-2 text-[10px] font-black uppercase tracking-[.18em] text-violet-700">Outer to inner layers</p>
       <div className="space-y-1.5">
         {BODY_LAYER_ORDER.map((system, index) => {
@@ -59,7 +56,12 @@ function Explorer() {
             <span className="grid h-7 w-7 place-items-center rounded-lg text-[10px] font-black text-white" style={{backgroundColor:meta.hex}}>{index + 1}</span>
             <span className="min-w-0 flex-1 text-xs font-bold text-slate-800">{meta.name}</span>
             <span className="text-[9px] font-bold text-slate-500">{visible ? "Remove" : "Restore"}</span>
-          </button>;
+          </button>
+          {system === "reproductive" && visible && (
+            <div className="ml-9 mb-1 flex gap-1.5">
+              {["male","female"].map((sex) => <button key={sex} onClick={() => setGenitalia(sex)} className={`flex-1 rounded-lg border px-2 py-1.5 text-[10px] font-black capitalize transition ${genitalia === sex ? "border-pink-500 bg-pink-500 text-white shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-pink-300"}`}>{sex} genitalia</button>)}
+            </div>
+          )}
         })}
       </div>
       <button onClick={() => setRemoved([])} className="mt-3 w-full rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white">Restore all layers</button>
@@ -91,7 +93,7 @@ function Explorer() {
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
           <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">DIAPHRAGM · FROSTED</span>
         </div>
-        <Anatomy3DViewer gender={gender} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={overrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom}/>
+        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={overrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
@@ -118,7 +120,7 @@ function Pathophysiology() {
     </aside>
     <section className={`${panel} overflow-hidden p-3`}>
       <div className="mb-3 flex items-center justify-between px-2"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-rose-700">Animated disease process</p><h2 className="text-xl font-black text-slate-900">{condition.name}</h2></div><span className="animate-pulse rounded-full bg-rose-100 px-3 py-1.5 text-[10px] font-black text-rose-700">PATHOLOGY ACTIVE</span></div>
-      <div className="h-[620px] overflow-hidden rounded-[22px] bg-slate-950"><Anatomy3DViewer gender="female" activeSystems={[condition.system]} selectedId={condition.structureId} isolatedId={null} reconstructId={null} pathologyStructureId={condition.structureId} onSelectStructure={()=>{}} resetNonce={0}/></div>
+      <div className="h-[620px] overflow-hidden rounded-[22px] bg-slate-950"><Anatomy3DViewer activeSystems={[condition.system]} selectedId={condition.structureId} isolatedId={null} reconstructId={null} pathologyStructureId={condition.structureId} onSelectStructure={()=>{}} resetNonce={0}/></div>
     </section>
     <aside className={`${panel} p-6`}>
       <h3 className="text-lg font-black text-slate-900">What changes?</h3><p className="mt-2 text-sm leading-6 text-slate-700">{condition.summary}</p>
