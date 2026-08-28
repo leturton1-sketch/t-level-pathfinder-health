@@ -11,6 +11,8 @@ import NEWS2Badge from "@/components/NEWS2Badge";
 import TLevelLogo from "@/components/TLevelLogo";
 import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
 
+const TLEVEL_SALMON_LOGO = "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/da831d847_TLevel-Logo-SalmonWithStrapline.png";
+
 const ROOMS = [
   { id: "suite-a", label: "Clinical Suite A", shortLabel: "Suite A", status: "suiteA", x: 7, y: 8, size: 29 },
   { id: "suite-b", label: "Clinical Suite B", shortLabel: "Suite B", status: "suiteB", x: 64, y: 8, size: 29 },
@@ -65,12 +67,12 @@ function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
   );
 }
 
-function QuickLaunch({ icon: Icon, label, detail, onClick, tone }) {
+function QuickLaunch({ icon: Icon, label, detail, onClick, tone, image }) {
   return (
     <button onClick={onClick} className="ar-launch polished-glass-edge group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 px-4 py-3 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
       <div className="flex items-center gap-3">
-        <span className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-white shadow-[0_9px_0_-4px_rgba(15,23,42,.22),0_13px_24px_-14px_rgba(15,23,42,.75)] ${tone}`}>
-          <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />
+        <span className={`relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl text-white shadow-[0_9px_0_-4px_rgba(15,23,42,.22),0_13px_24px_-14px_rgba(15,23,42,.75)] ${image ? "bg-slate-900" : tone}`}>
+          {image ? <img src={image} alt="" className="h-full w-full object-contain p-1" /> : <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />}
         </span>
         <span className="min-w-0">
           <span className="block text-xs font-extrabold text-slate-800">{label}</span>
@@ -112,7 +114,7 @@ export default function CommandCenterDashboard() {
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[.22em] text-cyan-700">Pathfinder Health · Live operations</p>
-              <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Clinical Command Centre</h1>
+              <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Pathfinder Overview</h1>
             </div>
           </div>
           <div className="flex items-center gap-3 text-xs font-semibold text-slate-600">
@@ -135,18 +137,17 @@ export default function CommandCenterDashboard() {
               <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Clinical tools</span>
               <span className="h-px flex-1 bg-slate-300/80" />
             </div>
-            <QuickLaunch icon={HeartPulse} label="NEWS2" detail="Score observations" tone="bg-gradient-to-br from-rose-400 to-red-600" onClick={() => navigate("/care-planning/news2")} />
-            <QuickLaunch icon={BedDouble} label="Ward Sim" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
-            <QuickLaunch icon={BriefcaseMedical} label="Care plans" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
-            <QuickLaunch icon={HeartPulse} label="Health Hub" detail="Clinic checks and records" tone="bg-gradient-to-br from-emerald-300 to-emerald-700" onClick={() => navigate("/health-hub")} />
+            <QuickLaunch icon={BedDouble} label="3D Ward Simulation" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
+            <QuickLaunch icon={BriefcaseMedical} label="Care Planning" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
+            <QuickLaunch image={TLEVEL_SALMON_LOGO} label="T-Level Health Hub" detail="Clinic checks and records" onClick={() => navigate("/health-hub")} />
             <QuickLaunch icon={GraduationCap} label="Clinical Skills Academy" detail="Practical learning pathways" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/clinical-skills-academy")} />
             <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
               <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Learning & account</span>
               <span className="h-px flex-1 bg-slate-300/80" />
             </div>
-            <QuickLaunch icon={UserRound} label="User Profile" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
+            <QuickLaunch icon={UserRound} label="User Analytics" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
             <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
-            <QuickLaunch icon={Brain} label="Anatomy & Pathophysiology" detail="3D body systems and patient lab" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
+            <QuickLaunch icon={Brain} label="3D Anatomical Anatomage" detail="3D body systems and patient lab" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
             <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
             {isAdmin() && (
               <>
