@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, isAdmin, isSuperAdmin, resetPin } from "@/lib/clinicalAuth";
-import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2 } from "lucide-react";
+import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import VoiceSettings from "@/components/voice/VoiceSettings";
+import AppInstallerPanel from "@/components/admin/AppInstallerPanel";
 
 const ROLE_LABELS = {
   super_admin: "Super Admin",
@@ -135,7 +136,7 @@ export default function UserManagement() {
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
+      <div className="mb-6 grid grid-cols-3 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
         <button
           type="button"
           role="tab"
@@ -153,6 +154,15 @@ export default function UserManagement() {
           className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "voice" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
         >
           <Volume2 className="h-4 w-4" /> Voice Configuration
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "installer"}
+          onClick={() => setActiveTab("installer")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "installer" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
+        >
+          <Download className="h-4 w-4" /> Install App
         </button>
       </div>
 
@@ -280,6 +290,10 @@ export default function UserManagement() {
             </button>
           </div>
         </section>
+      )}
+
+      {activeTab === "installer" && (
+        <AppInstallerPanel />
       )}
 
       <VoiceSettings
