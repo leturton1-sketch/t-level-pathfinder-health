@@ -4,13 +4,13 @@ import { getVoiceProfile } from "@/lib/voicePreferences";
 // gender so the assistant's identity follows the voice the learner hears.
 export const ASSISTANT_PERSONAS = {
   male: {
-    shortName: "A.R.C.H.I.E",
-    fullName: "A.R.C.H.I.E",
+    shortName: "ARCHIE",
+    fullName: "ARCHIE",
     title: "Automated Record, Charting & Health Intelligence Engine",
   },
   female: {
-    shortName: "F.L.O",
-    fullName: "F.L.O",
+    shortName: "FLO",
+    fullName: "FLO",
     title: "Formative Learning Outcomes AI Clinical Assistant",
   },
 };
@@ -41,7 +41,7 @@ export function getAssistantIdentity(prefs, user) {
   const roleClause = `As your ${roleLabel} AI companion, I'm here to help with your nursing studies, build your clinical understanding and knowledge, guide you through the T Level specification, and support simulation, admin and knowledge-based tasks.`;
   const controls = "Tap the microphone for voice input, and use the mute or stop controls to manage my speech.";
   const intro = gender === "male"
-    ? `Hello ${firstName}! I'm A.R.C.H.I.E — your Automated Record, Charting & Health Intelligence Engine. ${roleClause} ${controls} How can I support your learning today?`
-    : `Hello ${firstName}! I'm F.L.O — your Formative Learning Outcomes AI Clinical Assistant. ${roleClause} ${controls} How can I support your learning today?`;
+    ? `Hello ${firstName}! I'm ARCHIE — your Automated Record, Charting & Health Intelligence Engine. ${roleClause} ${controls} How can I support your learning today?`
+    : `Hello ${firstName}! I'm FLO — your Formative Learning Outcomes AI Clinical Assistant. ${roleClause} ${controls} How can I support your learning today?`;
   return { ...persona, gender, firstName, roleLabel, intro };
 }
