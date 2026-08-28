@@ -206,12 +206,12 @@ export default function Login() {
 
           <div className="flex items-center gap-3 py-1" aria-hidden="true">
             <div className="h-px flex-1 bg-border" />
-            <span className="text-[10px] font-heading font-bold uppercase tracking-[0.16em] text-muted-foreground">Temporary testing access</span>
+            <span className="text-[10px] font-heading font-bold uppercase tracking-[0.16em] text-muted-foreground">Staff & student sign-in</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block font-heading">Test username</label>
+            <label className="text-xs text-muted-foreground mb-1 block font-heading">Username</label>
             <div className="relative">
               <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -285,9 +285,6 @@ export default function Login() {
             )}
           </button>
 
-          <p className="text-center text-xs text-muted-foreground">
-            PIN access is retained temporarily for app testing. Default PIN: 0000.
-          </p>
         </div>
       </div>
     </div>
