@@ -127,7 +127,7 @@ export default function Login() {
             <p className="text-sm text-muted-foreground mt-2">For security, please set a new 4-digit PIN.</p>
           </div>
 
-          <div className="polished-glass-edge space-y-4 rounded-3xl border border-white/90 p-6 shadow-[0_22px_55px_-30px_rgba(36,27,58,.55),inset_1px_1px_2px_rgba(255,255,255,.9)] backdrop-blur-2xl">
+          <div className="polished-glass-edge space-y-4 rounded-3xl border border-white/90 p-6 backdrop-blur-2xl" style={{ boxShadow: "0 22px 55px -30px rgba(36,27,58,.55), inset 1px 1px 2px rgba(255,255,255,.9)" }}>
             {error && (
               <div className="flex items-center gap-2 text-sm rounded-xl p-2.5" style={{ color: "#B42318", background: "#FC44211A" }}>
                 <AlertCircle className="w-4 h-4 shrink-0" /> {error}
@@ -190,7 +190,7 @@ export default function Login() {
           <p className="text-sm text-muted-foreground font-body mt-1">Clinical Skills Academy · RNN Group</p>
         </div>
 
-        <div className="polished-glass-edge space-y-4 rounded-3xl border border-white/90 p-6 shadow-[0_24px_60px_-32px_rgba(36,27,58,.6),inset_1px_1px_2px_rgba(255,255,255,.95)] backdrop-blur-2xl animate-slide-up" style={{ animationDelay: "0.15s" }}>
+        <div className="polished-glass-edge space-y-4 rounded-3xl border border-white/90 p-6 backdrop-blur-2xl animate-slide-up" style={{ animationDelay: "0.15s", boxShadow: "0 24px 60px -32px rgba(36,27,58,.6), inset 1px 1px 2px rgba(255,255,255,.95)" }}>
           {error && (
             <div className="flex items-center gap-2 text-sm rounded-xl p-2.5" style={{ color: "#B42318", background: "#FC44211A" }}>
               <AlertCircle className="w-4 h-4 shrink-0" /> {error}
@@ -267,7 +267,7 @@ export default function Login() {
               <button
                 key={digit}
                 onClick={() => handlePinDigit(String(digit))}
-                className="aspect-square rounded-2xl text-xl font-heading font-bold text-foreground hover:border-[var(--ring)] transition-all active:scale-95"
+                className="aspect-square rounded-2xl text-xl font-heading font-bold text-foreground hover:border-[#765AB0] transition-all active:scale-95"
                 style={{ border: `1px solid ${PURPLE}26`, background: "#ffffff" }}
               >
                 {digit}
@@ -276,14 +276,14 @@ export default function Login() {
             <div />
             <button
               onClick={() => handlePinDigit("0")}
-              className="aspect-square rounded-2xl text-xl font-heading font-bold text-foreground hover:border-[var(--ring)] transition-all active:scale-95"
+              className="aspect-square rounded-2xl text-xl font-heading font-bold text-foreground hover:border-[#765AB0] transition-all active:scale-95"
               style={{ border: `1px solid ${PURPLE}26`, background: "#ffffff" }}
             >
               0
             </button>
             <button
               onClick={handlePinDelete}
-              className="aspect-square rounded-2xl text-muted-foreground hover:text-[var(--ring)] transition-all active:scale-95 flex items-center justify-center"
+              className="aspect-square rounded-2xl text-muted-foreground hover:text-[#765AB0] transition-all active:scale-95 flex items-center justify-center"
               style={{ border: `1px solid ${PURPLE}26`, background: "#F6F4F8" }}
             >
               <Delete className="w-5 h-5" />
