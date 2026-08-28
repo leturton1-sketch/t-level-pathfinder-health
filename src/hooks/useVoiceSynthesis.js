@@ -47,7 +47,7 @@ export function useVoiceSynthesis() {
     setSpeaking(true);
     onStart?.();
     ukVoiceService.updateSettings({
-      dialect: profile.dialect === "neutral_uk" ? "london_rp" : profile.dialect,
+      dialect: "london_rp",
       gender: profile.gender === "male" ? "male" : "female",
       personaId: profile.id,
       voiceName: currentPrefs.systemVoiceURI || "auto",

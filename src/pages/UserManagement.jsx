@@ -246,9 +246,9 @@ export default function UserManagement() {
                 <Volume2 className="h-6 w-6" />
               </span>
               <div>
-                <h2 className="text-base font-bold text-slate-900">UK Voice Configuration</h2>
+                <h2 className="text-base font-bold text-slate-900">Voice Configuration</h2>
                 <p className="mt-1 text-sm leading-5 text-slate-600">
-                  Manage the application’s speech engine, regional dialect, voice model, system voice, pitch, speed, stability and volume from this single location.
+                  Manage the application’s speech engine, voice model, system voice, pitch, speed, stability and volume from this single location.
                 </p>
               </div>
             </div>
@@ -287,8 +287,8 @@ export default function UserManagement() {
         onClose={() => setVoiceSettingsOpen(false)}
         synth={voiceSynth}
         onSaved={() => {
-          toast({ title: "Voice settings saved", description: "The UK voice configuration has been updated." });
-          setTimeout(() => voiceSynth.speak("Voice settings saved. Your regional voice is ready."), 80);
+          toast({ title: "Voice settings saved", description: "The voice configuration has been updated." });
+          setTimeout(() => voiceSynth.speak("Voice settings saved. Your voice is ready."), 80);
         }}
       />
 
