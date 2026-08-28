@@ -42,9 +42,10 @@ export function useVoiceSynthesis() {
     setSpeaking(false);
   }, [supported]);
 
-  const speakBrowser = useCallback((text, currentPrefs, profile, onEnd) => {
+  const speakBrowser = useCallback((text, currentPrefs, profile, onStart, onEnd) => {
     if (!supported) { onEnd?.(); return; }
     setSpeaking(true);
+    onStart?.();
     ukVoiceService.updateSettings({
       dialect: profile.dialect === "neutral_uk" ? "london_rp" : profile.dialect,
       gender: profile.gender === "male" ? "male" : "female",
@@ -61,7 +62,7 @@ export function useVoiceSynthesis() {
     });
   }, [supported]);
 
-  const speak = useCallback(async (text, { onEnd } = {}) => {
+  const speak = useCallback(async (text, { onStart, onEnd } = {}) => {
     const clean = prepareSpeechText(String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000));
     if (!clean) { onEnd?.(); return; }
     stop();
@@ -82,6 +83,10 @@ export function useVoiceSynthesis() {
         const audio = new Audio(url);
         audioRef.current = audio;
         audio.volume = prefs.volume;
+        // Fire onStart only when audio actually begins playing, so the
+        // waveform animation aligns to real playback duration (not the
+        // cloud-generation latency).
+        audio.onplay = () => onStart?.();
         audio.onended = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
         audio.onerror = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
         await audio.play();
@@ -90,7 +95,7 @@ export function useVoiceSynthesis() {
         // fall back to browser TTS
       }
     }
-    speakBrowser(clean, prefs, profile, onEnd);
+    speakBrowser(clean, prefs, profile, onStart, onEnd);
   }, [prefs, stop, speakBrowser]);
 
   const testVoice = useCallback((sampleText) => {

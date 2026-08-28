@@ -105,8 +105,12 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
   const speak = async (text) => {
     if (mutedRef.current) { setState("idle"); return; }
-    setState("speaking");
+    // Show "thinking" while cloud TTS is being generated; switch to "speaking"
+    // only when the audio actually starts, so the waveform animation matches
+    // the real playback duration.
+    setState("thinking");
     await synth.speak(text, {
+      onStart: () => setState("speaking"),
       onEnd: () => setState(listeningRef.current ? "listening" : "idle"),
     });
   };
