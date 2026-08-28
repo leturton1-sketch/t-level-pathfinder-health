@@ -82,7 +82,7 @@ export default function Login() {
     }
     try {
       await changePin(pendingUser.id, newPin);
-      void ukVoiceService.speak("Your PIN has been updated successfully. Welcome to Clinical Edge.");
+      void ukVoiceService.speak("Your PIN has been updated successfully. Welcome to Pathfinder Health.");
       navigate("/");
     } catch (err) {
       setError("Failed to update PIN. Please try again.");
@@ -175,7 +175,7 @@ export default function Login() {
           <div className="flex justify-center mb-4">
             <TLevelLogo size="lg" />
           </div>
-          <p className="text-sm text-muted-foreground font-body">T Level Health Learning Platform</p>
+          <p className="text-sm text-muted-foreground font-body">Clinical Skills Academy (RNN Group)</p>
         </div>
 
         <div className="space-y-4 bg-white rounded-3xl border border-border shadow-xl p-6 animate-slide-up" style={{ animationDelay: "0.2s" }}>
