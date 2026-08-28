@@ -270,7 +270,9 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     const surfaceMat = shellMat.clone();
     materialsRef.current.push(surfaceMat);
     surfaceMat.opacity = 0.28;
-    surfaceMat.depthWrite = true;
+    // Translucent surface must NOT write depth, otherwise it occludes the
+    // internal organs from every angle and blocks 360° visibility.
+    surfaceMat.depthWrite = false;
     new OBJLoader().load(
       "/models/anatomy/male-surface.obj",
       (object) => {
