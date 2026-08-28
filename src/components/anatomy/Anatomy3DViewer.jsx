@@ -229,6 +229,9 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     neonGroup.userData.id = "skin";
     const buildNeonOutline = (parts) => {
       while (neonGroup.children.length) neonGroup.remove(neonGroup.children[0]);
+      neonGroup.position.set(0, 0, 0);
+      neonGroup.scale.set(1, 1, 1);
+      neonGroup.rotation.set(0, 0, 0);
       parts.forEach((p) => {
         const mesh = new THREE.Mesh(buildGeometry(p.shape), neonMat);
         if (p.position) mesh.position.set(p.position[0], p.position[1], p.position[2]);
@@ -237,9 +240,28 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         neonGroup.add(mesh);
       });
     };
+    // Build the neon outline from a loaded object (e.g. the imported male OBJ
+    // surface) so the wireframe conforms to the VISIBLE body instead of the
+    // procedural fallback shell — preventing the floating vertical columns
+    // that appear when the two bodies differ in proportion.
+    const buildNeonFromObject = (object) => {
+      while (neonGroup.children.length) neonGroup.remove(neonGroup.children[0]);
+      neonGroup.position.copy(object.position);
+      neonGroup.scale.copy(object.scale);
+      neonGroup.rotation.copy(object.rotation);
+      object.traverse((m) => {
+        if (!m.isMesh || !m.geometry) return;
+        const wm = new THREE.Mesh(m.geometry, neonMat);
+        wm.position.copy(m.position);
+        wm.rotation.copy(m.rotation);
+        wm.scale.copy(m.scale);
+        wm.userData.id = "skin";
+        neonGroup.add(wm);
+      });
+    };
     buildNeonOutline(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
     scene.add(neonGroup);
-    neonOutlineRef.current = { group: neonGroup, mat: neonMat, build: buildNeonOutline };
+    neonOutlineRef.current = { group: neonGroup, mat: neonMat, build: buildNeonOutline, buildFromObject: buildNeonFromObject };
     groupsRef.current["skin"] = neonGroup;
     baseColorsRef.current["skin"] = new THREE.Color(0x2ee6d6);
 
@@ -265,6 +287,11 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         shellGroup.visible = genderRef.current !== "male";
         scene.add(object);
         importedSurfaceRef.current = object;
+        // Conform the integumentary neon outline to the real imported surface
+        // so it traces the visible body, not the procedural fallback shell.
+        if (genderRef.current === "male" && neonOutlineRef.current) {
+          neonOutlineRef.current.buildFromObject(object);
+        }
       },
       undefined,
       () => { shellGroup.visible = true; }
@@ -520,10 +547,13 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     const sh = shellRef.current;
     if (!sh) return;
     sh.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
-    if (neonOutlineRef.current) neonOutlineRef.current.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
     const imported = importedSurfaceRef.current;
     if (imported) imported.visible = gender === "male";
     sh.group.visible = gender !== "male" || !imported;
+    if (neonOutlineRef.current) {
+      if (gender === "male" && imported) neonOutlineRef.current.buildFromObject(imported);
+      else neonOutlineRef.current.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
+    }
   }, [gender]);
 
   // ── Visibility: gender + active systems + isolate + admin overrides ──
