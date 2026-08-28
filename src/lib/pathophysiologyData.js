@@ -1,6 +1,6 @@
 export const BODY_LAYER_ORDER = [
-  "integumentary", "muscular", "skeletal", "nervous", "cardiovascular",
-  "respiratory", "digestive", "urinary", "endocrine", "lymphatic", "reproductive",
+  "integumentary", "cardiovascular",
+  "respiratory", "digestive", "urinary", "endocrine", "reproductive",
 ];
 
 export const PATHOPHYSIOLOGY_CONDITIONS = [
