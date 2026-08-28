@@ -297,6 +297,13 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
   const anchored = pos.x < 0 || pos.y < 0;
   const panelStyle = anchored ? {} : { left: pos.x, top: pos.y };
+  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const cleanLast = lastAssistant ? lastAssistant.content.replace(/[*#`]/g, "").replace(/\s+/g, " ").trim() : "";
+  const bubbleText =
+    state === "thinking" ? "Thinking…"
+      : state === "listening" ? "Listening…"
+      : state === "speaking" ? (cleanLast ? (cleanLast.length > 110 ? cleanLast.slice(0, 110) + "…" : cleanLast) : "Speaking…")
+      : "";
   const panelClass = anchored
     ? "fixed bottom-[136px] right-4 z-50"
     : "fixed z-50";
@@ -304,26 +311,31 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
   return (
     <>
       {/* Toggle — always visible so the panel opens beside it */}
-      <div className="fixed bottom-20 right-4 z-50">
+      <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-1.5">
+        {bubbleText && (
+          <div className="pointer-events-none max-w-[230px] rounded-2xl border border-white/70 bg-white/55 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
+            <span className="mr-1 font-bold text-clinical-teal">{identity.shortName}:</span>{bubbleText}
+          </div>
+        )}
         <div className="flex items-center overflow-hidden rounded-full border border-clinical-teal/35 bg-white/80 shadow-lg backdrop-blur-xl">
           <button type="button" onClick={() => setExpanded((v) => !v)}
-            className="group flex items-center gap-2 px-3.5 py-2 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
+            className="group flex items-center gap-1.5 px-2.5 py-1.5 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
             <video
               src="https://media.base44.com/videos/public/6a4759cc86fe95039e31fd09/28db769ba_generate_a_futuristic_wire_.mp4"
-              className="h-8 w-8 rounded-full object-cover"
+              className="h-6 w-6 rounded-full object-cover"
               autoPlay
               loop
               muted
               playsInline
             />
-            <span className="text-[11px] font-bold text-red-600">{identity.shortName}</span>
+            <span className="text-[10px] font-bold text-red-600">{identity.shortName}</span>
           </button>
           <button type="button" onClick={toggleAutoListen}
-            className={`mr-1 grid h-8 w-8 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
+            className={`mr-1 grid h-7 w-7 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
             title={autoListen ? "Turn off periodic command listening" : "Turn on periodic command listening"}
             aria-label={autoListen ? "Voice command monitoring on" : "Voice command monitoring off"}
             aria-pressed={autoListen}>
-            {autoListen ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+            {autoListen ? <Volume2 className="h-3 w-3" /> : <VolumeX className="h-3 w-3" />}
           </button>
         </div>
       </div>
