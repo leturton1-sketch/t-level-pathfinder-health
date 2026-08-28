@@ -317,10 +317,10 @@ const ANATOMICAL_ATLAS = {
 
   esophagus: { position: [0, 1.34, -0.052] },
   stomach: { position: [-0.065, 1.085, 0.015], rotation: [0, 0, 0.25] },
-  liver: { position: [0.07, 1.12, 0.02], rotation: [0, 0, -0.08] },
+  liver: { position: [0.055, 1.115, 0.018], rotation: [0, 0, -0.08], scale: [0.82, 0.9, 0.82] },
   gallbladder: { position: [0.092, 1.075, 0.035] },
   pancreas: { position: [-0.005, 1.065, -0.045], rotation: [0, 0, Math.PI / 2] },
-  spleen: { position: [-0.12, 1.11, -0.035] },
+  spleen: { position: [-0.098, 1.115, -0.03], scale: [0.68, 1.2, 0.68] },
   small_intestine: { position: [0, 0.97, 0.018], scale: [1.25, 0.88, 0.78] },
   large_intestine: { shape: { type: "tube", radius: 0.018, points: [[0.09,0.9,0.02],[0.09,1.06,0.02],[0.05,1.105,0.02],[-0.05,1.105,0.02],[-0.09,1.06,0.02],[-0.09,0.9,0.02],[-0.05,0.865,0.015],[0,0.85,0.01]] } },
 
@@ -360,11 +360,23 @@ const ANATOMICAL_ATLAS = {
 
   skin: { position: [0, 1.18, 0], scale: [1.55, 3.3, 0.9] },
   major_muscles: { parts: [
-    { shape: { type: "sphere", radius: 0.072, scale: [1.12,0.58,0.4] }, position: [-0.072,1.37,0.052] },
-    { shape: { type: "sphere", radius: 0.072, scale: [1.12,0.58,0.4] }, position: [0.072,1.37,0.052] },
-    { shape: { type: "capsule", radius: 0.044, length: 0.23 }, position: [0,1.15,0.04] },
-    { shape: { type: "capsule", radius: 0.048, length: 0.57 }, position: [-0.07,0.52,0] },
-    { shape: { type: "capsule", radius: 0.048, length: 0.57 }, position: [0.07,0.52,0] },
+    // Pectoralis major — anterior chest, hugging the body surface
+    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [-0.065,1.345,0.13] },
+    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [0.065,1.345,0.13] },
+    // Deltoids — shoulder contour
+    { shape: { type: "sphere", radius: 0.05, scale: [1.0,0.85,0.85] }, position: [-0.17,1.395,0.02] },
+    { shape: { type: "sphere", radius: 0.05, scale: [1.0,0.85,0.85] }, position: [0.17,1.395,0.02] },
+    // Rectus abdominis — anterior abdominal wall
+    { shape: { type: "capsule", radius: 0.036, length: 0.26 }, position: [0,1.12,0.1] },
+    // External obliques — flanks
+    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [-0.1,1.12,0.07] },
+    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [0.1,1.12,0.07] },
+    // Quadriceps — anterior thigh
+    { shape: { type: "capsule", radius: 0.044, length: 0.5 }, position: [-0.062,0.55,0.03] },
+    { shape: { type: "capsule", radius: 0.044, length: 0.5 }, position: [0.062,0.55,0.03] },
+    // Biceps brachii — upper arm
+    { shape: { type: "capsule", radius: 0.034, length: 0.42 }, position: [-0.185,1.17,0], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.034, length: 0.42 }, position: [0.185,1.17,0], rotation: [0,0,0.16] },
   ] },
 
   lymph_nodes: { parts: [

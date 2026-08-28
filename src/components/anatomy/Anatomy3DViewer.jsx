@@ -99,6 +99,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
   const controlsRef = useRef({ reset: null });  // set by setup effect
   const customGroupRef = useRef(null);          // admin-added structures container
   const customGroupsRef = useRef({});           // id -> THREE.Group (custom)
+  const neonOutlineRef = useRef(null);          // integumentary neon outline group
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
 
@@ -218,6 +219,30 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     scene.add(shellGroup);
     shellRef.current = { group: shellGroup, mat: shellMat, build: buildShell };
 
+    // Integumentary neon outline — a wireframe clone of the body shell that
+    // traces the silhouette exactly, replacing the legacy floating "skin"
+    // ellipsoid so the integumentary layer conforms to the visible body.
+    const neonMat = new THREE.MeshBasicMaterial({ color: 0x2ee6d6, wireframe: true, transparent: true, opacity: 0.62, side: THREE.DoubleSide, depthWrite: false });
+    neonMat.userData.isNeonOutline = true;
+    materialsRef.current.push(neonMat);
+    const neonGroup = new THREE.Group();
+    neonGroup.userData.id = "skin";
+    const buildNeonOutline = (parts) => {
+      while (neonGroup.children.length) neonGroup.remove(neonGroup.children[0]);
+      parts.forEach((p) => {
+        const mesh = new THREE.Mesh(buildGeometry(p.shape), neonMat);
+        if (p.position) mesh.position.set(p.position[0], p.position[1], p.position[2]);
+        if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+        mesh.userData.id = "skin";
+        neonGroup.add(mesh);
+      });
+    };
+    buildNeonOutline(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
+    scene.add(neonGroup);
+    neonOutlineRef.current = { group: neonGroup, mat: neonMat, build: buildNeonOutline };
+    groupsRef.current["skin"] = neonGroup;
+    baseColorsRef.current["skin"] = new THREE.Color(0x2ee6d6);
+
     // User-supplied anatomical base mesh. The procedural shell remains as the
     // female and low-bandwidth fallback so the learning module never blocks.
     const surfaceMat = shellMat.clone();
@@ -254,6 +279,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     scene.add(customGroup);
     customGroupRef.current = customGroup;
     ANATOMY_STRUCTURES.forEach((s) => {
+      if (s.id === "skin") return; // integumentary rendered as neon outline above
       const grp = new THREE.Group();
       grp.userData.id = s.id;
       const isBone = s.system === "skeletal";
@@ -285,7 +311,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         transparent: educationalOpacity < 1,
         opacity: educationalOpacity,
         depthWrite: educationalOpacity >= 0.95,
-        side: isMuscle || isIntegumentary || isDiaphragm ? THREE.DoubleSide : THREE.FrontSide,
+        side: THREE.DoubleSide,
         clearcoat: isBone ? 0 : hasCapsule ? 0.2 : isDiaphragm ? 0.04 : isVascular ? 0.08 : 0.06,
         clearcoatRoughness: hasCapsule ? 0.58 : 0.74,
         sheen: isBone ? 0 : isMuscle ? 0.16 : 0.1,
@@ -432,10 +458,10 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
         const pulse = 1 + Math.sin(clock.elapsedTime * 3.4) * 0.055;
         grp.scale.setScalar(pulse);
         grp.traverse((m) => {
-          if (m.isMesh) {
-            m.material.emissive = new THREE.Color(0xff4d6d);
-            m.material.emissiveIntensity = 0.35 + Math.sin(clock.elapsedTime * 3.4) * 0.2;
-          }
+          if (!m.isMesh) return;
+          if (m.material.userData.isNeonOutline) return;
+          m.material.emissive = new THREE.Color(0xff4d6d);
+          m.material.emissiveIntensity = 0.35 + Math.sin(clock.elapsedTime * 3.4) * 0.2;
         });
       });
       renderer.render(scene, camera);
@@ -494,6 +520,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     const sh = shellRef.current;
     if (!sh) return;
     sh.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
+    if (neonOutlineRef.current) neonOutlineRef.current.build(BODY_SHELLS[gender] ? BODY_SHELLS[gender].parts : BODY_SHELLS.male.parts);
     const imported = importedSurfaceRef.current;
     if (imported) imported.visible = gender === "male";
     sh.group.visible = gender !== "male" || !imported;
@@ -536,16 +563,22 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
       grp.visible = visible;
       if (visible) {
         grp.traverse((m) => {
-          if (m.isMesh) {
-            const educationalOpacity = m.material.userData.educationalOpacity ?? 1;
-            m.material.opacity = id === isolated ? 1 : educationalOpacity;
-            m.material.depthWrite = id === isolated ? true : (m.material.userData.educationalDepthWrite ?? true);
-            m.material.wireframe = false;
-            m.material.emissive = new THREE.Color(0x000000);
+          if (!m.isMesh) return;
+          // Neon outline keeps its wireframe/opacity; only clipping is applied.
+          if (m.material.userData.isNeonOutline) {
             m.material.clippingPlanes = clipped.has(id) ? [clippingPlaneRef.current] : globalClip;
             m.material.clipShadows = clipped.has(id) || viewMode === "cross-section";
             m.material.needsUpdate = true;
+            return;
           }
+          const educationalOpacity = m.material.userData.educationalOpacity ?? 1;
+          m.material.opacity = id === isolated ? 1 : educationalOpacity;
+          m.material.depthWrite = id === isolated ? true : (m.material.userData.educationalDepthWrite ?? true);
+          m.material.wireframe = false;
+          m.material.emissive = new THREE.Color(0x000000);
+          m.material.clippingPlanes = clipped.has(id) ? [clippingPlaneRef.current] : globalClip;
+          m.material.clipShadows = clipped.has(id) || viewMode === "cross-section";
+          m.material.needsUpdate = true;
         });
         grp.scale.setScalar(1);
       }
@@ -561,6 +594,7 @@ export default function Anatomy3DViewer({ gender, activeSystems, selectedId, iso
     Object.entries(groupsRef.current).forEach(([id, grp]) => {
       grp.traverse((m) => {
         if (!m.isMesh) return;
+        if (m.material.userData.isNeonOutline) return;
         if (id === selectedId && !reconstructAnimRef.current.active) {
           m.material.emissive = baseColorsRef.current[id].clone().multiplyScalar(0.45);
           m.material.emissiveIntensity = 1;
