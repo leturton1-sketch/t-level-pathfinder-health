@@ -11,7 +11,7 @@ const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 t
 
 function Explorer() {
   const [genitalia, setGenitalia] = useState("male");
-  const [removed, setRemoved] = useState([]);
+  const [removed, setRemoved] = useState(["muscular", "skeletal", "nervous", "lymphatic"]);
   const [selectedId, setSelectedId] = useState("skin");
   const [viewMode, setViewMode] = useState("full");
   const [editMode, setEditMode] = useState(false);
