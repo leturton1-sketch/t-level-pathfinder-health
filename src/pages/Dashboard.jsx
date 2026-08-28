@@ -77,7 +77,7 @@ export default function Dashboard() {
               <Activity className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-heading uppercase tracking-widest text-white/80 truncate">ClinicalEdge Patient Management System</p>
+              <p className="text-[10px] font-heading uppercase tracking-widest text-white/80 truncate">Pathfinder Health · Patient Management</p>
               <h1 className="text-sm sm:text-base font-heading font-bold truncate">Ward Board · Admit · Discharge · Update</h1>
             </div>
           </div>

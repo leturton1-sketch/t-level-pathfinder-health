@@ -120,7 +120,7 @@ export default function BottomNav() {
     <div
       ref={dragRef}
       className="clinical-glass-nav fixed z-40 max-w-lg rounded-[22px] px-3 py-2.5 opacity-55 transition-[opacity] duration-500 hover:opacity-95 focus-within:opacity-100 select-none"
-      style={{ left: pos.x, top: pos.y, touchAction: "none", cursor: dragging ? "grabbing" : "default" }}
+      style={{ left: pos.x, top: pos.y, maxWidth: "min(32rem, calc(100vw - 24px))", touchAction: "none", cursor: dragging ? "grabbing" : "default" }}
     >
       {/* Drag handle */}
       <button
@@ -141,12 +141,13 @@ export default function BottomNav() {
               key={item.path}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={() => { if (!movedRef.current) navigate(item.path); }}
-              className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              aria-label={item.label}
+              className={`relative flex flex-col items-center gap-1 px-2.5 sm:px-4 py-2 rounded-xl transition-all ${
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <item.icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
-              <span className="text-[10px] font-heading font-medium">{item.label}</span>
+              <span className="hidden min-[480px]:block text-[10px] font-heading font-medium">{item.label}</span>
               {isActive && (
                 <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary shadow-[0_4px_10px_rgba(118,90,176,.45)]" />
               )}

@@ -106,7 +106,7 @@ export default function ClinicalSkillsAcademy() {
               <GraduationCap className="h-6 w-6" />
             </span>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-violet-700">ClinicalEdge · Practical learning</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-violet-700">Pathfinder Health · Practical learning</p>
               <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Clinical Skills Academy</h1>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function ClinicalSkillsAcademy() {
             <p className="relative text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Learn by doing</p>
             <h2 className="relative mt-2 max-w-3xl text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Practise complete patient journeys, not isolated facts.</h2>
             <p className="relative mt-3 max-w-3xl text-sm font-medium leading-6 text-[#4A5568]">
-              Move from assessment to action, documentation, escalation and reflection using the connected Clinical Edge workspaces.
+              Move from assessment to action, documentation, escalation and reflection using the connected Pathfinder Health workspaces.
             </p>
             <div className="relative mt-5 flex flex-wrap gap-2">
               <span className="rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-white">{moduleCount} practical modules</span>

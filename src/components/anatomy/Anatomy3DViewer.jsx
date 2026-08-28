@@ -34,14 +34,18 @@ function applyScale(mesh, scale) {
   mesh.scale.set(scale[0], scale[1], scale[2]);
 }
 
-function createClinicalTextures(renderer) {
-  const size = renderer.capabilities.maxTextureSize >= 4096 && window.devicePixelRatio > 1 ? 1024 : 512;
+// Clinical surface canvases are expensive to generate (~1.3M pixel writes).
+// Cache them for the browser session so revisits to the anatomy viewer skip the
+// regeneration loop; fresh GPU textures are still created per renderer instance.
+let _clinicalCanvases = null;
+let _clinicalCanvasesSize = 0;
+
+function generateClinicalCanvases(size) {
   const canvases = Array.from({ length: 5 }, () => {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = size;
     return canvas;
   });
-  const [colourCanvas, tissueCanvas, muscleCanvas, boneCanvas, roughnessCanvas] = canvases;
   const contexts = canvases.map((canvas) => canvas.getContext("2d"));
   const images = contexts.map((context) => context.createImageData(size, size));
   const [colourImage, tissueImage, muscleImage, boneImage, roughnessImage] = images;
@@ -68,7 +72,16 @@ function createClinicalTextures(renderer) {
   }
 
   contexts.forEach((context, index) => context.putImageData(images[index], 0, 0));
-  const [map, tissueMap, muscleMap, boneMap, roughnessMap] = canvases.map((canvas) => new THREE.CanvasTexture(canvas));
+  return canvases;
+}
+
+function createClinicalTextures(renderer) {
+  const size = renderer.capabilities.maxTextureSize >= 4096 && window.devicePixelRatio > 1 ? 1024 : 512;
+  if (!_clinicalCanvases || _clinicalCanvasesSize !== size) {
+    _clinicalCanvases = generateClinicalCanvases(size);
+    _clinicalCanvasesSize = size;
+  }
+  const [map, tissueMap, muscleMap, boneMap, roughnessMap] = _clinicalCanvases.map((canvas) => new THREE.CanvasTexture(canvas));
   map.colorSpace = THREE.SRGBColorSpace;
   const textures = [map, tissueMap, muscleMap, boneMap, roughnessMap];
   textures.forEach((texture) => {
