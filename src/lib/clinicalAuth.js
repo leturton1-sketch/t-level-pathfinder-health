@@ -32,7 +32,7 @@ export async function login(username, pin) {
 }
 
 export function startGoogleLogin() {
-  const returnUrl = `${window.location.origin}/`;
+  const returnUrl = `${window.location.origin}/login?auth=google`;
   base44.auth.loginWithProvider("google", returnUrl);
 }
 
@@ -85,7 +85,7 @@ export function logout() {
   localStorage.removeItem(SESSION_KEY);
 
   if (session?.auth_method === "google") {
-    base44.auth.logout(`${window.location.origin}/`);
+    base44.auth.logout(`${window.location.origin}/login?logged_out=1`);
     return true;
   }
 

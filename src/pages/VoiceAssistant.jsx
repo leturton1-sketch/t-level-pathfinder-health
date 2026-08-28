@@ -51,7 +51,7 @@ export default function VoiceAssistant() {
   const endRef = useRef(null);
 
   useEffect(() => {
-    if (!isLoggedIn()) { base44.auth.redirectToLogin(); return; }
+    if (!isLoggedIn()) { navigate("/login"); return; }
     setMessages([{
       role: "assistant",
       content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm your AI Clinical Assistant. We can talk naturally about clinical theory, care planning or ward simulation. Ask a question, or tap the microphone to begin.`,
