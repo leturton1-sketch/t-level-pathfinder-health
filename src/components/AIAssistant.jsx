@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
+import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import ReactMarkdown from "react-markdown";
 
 const AI_STATES = {
@@ -68,6 +69,7 @@ export default function AIAssistant({ context = "general" }) {
   const mutedRef = useRef(muted);
   const wardStateRef = useRef(null);
   const user = getCurrentUser();
+  const identity = getAssistantIdentity(synth.prefs, user);
   const panelRef = useRef(null);
   const dragRef = useRef({ active: false, dx: 0, dy: 0, moved: false });
 
@@ -81,7 +83,7 @@ export default function AIAssistant({ context = "general" }) {
     try { recognitionRef.current?.stop(); } catch {}
   }, []);
 
-  const systemPrompt = `You are the ClinicalEdge AI Clinical Assistant, supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. The user's name is ${user?.full_name || "Student"}. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
+  const systemPrompt = `You are ${identity.fullName} (${identity.title}), the ClinicalEdge AI Clinical Assistant supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. Address the user by name and tailor your support to their role. The user is ${user?.full_name || "a student"} (role: ${user?.role || "student"}). Your role is to help with nursing studies, understanding and knowledge, the T Level specification, simulation, admin and knowledge-based tasks. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
 
 WARD MANAGEMENT: In edit mode you can help place items (bed, bedside_cabinet, observation_monitor, iv_stand, curtain, chair, overbed_table, waste_bin, sink). Bed designations: A1-A4 (Suite A), B1-B4 (Suite B).
 Include a ward_action object for ward commands, otherwise set action to "none".`;
@@ -96,7 +98,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     if (expanded && messages.length === 0) {
       setMessages([{
         role: "assistant",
-        content: `Hello ${user?.full_name?.split(" ")[0] || "there"}! I'm your AI Clinical Assistant. I can help with theory, care planning, and ward simulation.\n\nTap the microphone for continuous voice input. Use the mute and stop controls to manage speech output.`,
+        content: identity.intro,
       }]);
     }
   }, [expanded]);
@@ -314,7 +316,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
               muted
               playsInline
             />
-            <span className="text-[11px] font-bold text-red-600">A.R.T.I.E</span>
+            <span className="text-[11px] font-bold text-red-600">{identity.shortName}</span>
           </button>
           <button type="button" onClick={toggleAutoListen}
             className={`mr-1 grid h-8 w-8 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
@@ -348,7 +350,8 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
                 <Bot className="w-4 h-4 text-clinical-teal" />
               </div>
               <div>
-                <div className="text-[13px] font-heading font-bold text-slate-800">AI Clinical Assistant</div>
+                <div className="text-[13px] font-heading font-bold text-slate-800 leading-tight">{identity.fullName}</div>
+                <div className="text-[9px] font-semibold leading-tight text-slate-400">{identity.title}</div>
                 <div className={`text-[11px] ${AI_STATES[state].color} flex items-center gap-1`}>
                   <Waveform state={state} monitoring={autoListen} /> {AI_STATES[state].label}
                   {muted && <span className="text-clinical-red">(muted)</span>}
