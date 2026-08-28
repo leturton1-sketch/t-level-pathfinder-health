@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench } from "lucide-react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
 import { isAdmin } from "@/lib/clinicalAuth";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
+import AnatomyAnimationController, { AnimationOverlay } from "@/components/anatomy/AnatomyAnimationController";
 
 const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-gradient-to-br from-white/92 via-slate-100/82 to-slate-200/68 shadow-[0_12px_0_-6px_rgba(100,116,139,.24),0_28px_60px_-32px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl";
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
@@ -24,6 +25,10 @@ function Explorer() {
   useEffect(() => { localStorage.setItem("anatomy_admin_hidden", JSON.stringify(hidden)); }, [hidden]);
   useEffect(() => { localStorage.setItem("anatomy_admin_clipped", JSON.stringify(clipped)); }, [clipped]);
   useEffect(() => { localStorage.setItem("anatomy_admin_custom", JSON.stringify(custom)); }, [custom]);
+  const [animations, setAnimations] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_animations") || "{}"); } catch { return {}; } });
+  const [activeAnims, setActiveAnims] = useState([]);
+  const [showAnimController, setShowAnimController] = useState(false);
+  useEffect(() => { localStorage.setItem("anatomy_animations", JSON.stringify(animations)); }, [animations]);
   const activeSystems = BODY_LAYER_ORDER.filter((system) => !removed.includes(system));
   const selected = ANATOMY_STRUCTURES.find((item) => item.id === selectedId);
   const nextVisible = BODY_LAYER_ORDER.find((system) => activeSystems.includes(system));
@@ -43,6 +48,11 @@ function Explorer() {
         clipped={clipped} setClipped={setClipped}
         custom={custom} setCustom={setCustom}
       />
+    </div>
+  )}
+  {showAnimController && isAdminUser && (
+    <div className="mb-4">
+      <AnatomyAnimationController animations={animations} setAnimations={setAnimations} active={activeAnims} setActive={setActiveAnims} />
     </div>
   )}
   <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
@@ -87,12 +97,18 @@ function Explorer() {
           <Wrench className="h-3.5 w-3.5"/>{editMode ? "Exit edit" : "Edit anatomy"}
         </button>
       )}
+      {isAdminUser && (
+        <button onClick={() => setShowAnimController((v) => !v)} className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${showAnimController ? "border-violet-500 bg-violet-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-violet-300"}`}>
+          <Film className="h-3.5 w-3.5"/>{showAnimController ? "Close animations" : "Animation studio"}
+        </button>
+      )}
       <div className="relative h-[620px] overflow-hidden rounded-[22px] border border-slate-200 bg-[#F8FAFC]">
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
           <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · SEMI-TRANSPARENT</span>
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
           <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">DIAPHRAGM · FROSTED</span>
         </div>
+        <AnimationOverlay animations={animations} active={activeAnims} />
         <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={overrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
