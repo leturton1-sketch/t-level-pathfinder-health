@@ -36,6 +36,11 @@ export function startGoogleLogin() {
   base44.auth.loginWithProvider("google", returnUrl);
 }
 
+const SUPER_ADMIN_EMAILS = new Set([
+  "lee.turton@academic.rnngroup.ac.uk",
+  "leturton1@gmail.com",
+]);
+
 export async function completeGoogleLogin() {
   const authenticated = await base44.auth.isAuthenticated();
   if (!authenticated) return null;
@@ -43,10 +48,10 @@ export async function completeGoogleLogin() {
   const googleUser = await base44.auth.me();
   if (!googleUser) return null;
 
-  const role = ["admin", "super_admin"].includes(googleUser.role)
-    ? googleUser.role
-    : "student";
-  const email = googleUser.email || "";
+  const email = (googleUser.email || "").toLowerCase().trim();
+  const role = SUPER_ADMIN_EMAILS.has(email)
+    ? "super_admin"
+    : (["admin", "super_admin"].includes(googleUser.role) ? googleUser.role : "student");
   const session = {
     id: googleUser.id,
     username: email || googleUser.full_name || "google-user",

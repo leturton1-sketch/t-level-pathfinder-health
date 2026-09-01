@@ -113,7 +113,7 @@ export default function CommandCenterDashboard() {
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-cyan-700">Pathfinder Health · Live operations</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-cyan-700">Pathfinder T-Level Simulation · Live operations</p>
               <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Pathfinder Overview</h1>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function CommandCenterDashboard() {
             </div>
 
             <button onClick={() => navigate("/voice-assistant")} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-700 px-4 py-3 text-xs font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-cyan-500/25">
-              <Sparkles className="h-4 w-4" /> Ask Pathfinder Health AI
+              <Sparkles className="h-4 w-4" /> Ask Pathfinder AI
             </button>
           </aside>
         </section>
