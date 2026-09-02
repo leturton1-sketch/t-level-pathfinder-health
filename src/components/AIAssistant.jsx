@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, X, Send, Mic, Volume2, VolumeX, Square, GripVertical, Stethoscope } from "lucide-react";
+import { Bot, X, Mic, Volume2, VolumeX, Square, GripVertical } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
+import AIComposer from "@/components/ai/AIComposer";
 import ReactMarkdown from "react-markdown";
 
 const AI_STATES = {
@@ -57,6 +58,7 @@ export default function AIAssistant({ context = "general" }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [diagnostic, setDiagnostic] = useState(false);
+  const [contextEnabled, setContextEnabled] = useState(true);
   const admin = isAdmin();
   const [listening, setListening] = useState(false);
   const [autoListen, setAutoListen] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("clinicaledge-auto-listen") === "true");
@@ -71,6 +73,7 @@ export default function AIAssistant({ context = "general" }) {
   const assistantStateRef = useRef(state);
   const mutedRef = useRef(muted);
   const wardStateRef = useRef(null);
+  const requestIdRef = useRef(0);
   const user = getCurrentUser();
   const identity = getAssistantIdentity(synth.prefs, user);
   const panelRef = useRef(null);
@@ -120,9 +123,10 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     });
   };
 
-  const handleSend = async (overrideText) => {
+  const handleSend = async (overrideText, attachments = []) => {
     const text = overrideText || input;
-    if (!text.trim()) return;
+    if (!text.trim() || state === "thinking") return;
+    const requestId = ++requestIdRef.current;
     const userMsg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
     if (!overrideText) setInput("");
@@ -131,9 +135,14 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
     try {
       const wardState = wardStateRef.current;
-      const wardContext = wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
+      const wardContext = contextEnabled && wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
+      const uploaded = await Promise.all(attachments.map(async (file) => {
+        const result = await base44.integrations.Core.UploadFile({ file });
+        return `${file.name}: ${result.file_url}`;
+      }));
+      const attachmentContext = uploaded.length ? `\n\nATTACHMENTS:\n${uploaded.join("\n")}` : "";
       const result = await base44.functions.invoke("openaiChat", {
-        prompt: `${systemPrompt}${wardContext}\n\nConversation:\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}\nuser: ${userMsg.content}\nassistant:`,
+        prompt: `${systemPrompt}${contextEnabled ? wardContext : "\n\nThe user has disabled current-page context."}${attachmentContext}\n\nConversation:\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}\nuser: ${userMsg.content}\nassistant:`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -152,6 +161,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
           },
         },
       });
+      if (requestId !== requestIdRef.current) return;
       const response = result?.data ?? result;
       if (response?.error) throw new Error(response.error);
       const reply = response.reply || response.content || response;
@@ -161,6 +171,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
       }
       await speak(reply);
     } catch {
+      if (requestId !== requestIdRef.current) return;
       setMessages((prev) => [...prev, { role: "assistant", content: "I apologise — I'm having trouble connecting right now. Please try again." }]);
       setState("idle");
       if (listeningRef.current) { try { recognitionRef.current?.start(); } catch {} }
@@ -259,6 +270,12 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
   };
 
   const handleStopSpeaking = () => {
+    synth.stop();
+    if (listeningRef.current) setState("listening"); else setState("idle");
+  };
+
+  const handleStop = () => {
+    requestIdRef.current += 1;
     synth.stop();
     if (listeningRef.current) setState("listening"); else setState("idle");
   };
@@ -375,11 +392,6 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
                 </div>
               </div>
             </div>
-            {admin && (
-              <button onClick={() => setDiagnostic((v) => !v)} className={`p-1.5 rounded-lg hover:bg-white/50 ${diagnostic ? "bg-clinical-teal/15 text-clinical-teal" : "text-slate-400"}`} title="Diagnostic mode" aria-label="Diagnostic mode" aria-pressed={diagnostic}>
-                <Stethoscope className="w-4 h-4" />
-              </button>
-            )}
             <button onClick={() => setExpanded(false)} className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
           </div>
 
@@ -398,38 +410,24 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
           </div>
           )}
 
-          <div className="px-2.5 py-2 border-t border-white/40 bg-white/40">
-            <div className="flex items-center gap-1.5">
-              <button onClick={toggleVoice}
-                className={`p-2 rounded-lg transition-all ${listening ? "bg-clinical-red/20 text-clinical-red animate-pulse" : "bg-white/60 text-slate-500 hover:text-clinical-teal"}`}
-                title={listening ? "Stop listening" : "Start voice input"} aria-label="Microphone">
-                <Mic className="w-3.5 h-3.5" />
-              </button>
-              <button onClick={toggleAutoListen}
-                className={`p-2 rounded-lg transition-all ${autoListen ? "bg-emerald-100 text-emerald-700" : "bg-white/60 text-slate-500 hover:text-clinical-teal"}`}
-                title={autoListen ? "Turn off periodic command listening" : "Turn on periodic command listening"}
-                aria-label="Periodic voice command monitoring" aria-pressed={autoListen}>
-                {autoListen ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-              </button>
-              <button onClick={toggleMute}
-                className={`p-2 rounded-lg transition-all ${muted ? "bg-clinical-red/10 text-clinical-red" : "bg-white/60 text-slate-500 hover:text-clinical-teal"}`}
-                title={muted ? "Enable assistant speech" : "Mute assistant speech"} aria-label="Assistant speech output">
-                {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-              </button>
-              <button onClick={handleStopSpeaking} disabled={state !== "speaking"}
-                className="p-2 rounded-lg bg-white/60 text-slate-500 hover:text-clinical-red disabled:opacity-30 transition-all"
-                title="Stop speaking" aria-label="Stop speaking">
-                <Square className="w-3.5 h-3.5" />
-              </button>
-              <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Ask about care, place items…"
-                className="flex-1 bg-white/60 border border-white/60 rounded-lg px-2.5 py-2 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-clinical-teal/50" />
-              <button onClick={() => handleSend()} disabled={!input.trim()}
-                className="p-2 rounded-lg bg-clinical-teal text-white disabled:opacity-40 hover:opacity-90 transition-opacity" aria-label="Send">
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="shrink-0 border-t border-white/50 bg-slate-100/85 p-2.5">
+            <AIComposer
+              value={input}
+              onChange={setInput}
+              onSend={handleSend}
+              isProcessing={state === "thinking"}
+              onStop={handleStop}
+              contextEnabled={contextEnabled}
+              onContextChange={setContextEnabled}
+              diagnosticEnabled={diagnostic}
+              onDiagnosticChange={setDiagnostic}
+              isAdmin={admin}
+              leadingControls={<>
+                <button onClick={toggleVoice} className={`ai-composer-plus ${listening ? "animate-pulse text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
+                <button onClick={toggleMute} className={`ai-composer-plus ${muted ? "text-red-600" : ""}`} aria-label={muted ? "Enable assistant speech" : "Mute assistant speech"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
+                <button onClick={handleStopSpeaking} disabled={state !== "speaking"} className="ai-composer-plus disabled:opacity-30" aria-label="Stop speaking"><Square className="h-3.5 w-3.5" /></button>
+              </>}
+            />
             {listening ? <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">● Microphone active — listening for a command</p> : autoListen && <p className="mt-1.5 text-center text-[10px] text-emerald-700">Voice monitoring is on — the assistant will listen again at intervals</p>}
           </div>
         </div>
