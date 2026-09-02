@@ -12,25 +12,25 @@
     --tl-navy: 257 16% 9%;          /* #15131A accessible near-black */
 
     /* Official T Levels light application theme */
-    --background: 270 22% 96%;          /* #F6F4F8 */
+    --background: 266 26% 97%;          /* #F6F4F8 */
     --foreground: 257 16% 9%;           /* #15131A */
     --card: 0 0% 100%;
     --card-foreground: 257 16% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 257 16% 9%;
-    --primary: 261 36% 52%;             /* #765AB0 */
+    --primary: 261 42% 48%;             /* #765AB0 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 267 36% 95%;           /* #F2EEF7 */
+    --secondary: 266 30% 95%;           /* #F2EEF7 */
     --secondary-foreground: 257 16% 15%;
-    --muted: 267 36% 95%;
-    --muted-foreground: 265 6% 39%;     /* #625D69 */
+    --muted: 266 30% 95%;
+    --muted-foreground: 266 8% 38%;     /* #625D69 */
     --accent: 19 100% 70%;              /* #FF9567 */
     --accent-foreground: 257 16% 9%;
     --destructive: 10 97% 56%;          /* #FC4421 */
     --destructive-foreground: 0 0% 100%;
-    --border: 260 23% 92%;              /* #E9E6EF */
-    --input: 260 23% 92%;
-    --ring: 261 36% 52%;
+    --border: 262 20% 90%;              /* #E9E6EF */
+    --input: 262 20% 90%;
+    --ring: 261 42% 48%;
     --clinical-navy: 257 16% 9%;
     --clinical-teal: 261 36% 52%;
     --clinical-amber: 33 100% 33%;
@@ -61,9 +61,9 @@
     /* Standardised horizontal gutters and vertical rhythm */
     --page-gutter: var(--space-4);        /* 16px mobile  */
     --page-block-start: var(--space-6);  /* 24px page top */
-    --page-block-end: var(--space-24);   /* 96px page bottom */
+    --page-block-end: var(--space-20);  /* 80px page bottom */
     --section-rhythm: var(--space-6);    /* 24px between sections */
-    --component-rhythm: var(--space-4);   /* 16px between components */
+    --component-rhythm: var(--space-5); /* 20px between components */
     --element-rhythm: var(--space-2);     /* 8px between elements */
     --content-max: 80rem;
     --content-max-standard: 64rem;
@@ -84,8 +84,14 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
     font-family: 'Inter', Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.012em;
+    text-wrap: balance;
   }
 
   /* Accessible T Levels interaction feedback */
@@ -163,23 +169,23 @@
 /* ClinicalEdge global frosted clay design system */
 @layer base {
   :root {
-    --background: 270 22% 96%;
+    --background: 266 26% 97%;
     --foreground: 257 16% 9%;
     --card: 0 0% 100%;
     --card-foreground: 257 16% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 257 16% 9%;
-    --primary: 261 36% 52%;
+    --primary: 261 42% 48%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 267 36% 95%;
+    --secondary: 266 30% 95%;
     --secondary-foreground: 257 16% 15%;
-    --muted: 267 36% 95%;
-    --muted-foreground: 265 6% 39%;
+    --muted: 266 30% 95%;
+    --muted-foreground: 266 8% 38%;
     --accent: 19 100% 70%;
     --accent-foreground: 257 16% 9%;
-    --border: 260 23% 92%;
-    --input: 260 23% 92%;
-    --ring: 261 36% 52%;
+    --border: 262 20% 90%;
+    --input: 262 20% 90%;
+    --ring: 261 42% 48%;
     --clinical-teal: 261 36% 52%;
     --radius: 1rem;
   }
@@ -299,10 +305,9 @@
     backdrop-filter: blur(22px) saturate(118%);
     -webkit-backdrop-filter: blur(22px) saturate(118%);
     box-shadow:
-      0 9px 0 -5px rgba(118,90,176,.16),
-      0 24px 44px -24px rgba(36,27,58,.34),
-      inset 1px 1px 1px rgba(255,255,255,.98),
-      inset -1px -1px 1px rgba(118,90,176,.10);
+      0 1px 0 rgba(255,255,255,.9),
+      0 10px 30px -22px rgba(36,27,58,.3),
+      inset 0 1px 0 rgba(255,255,255,.95);
   }
 
   .clinical-global-theme :where(.rounded-xl, .rounded-2xl, .rounded-3xl)[class*="border"] {
@@ -320,9 +325,9 @@
   .clinical-global-theme :where(article, .bg-card)[class*="rounded"]:not(.no-clay):hover {
     transform: translateY(-3px);
     box-shadow:
-      0 13px 0 -6px rgba(118,90,176,.18),
-      0 30px 50px -24px rgba(36,27,58,.38),
-      inset 1px 1px 2px rgba(255,255,255,.98);
+      0 2px 0 rgba(255,255,255,.9),
+      0 16px 40px -24px rgba(36,27,58,.34),
+      inset 0 1px 0 rgba(255,255,255,.95);
   }
 
   .clinical-global-theme :where(input, textarea, select, [role="combobox"]) {
@@ -338,7 +343,7 @@
 
   .clinical-global-theme button[class*="bg-primary"],
   .clinical-global-theme a[class*="bg-primary"] {
-    background: linear-gradient(145deg, #866bc0, #63479d) !important;
+    background: linear-gradient(145deg, #8a72c6, #5b4190) !important;
     color: #fff !important;
     border: 1px solid rgba(255,255,255,.68);
     box-shadow:
@@ -750,9 +755,9 @@
   background-clip: padding-box, border-box !important;
   background-origin: border-box !important;
   box-shadow:
-    0 9px 0 -5px rgba(100,116,139,.16),
-    0 24px 48px -28px rgba(15,23,42,.48),
-    inset 1px 1px 1px rgba(255,255,255,.96) !important;
+    0 1px 0 rgba(255,255,255,.9),
+    0 12px 34px -26px rgba(15,23,42,.4),
+    inset 0 1px 0 rgba(255,255,255,.95) !important;
   backdrop-filter: blur(22px) saturate(122%);
 }
 
