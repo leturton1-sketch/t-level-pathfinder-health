@@ -83,8 +83,8 @@ export default function VoiceAssistant() {
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
       const result = await invokeRoutedAssistant(
-        prompt: `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
-      , (provider, stage) => {
+        `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
+        (provider, stage) => {
         if (stage === "running") setRouterInfo({ provider, model: "", fallback: false });
       });
       const reply = result.content || "Sorry, I didn't catch that.";
