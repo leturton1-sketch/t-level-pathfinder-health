@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, X, Send, Mic, Volume2, VolumeX, Square, GripVertical } from "lucide-react";
+import { Bot, X, Send, Mic, Volume2, VolumeX, Square, GripVertical, Stethoscope } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { getCurrentUser } from "@/lib/clinicalAuth";
+import { getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
+import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import ReactMarkdown from "react-markdown";
 
 const AI_STATES = {
@@ -55,6 +56,8 @@ export default function AIAssistant({ context = "general" }) {
   const [state, setState] = useState("idle");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [diagnostic, setDiagnostic] = useState(false);
+  const admin = isAdmin();
   const [listening, setListening] = useState(false);
   const [autoListen, setAutoListen] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("clinicaledge-auto-listen") === "true");
   const [pos, setPos] = useState(loadPos);
@@ -370,9 +373,17 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
                 </div>
               </div>
             </div>
+            {admin && (
+              <button onClick={() => setDiagnostic((v) => !v)} className={`p-1.5 rounded-lg hover:bg-white/50 ${diagnostic ? "bg-clinical-teal/15 text-clinical-teal" : "text-slate-400"}`} title="Diagnostic mode" aria-label="Diagnostic mode" aria-pressed={diagnostic}>
+                <Stethoscope className="w-4 h-4" />
+              </button>
+            )}
             <button onClick={() => setExpanded(false)} className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
           </div>
 
+          {diagnostic && admin ? (
+            <AIDiagnostic />
+          ) : (
           <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[180px] max-h-[36vh]">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -383,6 +394,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
             ))}
             <div ref={messagesEndRef} />
           </div>
+          )}
 
           <div className="px-2.5 py-2 border-t border-white/40 bg-white/40">
             <div className="flex items-center gap-1.5">

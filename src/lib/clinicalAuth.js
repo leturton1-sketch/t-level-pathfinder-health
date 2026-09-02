@@ -1,132 +1,79 @@
 import { base44 } from "@/api/base44Client";
 
-const SESSION_KEY = "clinicaledge_session";
-
-export async function login(username, pin) {
-  const users = await base44.entities.AppUser.filter({
-    username: username.toLowerCase().trim(),
-    active: true,
-  });
-  if (users.length === 0) {
-    throw new Error("User not found. Please check your username.");
-  }
-  const user = users[0];
-  if (user.pin !== pin) {
-    throw new Error("Incorrect PIN. Please try again.");
-  }
-  const session = {
-    id: user.id,
-    username: user.username,
-    role: user.role,
-    full_name: user.full_name,
-    institution: user.institution,
-    cohort: user.cohort,
-    first_login: user.first_login,
-    ai_voice: user.ai_voice || "honey",
-    ai_persona: user.ai_persona || "female",
-    is_protected: user.is_protected || false,
-    auth_method: "pin",
-  };
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  return session;
-}
-
-export function startGoogleLogin() {
-  const returnUrl = `${window.location.origin}/login?auth=google`;
-  base44.auth.loginWithProvider("google", returnUrl);
-}
-
 const SUPER_ADMIN_EMAILS = new Set([
   "lee.turton@academic.rnngroup.ac.uk",
   "leturton1@gmail.com",
 ]);
 
-export async function completeGoogleLogin() {
-  const authenticated = await base44.auth.isAuthenticated();
-  if (!authenticated) return null;
+// Platform user cached after base44.auth.me() resolves. Authentication is now
+// owned entirely by the Base44 platform (Google/PIN login removed). These
+// helpers preserve the synchronous user API the rest of the app expects.
+let cachedUser = null;
 
-  const googleUser = await base44.auth.me();
-  if (!googleUser) return null;
-
-  const email = (googleUser.email || "").toLowerCase().trim();
+// Build an app-shaped user object from the platform user so existing call sites
+// (role checks, full_name, persona defaults) keep working unchanged.
+export function setPlatformUser(platformUser) {
+  if (!platformUser) {
+    cachedUser = null;
+    return;
+  }
+  const email = (platformUser.email || "").toLowerCase().trim();
   const role = SUPER_ADMIN_EMAILS.has(email)
     ? "super_admin"
-    : (["admin", "super_admin"].includes(googleUser.role) ? googleUser.role : "student");
-  const session = {
-    id: googleUser.id,
-    username: email || googleUser.full_name || "google-user",
+    : ["admin", "super_admin"].includes(platformUser.role)
+      ? platformUser.role
+      : "student";
+
+  cachedUser = {
+    id: platformUser.id,
+    username: email || platformUser.full_name || "user",
     email,
     role,
-    full_name: googleUser.full_name || email.split("@")[0] || "Google user",
-    institution: googleUser.institution || "ClinicalEdge",
-    cohort: googleUser.cohort || null,
+    full_name: platformUser.full_name || (email ? email.split("@")[0] : "User"),
+    institution: platformUser.institution || "Pathfinder T-Level Simulation",
+    cohort: platformUser.cohort || null,
     first_login: false,
-    ai_voice: googleUser.ai_voice || "honey",
-    ai_persona: googleUser.ai_persona || "female",
-    is_protected: false,
-    auth_method: "google",
+    ai_voice: "honey",
+    ai_persona: "female",
+    is_protected: role === "super_admin",
+    auth_method: "platform",
   };
-
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  return session;
 }
 
 export function getCurrentUser() {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  return cachedUser;
 }
 
 export function isLoggedIn() {
-  return getCurrentUser() !== null;
-}
-
-export function logout() {
-  const session = getCurrentUser();
-  localStorage.removeItem(SESSION_KEY);
-
-  if (session?.auth_method === "google") {
-    base44.auth.logout(`${window.location.origin}/login?logged_out=1`);
-    return true;
-  }
-
-  return false;
-}
-
-export async function changePin(userId, newPin) {
-  await base44.entities.AppUser.update(userId, {
-    pin: newPin,
-    first_login: false,
-  });
-  const session = getCurrentUser();
-  if (session && session.id === userId) {
-    session.first_login = false;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  }
-}
-
-export async function resetPin(userId) {
-  await base44.entities.AppUser.update(userId, {
-    pin: "0000",
-    first_login: true,
-  });
+  return cachedUser !== null;
 }
 
 export function isSuperAdmin() {
-  const u = getCurrentUser();
-  return u?.role === "super_admin";
-}
-
-export function canManageUsers() {
-  const u = getCurrentUser();
-  return ["super_admin", "admin", "tutor"].includes(u?.role);
+  return cachedUser?.role === "super_admin";
 }
 
 export function isAdmin() {
-  const u = getCurrentUser();
-  return ["super_admin", "admin"].includes(u?.role);
+  return ["super_admin", "admin"].includes(cachedUser?.role);
+}
+
+export function canManageUsers() {
+  return ["super_admin", "admin", "tutor"].includes(cachedUser?.role);
+}
+
+export function logout() {
+  cachedUser = null;
+  // Hand off to the platform auth logout, which clears the token and returns to
+  // the homepage (where AuthContext prompts the platform sign-in again).
+  base44.auth.logout(window.location.origin + "/");
+  return true;
+}
+
+// Entity-only helpers (AppUser records managed via User Management). These no
+// longer participate in authentication — they just maintain AppUser records.
+export async function changePin(userId, newPin) {
+  await base44.entities.AppUser.update(userId, { pin: newPin, first_login: false });
+}
+
+export async function resetPin(userId) {
+  await base44.entities.AppUser.update(userId, { pin: "0000", first_login: true });
 }
