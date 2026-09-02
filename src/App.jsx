@@ -34,6 +34,7 @@ const AnatomyPhysiology = lazy(() => import('./pages/AnatomyPhysiology'));
 const HealthHub = lazy(() => import('./pages/HealthHub'));
 const ClinicalSkillsAcademy = lazy(() => import('./pages/ClinicalSkillsAcademy'));
 const AIModels = lazy(() => import('./pages/AIModels'));
+const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
@@ -42,6 +43,20 @@ const AuthenticatedApp = () => {
     const stop = installErrorCollector();
     return stop;
   }, []);
+
+  // MCP OAuth consent renders even when signed out — the page gates on its own
+  // server session (cookie + token), bypassing the app's normal auth flow.
+  if (typeof window !== "undefined" && window.location.pathname === "/oauth/consent") {
+    return (
+      <Suspense fallback={
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+        </div>
+      }>
+        <OAuthConsent />
+      </Suspense>
+    );
+  }
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
