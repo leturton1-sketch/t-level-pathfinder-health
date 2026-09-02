@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Mic, Square, Volume2, VolumeX, ArrowLeft, Shield, Cpu, Sparkles, Radio, Activity, Bot } from "lucide-react";
+import { Send, Mic, Square, Volume2, VolumeX, ArrowLeft, Shield, Cpu, Sparkles, Radio, Activity, Bot, Settings2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { loadPrefs, routeChat } from "@/lib/aiRouter";
@@ -155,9 +155,15 @@ export default function VoiceAssistant() {
             <span>Mode: <span className="font-bold text-cyan-300">{STATUS[status].mode}</span></span>
             <span>Router: <span className="font-bold text-violet-300">{routerInfo.provider}{routerInfo.fallback ? " · fallback" : ""}</span></span>
           </div>
-          <button onClick={() => navigate("/")} className="grid h-8 w-8 place-items-center rounded-lg border border-[#2a2340] bg-[#15101f] text-slate-400 transition hover:text-cyan-300" aria-label="Back">
-            <ArrowLeft className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate("/ai-models")} className="flex h-8 items-center gap-1.5 rounded-lg border border-[#2a2340] bg-[#15101f] px-2.5 text-[10px] font-bold text-violet-300 transition hover:text-cyan-300" aria-label="Open AI model router settings">
+              <Settings2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Models</span>
+            </button>
+            <button onClick={() => navigate("/")} className="grid h-8 w-8 place-items-center rounded-lg border border-[#2a2340] bg-[#15101f] text-slate-400 transition hover:text-cyan-300" aria-label="Back">
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Status + Neural load stream pills */}
