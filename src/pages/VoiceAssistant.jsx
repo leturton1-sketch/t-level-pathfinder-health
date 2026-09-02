@@ -18,6 +18,14 @@ const STATUS = {
   offline: { label: "Not working", color: "text-slate-500", dot: "bg-slate-500", mode: "OFFLINE" },
 };
 
+async function invokeRoutedAssistant(prompt, onStage) {
+  const prefs = loadPrefs();
+  const messages = prefs.systemPrompt.trim()
+    ? [{ role: "system", content: prefs.systemPrompt.trim() }, { role: "user", content: prompt }]
+    : [{ role: "user", content: prompt }];
+  return routeChat({ mode: prefs.mode, prefs, messages, onStage });
+}
+
 // Speckled starfield background — pure decoration, no logic.
 function Starfield() {
   const stars = useMemo(() => Array.from({ length: 80 }).map(() => ({
@@ -74,10 +82,13 @@ export default function VoiceAssistant() {
     setStatus("working");
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const result = await invokeRoutedAssistant(
         prompt: `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
+      , (provider, stage) => {
+        if (stage === "running") setRouterInfo({ provider, model: "", fallback: false });
       });
-      const reply = typeof res === "string" ? res : res?.reply || "Sorry, I didn't catch that.";
+      const reply = result.content || "Sorry, I didn't catch that.";
+      setRouterInfo({ provider: result.provider, model: result.model || "", fallback: !!result.fallback });
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
       await speakCompletion(reply);
     } catch {
