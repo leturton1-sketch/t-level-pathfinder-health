@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp, ChevronDown, FileText, Paperclip, Plus, Square, Stethoscope, X } from "lucide-react";
+import "./AIComposer.css";
 
 const DEFAULT_PLACEHOLDER = "Ask Pathfinder AI…";
 const DIAGNOSTIC_PLACEHOLDER = "Describe the problem, or ask Pathfinder to run a diagnostic…";
