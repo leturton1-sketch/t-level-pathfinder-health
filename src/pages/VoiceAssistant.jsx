@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Send, Mic, Square, Volume2, VolumeX, ArrowLeft, Shield, Cpu, Sparkles, Radio, Activity, Bot } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
+import { loadPrefs, routeChat } from "@/lib/aiRouter";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
 
@@ -45,6 +45,7 @@ export default function VoiceAssistant() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("idle");
+  const [routerInfo, setRouterInfo] = useState({ provider: "auto", model: "", fallback: false });
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const listeningRef = useRef(false);
@@ -141,7 +142,7 @@ export default function VoiceAssistant() {
           </div>
           <div className="hidden items-center gap-4 font-mono text-[11px] uppercase tracking-[.14em] text-slate-400 sm:flex">
             <span>Mode: <span className="font-bold text-cyan-300">{STATUS[status].mode}</span></span>
-            <span>Render: <span className="font-bold text-violet-300">MP4 LOOP</span></span>
+            <span>Router: <span className="font-bold text-violet-300">{routerInfo.provider}{routerInfo.fallback ? " · fallback" : ""}</span></span>
           </div>
           <button onClick={() => navigate("/")} className="grid h-8 w-8 place-items-center rounded-lg border border-[#2a2340] bg-[#15101f] text-slate-400 transition hover:text-cyan-300" aria-label="Back">
             <ArrowLeft className="h-4 w-4" />
