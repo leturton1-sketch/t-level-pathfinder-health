@@ -132,7 +132,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     try {
       const wardState = wardStateRef.current;
       const wardContext = wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
-      const response = await base44.integrations.Core.InvokeLLM({
+      const result = await base44.functions.invoke("openaiChat", {
         prompt: `${systemPrompt}${wardContext}\n\nConversation:\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}\nuser: ${userMsg.content}\nassistant:`,
         response_json_schema: {
           type: "object",
@@ -152,7 +152,9 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
           },
         },
       });
-      const reply = response.reply || response;
+      const response = result?.data ?? result;
+      if (response?.error) throw new Error(response.error);
+      const reply = response.reply || response.content || response;
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
       if (response.ward_action && response.ward_action.action !== "none") {
         window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: response.ward_action }));
