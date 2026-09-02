@@ -1,13 +1,39 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, BookOpen, ClipboardList, Stethoscope, Library, Users, User, BarChart3, GripHorizontal } from "lucide-react";
+import {
+  BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronRight, GripHorizontal,
+  HeartPulse, Home, Library, User, Users, X,
+} from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 
 const STORAGE_KEY = "clinicaledge_nav_pos";
-const NAV_WIDTH = 448; // max-w-md approx
+const NAV_WIDTH = 448;
+
+const PRACTICE_DESTINATIONS = [
+  {
+    icon: BedDouble,
+    label: "3D Ward Simulation",
+    detail: "Enter the interactive clinical ward",
+    path: "/ward-simulation",
+    tone: "from-cyan-400 to-sky-700",
+  },
+  {
+    icon: BriefcaseMedical,
+    label: "Care Planning",
+    detail: "Open assessments and care records",
+    path: "/care-planning",
+    tone: "from-emerald-400 to-teal-700",
+  },
+  {
+    icon: Brain,
+    label: "3D Anatomy & Physiology",
+    detail: "Explore interactive body systems",
+    path: "/anatomy-physiology",
+    tone: "from-violet-400 to-fuchsia-700",
+  },
+];
 
 function defaultPosition() {
-  // Bottom-center default
   const vw = typeof window !== "undefined" ? window.innerWidth : 1280;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
   const x = Math.max(12, (vw - NAV_WIDTH) / 2);
@@ -24,14 +50,16 @@ export default function BottomNav() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) return JSON.parse(saved);
-    } catch { /* ignore */ }
+    } catch {
+      // Use the safe default position when stored data is unavailable.
+    }
     return defaultPosition();
   });
   const [dragging, setDragging] = useState(false);
+  const [practiceOpen, setPracticeOpen] = useState(false);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
 
-  // Keep within viewport on resize
   useEffect(() => {
     const onResize = () => {
       setPos((prev) => {
@@ -50,15 +78,19 @@ export default function BottomNav() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const onPointerDown = (e) => {
+  useEffect(() => {
+    setPracticeOpen(false);
+  }, [location.pathname]);
+
+  const onPointerDown = (event) => {
     movedRef.current = false;
     setDragging(true);
-    const startX = e.clientX;
-    const startY = e.clientY;
+    const startX = event.clientX;
+    const startY = event.clientY;
     const origin = { ...pos };
-    const move = (ev) => {
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
+    const move = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) movedRef.current = true;
       const vw = window.innerWidth;
       const vh = window.innerHeight;
@@ -74,23 +106,34 @@ export default function BottomNav() {
       setDragging(false);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pos)); } catch { /* ignore */ }
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
   };
 
+  useEffect(() => {
+    if (dragging) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pos));
+    } catch {
+      // Position persistence is a convenience only.
+    }
+  }, [dragging, pos]);
+
   const resetPosition = useCallback(() => {
-    const p = defaultPosition();
-    setPos(p);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch { /* ignore */ }
+    const nextPosition = defaultPosition();
+    setPos(nextPosition);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextPosition));
+    } catch {
+      // Position persistence is a convenience only.
+    }
   }, []);
 
   const studentNav = [
     { icon: Home, label: "Home", path: "/" },
     { icon: BookOpen, label: "Theory", path: "/theory" },
-    { icon: ClipboardList, label: "Care Plans", path: "/care-planning" },
-    { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
+    { icon: HeartPulse, label: "Practice", type: "practice" },
     { icon: BarChart3, label: "Progress", path: "/performance" },
     { icon: User, label: "Profile", path: "/profile" },
   ];
@@ -98,16 +141,16 @@ export default function BottomNav() {
   const tutorNav = [
     { icon: Home, label: "Home", path: "/" },
     { icon: BookOpen, label: "Theory", path: "/theory" },
-    { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
+    { icon: HeartPulse, label: "Practice", type: "practice" },
     { icon: Users, label: "Users", path: "/user-management" },
     { icon: Library, label: "Library", path: "/knowledge-library" },
   ];
 
   const adminNav = [
     { icon: Home, label: "Home", path: "/" },
+    { icon: HeartPulse, label: "Practice", type: "practice" },
     { icon: Users, label: "Users", path: "/user-management" },
     { icon: Library, label: "Library", path: "/knowledge-library" },
-    { icon: Stethoscope, label: "Ward Sim", path: "/ward-simulation" },
     { icon: User, label: "Profile", path: "/profile" },
   ];
 
@@ -116,45 +159,109 @@ export default function BottomNav() {
   else if (user?.role === "tutor") nav = tutorNav;
   else nav = adminNav;
 
-  return (
-    <div
-      ref={dragRef}
-      className="clinical-glass-nav fixed z-40 max-w-lg rounded-[22px] px-3 py-2.5 opacity-55 transition-[opacity] duration-500 hover:opacity-95 focus-within:opacity-100 select-none"
-      style={{ left: pos.x, top: pos.y, maxWidth: "min(32rem, calc(100vw - 24px))", touchAction: "none", cursor: dragging ? "grabbing" : "default" }}
-    >
-      {/* Drag handle */}
-      <button
-        onPointerDown={onPointerDown}
-        onDoubleClick={resetPosition}
-        title="Drag to reposition · Double-click to reset"
-        aria-label="Reposition navigation"
-        className="absolute -top-3 left-1/2 -translate-x-1/2 flex h-6 w-12 items-center justify-center rounded-full border border-border bg-card/90 px-2 text-muted-foreground shadow-md backdrop-blur transition-colors hover:text-foreground hover:bg-card active:cursor-grabbing"
-      >
-        <GripHorizontal className="h-4 w-4" />
-      </button>
+  const practiceActive = PRACTICE_DESTINATIONS.some(({ path }) => location.pathname.startsWith(path));
 
-      <div className="flex items-center justify-around">
-        {nav.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <button
-              key={item.path}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={() => { if (!movedRef.current) navigate(item.path); }}
-              aria-label={item.label}
-              className={`relative flex flex-col items-center gap-1 px-2.5 sm:px-4 py-2 rounded-xl transition-all ${
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <item.icon className={`w-5 h-5 transition-transform ${isActive ? "scale-110" : ""}`} />
-              <span className="hidden min-[480px]:block text-[10px] font-heading font-medium">{item.label}</span>
-              {isActive && (
-                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary shadow-[0_4px_10px_rgba(118,90,176,.45)]" />
-              )}
-            </button>
-          );
-        })}
+  return (
+    <>
+      {practiceOpen && (
+        <div
+          className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/35 p-3 backdrop-blur-sm sm:items-center"
+          onClick={() => setPracticeOpen(false)}
+          role="presentation"
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="clinical-practice-menu-title"
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-md rounded-[26px] border border-white/90 bg-gradient-to-br from-slate-100/96 via-slate-200/94 to-slate-300/90 p-4 shadow-[0_28px_70px_-25px_rgba(15,23,42,.72),inset_1px_1px_2px_white] backdrop-blur-3xl"
+          >
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[.18em] text-cyan-700">Main menu</p>
+                <h2 id="clinical-practice-menu-title" className="text-lg font-black text-slate-950">Clinical Practice</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPracticeOpen(false)}
+                aria-label="Close clinical practice menu"
+                className="no-clay grid h-11 w-11 place-items-center rounded-xl border border-white bg-white/85 text-slate-700 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <nav className="space-y-2" aria-label="Clinical practice destinations">
+              {PRACTICE_DESTINATIONS.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname.startsWith(item.path);
+                return (
+                  <button
+                    key={item.path}
+                    type="button"
+                    onClick={() => navigate(item.path)}
+                    className={`no-clay group flex min-h-[64px] w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${isActive ? "border-violet-300 bg-violet-50 ring-1 ring-violet-200" : "border-white/95 bg-white/85 hover:-translate-y-0.5 hover:bg-white"}`}
+                  >
+                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${item.tone} text-white shadow-md`}>
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-black text-slate-900">{item.label}</span>
+                      <span className="mt-0.5 block text-[10px] font-semibold text-[#4A5568]">{item.detail}</span>
+                    </span>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                );
+              })}
+            </nav>
+          </section>
+        </div>
+      )}
+
+      <div
+        ref={dragRef}
+        className="clinical-glass-nav fixed z-40 max-w-lg select-none rounded-[22px] px-2 py-2.5 opacity-80 shadow-xl transition-[opacity] duration-300 hover:opacity-100 focus-within:opacity-100"
+        style={{ left: pos.x, top: pos.y, maxWidth: "min(32rem, calc(100vw - 16px))", touchAction: "none", cursor: dragging ? "grabbing" : "default" }}
+      >
+        <button
+          onPointerDown={onPointerDown}
+          onDoubleClick={resetPosition}
+          title="Drag to reposition · Double-click to reset"
+          aria-label="Reposition navigation"
+          className="absolute -top-3 left-1/2 flex h-6 w-12 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-card/90 px-2 text-muted-foreground shadow-md backdrop-blur transition-colors hover:bg-card hover:text-foreground active:cursor-grabbing"
+        >
+          <GripHorizontal className="h-4 w-4" />
+        </button>
+
+        <nav className="flex items-stretch justify-around gap-0.5" aria-label="Main navigation">
+          {nav.map((item) => {
+            const isPractice = item.type === "practice";
+            const isActive = isPractice ? practiceActive : location.pathname === item.path;
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.path || item.type}
+                type="button"
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={() => {
+                  if (movedRef.current) return;
+                  if (isPractice) setPracticeOpen(true);
+                  else navigate(item.path);
+                }}
+                aria-label={item.label}
+                aria-expanded={isPractice ? practiceOpen : undefined}
+                className={`relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition-all focus:outline-none focus:ring-2 focus:ring-violet-500 ${isActive ? "bg-violet-50/85 text-primary" : "text-muted-foreground hover:bg-white/60 hover:text-foreground"}`}
+              >
+                <Icon className={`h-5 w-5 transition-transform ${isActive ? "scale-110" : ""}`} />
+                <span className="block text-[9px] font-heading font-bold leading-none">{item.label}</span>
+                {isActive && (
+                  <span className="absolute -bottom-0.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-primary shadow-[0_4px_10px_rgba(118,90,176,.45)]" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
       </div>
-    </div>
+    </>
   );
 }
