@@ -249,7 +249,7 @@ export default function VoiceAssistant() {
             ))}
             <div ref={endRef} />
           </div>
-        )
+        )}
       </div>
 
       {/* Shared soft-3D composer stays fixed while the conversation scrolls. */}
