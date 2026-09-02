@@ -1,5 +1,4 @@
 
-@layer components {
   .ai-composer-shell {
     @apply relative rounded-[22px] border border-white/90 bg-slate-100/95 p-2.5 text-slate-700;
     box-shadow: 10px 10px 24px rgba(148, 163, 184, .28), -8px -8px 20px rgba(255, 255, 255, .96), inset 1px 1px 0 rgba(255, 255, 255, .9);
@@ -20,5 +19,4 @@
   .ai-composer-diagnostic-label { @apply mb-2 rounded-lg bg-amber-100 px-2.5 py-1.5 text-center text-[10px] font-extrabold tracking-[.16em] text-amber-800; }
   .ai-composer-attachments { @apply mb-2 flex flex-wrap gap-1.5; }
   .ai-composer-attachment { @apply inline-flex max-w-full items-center gap-1 rounded-lg bg-white/70 px-2 py-1 text-[10px] font-medium text-slate-600; }
-}
 
