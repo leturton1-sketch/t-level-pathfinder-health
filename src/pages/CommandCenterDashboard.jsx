@@ -153,6 +153,7 @@ export default function CommandCenterDashboard() {
             <QuickLaunch icon={UserRound} label="User Analytics" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
             <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
             <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
+            <QuickLaunch icon={Sparkles} label="AI Model Router" detail="Local · puter.js · OpenRouter" tone="bg-gradient-to-br from-cyan-400 to-violet-700" onClick={() => navigate("/ai-models")} />
             {isAdmin() && (
               <>
                 <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
