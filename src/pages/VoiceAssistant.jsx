@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Mic, Square, Volume2, VolumeX, ArrowLeft, Shield, Cpu, Sparkles, Radio, Activity, Bot, Settings2 } from "lucide-react";
+import { Mic, Square, Volume2, VolumeX, ArrowLeft, Shield, Cpu, Activity, Bot, Settings2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
+import { isLoggedIn, getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
 import { loadPrefs, routeChat } from "@/lib/aiRouter";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
+import { base44 } from "@/api/base44Client";
+import AIComposer from "@/components/ai/AIComposer";
+import AIDiagnostic from "@/components/ai/AIDiagnostic";
 
 const ASSISTANT_VIDEO_URL = "https://media.base44.com/videos/public/6a4759cc86fe95039e31fd09/28db769ba_generate_a_futuristic_wire_.mp4";
 
@@ -53,10 +56,14 @@ export default function VoiceAssistant() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("idle");
+  const [contextEnabled, setContextEnabled] = useState(true);
+  const [diagnostic, setDiagnostic] = useState(false);
+  const admin = isAdmin();
   const [routerInfo, setRouterInfo] = useState({ provider: "auto", model: "", fallback: false });
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const listeningRef = useRef(false);
+  const requestIdRef = useRef(0);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -74,24 +81,33 @@ export default function VoiceAssistant() {
     await synth.speak(text, { onEnd: () => setStatus(listeningRef.current ? "listening" : "idle") });
   };
 
-  const handleSend = async (overrideText) => {
+  const handleSend = async (overrideText, attachments = []) => {
     const text = (overrideText || input).trim();
-    if (!text) return;
+    if (!text || status === "working") return;
+    const requestId = ++requestIdRef.current;
     setMessages((p) => [...p, { role: "user", content: text }]);
     if (!overrideText) setInput("");
     setStatus("working");
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
+      const uploaded = await Promise.all(attachments.map(async (file) => {
+        const result = await base44.integrations.Core.UploadFile({ file });
+        return `${file.name}: ${result.file_url}`;
+      }));
+      const attachmentContext = uploaded.length ? `\n\nAttachments supplied by the user:\n${uploaded.join("\n")}` : "";
+      const conversationContext = contextEnabled ? `\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}` : "\n\nThe user has disabled current conversation context.";
       const result = await invokeRoutedAssistant(
-        `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nuser: ${text}\nassistant:`,
+        `You are a warm, highly knowledgeable conversational clinical tutor for T Level Health students on ClinicalEdge. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.${conversationContext}${attachmentContext}\nuser: ${text}\nassistant:`,
         (provider, stage) => {
         if (stage === "running") setRouterInfo({ provider, model: "", fallback: false });
       });
+      if (requestId !== requestIdRef.current) return;
       const reply = result.content || "Sorry, I didn't catch that.";
       setRouterInfo({ provider: result.provider, model: result.model || "", fallback: !!result.fallback });
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
       await speakCompletion(reply);
     } catch {
+      if (requestId !== requestIdRef.current) return;
       const failureMessage = "I wasn't able to complete that task because the clinical assistant service is unavailable. Please try again.";
       setMessages((p) => [...p, { role: "assistant", content: failureMessage }]);
       setStatus("offline");
@@ -136,6 +152,12 @@ export default function VoiceAssistant() {
     if (next) synth.stop();
   };
 
+  const handleStop = () => {
+    requestIdRef.current += 1;
+    synth.stop();
+    setStatus(listeningRef.current ? "listening" : "idle");
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0f0b18] text-slate-100">
       <Starfield />
@@ -143,7 +165,7 @@ export default function VoiceAssistant() {
       <div className="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full bg-[#9b5de5]/20 blur-[90px]" />
       <div className="pointer-events-none absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-[#4cc9f0]/15 blur-[90px]" />
 
-      <div className="relative z-10 mx-auto max-w-3xl px-4 py-4 pb-44 sm:px-6">
+      <div className="relative z-10 mx-auto max-w-3xl px-4 py-4 pb-64 sm:px-6">
         {/* Top header bar */}
         <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-[#1d162b] bg-[#1d162b]/60 px-4 py-2.5 backdrop-blur-xl">
           <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[.14em]">
@@ -212,63 +234,44 @@ export default function VoiceAssistant() {
         </div>
 
         {/* Chat messages */}
-        <div className="mb-4 max-h-[32vh] space-y-3 overflow-y-auto pr-1 scrollbar-thin">
-          {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "rounded-br-sm bg-[#3a0ca3] text-white" : "rounded-bl-sm border border-[#1d162b] bg-[#1d162b]/70 text-slate-100"}`}>
-                {m.role === "assistant"
-                  ? <ReactMarkdown className="prose prose-sm prose-invert max-w-none [&_p]:my-0">{m.content}</ReactMarkdown>
-                  : <p>{m.content}</p>}
+        {diagnostic && admin ? (
+          <div className="mb-4 overflow-hidden rounded-3xl border border-white/80 bg-slate-100 text-slate-800 shadow-xl"><AIDiagnostic /></div>
+        ) : (
+          <div className="mb-4 max-h-[32vh] space-y-3 overflow-y-auto pr-1 scrollbar-thin">
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "rounded-br-sm bg-[#3a0ca3] text-white" : "rounded-bl-sm border border-[#1d162b] bg-[#1d162b]/70 text-slate-100"}`}>
+                  {m.role === "assistant"
+                    ? <ReactMarkdown className="prose prose-sm prose-invert max-w-none [&_p]:my-0">{m.content}</ReactMarkdown>
+                    : <p>{m.content}</p>}
+                </div>
               </div>
-            </div>
-          ))}
-          <div ref={endRef} />
-        </div>
+            ))}
+            <div ref={endRef} />
+          </div>
+        )
       </div>
 
-      {/* Bottom footer pill: gallery label + action buttons + input */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#1d162b] bg-[#0f0b18]/90 backdrop-blur-xl">
-        <div className="mx-auto max-w-3xl px-4 py-3 sm:px-6">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <Cpu className="h-3.5 w-3.5 shrink-0 text-cyan-400" />
-              <div className="min-w-0">
-                <p className="truncate font-mono text-[11px] font-bold uppercase tracking-[.12em] text-slate-200">AI Clinician Gallery — Active Persona Loaded</p>
-                <p className="hidden font-mono text-[10px] text-slate-500 sm:block">Precision Governance &amp; Ofsted Compliance</p>
-              </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              <button onClick={() => setStatus((s) => s === "working" ? "idle" : "working")}
-                className="flex items-center gap-1 rounded-lg border border-[#f77f00]/60 px-2.5 py-1.5 font-mono text-[11px] font-bold text-[#f77f00] transition hover:bg-[#f77f00]/10">
-                <Sparkles className="h-3 w-3" /> <span className="hidden sm:inline">Thinking</span>
-              </button>
-              <button onClick={toggleMic}
-                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-mono text-[11px] font-bold transition ${listening ? "bg-red-500/20 text-red-300" : "bg-[#3a0ca3] text-white hover:bg-[#4a0fc3]"}`}>
-                <Radio className="h-3 w-3" /> <span className="hidden sm:inline">Scan</span>
-              </button>
-              <button onClick={toggleMute}
-                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-mono text-[11px] font-bold transition ${synth.prefs.muted ? "border border-red-500/40 text-red-300" : "bg-[#3a0ca3] text-white hover:bg-[#4a0fc3]"}`}>
-                <Volume2 className="h-3 w-3" /> <span className="hidden sm:inline">Speak</span>
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-2xl border border-[#1d162b] bg-[#15101f] px-3 py-2">
-            <button onClick={toggleMic} className={`rounded-xl p-2 transition ${listening ? "animate-pulse bg-red-500/20 text-red-300" : "text-slate-400 hover:text-cyan-300"}`} aria-label="Microphone">
-              <Mic className="h-4 w-4" />
-            </button>
-            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type or speak…"
-              className="flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none" />
-            <button onClick={toggleMute} className="rounded-xl p-2 text-slate-400 transition hover:text-cyan-300" aria-label="Mute">
-              {synth.prefs.muted ? <VolumeX className="h-4 w-4 text-red-400" /> : <Volume2 className="h-4 w-4" />}
-            </button>
-            <button onClick={() => synth.stop()} disabled={status !== "speaking"} className="rounded-xl p-2 text-slate-400 transition hover:text-red-300 disabled:opacity-30" aria-label="Stop speaking">
-              <Square className="h-4 w-4" />
-            </button>
-            <button onClick={() => handleSend()} disabled={!input.trim()} className="rounded-xl bg-cyan-500 p-2 text-[#0f0b18] transition disabled:opacity-40 hover:opacity-90" aria-label="Send">
-              <Send className="h-4 w-4" />
-            </button>
-          </div>
+      {/* Shared soft-3D composer stays fixed while the conversation scrolls. */}
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/60 bg-slate-100/95 backdrop-blur-xl">
+        <div className="mx-auto max-w-3xl px-3 py-3 sm:px-6">
+          <AIComposer
+            value={input}
+            onChange={setInput}
+            onSend={handleSend}
+            isProcessing={status === "working"}
+            onStop={handleStop}
+            contextEnabled={contextEnabled}
+            onContextChange={setContextEnabled}
+            diagnosticEnabled={diagnostic}
+            onDiagnosticChange={setDiagnostic}
+            isAdmin={admin}
+            leadingControls={<>
+              <button onClick={toggleMic} className={`ai-composer-plus ${listening ? "animate-pulse text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
+              <button onClick={toggleMute} className={`ai-composer-plus ${synth.prefs.muted ? "text-red-600" : ""}`} aria-label={synth.prefs.muted ? "Enable assistant speech" : "Mute assistant speech"}>{synth.prefs.muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
+              <button onClick={() => synth.stop()} disabled={status !== "speaking" && status !== "complete"} className="ai-composer-plus disabled:opacity-30" aria-label="Stop speaking"><Square className="h-3.5 w-3.5" /></button>
+            </>}
+          />
         </div>
       </div>
     </div>
