@@ -134,20 +134,24 @@ export default function CommandCenterDashboard() {
         <section className="dashboard-grid grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)_320px]">
           <aside className="sidebar-left grid grid-cols-2 gap-3 sm:grid-cols-4 xl:flex xl:flex-col xl:gap-3" aria-label="Primary navigation">
             <div className="col-span-full hidden items-center gap-2 px-2 xl:flex">
-              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Clinical tools</span>
+              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Clinical practice</span>
               <span className="h-px flex-1 bg-slate-300/80" />
             </div>
-            <QuickLaunch icon={BedDouble} label="3D Ward Simulation" detail="Open live ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
-            <QuickLaunch icon={BriefcaseMedical} label="Care Planning" detail="Clinical toolkit" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
+            <QuickLaunch icon={BedDouble} label="3D Ward Simulation" detail="Interactive clinical ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
+            <QuickLaunch icon={BriefcaseMedical} label="Care Planning" detail="Assessments and care records" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
+            <QuickLaunch icon={Brain} label="3D Anatomy & Physiology" detail="Interactive body systems" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
+            <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
+              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Health & learning</span>
+              <span className="h-px flex-1 bg-slate-300/80" />
+            </div>
             <QuickLaunch image={TLEVEL_SALMON_LOGO} label="T-Level Health Hub" detail="Clinic checks and records" onClick={() => navigate("/health-hub")} />
             <QuickLaunch icon={GraduationCap} label="Clinical Skills Academy" detail="Practical learning pathways" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/clinical-skills-academy")} />
             <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
-              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Learning & account</span>
+              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Account & resources</span>
               <span className="h-px flex-1 bg-slate-300/80" />
             </div>
             <QuickLaunch icon={UserRound} label="User Analytics" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
             <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
-            <QuickLaunch icon={Brain} label="3D Anatomical Anatomage" detail="3D body systems and patient lab" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
             <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
             {isAdmin() && (
               <>
