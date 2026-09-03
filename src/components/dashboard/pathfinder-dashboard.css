@@ -32,8 +32,8 @@
 .pf-workspace { display: grid; grid-template-columns: 224px minmax(0,1fr) 320px; align-items: start; gap: 18px; max-width: 1920px; margin: auto; }
 .pf-workspace-compact { grid-template-columns: 64px minmax(0,1fr) 320px; }
 .pf-nav-rail, .pf-team-rail { position: sticky; top: 16px; transform: translateZ(0); }
-.pf-nav-rail { max-height: calc(100dvh - 32px); }
-.pf-navigation { max-height: calc(100dvh - 100px); overflow-y: auto; scrollbar-width: thin; }
+.pf-nav-rail { max-height: calc(100dvh - 252px); }
+.pf-navigation { max-height: calc(100dvh - 308px); overflow-y: auto; scrollbar-width: thin; }
 .pf-nav-group { border-bottom: 1px solid var(--pf-border); padding: 5px 0; }
 .pf-group-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; text-align: left; font-size: 12px; font-weight: 700; color: var(--pf-muted); padding: 8px; }
 .pf-rotated { transform: rotate(180deg); }
@@ -46,7 +46,7 @@
 .pf-account { margin-top: 18px; padding: 12px 8px; }
 .pf-account strong { display: block; margin: 6px 0; font-size: 13px; overflow-wrap: anywhere; }
 .pf-navigation-compact .pf-nav-link { justify-content: center; min-width: 44px; min-height: 44px; padding: 10px; }
-.pf-navigation-compact { overflow: visible; }
+.pf-navigation-compact { overflow-y: auto; scrollbar-width: none; }
 .pf-navigation-compact .pf-nav-links { gap: 0; }
 .pf-nav-tooltip { display: none; position: absolute; left: calc(100% + 10px); background: #0f172a; color: white; padding: 8px 12px; border-radius: 8px; white-space: nowrap; z-index: 60; font-size: 13px; box-shadow: 0 4px 12px #0f172a22; }
 .pf-nav-link:is(:hover,:focus-visible) .pf-nav-tooltip { display: block; }
@@ -143,7 +143,7 @@
   .pf-drawer-navigation { width: min(360px,92vw); }
 }
 @media (max-height: 720px) and (min-width: 768px) {
-  .pf-navigation-compact { max-height: calc(100dvh - 85px); overflow-y: auto; }
+  .pf-navigation-compact { max-height: calc(100dvh - 308px); overflow-y: auto; }
   .pf-navigation-compact .pf-nav-tooltip { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
