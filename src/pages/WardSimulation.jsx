@@ -499,7 +499,7 @@ export default function WardSimulation() {
   }
 
   return (
-    <div className="fixed inset-0 bg-background flex flex-col">
+    <div className="pf-ward-page relative bg-background flex flex-col">
       {/* Status bar */}
       <div className="bg-primary text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 text-[10px] font-heading uppercase tracking-wider sm:px-6 lg:px-8">
@@ -509,7 +509,7 @@ export default function WardSimulation() {
       </div>
       {/* Top navigation bar */}
       <div className="z-20 bg-card border-b border-border shadow-sm">
-        <div className="flex items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 lg:px-8">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -548,20 +548,20 @@ export default function WardSimulation() {
               <Camera className="w-3.5 h-3.5" /><span className="hidden lg:inline">Reset View</span>
             </button>
             {canEdit && (
-              <button onClick={handleEditToggle}
+              <button aria-label={editMode ? "Save and exit ward editor" : "Edit ward"} onClick={handleEditToggle}
                 className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium transition-colors border ${editMode ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-border text-muted-foreground hover:bg-secondary/40"}`}>
                 <Pencil className="w-3.5 h-3.5" /><span className="hidden lg:inline">{editMode ? "Save & Exit" : "Edit Ward"}</span>
               </button>
             )}
             {!editMode && (
               <>
-                <button onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
+                <button aria-label="Pathfinder Overview" onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <LayoutGrid className="w-3.5 h-3.5" /><span className="hidden lg:inline">Dashboard</span>
                 </button>
-                <button onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
+                <button aria-label="AI Tutor" onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <MessageSquare className="w-3.5 h-3.5" /><span className="hidden lg:inline">AI Tutor</span>
                 </button>
-                <button onClick={() => setShowScenarioList(true)}
+                <button aria-label="Scenarios" onClick={() => setShowScenarioList(true)}
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-border text-muted-foreground hover:bg-secondary/40"}`}>
                   <Settings className="w-3.5 h-3.5" /><span className="hidden lg:inline">Scenarios</span>
                 </button>
