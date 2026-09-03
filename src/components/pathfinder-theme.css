@@ -142,3 +142,7 @@ body.pf-theme-active {
   .pf-global-workspace { display: block; padding: 0; }
   .pf-module,.pf-app-root { border: 0; box-shadow: none; }
 }
+
+.pf-module > .pf-ward-page { height:calc(100dvh - 118px); min-height:600px; }
+.pf-ward-page canvas { touch-action:none; }
+@media(max-width:767px) { .pf-module > .pf-ward-page { height:calc(100dvh - 80px); min-height:640px; } }
