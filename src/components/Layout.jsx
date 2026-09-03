@@ -8,11 +8,11 @@ export default function Layout() {
   const isVoiceAssistant = location.pathname === "/voice-assistant";
 
   return (
-    <div className={`clinical-global-theme min-h-screen bg-background ${isCommandCentre ? "" : "app-command-surface"}`}>
+    <div className={isCommandCentre ? "min-h-screen bg-slate-50" : "clinical-global-theme min-h-screen bg-background app-command-surface"}>
       <main className="min-h-screen">
         <Outlet />
       </main>
-      <BottomNav />
+      {!isCommandCentre && <BottomNav />}
       {!isCommandCentre && !isVoiceAssistant && <AIAssistant />}
     </div>
   );
