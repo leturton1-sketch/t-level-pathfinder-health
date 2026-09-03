@@ -127,6 +127,7 @@ export default function Ward3D({
   const itemsArrayRef = useRef([]);
   const wallsRef = useRef([]);
   const animFrameRef = useRef(null);
+  const invalidateRef = useRef(() => {});
   const cameraTargetRef = useRef(null);
   const dragRef = useRef({ active: false, itemId: null, startX: 0, startY: 0, moved: false });
   const rotateRef = useRef({ active: false, itemId: null, centerX: 0, centerZ: 0, startAngle: 0, startRotY: 0 });
@@ -175,7 +176,7 @@ export default function Ward3D({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false, powerPreference: "high-performance" });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -223,7 +224,13 @@ export default function Ward3D({
     let flickerStart = 0;
     const dayBg = new THREE.Color(0xFAFAFA);
     const nightBg = new THREE.Color(0x141A24);
-    const darkTimer = setInterval(() => { targetDark = resolveDark(); }, 5000);
+    const darkTimer = setInterval(() => {
+      const nextDark = resolveDark();
+      if (Math.abs(nextDark - targetDark) > 0.0001) {
+        targetDark = nextDark;
+        invalidateRef.current();
+      }
+    }, 30000);
 
     // Always build all 4 wards — suite changes are handled by camera, not scene rebuild
     wallsRef.current = [];
@@ -480,11 +487,20 @@ export default function Ward3D({
     renderer.domElement.addEventListener("pointerup", onPointerUp);
     renderer.domElement.addEventListener("pointerleave", onPointerLeave);
 
-    // Animation loop with wall opacity update + camera lerp
+    // Demand rendering: coalesce updates and stop entirely when the scene is idle.
     const camDir = new THREE.Vector3();
     const toCam = new THREE.Vector3();
+    let disposed = false;
+    let inViewport = true;
+    const requestRender = () => {
+      if (!disposed && inViewport && !document.hidden && animFrameRef.current === null) {
+        animFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
     const animate = () => {
-      animFrameRef.current = requestAnimationFrame(animate);
+      animFrameRef.current = null;
+      if (disposed || !inViewport || document.hidden) return;
+      let hasActiveCall = false;
 
       // Update wall opacity based on camera angle
       camera.getWorldDirection(camDir);
@@ -500,6 +516,7 @@ export default function Ward3D({
       itemsMapRef.current.forEach((itemMesh) => {
         const marker = itemMesh.children.find((child) => child.name === "callBellMarker");
         if (marker) {
+          hasActiveCall = true;
           marker.scale.setScalar(0.92 + pulse * 0.16);
           marker.children.forEach((child) => { if (child.material) child.material.opacity = pulse; });
         }
@@ -524,7 +541,7 @@ export default function Ward3D({
       const lit = Math.min(1, Math.max(0, (_d - 0.3) / 0.35));       // strip activation 0→1
       const warmAge = flickerStart ? (nowMs - flickerStart) / 2600 : 1;
       const flickerStrength = warmAge < 1 ? (1 - warmAge) : 0;        // fades over ~2.6s
-      const shimmer = _d > 0.6 ? 0.05 * Math.sin(nowMs * 0.004) : 0;  // gentle night flutter
+      const shimmer = 0; // Stable lighting does not need continuous GPU work.
 
       hemiLight.intensity = 1.1 * (1 - 0.78 * _d);
       ambientLight.intensity = 0.72 * (1 - 0.78 * _d);
@@ -561,19 +578,57 @@ export default function Ward3D({
       }
       controls.update();
       renderer.render(scene, camera);
+      if (cameraTargetRef.current || hasActiveCall || Math.abs(targetDark - currentDark) > 0.001 || flickerStrength > 0) {
+        requestRender();
+      }
     };
-    animate();
+    invalidateRef.current = requestRender;
+    controls.addEventListener("change", requestRender);
+    // Wake for direct mesh edits/hover rings as well as OrbitControls changes.
+    const inputEvents = ["pointerdown", "pointermove", "pointerup", "pointerleave", "pointercancel", "wheel"];
+    inputEvents.forEach(type => renderer.domElement.addEventListener(type, requestRender));
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      } else {
+        targetDark = resolveDark();
+        requestRender();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting;
+      if (!inViewport) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      } else requestRender();
+    });
+    intersectionObserver.observe(container);
+    requestRender();
 
     const handleResize = () => {
       if (!container) return;
+      if (!container.clientWidth || !container.clientHeight) return;
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
+      requestRender();
     };
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
     window.addEventListener("resize", handleResize);
 
     return () => {
+      disposed = true;
+      invalidateRef.current = () => {};
+      controls.removeEventListener("change", requestRender);
+      inputEvents.forEach(type => renderer.domElement.removeEventListener(type, requestRender));
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      intersectionObserver.disconnect();
+      resizeObserver.disconnect();
       cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
       clearInterval(darkTimer);
       lightingAudio.dispose();
       window.removeEventListener("resize", handleResize);
@@ -588,6 +643,8 @@ export default function Ward3D({
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => { invalidateRef.current(); }, [editMode, dayNightMode]);
 
   // Camera command
   useEffect(() => {
@@ -608,6 +665,7 @@ export default function Ward3D({
       const { x, z, lookZ = 0 } = cameraCommand.target;
       cameraTargetRef.current = { pos: new THREE.Vector3(x, 10, z), look: new THREE.Vector3(x, 0, lookZ) };
     }
+    invalidateRef.current();
   }, [cameraCommand, suite]);
 
   // Diff-based item rendering
@@ -625,7 +683,7 @@ export default function Ward3D({
       if (rotHandle) { mesh.remove(rotHandle); rotHandle.traverse(disposeMesh); }
     });
 
-    if (!editMode && !visibleItems.length) { return; }
+    // Empty suites must also remove stale meshes and request a frame.
 
     const currentIds = new Set(visibleItems.map(i => i.id));
 
@@ -701,6 +759,7 @@ export default function Ward3D({
     });
 
     itemsArrayRef.current = Array.from(map.values());
+    invalidateRef.current();
   }, [visibleItems, selectedItemId, editMode, activeCallBed]);
 
   return (
