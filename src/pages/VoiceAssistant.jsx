@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Mic, Square, Volume2, VolumeX, ArrowLeft, Shield, Cpu, Activity, Bot, Settings2 } from "lucide-react";
@@ -27,25 +27,6 @@ async function invokeRoutedAssistant(prompt, onStage) {
     ? [{ role: "system", content: prefs.systemPrompt.trim() }, { role: "user", content: prompt }]
     : [{ role: "user", content: prompt }];
   return routeChat({ mode: prefs.mode, prefs, messages, onStage });
-}
-
-// Speckled starfield background — pure decoration, no logic.
-function Starfield() {
-  const stars = useMemo(() => Array.from({ length: 80 }).map(() => ({
-    top: Math.random() * 100,
-    left: Math.random() * 100,
-    size: Math.random() * 2 + 0.5,
-    delay: Math.random() * 4,
-    duration: 2 + Math.random() * 3,
-  })), []);
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {stars.map((s, i) => (
-        <span key={i} className="absolute rounded-full bg-white/60"
-          style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, animation: `twinkle ${s.duration}s ease-in-out ${s.delay}s infinite` }} />
-      ))}
-    </div>
-  );
 }
 
 export default function VoiceAssistant() {
