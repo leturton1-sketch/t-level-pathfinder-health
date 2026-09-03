@@ -261,11 +261,16 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
         onClick={placeSelectedPin}
       >
         <div className="campus-map-world absolute inset-0" style={mapStyle}>
+          <picture>
+          <source srcSet="/assets/campus-map-optimised.webp" type="image/webp" />
           <img
             src="/assets/campus-original-map.png"
+            decoding="async"
+            fetchPriority="high"
             alt="Interactive campus map of Dearne Valley College"
             className="campus-map-image pointer-events-none absolute inset-0 h-full w-full object-cover"
           />
+          </picture>
           <span
             aria-hidden="true"
             className="static-campus-pin-repair pointer-events-none absolute z-[9] h-[6.8%] w-[7.2%] -translate-x-1/2 -translate-y-1/2 bg-[#d6ccb4]"
