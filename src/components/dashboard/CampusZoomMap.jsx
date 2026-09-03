@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
   Building2, Calculator, Check, ConciergeBell, Dumbbell, HeartPulse, MapPin, PawPrint,
   Pencil, RotateCcw, Save, UtensilsCrossed, X,
@@ -78,7 +78,7 @@ function clamp(value) {
   return Math.min(96, Math.max(4, Number(value) || 0));
 }
 
-export default function CampusZoomMap({ activeZone = "all" }) {
+function CampusZoomMap({ activeZone = "all", onZoneChange }) {
   const [hotspots, setHotspots] = useState(DEFAULT_HOTSPOTS);
   const [selectedId, setSelectedId] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -112,7 +112,8 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const editSpot = hotspots.find((spot) => spot.id === editSpotId) || hotspots[0];
 
   useEffect(() => {
-    if (activeZone === "all" || editing) return;
+    if (editing) return;
+    if (activeZone === "all") { setSelectedId(null); return; }
     const filteredHotspot = hotspots.find((spot) => spot.filters.includes(activeZone));
     if (filteredHotspot) setSelectedId(filteredHotspot.id);
   }, [activeZone, editing, hotspots]);
@@ -123,6 +124,7 @@ export default function CampusZoomMap({ activeZone = "all" }) {
 
   const resetZoom = () => {
     setSelectedId(null);
+    onZoneChange?.("all");
   };
 
   const openEditor = () => {
@@ -212,14 +214,27 @@ export default function CampusZoomMap({ activeZone = "all" }) {
   const mapStyle = selected && !editing
     ? {
         transformOrigin: `${selected.x}% ${selected.y}%`,
-        transform: `rotateX(10deg) scale(${selected.scale})`,
+        transform: `scale(${selected.scale})`,
       }
-    : { transformOrigin: "50% 50%", transform: "rotateX(10deg) scale(1)" };
+    : { transformOrigin: "50% 50%", transform: "scale(1)" };
 
   return (
     <div className="campus-map-shell relative mx-auto w-full max-w-[720px]">
+      <div className="pf-map-viewport">
       <div className="campus-map-controls relative z-40 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/95 bg-white/90 p-2 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
-        <span className="px-2 text-[9px] font-bold uppercase tracking-[.12em] text-[#4A5568]">Map controls</span>
+        <label className="pf-map-filter">
+          <span className="sr-only">Filter campus departments</span>
+          <select aria-label="Filter campus departments" value={activeZone} disabled={editing}
+            onChange={(event) => onZoneChange?.(event.target.value)}>
+            <option value="all">All departments</option>
+            <option value="suite-a">Health Department</option>
+            <option value="reception">Reception</option>
+            <option value="animal-care">Animal Care & Management</option>
+            <option value="refectory">Refectory</option>
+            <option value="sport">Sport Department</option>
+            <option value="english-maths">English & Mathematics</option>
+          </select>
+        </label>
         <div className="flex items-center gap-2">
           {!editing && (
             <button type="button" onClick={openEditor} className="no-clay flex items-center gap-1.5 rounded-lg border border-violet-200 bg-white px-2.5 py-2 text-[10px] font-bold text-violet-800 transition hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500">
@@ -239,7 +254,6 @@ export default function CampusZoomMap({ activeZone = "all" }) {
       </div>
       <div
         ref={mapRef}
-        style={{ perspective: "1600px" }}
         className={`campus-plane relative aspect-square w-full overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_26px_60px_-28px_rgba(15,23,42,.6),inset_1px_1px_2px_white,inset_0_-44px_80px_-44px_rgba(15,23,42,.38)] [transform-style:preserve-3d] ${editing ? "cursor-crosshair ring-2 ring-violet-500 ring-offset-2" : ""}`}
         onPointerMove={moveDraggedPin}
         onPointerUp={() => setDraggingId(null)}
@@ -291,19 +305,19 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   top: `${spot.y}%`,
                   transform: "translate(-50%, -50%)",
                 }}
-                className={`campus-hotspot group absolute z-30 grid h-10 w-10 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-40 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
+                className={`campus-hotspot group absolute z-30 grid h-11 w-11 place-items-center transition-opacity duration-300 ${matchesFilter || editing ? "opacity-100" : "pointer-events-none opacity-40 grayscale"} ${editing ? "cursor-grab active:cursor-grabbing" : ""}`}
                 aria-label={editing ? `Move ${spot.label} pin. Use arrow keys for precise positioning.` : `Focus map on ${spot.label}`}
                 aria-pressed={isSelected || isBeingEdited}
                 onKeyDown={(event) => nudgePin(event, spot)}
               >
                 <span
-                  className="relative grid h-10 w-10 place-items-center"
+                  className="relative grid h-11 w-11 place-items-center"
                   style={{ transform: selected && !editing ? `scale(${1 / selected.scale})` : "scale(1)" }}
                 >
                   <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
-                  <span className={`relative grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-[0_0_0_3px_rgba(255,255,255,.24),0_0_16px_rgba(34,211,238,.75)] transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
+                  <span className={`relative grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-sm transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
                     <MapPin className="absolute h-2.5 w-2.5 opacity-35" />
-                    <Icon className="h-2 w-2" />
+                    <Icon className="h-4 w-4" />
                   </span>
                   {!editing && (
                     <span className="campus-hotspot-tooltip pointer-events-none absolute bottom-9 left-1/2 w-max max-w-[190px] -translate-x-1/2 translate-y-1 rounded-xl border border-white/95 bg-white/94 px-3 py-2 text-left opacity-0 shadow-xl backdrop-blur-xl transition group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
@@ -318,9 +332,10 @@ export default function CampusZoomMap({ activeZone = "all" }) {
         </div>
 
       </div>
+      </div>
 
         {editing ? (
-          <div className="relative z-40 mt-3 rounded-2xl border border-violet-200 bg-white/94 p-3 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
+          <div className="pf-map-editor relative z-40 mt-3 rounded-2xl border border-violet-200 bg-white/94 p-3 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
             <div className="flex flex-wrap items-end gap-2">
               <label className="min-w-[170px] flex-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4A5568]">
                 Pin
@@ -368,10 +383,10 @@ export default function CampusZoomMap({ activeZone = "all" }) {
                   {selected ? "Destination located" : "Explore the campus"}
                 </p>
                 <p className="truncate text-xs font-black text-slate-950">
-                  {selected?.label || "Select a glowing department pin"}
+                  {selected?.label || "Select a department pin"}
                 </p>
                 <p className="truncate text-[9px] font-semibold text-[#4A5568]">
-                  {selected?.detail || "Use the filters above to highlight relevant areas"}
+                  {selected?.detail || "Choose a department using the map filter"}
                 </p>
               </div>
             </div>
@@ -383,3 +398,5 @@ export default function CampusZoomMap({ activeZone = "all" }) {
     </div>
   );
 }
+
+export default memo(CampusZoomMap);
