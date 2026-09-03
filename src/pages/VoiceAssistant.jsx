@@ -11,8 +11,7 @@ import { base44 } from "@/api/base44Client";
 import AIComposer from "@/components/ai/AIComposer";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 
-import MedicalHumanoid from "@/components/ai/MedicalHumanoid";
-import "@/components/ai/MedicalHumanoid.css";
+import ClinicalHumanoid3D from "@/components/voice/ClinicalHumanoid3D";
 import "@/components/ai/clinical-educator.css";
 
 const STATUS = {
@@ -162,7 +161,7 @@ export default function VoiceAssistant() {
       </header>
       <div className="educator-workspace">
         <section className="educator-stage" aria-label="Pathfinder humanoid Clinical Educator">
-          <MedicalHumanoid state={status} speaking={synth.speaking} listening={listening} />
+          <ClinicalHumanoid3D state={status} speaking={synth.speaking} listening={listening} />
         </section>
         <section className="educator-conversation" aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
