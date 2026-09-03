@@ -56,7 +56,7 @@ function Explorer() {
       <AnatomyAnimationController animations={animations} setAnimations={setAnimations} active={activeAnims} setActive={setActiveAnims} />
     </div>
   )}
-  <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
+  <div className="grid gap-4 min-[1600px]:grid-cols-[260px_minmax(0,1fr)_320px]">
     <aside className={`${panel} p-4`}>
       <p className="mb-2 text-[10px] font-black uppercase tracking-[.18em] text-violet-700">Outer to inner layers</p>
       <div className="space-y-1.5">
@@ -131,7 +131,7 @@ function Explorer() {
 function Pathophysiology() {
   const [conditionId, setConditionId] = useState(PATHOPHYSIOLOGY_CONDITIONS[0].id);
   const condition = PATHOPHYSIOLOGY_CONDITIONS.find((item) => item.id === conditionId);
-  return <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)_340px]">
+  return <div className="grid gap-4 min-[1600px]:grid-cols-[300px_minmax(0,1fr)_340px]">
     <aside className={`${panel} p-4`}>
       <p className="mb-3 text-[10px] font-black uppercase tracking-[.18em] text-rose-700">T Level condition library</p>
       <div className="space-y-2">{PATHOPHYSIOLOGY_CONDITIONS.map((item) => <button key={item.id} onClick={() => setConditionId(item.id)} className={`w-full rounded-2xl border p-3 text-left transition ${conditionId === item.id ? "border-rose-300 bg-rose-50 shadow-md" : "border-white bg-white/75 hover:bg-white"}`}><p className="text-xs font-black text-slate-900">{item.name}</p><p className="mt-1 text-[10px] capitalize text-slate-500">{SYSTEM_META[item.system]?.name}</p></button>)}</div>
@@ -161,7 +161,7 @@ function ScenarioLab() {
   const toggleChoice = (id) => setChoices((current)=>current.includes(id)?current.filter((item)=>item!==id):[...current,id]);
   const labels = {rr:"Respiratory rate",spo2:"SpO₂",hr:"Heart rate",sbp:"Systolic BP",temp:"Temperature",avpu:"AVPU"};
 
-  return <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
+  return <div className="grid gap-4 min-[1600px]:grid-cols-[300px_minmax(0,1fr)_360px]">
     <aside className={`${panel} p-4`}><p className="mb-3 text-[10px] font-black uppercase tracking-[.18em] text-violet-700">Standardised patients</p>{STANDARDISED_PATIENTS.map((item)=><button key={item.id} onClick={()=>reset(item.id)} className={`mb-2 w-full rounded-2xl border p-3 text-left ${patientId===item.id?"border-violet-300 bg-violet-50":"border-white bg-white/75"}`}><p className="font-black text-slate-900">{item.name}</p><p className="text-xs text-slate-500">{item.age} years · {PATHOPHYSIOLOGY_CONDITIONS.find((c)=>c.id===item.conditionId)?.name}</p></button>)}
       <div className="mt-4 rounded-2xl bg-slate-900 p-4 text-white"><UserRound className="h-5 w-5 text-cyan-300"/><p className="mt-2 font-black">{patient.name}</p><p className="mt-1 text-xs leading-5 text-slate-300">{patient.history}</p></div>
     </aside>
