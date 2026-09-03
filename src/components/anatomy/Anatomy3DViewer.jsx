@@ -98,6 +98,7 @@ function createClinicalTextures(renderer) {
 
 export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [] }) {
   const mountRef = useRef(null);
+  const invalidateRef = useRef(() => {});
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
   const baseColorsRef = useRef({});        // id -> THREE.Color
   const shellRef = useRef(null);
@@ -119,6 +120,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
   // ── Scene setup (once) ──
   useEffect(() => {
     const mount = mountRef.current;
+    let disposed = false;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf8fafc);
 
@@ -133,6 +135,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         BODY_TARGET.z + spherical.radius * sinPhi * Math.sin(spherical.theta)
       );
       camera.lookAt(BODY_TARGET);
+      invalidateRef.current();
     };
     controlsRef.current.reset = () => {
       spherical.radius = viewTween.radius = 3.2;
@@ -154,7 +157,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     updateCamera();
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -289,6 +292,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     new OBJLoader().load(
       "/models/anatomy/male-surface.obj",
       (object) => {
+        if (disposed) { object.traverse((mesh) => mesh.geometry?.dispose()); return; }
         object.name = "Imported anatomical surface";
         object.scale.setScalar(0.205);
         object.position.set(0, 0.02, 0);
@@ -307,9 +311,10 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         if (neonOutlineRef.current) {
           neonOutlineRef.current.buildFromObject(object);
         }
+        invalidateRef.current();
       },
       undefined,
-      () => { shellGroup.visible = true; }
+      () => { if (!disposed) { shellGroup.visible = true; invalidateRef.current(); } }
     );
 
     // Structures
@@ -458,9 +463,17 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     // ── Render loop ──
     const clock = new THREE.Clock();
     let raf = 0;
+    let inView = true;
+    let rendering = false;
+    const requestRender = () => {
+      if (!disposed && !rendering && !raf && inView && !document.hidden) raf = requestAnimationFrame(animate);
+    };
+    invalidateRef.current = requestRender;
     const animate = () => {
-      raf = requestAnimationFrame(animate);
-      const dt = clock.getDelta();
+      raf = 0;
+      if (disposed || !inView || document.hidden) return;
+      rendering = true;
+      const dt = Math.min(0.05, Math.max(1 / 60, clock.getDelta()));
       const viewEase = 1 - Math.exp(-dt * 5.2);
       spherical.radius = THREE.MathUtils.lerp(spherical.radius, viewTween.radius, viewEase);
       BODY_TARGET.lerp(viewTween.target, viewEase);
@@ -496,20 +509,35 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         });
       });
       renderer.render(scene, camera);
+      rendering = false;
+      const moving = Math.abs(spherical.radius - viewTween.radius) > 0.0005 || BODY_TARGET.distanceTo(viewTween.target) > 0.0005;
+      if (moving || ra.active || groupsRef.current[pathologyId]?.visible) requestRender();
     };
-    animate();
+    const onVisibility = () => {
+      if (document.hidden || !inView) { cancelAnimationFrame(raf); raf = 0; }
+      else requestRender();
+    };
+    const observer = new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; onVisibility(); });
+    observer.observe(mount);
+    document.addEventListener("visibilitychange", onVisibility);
+    requestRender();
 
     // Resize
     const onResize = () => {
       camera.aspect = mount.clientWidth / mount.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(mount.clientWidth, mount.clientHeight);
+      requestRender();
     };
     const ro = new ResizeObserver(onResize);
     ro.observe(mount);
 
     return () => {
+      disposed = true;
+      invalidateRef.current = () => {};
       cancelAnimationFrame(raf);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       ro.disconnect();
       renderer.domElement.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
@@ -678,6 +706,10 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
   useEffect(() => {
     controlsRef.current.reset?.();
   }, [resetNonce]);
+
+  useEffect(() => {
+    invalidateRef.current();
+  }, [genitalia, activeSystems, selectedId, isolatedId, reconstructId, resetNonce, pathologyStructureId, viewMode, structureOverrides, hiddenStructures, clippedStructures, customStructures]);
 
   return <div ref={mountRef} className="w-full h-full" />;
 }
