@@ -45,3 +45,8 @@
  .educator-composer { padding:8px; }
  .educator-conversation-heading { padding:14px; }
 }
+
+.clinical-educator .ai-composer-textarea { min-width:0; }
+.clinical-educator :is(.ai-composer-input-row,.ai-composer-plus,.ai-composer-control,.ai-composer-send) { box-shadow:none; }
+.clinical-educator .ai-composer-input-row { background:#f8fafc; border:1px solid #e9e4ef; }
+.clinical-educator :is(.ai-composer-plus,.ai-composer-control) { border-color:#ddd6ea; }
