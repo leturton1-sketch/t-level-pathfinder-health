@@ -1,270 +1,213 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
-  Activity, AlertTriangle, BedDouble, BookOpen, Brain, BriefcaseMedical, Clock3, FilePenLine,
-  GraduationCap, HeartPulse, LibraryBig, ShieldCheck, Sparkles, Stethoscope, UserCog, UserRound,
-  UsersRound, Wifi,
+  Activity, AlertTriangle, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical,
+  ChevronDown, GraduationCap, HeartPulse, LibraryBig, Menu, PanelLeftClose,
+  PanelLeftOpen, Sparkles, Stethoscope, UserCog, UserRound, UsersRound, X, FilePenLine,
 } from "lucide-react";
 import { getCurrentUser, isAdmin, isLoggedIn } from "@/lib/clinicalAuth";
 import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
-import NEWS2Badge from "@/components/NEWS2Badge";
 import TLevelLogo from "@/components/TLevelLogo";
 import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
+import "@/components/dashboard/pathfinder-dashboard.css";
 
-const TLEVEL_SALMON_LOGO = "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/da831d847_TLevel-Logo-SalmonWithStrapline.png";
-
-const ROOMS = [
-  { id: "suite-a", label: "Clinical Suite A", shortLabel: "Suite A", status: "suiteA", x: 7, y: 8, size: 29 },
-  { id: "suite-b", label: "Clinical Suite B", shortLabel: "Suite B", status: "suiteB", x: 64, y: 8, size: 29 },
-  { id: "health-theory-101", label: "Health Theory 101", shortLabel: "Theory 101", status: "theory", x: 36, y: 62, size: 29 },
+const GROUPS = [
+  { label: "Clinical practice", items: [
+    { label: "3D Ward Simulation", path: "/ward-simulation", icon: BedDouble },
+    { label: "Care Planning", path: "/care-planning", icon: BriefcaseMedical },
+    { label: "3D Anatomy & Physiology", path: "/anatomy-physiology", icon: Brain },
+  ] },
+  { label: "Health & learning", items: [
+    { label: "T-Level Health Hub", path: "/health-hub", icon: HeartPulse },
+    { label: "Clinical Skills Academy", path: "/clinical-skills-academy", icon: GraduationCap },
+    { label: "Theory Modules", path: "/theory", icon: BookOpen },
+    { label: "Knowledge Library", path: "/knowledge-library", icon: LibraryBig },
+  ] },
+  { label: "Account & resources", items: [
+    { label: "User Analytics", path: "/profile", icon: UserRound },
+    { label: "Progress", path: "/performance", icon: BarChart3 },
+    { label: "AI Model Router", path: "/ai-models", icon: Sparkles },
+  ] },
+  { label: "Administration", admin: true, items: [
+    { label: "User Management", path: "/user-management", icon: UserCog },
+    { label: "Scenario Authoring", path: "/scenario-authoring", icon: FilePenLine },
+  ] },
 ];
 
-const roomStyles = {
-  suiteA: "from-pink-200 via-pink-300 to-rose-400 border-pink-100/95",
-  suiteB: "from-emerald-200 via-green-300 to-emerald-500 border-emerald-100/95",
-  theory: "from-yellow-100 via-yellow-300 to-amber-400 border-yellow-50/95",
-};
-
-const areaLegend = [
-  { id: "suite-a", label: "Health Department", colour: "bg-pink-400" },
-  { id: "reception", label: "Reception", colour: "bg-violet-500" },
-  { id: "animal-care", label: "Animal Care & Management", colour: "bg-emerald-500" },
-  { id: "refectory", label: "Refectory", colour: "bg-orange-400" },
-  { id: "sport", label: "Sport Department", colour: "bg-blue-500" },
-  { id: "english-maths", label: "English & Mathematics", colour: "bg-fuchsia-500" },
+const STAFF = [
+  { name: "Dr Maya Chen", role: "Ward consultant", status: "Available", initials: "MC" },
+  { name: "Sam Okafor", role: "Charge nurse", status: "With patient", initials: "SO" },
+  { name: "Priya Shah", role: "Staff nurse", status: "Available", initials: "PS" },
+  { name: "Alex Morgan", role: "Healthcare assistant", status: "Break · 8 min", initials: "AM" },
 ];
 
-const staff = [
-  { name: "Dr Maya Chen", role: "Ward consultant", status: "Available", initials: "MC", tone: "bg-cyan-500" },
-  { name: "Sam Okafor", role: "Charge nurse", status: "With patient", initials: "SO", tone: "bg-indigo-500" },
-  { name: "Priya Shah", role: "Staff nurse", status: "Available", initials: "PS", tone: "bg-emerald-500" },
-  { name: "Alex Morgan", role: "Healthcare assistant", status: "Break · 8 min", initials: "AM", tone: "bg-violet-500" },
-];
-
-function Sparkline() {
-  return (
-    <svg viewBox="0 0 120 34" className="h-8 w-full" aria-label="Patient vital trend">
-      <path d="M1 23 L17 23 L23 11 L30 29 L39 18 L48 20 L57 8 L65 25 L76 21 L87 22 L96 14 L105 20 L119 18" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M1 32 L1 23 L17 23 L23 11 L30 29 L39 18 L48 20 L57 8 L65 25 L76 21 L87 22 L96 14 L105 20 L119 18 L119 32 Z" fill="currentColor" opacity=".12" />
-    </svg>
-  );
+function DashboardClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+  return <time className="pf-clock" dateTime={now.toISOString()}>
+    {now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+    <span>{now.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" })}</span>
+  </time>;
 }
 
-function KpiCard({ label, value, note, icon: Icon, tone, children = null }) {
-  return (
-    <article className="ar-kpi polished-glass-edge group relative overflow-hidden rounded-[18px] border border-white/80 bg-gradient-to-br from-slate-100/88 via-slate-200/72 to-slate-300/54 p-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.28),0_26px_50px_-24px_rgba(15,23,42,.52),inset_1px_1px_1px_rgba(255,255,255,.95),inset_-1px_-1px_1px_rgba(71,85,105,.14)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-10 before:-top-16 before:h-28 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/65 before:blur-xl after:pointer-events-none after:absolute after:inset-x-4 after:bottom-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/90 after:to-transparent hover:-translate-y-2 hover:rotate-[.35deg] hover:shadow-[0_15px_0_-7px_rgba(100,116,139,.3),0_35px_62px_-24px_rgba(15,23,42,.58)]">
-      <div className={`absolute inset-x-0 top-0 h-1 ${tone}`} />
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-[9px] font-bold uppercase tracking-[.16em] text-slate-500">{label}</p>
-          <p className="mt-0.5 text-2xl font-black tracking-tight text-slate-900">{value}</p>
+function Metric({ label, value, note, icon: Icon, tone }) {
+  return <article className="pf-metric">
+    <div><p className="pf-label">{label}</p><p className="pf-value">{value}</p><p className="pf-muted">{note}</p></div>
+    <span className={`pf-metric-icon pf-tone-${tone}`}><Icon size={22} aria-hidden="true" /></span>
+  </article>;
+}
+
+function Navigation({ compact = false, onNavigate, user }) {
+  const [expanded, setExpanded] = useState(["Clinical practice"]);
+  const groupPrefix = useId();
+  return <nav className={`pf-navigation ${compact ? "pf-navigation-compact" : ""}`} aria-label="Primary navigation">
+    {GROUPS.filter(group => !group.admin || isAdmin()).map(group => {
+      const open = expanded.includes(group.label);
+      return <section className="pf-nav-group" key={group.label}>
+        {!compact && <button type="button" className="pf-group-toggle" aria-expanded={open}
+          aria-controls={`${groupPrefix}-${group.label.replaceAll(" ", "-")}`}
+          onClick={() => setExpanded(value => open ? value.filter(label => label !== group.label) : [...value, group.label])}>
+          {group.label}<ChevronDown size={16} className={open ? "pf-rotated" : ""} aria-hidden="true" />
+        </button>}
+        {(compact || open) && <div id={compact ? undefined : `${groupPrefix}-${group.label.replaceAll(" ", "-")}`} className="pf-nav-links">
+          {group.items.map(({ label, path, icon: Icon }) => <Link key={path} to={path} onClick={onNavigate}
+            className="pf-nav-link" aria-label={compact ? label : undefined} title={compact ? label : undefined}>
+            <Icon size={21} aria-hidden="true" />
+            {compact ? <span className="pf-nav-tooltip" aria-hidden="true">{label}</span> : <span>{label}</span>}
+          </Link>)}
+        </div>}
+      </section>;
+    })}
+    {!compact && <div className="pf-account"><p className="pf-label">Signed in</p>
+      <strong>{user?.full_name || user?.username || "Clinical user"}</strong>
+      <p className="pf-muted">{user?.role?.replaceAll("_", " ") || "Team member"}</p>
+    </div>}
+  </nav>;
+}
+
+function TeamContent() {
+  return <div className="pf-team-scroll">
+    <p className="pf-label pf-section-label">Patient & staff <span className="pf-badge">Simulation</span></p>
+    <ul className="pf-records" aria-label="Staff on shift">
+      {STAFF.map(person => <li key={person.name} className="pf-record">
+        <span className="pf-avatar">{person.initials}</span>
+        <div className="pf-record-copy"><strong>{person.name}</strong><p>{person.role}</p>
+          <span className={`pf-status ${person.status === "Available" ? "pf-status-available" : ""}`}>{person.status}</span>
         </div>
-        <span className={`rounded-xl p-2 text-white shadow-lg ${tone}`}><Icon className="h-4 w-4" /></span>
-      </div>
-      {children}
-      <p className="mt-1 text-[10px] font-medium text-slate-500">{note}</p>
-    </article>
-  );
+      </li>)}
+    </ul>
+    <h3 className="pf-label pf-section-label">Incoming patients</h3>
+    <ul className="pf-records" aria-label="Incoming patients">
+      {INCOMING_PATIENTS.slice(0, 3).map((patient, index) => <li key={patient.id || index} className="pf-record">
+        <span className="pf-avatar"><Activity size={20} aria-hidden="true" /></span>
+        <div className="pf-record-copy"><strong>{patient.name}</strong><p>{patient.condition || "Awaiting assessment"}</p>
+          <span className="pf-status">Expected in {index * 4 + 3} min</span>
+        </div>
+      </li>)}
+    </ul>
+  </div>;
 }
 
-function QuickLaunch({ icon: Icon, label, detail, onClick, tone, image }) {
-  return (
-    <button onClick={onClick} className="ar-launch polished-glass-edge group relative w-full overflow-hidden rounded-[24px] border border-white/85 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/58 px-4 py-3 text-left shadow-[0_9px_0_-4px_rgba(100,116,139,.34),0_22px_34px_-20px_rgba(15,23,42,.72),inset_1px_1px_1px_rgba(255,255,255,.95)] backdrop-blur-2xl transition duration-300 before:pointer-events-none before:absolute before:-left-8 before:-top-8 before:h-12 before:w-28 before:rotate-[-20deg] before:rounded-full before:bg-white/75 before:blur-lg hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_13px_0_-5px_rgba(100,116,139,.38),0_30px_45px_-18px_rgba(15,23,42,.78)] focus:outline-none focus:ring-2 focus:ring-cyan-500">
-      <div className="flex items-center gap-3">
-        <span className={`relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl text-white shadow-[0_9px_0_-4px_rgba(15,23,42,.22),0_13px_24px_-14px_rgba(15,23,42,.75)] ${image ? "bg-slate-900" : tone}`}>
-          {image ? <img src={image} alt="" className="h-full w-full object-contain p-1" /> : <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />}
-        </span>
-        <span className="min-w-0">
-          <span className="block text-xs font-extrabold text-slate-800">{label}</span>
-          <span className="block truncate text-[10px] text-slate-500">{detail}</span>
-        </span>
-      </div>
-    </button>
-  );
+function AIFooter({ onNavigate }) {
+  return <footer className="pf-team-footer"><Link className="pf-primary-button" to="/voice-assistant" onClick={onNavigate}>
+    <Sparkles size={18} aria-hidden="true" />Ask Pathfinder AI
+  </Link></footer>;
 }
 
 export default function CommandCenterDashboard() {
   const navigate = useNavigate();
+  useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
   const user = getCurrentUser();
-  const [now, setNow] = useState(Date.now());
-  const [selectedRoom, setSelectedRoom] = useState("suite-a");
   const [activeZone, setActiveZone] = useState("all");
-  const patients = useMemo(() => initialBoard(now), []);
-  const critical = patients.filter((p) => (p.initial_news2 ?? 0) >= 5);
+  const [drawer, setDrawer] = useState(null);
+  const [desktop, setDesktop] = useState(() => window.matchMedia("(min-width: 1440px)").matches);
+  const [collapsed, setCollapsed] = useState(false);
+  const [metricsOpen, setMetricsOpen] = useState(false);
+  const menuRef = useRef(null);
+  const teamRef = useRef(null);
+  const drawerTriggerRef = useRef(null);
+  const patients = useMemo(() => initialBoard(Date.now()), []);
+  const critical = patients.filter(patient => (patient.initial_news2 ?? 0) >= 5);
   const occupancy = Math.min(100, Math.round((patients.length / 24) * 100));
-  const selectedPatient = patients[0];
-  const selectedArea = ROOMS.find((room) => room.id === selectedRoom) || ROOMS[0];
 
   useEffect(() => {
-    if (!isLoggedIn()) navigate("/login");
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, [navigate]);
+    const query = window.matchMedia("(min-width: 1440px)");
+    const change = () => { setDesktop(query.matches); setDrawer(null); };
+    query.addEventListener("change", change);
+    return () => query.removeEventListener("change", change);
+  }, []);
 
-  const time = new Date(now).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
+  const openDrawer = (kind, trigger) => { drawerTriggerRef.current = trigger; setDrawer(kind); };
+  const compact = !desktop || collapsed;
 
-  return (
-    <main className="ar-command-centre relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_10%,rgba(255,255,255,.98),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(220,210,238,.55),transparent_32%),linear-gradient(145deg,#faf9fb_0%,#f2eef7_48%,#f8f6fa_100%)] pb-24 text-[#15131A]">
-      <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:42px_42px]" />
+  return <div className="pf-dashboard">
+    <header className="pf-header">
+      <button type="button" ref={menuRef} className="pf-icon-button pf-mobile-menu" aria-label="Open navigation"
+        onClick={() => openDrawer("navigation", menuRef.current)}><Menu size={23} /></button>
+      <span className="pf-brand-icon"><Stethoscope size={24} aria-hidden="true" /></span>
+      <div className="pf-heading"><p className="pf-eyebrow">T-Level Health · Simulation</p><h1>Pathfinder Overview</h1></div>
+      <div className="pf-header-meta"><DashboardClock /><TLevelLogo size="sm" /></div>
+    </header>
 
-      <div className="relative mx-auto max-w-[1950px] px-4 py-4 sm:px-6 lg:px-8">
-        <header className="ar-header polished-glass-edge relative mb-6 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/82 via-slate-200/64 to-slate-300/48 px-6 py-3 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-8 before:-top-10 before:h-16 before:w-2/3 before:rotate-[-5deg] before:bg-gradient-to-r before:from-white/85 before:to-transparent before:blur-xl">
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-lg"><Stethoscope className="h-6 w-6" /></span>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-cyan-700">Pathfinder T-Level Simulation · Live operations</p>
-              <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Pathfinder Overview</h1>
-            </div>
+    <button type="button" className="pf-mobile-summary" aria-expanded={metricsOpen} aria-controls="pf-metrics"
+      onClick={() => setMetricsOpen(value => !value)}>Overview · {critical.length} alerts · {24 - patients.length} beds available
+      <ChevronDown size={18} aria-hidden="true" /></button>
+    <section id="pf-metrics" className={`pf-metrics ${metricsOpen ? "pf-metrics-open" : ""}`} aria-label="Simulation overview">
+      <Metric label="Critical alerts" value={critical.length} note="Requires clinical review" icon={AlertTriangle} tone="red" />
+      <Metric label="Bed availability" value={`${100 - occupancy}%`} note={`${24 - patients.length} of 24 beds available`} icon={BedDouble} tone="green" />
+      <Metric label="Patient vitals" value="Stable" note="Simulated observation summary" icon={HeartPulse} tone="blue" />
+      <Metric label="Staff on shift" value="18" note="6 clinical · 12 ward team" icon={UsersRound} tone="violet" />
+    </section>
+
+    <div className={`pf-workspace ${compact ? "pf-workspace-compact" : ""}`}>
+      <aside className="pf-nav-rail">
+        <button type="button" className="pf-icon-button pf-nav-expand"
+          aria-label={desktop && !collapsed ? "Collapse navigation" : "Expand navigation"}
+          onClick={event => desktop ? setCollapsed(value => !value) : openDrawer("navigation", event.currentTarget)}>
+          {compact ? <PanelLeftOpen size={22} /> : <><PanelLeftClose size={22} /><span>Collapse navigation</span></>}
+        </button>
+        <Navigation compact={compact} user={user} />
+      </aside>
+
+      <section className="pf-map-stage" aria-labelledby="pf-map-title">
+        <div className="pf-map-heading"><div><p className="pf-eyebrow">Interactive campus</p>
+          <h2 id="pf-map-title">Dearne Valley College</h2></div>
+          <Link className="pf-secondary-button" to="/ward-simulation"><BedDouble size={18} aria-hidden="true" />Open ward</Link>
+        </div>
+        <CampusZoomMap activeZone={activeZone} onZoneChange={setActiveZone} />
+      </section>
+
+      <aside className="pf-team-rail" aria-label="Patient and staff panel">
+        <div className="pf-team-heading"><h2>Response team</h2><span className="pf-badge">{STAFF.length} staff listed</span></div>
+        <TeamContent /><AIFooter />
+      </aside>
+    </div>
+
+    <button type="button" ref={teamRef} className="pf-team-trigger pf-primary-button"
+      onClick={() => openDrawer("team", teamRef.current)}>
+      <UsersRound size={21} aria-hidden="true" />Patient & staff<span className="pf-count">{INCOMING_PATIENTS.slice(0, 3).length}</span>
+    </button>
+
+    <Dialog.Root open={drawer !== null} onOpenChange={open => { if (!open) setDrawer(null); }}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="pf-drawer-overlay" />
+        <Dialog.Content className={`pf-drawer pf-drawer-${drawer}`}
+          onCloseAutoFocus={event => { event.preventDefault(); drawerTriggerRef.current?.focus(); }}>
+          <div className="pf-drawer-heading">
+            <Dialog.Title>{drawer === "team" ? "Response team" : "Pathfinder navigation"}</Dialog.Title>
+            <Dialog.Close className="pf-icon-button" aria-label="Close panel"><X size={23} /></Dialog.Close>
           </div>
-          <div className="flex items-center gap-3 text-xs font-semibold text-slate-600">
-            <span className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50/80 px-3 py-1.5 sm:flex"><Wifi className="h-3.5 w-3.5 text-emerald-600" /> Systems live</span>
-            <span className="rounded-full bg-slate-900/85 px-3 py-1.5 font-mono text-white">{time} · {date}</span>
-            <TLevelLogo size="sm" />
-          </div>
-        </header>
-
-        <section className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <KpiCard label="Critical alerts" value={critical.length || 2} note="Requires clinical review" icon={AlertTriangle} tone="bg-gradient-to-r from-rose-500 to-red-600" />
-          <KpiCard label="Bed availability" value={`${100 - occupancy}%`} note={`${24 - patients.length} of 24 beds available`} icon={BedDouble} tone="bg-gradient-to-r from-emerald-400 to-teal-600" />
-          <KpiCard label="Patient vitals" value="Stable" note="Live observations · 30 sec ago" icon={HeartPulse} tone="bg-gradient-to-r from-cyan-400 to-sky-600"><div className="mt-1 text-cyan-600"><Sparkline /></div></KpiCard>
-          <KpiCard label="Staff on shift" value="18" note="6 clinical · 12 ward team" icon={UsersRound} tone="bg-gradient-to-r from-indigo-400 to-violet-600" />
-        </section>
-
-        <section className="dashboard-grid grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)_320px]">
-          <aside className="sidebar-left grid grid-cols-2 gap-3 sm:grid-cols-4 xl:flex xl:flex-col xl:gap-3" aria-label="Primary navigation">
-            <div className="col-span-full hidden items-center gap-2 px-2 xl:flex">
-              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Clinical practice</span>
-              <span className="h-px flex-1 bg-slate-300/80" />
-            </div>
-            <QuickLaunch icon={BedDouble} label="3D Ward Simulation" detail="Interactive clinical ward" tone="bg-gradient-to-br from-cyan-400 to-sky-700" onClick={() => navigate("/ward-simulation")} />
-            <QuickLaunch icon={BriefcaseMedical} label="Care Planning" detail="Assessments and care records" tone="bg-gradient-to-br from-emerald-400 to-teal-700" onClick={() => navigate("/care-planning")} />
-            <QuickLaunch icon={Brain} label="3D Anatomy & Physiology" detail="Interactive body systems" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/anatomy-physiology")} />
-            <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
-              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Health & learning</span>
-              <span className="h-px flex-1 bg-slate-300/80" />
-            </div>
-            <QuickLaunch image={TLEVEL_SALMON_LOGO} label="T-Level Health Hub" detail="Clinic checks and records" onClick={() => navigate("/health-hub")} />
-            <QuickLaunch icon={GraduationCap} label="Clinical Skills Academy" detail="Practical learning pathways" tone="bg-gradient-to-br from-violet-400 to-fuchsia-700" onClick={() => navigate("/clinical-skills-academy")} />
-            <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
-              <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Account & resources</span>
-              <span className="h-px flex-1 bg-slate-300/80" />
-            </div>
-            <QuickLaunch icon={UserRound} label="User Analytics" detail="Your account" tone="bg-gradient-to-br from-violet-400 to-indigo-700" onClick={() => navigate("/profile")} />
-            <QuickLaunch icon={BookOpen} label="Theory Modules" detail="Learning modules" tone="bg-gradient-to-br from-amber-300 to-orange-600" onClick={() => navigate("/theory")} />
-            <QuickLaunch icon={LibraryBig} label="Knowledge Library" detail="Clinical resources" tone="bg-gradient-to-br from-sky-400 to-blue-700" onClick={() => navigate("/knowledge-library")} />
-            <QuickLaunch icon={Sparkles} label="AI Model Router" detail="Local · puter.js · OpenRouter" tone="bg-gradient-to-br from-cyan-400 to-violet-700" onClick={() => navigate("/ai-models")} />
-            {isAdmin() && (
-              <>
-                <div className="col-span-full hidden items-center gap-2 px-2 pt-2 xl:flex">
-                  <span className="text-[9px] font-black uppercase tracking-[.18em] text-[#4A5568]">Administration</span>
-                  <span className="h-px flex-1 bg-slate-300/80" />
-                </div>
-                <QuickLaunch icon={UserCog} label="User Management" detail="Admin accounts" tone="bg-gradient-to-br from-fuchsia-400 to-purple-700" onClick={() => navigate("/user-management")} />
-                <QuickLaunch icon={FilePenLine} label="Scenario Authoring" detail="Admin scenarios" tone="bg-gradient-to-br from-slate-500 to-slate-900" onClick={() => navigate("/scenario-authoring")} />
-              </>
-            )}
-            <div className="hidden rounded-[24px] border border-white/70 bg-slate-900/82 p-4 text-white shadow-xl backdrop-blur-xl xl:block">
-              <ShieldCheck className="mb-6 h-5 w-5 text-cyan-300" />
-              <p className="text-[10px] uppercase tracking-[.18em] text-slate-400">Signed in</p>
-              <p className="mt-1 text-sm font-bold">{user?.full_name || user?.username || "Clinical user"}</p>
-              <p className="mt-1 text-[10px] capitalize text-slate-400">{user?.role?.replace("_", " ") || "Team member"}</p>
-            </div>
-          </aside>
-
-          <section className="isometric-card ar-stage polished-glass-edge relative min-h-[820px] overflow-hidden rounded-[26px] border border-white/90 bg-gradient-to-br from-slate-100/86 via-slate-200/65 to-slate-300/50 p-3 shadow-[0_24px_55px_-34px_rgba(15,23,42,.56),inset_1px_1px_2px_white] backdrop-blur-3xl">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[.18em] text-cyan-700">Interactive college campus</p>
-                <h2 className="text-lg font-black text-slate-900">Isometric Display - Dearne Valley College</h2>
-              </div>
-              <div className="flex max-w-lg flex-wrap justify-end gap-2 text-[9px] font-bold text-slate-600" aria-label="Map area filters">
-                {areaLegend.map((item) => {
-                  const active = activeZone === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setActiveZone(active ? "all" : item.id)}
-                      className={`no-clay flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${active ? "border-slate-900 bg-slate-900 text-white shadow-md" : "border-white/90 bg-white/72 text-[#4A5568] hover:bg-white"}`}
-                    >
-                      <i className={`h-2.5 w-2.5 rounded-full ${item.colour}`} />
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <CampusZoomMap activeZone={activeZone} />
-
-            <div className="hidden">
-              <div className="absolute inset-[7%_5%_13%] origin-center rounded-[26px] border-[11px] border-slate-100/95 bg-gradient-to-br from-slate-100/96 via-slate-300/92 to-slate-400/82 shadow-[12px_14px_0_rgba(71,85,105,.22),22px_28px_0_rgba(51,65,85,.16),35px_48px_42px_-24px_rgba(15,23,42,.72),inset_3px_3px_4px_white,inset_-3px_-3px_4px_rgba(71,85,105,.24)] [transform:rotateX(58deg)_rotateZ(-32deg)_translateZ(18px)] [transform-style:preserve-3d] before:pointer-events-none before:absolute before:inset-2 before:rounded-[18px] before:border before:border-white/75 before:bg-gradient-to-br before:from-white/30 before:via-transparent before:to-slate-500/10">
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible" aria-label="Main corridor">
-                  <polyline points="-4,50 15,50 31,50 48,50 65,50 82,50 104,50" fill="none" stroke="rgba(255,255,255,.82)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                  <polyline points="-4,50 15,50 31,50 48,50 65,50 82,50 104,50" fill="none" stroke="#050706" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="pointer-events-none absolute left-[43%] top-[45%] z-30 rounded-full bg-black px-3 py-1 text-[7px] font-black uppercase tracking-[.16em] text-white shadow-lg">Corridor</span>
-                {ROOMS.map((room) => (
-                  <button key={room.id} onClick={() => setSelectedRoom(room.id)} style={{ left: `${room.x}%`, top: `${room.y}%`, width: `${room.size}%`, aspectRatio: "1 / 1" }}
-                    className={`group absolute z-10 overflow-hidden rounded-xl border-2 bg-gradient-to-br ${roomStyles[room.status]} shadow-[4px_5px_0_rgba(255,255,255,.35),10px_14px_0_rgba(15,53,83,.24),14px_20px_18px_-8px_rgba(15,23,42,.58),inset_2px_2px_2px_rgba(255,255,255,.62)] transition duration-300 before:pointer-events-none before:absolute before:-left-4 before:-top-3 before:h-7 before:w-[85%] before:rotate-[-18deg] before:rounded-full before:bg-white/58 before:blur-md hover:-translate-y-3 hover:brightness-110 hover:shadow-[5px_7px_0_rgba(255,255,255,.38),13px_19px_0_rgba(15,53,83,.28),18px_26px_24px_-10px_rgba(15,23,42,.65)] focus:outline-none focus:ring-4 focus:ring-slate-900 ${selectedRoom === room.id ? "-translate-y-3 ring-4 ring-white" : ""}`}>
-                    <span className="absolute inset-x-2 top-2 rounded-md bg-white/82 px-1 py-1 text-[8px] font-black text-slate-800 shadow-sm">{room.label}</span>
-                    <span className="absolute bottom-3 left-3 h-4 w-6 rounded-md bg-white/78 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
-                    <span className="absolute bottom-3 right-3 h-4 w-6 rounded-md bg-white/78 shadow-[3px_3px_0_rgba(15,53,83,.18)]" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="ar-selected polished-glass-edge relative mt-4 flex items-center justify-between gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/92 via-slate-200/78 to-slate-300/62 px-4 py-3 shadow-[0_8px_0_-4px_rgba(100,116,139,.34),0_20px_35px_-18px_rgba(15,23,42,.62),inset_1px_1px_1px_white] backdrop-blur-2xl before:pointer-events-none before:absolute before:-left-6 before:-top-6 before:h-10 before:w-1/2 before:rotate-[-10deg] before:bg-white/70 before:blur-xl">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-white"><UserRound className="h-5 w-5" /></span>
-                <div className="min-w-0">
-                  <p className="truncate text-xs font-black text-slate-900">{selectedArea.label}</p>
-                  <p className="truncate text-[10px] text-slate-500">T Level Health Corridor · Selected area</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <NEWS2Badge score={selectedPatient?.initial_news2 ?? 0} size="sm" />
-                <button onClick={() => navigate("/ward-simulation")} className="rounded-xl bg-slate-900 px-3 py-2 text-[10px] font-bold text-white transition hover:bg-cyan-700">Open ward</button>
-              </div>
-            </div>
-          </section>
-
-          <aside className="ar-panel polished-glass-edge relative overflow-hidden rounded-[30px] border border-white/90 bg-gradient-to-br from-slate-100/88 via-slate-200/70 to-slate-300/54 p-4 shadow-[0_12px_0_-6px_rgba(100,116,139,.32),0_30px_62px_-30px_rgba(15,23,42,.68),inset_1px_1px_2px_white,inset_-1px_-1px_2px_rgba(71,85,105,.16)] backdrop-blur-3xl before:pointer-events-none before:absolute before:-left-10 before:-top-12 before:h-24 before:w-3/4 before:rotate-[-14deg] before:rounded-full before:bg-white/68 before:blur-2xl">
-            <div className="mb-3 flex items-center justify-between">
-              <div><p className="text-[10px] font-bold uppercase tracking-[.17em] text-cyan-700">Response team</p><h2 className="text-base font-black text-slate-900">Patient & staff</h2></div>
-              <span className="rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-bold text-emerald-700">{staff.length} active</span>
-            </div>
-            <div className="space-y-2">
-              {staff.map((person) => (
-                <button key={person.name} className="polished-glass-edge group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-br from-slate-100/88 to-slate-300/60 px-4 py-3.5 text-left shadow-[0_5px_0_-3px_rgba(100,116,139,.3),0_12px_20px_-14px_rgba(15,23,42,.7),inset_1px_1px_1px_white] transition before:pointer-events-none before:absolute before:-left-5 before:-top-4 before:h-7 before:w-1/2 before:rotate-[-15deg] before:bg-white/65 before:blur-lg hover:-translate-y-1 hover:translate-x-1 hover:shadow-[0_8px_0_-3px_rgba(100,116,139,.32),0_18px_24px_-12px_rgba(15,23,42,.72)]">
-                  <span className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-black text-white shadow-md ${person.tone}`}>{person.initials}<i className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" /></span>
-                  <span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold text-slate-800">{person.name}</span><span className="block truncate text-[10px] text-slate-500">{person.role}</span></span>
-                  <span className={`rounded-full px-2 py-1 text-[9px] font-bold ${person.status === "Available" ? "bg-emerald-100 text-emerald-800" : person.status === "With patient" ? "bg-amber-100 text-amber-800" : "bg-slate-200 text-slate-700"}`}>{person.status}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="my-4 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-[.17em] text-slate-500">Incoming patients</p>
-            <div className="space-y-2">
-              {INCOMING_PATIENTS.slice(0, 3).map((patient, index) => (
-                <div key={patient.id || index} className="flex items-center gap-2 rounded-2xl bg-slate-900/85 px-4 py-3.5 text-white">
-                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-cyan-400/20 text-cyan-200"><Activity className="h-4 w-4" /></span>
-                  <div className="min-w-0 flex-1"><p className="truncate text-[11px] font-bold">{patient.name}</p><p className="truncate text-[9px] text-slate-400">{patient.condition || "Awaiting assessment"}</p></div>
-                  <span className="flex items-center gap-1 text-[9px] text-amber-300"><Clock3 className="h-3 w-3" />{index * 4 + 3}m</span>
-                </div>
-              ))}
-            </div>
-
-            <button onClick={() => navigate("/voice-assistant")} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-700 px-4 py-3 text-xs font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-cyan-500/25">
-              <Sparkles className="h-4 w-4" /> Ask Pathfinder AI
-            </button>
-          </aside>
-        </section>
-      </div>
-    </main>
-  );
+          <Dialog.Description className="pf-drawer-description">
+            {drawer === "team" ? "Simulation staff and incoming patient queues." : "Clinical practice, learning and account resources."}
+          </Dialog.Description>
+          {drawer === "team" ? <><TeamContent /><AIFooter onNavigate={() => setDrawer(null)} /></> :
+            <div className="pf-drawer-nav"><Navigation user={user} onNavigate={() => setDrawer(null)} /></div>}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  </div>;
 }
