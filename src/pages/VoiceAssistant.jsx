@@ -159,8 +159,8 @@ export default function VoiceAssistant() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0f0b18] text-slate-100">
-      <Starfield />
+    <div className="pf-voice-page relative min-h-screen overflow-hidden bg-[#0f0b18] text-slate-100">
+
       {/* Ambient glow orbs */}
       <div className="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full bg-[#9b5de5]/20 blur-[90px]" />
       <div className="pointer-events-none absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-[#4cc9f0]/15 blur-[90px]" />
@@ -253,7 +253,7 @@ export default function VoiceAssistant() {
       </div>
 
       {/* Shared soft-3D composer stays fixed while the conversation scrolls. */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/60 bg-slate-100/95 backdrop-blur-xl">
+      <div className="pf-voice-composer fixed bottom-0 left-0 right-0 z-20 border-t border-white/60 bg-slate-100/95">
         <div className="mx-auto max-w-3xl px-3 py-3 sm:px-6">
           <AIComposer
             value={input}
