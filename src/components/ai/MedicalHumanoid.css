@@ -47,84 +47,6 @@
   filter: drop-shadow(0 24px 32px rgba(0, 0, 0, .38));
 }
 
-.medical-hud {
-  position: absolute;
-  z-index: 4;
-  padding: 12px 14px;
-  border: 1px solid rgba(76, 240, 255, .24);
-  border-radius: 10px;
-  background: rgba(4, 13, 18, .9);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 24px rgba(45, 218, 255, .08);
-  color: #77f6ff;
-  font-size: 10px;
-  letter-spacing: .08em;
-}
-
-.medical-hud span,
-.medical-hud strong,
-.medical-hud small { display: block; }
-
-.medical-hud strong {
-  margin: 4px 0;
-  color: #e6feff;
-  font-size: 12px;
-}
-
-.medical-hud small { color: #9aaeb8; }
-.medical-hud-left { left: 5%; top: 14%; text-align: left; }
-.medical-hud-right { right: 5%; top: 19%; display: grid; gap: 5px; }
-
-.medical-status-pill {
-  position: absolute;
-  z-index: 5;
-  left: 50%;
-  bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: calc(100% - 32px);
-  padding: 7px 12px;
-  transform: translateX(-50%);
-  border: 1px solid rgba(118, 244, 255, .24);
-  border-radius: 999px;
-  background: rgba(5, 12, 16, .9);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 26px rgba(0, 0, 0, .25);
-  color: #d7fbff;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.medical-status-dot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #52efff;
-  box-shadow: 0 0 10px #49eaff;
-}
-
-.medical-humanoid-working .medical-status-dot,
-.medical-humanoid-thinking .medical-status-dot {
-  background: #f0b84d;
-  box-shadow: 0 0 10px #e0a63a;
-}
-
-.medical-humanoid-speaking .medical-status-dot,
-.medical-humanoid-complete .medical-status-dot {
-  background: #54f6a8;
-  box-shadow: 0 0 10px #3ce698;
-}
-
-.medical-humanoid-listening .medical-status-dot {
-  background: #ef4444;
-  box-shadow: 0 0 10px #ef4444;
-}
-
 .medical-humanoid-offline .medical-humanoid-art {
   filter: grayscale(.65) brightness(.62) drop-shadow(0 24px 32px rgba(0, 0, 0, .38));
 }
@@ -135,16 +57,11 @@
 
 @media (max-width: 767px) {
   .medical-humanoid { min-height: 340px; }
-  .medical-humanoid-art { width: 112%; max-width: none; left: -6%; }
-  .medical-hud { padding: 8px 9px; font-size: 8px; }
-  .medical-hud strong { font-size: 9px; }
-  .medical-hud-left { left: 3%; top: 8%; }
-  .medical-hud-right { right: 3%; top: 12%; }
-  .medical-status-pill { bottom: 12px; font-size: 10px; }
-}
-
-@media (max-width: 420px) {
-  .medical-hud-right { display: none; }
+  .medical-humanoid-art {
+    width: 108%;
+    max-width: none;
+    left: -4%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
