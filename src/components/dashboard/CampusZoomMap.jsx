@@ -134,9 +134,10 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
   };
 
   const closeEditor = () => {
-    if (editBaselineRef.current) {
+    const baseline = editBaselineRef.current;
+    if (baseline) {
       setHotspots((current) => current.map((spot) => {
-        const position = editBaselineRef.current.find((item) => item.id === spot.id);
+        const position = baseline.find((item) => item.id === spot.id);
         return position ? { ...spot, x: position.x, y: position.y } : spot;
       }));
     }
