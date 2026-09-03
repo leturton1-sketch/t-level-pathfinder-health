@@ -17,6 +17,8 @@ export default function AIComposer({
   onDiagnosticChange,
   isAdmin = false,
   leadingControls = null,
+  placeholder = DEFAULT_PLACEHOLDER,
+  hint = "Ask a question, create something, or diagnose an issue.",
 }) {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -99,14 +101,14 @@ export default function AIComposer({
       )}
       <div className="ai-composer-input-row">
         <textarea ref={textareaRef} rows={2} value={value} onChange={(event) => onChange(event.target.value)}
-          onKeyDown={onKeyDown} placeholder={diagnosticEnabled ? DIAGNOSTIC_PLACEHOLDER : DEFAULT_PLACEHOLDER}
+          onKeyDown={onKeyDown} placeholder={diagnosticEnabled ? DIAGNOSTIC_PLACEHOLDER : placeholder}
           className="ai-composer-textarea" aria-label="Message Pathfinder AI" />
         <button type="button" onClick={send} disabled={!value.trim() || isProcessing}
           className="ai-composer-send" aria-label="Send message">
           <ArrowUp className="h-5 w-5" />
         </button>
       </div>
-      <p className="ai-composer-hint">Ask a question, create something, or diagnose an issue.</p>
+      <p className="ai-composer-hint">{hint}</p>
       <div className="ai-composer-toolbar">
         <div className="flex min-w-0 items-center gap-1.5">{leadingControls}</div>
         <div className="hidden items-center gap-1.5 sm:flex">{secondaryControls}</div>
@@ -123,4 +125,3 @@ export default function AIComposer({
     </div>
   );
 }
-
