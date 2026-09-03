@@ -1,39 +1,12 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import {
-  Activity, AlertTriangle, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical,
-  ChevronDown, GraduationCap, HeartPulse, LibraryBig, Menu, PanelLeftClose,
-  PanelLeftOpen, Sparkles, Stethoscope, UserCog, UserRound, UsersRound, X, FilePenLine,
-} from "lucide-react";
-import { getCurrentUser, isAdmin, isLoggedIn } from "@/lib/clinicalAuth";
+import { Activity, AlertTriangle, BedDouble, ChevronDown, HeartPulse, Menu, PanelLeftClose, PanelLeftOpen, Sparkles, Stethoscope, UsersRound, X } from "lucide-react";
+import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
 import TLevelLogo from "@/components/TLevelLogo";
 import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
-import "@/components/dashboard/pathfinder-dashboard.css";
-
-const GROUPS = [
-  { label: "Clinical practice", items: [
-    { label: "3D Ward Simulation", path: "/ward-simulation", icon: BedDouble },
-    { label: "Care Planning", path: "/care-planning", icon: BriefcaseMedical },
-    { label: "3D Anatomy & Physiology", path: "/anatomy-physiology", icon: Brain },
-  ] },
-  { label: "Health & learning", items: [
-    { label: "T-Level Health Hub", path: "/health-hub", icon: HeartPulse },
-    { label: "Clinical Skills Academy", path: "/clinical-skills-academy", icon: GraduationCap },
-    { label: "Theory Modules", path: "/theory", icon: BookOpen },
-    { label: "Knowledge Library", path: "/knowledge-library", icon: LibraryBig },
-  ] },
-  { label: "Account & resources", items: [
-    { label: "User Analytics", path: "/profile", icon: UserRound },
-    { label: "Progress", path: "/performance", icon: BarChart3 },
-    { label: "AI Model Router", path: "/ai-models", icon: Sparkles },
-  ] },
-  { label: "Administration", admin: true, items: [
-    { label: "User Management", path: "/user-management", icon: UserCog },
-    { label: "Scenario Authoring", path: "/scenario-authoring", icon: FilePenLine },
-  ] },
-];
+import Navigation from "@/components/dashboard/PathfinderNavigation";
 
 const STAFF = [
   { name: "Dr Maya Chen", role: "Ward consultant", status: "Available", initials: "MC" },
@@ -59,34 +32,6 @@ function Metric({ label, value, note, icon: Icon, tone }) {
     <div><p className="pf-label">{label}</p><p className="pf-value">{value}</p><p className="pf-muted">{note}</p></div>
     <span className={`pf-metric-icon pf-tone-${tone}`}><Icon size={22} aria-hidden="true" /></span>
   </article>;
-}
-
-function Navigation({ compact = false, onNavigate, user }) {
-  const [expanded, setExpanded] = useState(["Clinical practice"]);
-  const groupPrefix = useId();
-  return <nav className={`pf-navigation ${compact ? "pf-navigation-compact" : ""}`} aria-label="Primary navigation">
-    {GROUPS.filter(group => !group.admin || isAdmin()).map(group => {
-      const open = expanded.includes(group.label);
-      return <section className="pf-nav-group" key={group.label}>
-        {!compact && <button type="button" className="pf-group-toggle" aria-expanded={open}
-          aria-controls={`${groupPrefix}-${group.label.replaceAll(" ", "-")}`}
-          onClick={() => setExpanded(value => open ? value.filter(label => label !== group.label) : [...value, group.label])}>
-          {group.label}<ChevronDown size={16} className={open ? "pf-rotated" : ""} aria-hidden="true" />
-        </button>}
-        {(compact || open) && <div id={compact ? undefined : `${groupPrefix}-${group.label.replaceAll(" ", "-")}`} className="pf-nav-links">
-          {group.items.map(({ label, path, icon: Icon }) => <Link key={path} to={path} onClick={onNavigate}
-            className="pf-nav-link" aria-label={compact ? label : undefined} title={compact ? label : undefined}>
-            <Icon size={21} aria-hidden="true" />
-            {compact ? <span className="pf-nav-tooltip" aria-hidden="true">{label}</span> : <span>{label}</span>}
-          </Link>)}
-        </div>}
-      </section>;
-    })}
-    {!compact && <div className="pf-account"><p className="pf-label">Signed in</p>
-      <strong>{user?.full_name || user?.username || "Clinical user"}</strong>
-      <p className="pf-muted">{user?.role?.replaceAll("_", " ") || "Team member"}</p>
-    </div>}
-  </nav>;
 }
 
 function TeamContent() {
