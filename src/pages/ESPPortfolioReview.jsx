@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, ClipboardList, FileText, Printer, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardList, FileText, Printer, Send, ShieldCheck } from "lucide-react";
 import { useESPCase } from "@/lib/ESPCaseContext";
 
 const SECTION_NAMES = {
@@ -26,6 +26,8 @@ export default function ESPPortfolioReview() {
   const evidence = parse(portfolio?.workspace_evidence);
   const progress = parse(portfolio?.section_progress);
   const completed = Object.values(progress).filter(Boolean).length;
+  const allComplete = completed === Object.keys(SECTION_NAMES).length;
+  const isSubmitted = portfolio?.status === "submitted" || portfolio?.status === "reviewed";
 
   if (!portfolio) return <main className="clinical-page-shell"><p>No active ESP portfolio.</p><button onClick={() => navigate("/esp-practice")}>Start in the ESP Hub</button></main>;
 
@@ -66,7 +68,21 @@ export default function ESPPortfolioReview() {
 
       <section className="mt-5 rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm print:shadow-none">
         <div className="flex items-center gap-2"><FileText className="h-5 w-5 text-violet-700" /><h2 className="font-black text-slate-950">Tutor review</h2></div>
-        <textarea value={portfolio.tutor_feedback || ""} onChange={(event) => updatePortfolio({ tutor_feedback: event.target.value })} rows={6} placeholder="Record holistic feedback across the connected ESP journey…" className="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 outline-none focus:border-violet-500 print:border-slate-300" />
+        <div className="mt-3 min-h-32 whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-700 print:border-slate-300">
+          {portfolio.tutor_feedback || "Tutor feedback will appear here after your portfolio has been reviewed."}
+        </div>
+      </section>
+
+      <section className="mt-5 rounded-[22px] border border-violet-200 bg-violet-50 p-5 print:hidden">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="font-black text-violet-950">Submit for tutor review</h2>
+            <p className="mt-1 text-xs leading-5 text-violet-900">{isSubmitted ? "Your connected portfolio has been sent to the teaching team." : allComplete ? "All 12 sections are complete. You can now send this practice portfolio for feedback." : `Complete all 12 sections before submitting. ${12 - completed} remaining.`}</p>
+          </div>
+          <button disabled={!allComplete || isSubmitted} onClick={() => updatePortfolio({ status: "submitted" })} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-700 px-4 text-sm font-black text-white disabled:cursor-not-allowed disabled:bg-slate-300">
+            {isSubmitted ? <CheckCircle2 className="h-4 w-4" /> : <Send className="h-4 w-4" />}{isSubmitted ? "Submitted" : "Submit portfolio"}
+          </button>
+        </div>
       </section>
     </div>
   </main>;
