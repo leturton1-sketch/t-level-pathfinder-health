@@ -38,6 +38,7 @@ const AIModels = lazy(() => import('./pages/AIModels'));
 const ESPPracticeHub = lazy(() => import('./pages/ESPPracticeHub'));
 const ESPWorkspace = lazy(() => import('./pages/ESPWorkspace'));
 const ESPPortfolioReview = lazy(() => import('./pages/ESPPortfolioReview'));
+const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
@@ -118,6 +119,7 @@ const AuthenticatedApp = () => {
         <Route path="/performance" element={<Performance />} />
         <Route path="/esp-practice" element={<ESPPracticeHub />} />
         <Route path="/esp-practice/portfolio" element={<ESPPortfolioReview />} />
+        <Route path="/esp-tutor-review" element={<ESPTutorReview />} />
         <Route path="/esp-practice/:taskId/:sectionId" element={<ESPWorkspace />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/scenario-authoring" element={<ScenarioAuthoring />} />
