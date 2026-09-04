@@ -51,8 +51,12 @@ export function ESPCaseProvider({ children }) {
     try {
       let saved;
       if (next.id) {
-        const { id, created_date, updated_date, created_by_id, ...payload } = next;
-        saved = await base44.entities.ESPPortfolio.update(id, payload);
+        const payload = { ...next };
+        delete payload.id;
+        delete payload.created_date;
+        delete payload.updated_date;
+        delete payload.created_by_id;
+        saved = await base44.entities.ESPPortfolio.update(next.id, payload);
       } else saved = await base44.entities.ESPPortfolio.create({ ...next, student_id: user.id, student_name: user.full_name || user.username || "Learner" });
       const merged = { ...next, ...saved };
       setPortfolio(merged);
