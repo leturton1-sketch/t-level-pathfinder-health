@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, BookOpenCheck, Check, CheckCircle2, ChevronDown,
-  ClipboardCheck, Clock3, FileText, LockKeyhole, MessageSquareText,
-  Presentation, RotateCcw, ShieldCheck, Target, UsersRound,
+  ArrowLeft, ArrowRight, BookOpenCheck, Check, CheckCircle2,
+  ClipboardCheck, FileText, LockKeyhole, Presentation, RotateCcw,
+  ShieldCheck, Target, UsersRound,
 } from "lucide-react";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 
