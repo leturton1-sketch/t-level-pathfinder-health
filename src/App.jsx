@@ -34,6 +34,7 @@ const AnatomyPhysiology = lazy(() => import('./pages/AnatomyPhysiology'));
 const HealthHub = lazy(() => import('./pages/HealthHub'));
 const ClinicalSkillsAcademy = lazy(() => import('./pages/ClinicalSkillsAcademy'));
 const AIModels = lazy(() => import('./pages/AIModels'));
+const ESPPracticeHub = lazy(() => import('./pages/ESPPracticeHub'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
@@ -112,6 +113,7 @@ const AuthenticatedApp = () => {
         <Route path="/clinical-skills-academy" element={<ClinicalSkillsAcademy />} />
         <Route path="/ai-models" element={<AIModels />} />
         <Route path="/performance" element={<Performance />} />
+        <Route path="/esp-practice" element={<ESPPracticeHub />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/scenario-authoring" element={<ScenarioAuthoring />} />
         <Route path="/scenario-templates" element={<ScenarioTemplates />} />
