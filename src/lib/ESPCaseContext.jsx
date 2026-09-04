@@ -76,12 +76,17 @@ export function ESPCaseProvider({ children }) {
     return persist({ ...base, section_progress: JSON.stringify(progress) });
   };
 
+  const resetProgress = () => {
+    const base = portfolio || DEFAULT_ESP_CASE;
+    return persist({ ...base, section_progress: "{}" });
+  };
+
   const exitCase = () => {
     setPortfolio(null);
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const value = useMemo(() => ({ portfolio, loading, startCase, enterSection, setSectionComplete, exitCase }), [portfolio, loading]);
+  const value = useMemo(() => ({ portfolio, loading, startCase, enterSection, setSectionComplete, resetProgress, exitCase }), [portfolio, loading]);
   return <ESPCaseContext.Provider value={value}>{children}</ESPCaseContext.Provider>;
 }
 
