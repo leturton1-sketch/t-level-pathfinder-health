@@ -2,6 +2,8 @@ import { Outlet, useLocation } from "react-router-dom";
 import AIAssistant from "./AIAssistant";
 import { useEffect } from "react";
 import PathfinderFrame from "./PathfinderFrame";
+import ESPCaseBanner from "./ESPCaseBanner";
+import { useESPCase } from "@/lib/ESPCaseContext";
 import "@/components/dashboard/pathfinder-dashboard.css";
 import "@/components/pathfinder-theme.css";
 
@@ -9,6 +11,8 @@ export default function Layout() {
   const location = useLocation();
   const isCommandCentre = location.pathname === "/";
   const isVoiceAssistant = location.pathname === "/voice-assistant";
+  const { portfolio } = useESPCase();
+  const noAISupport = portfolio && ["report", "reflect", "review-plan", "update-plan", "quality-check"].includes(portfolio.active_section);
 
   useEffect(() => {
     document.body.classList.add("pf-theme-active");
@@ -17,8 +21,8 @@ export default function Layout() {
 
   return (
     <div className="pf-app-root">
-      {isCommandCentre ? <Outlet /> : <PathfinderFrame><Outlet /></PathfinderFrame>}
-      {!isVoiceAssistant && <AIAssistant />}
+      {isCommandCentre ? <Outlet /> : <PathfinderFrame><ESPCaseBanner /><Outlet /></PathfinderFrame>}
+      {!isVoiceAssistant && !noAISupport && <AIAssistant />}
     </div>
   );
 }
