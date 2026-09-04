@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useESPCase } from "@/lib/ESPCaseContext";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
+import ESPCaseDossier from "@/components/ESPCaseDossier";
 
 const MODULES = {
   "task-1:brief": {
@@ -251,6 +252,8 @@ export default function ESPWorkspace() {
           {module.pos.map((code) => <Chip key={code} code={code} text={PERFORMANCE_OUTCOMES[code]} tone="po" />)}
         </div>
       </section>
+
+      <div className="mt-5"><ESPCaseDossier taskId={taskId} /></div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_320px]">
         <section className="space-y-4">
