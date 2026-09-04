@@ -23,7 +23,7 @@ export default function ESPCaseBanner() {
         </div>
         <p className="truncate text-xs font-black">{portfolio.case_name} <span className="font-medium text-slate-300">· {portfolio.active_section?.replaceAll("-", " ")}</span></p>
       </div>
-      <button onClick={() => navigate("/esp-practice")} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-white/10 px-3 text-[10px] font-black hover:bg-slate-700">Return to hub<ChevronRight className="h-3.5 w-3.5" /></button>
+      <button onClick={() => navigate("/esp-practice")} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-slate-800 px-3 text-[10px] font-black hover:bg-slate-700">Return to hub<ChevronRight className="h-3.5 w-3.5" /></button>
       <button onClick={exitCase} aria-label="Exit ESP journey" title="Exit ESP journey" className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"><LogOut className="h-4 w-4" /></button>
     </div>
   </aside>;
