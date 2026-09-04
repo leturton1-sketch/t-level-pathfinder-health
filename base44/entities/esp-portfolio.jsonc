@@ -82,6 +82,10 @@
     },
     "tutor_feedback": {
       "type": "string"
+    },
+    "workspace_evidence": {
+      "type": "string",
+      "description": "JSON evidence captured across all ESP learner modules"
     }
   },
   "required": [
