@@ -6,6 +6,7 @@ import {
   ShieldCheck, Target, UsersRound,
 } from "lucide-react";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
+import { ESP_CASES } from "@/lib/espCaseData";
 import { useESPCase } from "@/lib/ESPCaseContext";
 
 const AOS = {
@@ -89,6 +90,11 @@ export default function ESPPracticeHub() {
   const complete = useMemo(() => Object.values(progress).filter(Boolean).length, [progress]);
   const pct = Math.round((complete / totalSections) * 100);
 
+  const chooseScenario = async (caseId) => {
+    await startCase(caseId);
+    setActiveTask("task-1");
+  };
+
   const toggle = (id) => setSectionComplete(id, !progress[id]);
   const launchSection = async (section) => {
     await enterSection(task.id, section.id);
@@ -120,6 +126,25 @@ export default function ESPPracticeHub() {
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all" style={{ width: `${pct}%` }} /></div>
               <button onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-5 rounded-[26px] border border-white bg-white/90 p-5 shadow-lg" aria-labelledby="esp-scenario-title">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div><p className="text-xs font-black uppercase tracking-[.16em] text-cyan-700">Scenario library</p><h2 id="esp-scenario-title" className="mt-1 text-xl font-black text-slate-950">Choose a connected practice scenario</h2><p className="mt-1 text-xs leading-5 text-slate-600">Each case has separate evidence and progress across all 12 ESP sections.</p></div>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">{ESP_CASES.length} scenarios</span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {ESP_CASES.map((caseItem) => {
+              const selected = portfolio?.case_id === caseItem.id;
+              return <button key={caseItem.id} type="button" aria-pressed={selected} onClick={() => chooseScenario(caseItem.id)} className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${selected ? "border-cyan-500 bg-cyan-50 ring-4 ring-cyan-100" : "border-slate-200 bg-white hover:border-cyan-300"}`}>
+                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-slate-900 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-white">{caseItem.theme}</span>{selected && <CheckCircle2 className="h-5 w-5 text-cyan-700" />}</div>
+                <h3 className="mt-3 font-black text-slate-950">{caseItem.name}, {caseItem.age}</h3>
+                <p className="mt-1 text-[11px] font-bold text-slate-500">{caseItem.setting}</p>
+                <p className="mt-3 text-xs leading-5 text-slate-700">{caseItem.summary}</p>
+                <span className="mt-3 inline-flex text-xs font-black text-cyan-800">{selected ? "Current scenario" : "Start or resume"}</span>
+              </button>;
+            })}
           </div>
         </section>
 
