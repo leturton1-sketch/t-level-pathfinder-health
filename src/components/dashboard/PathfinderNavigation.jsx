@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine } from "lucide-react";
-import { isAdmin } from "@/lib/clinicalAuth";
+import { canManageUsers, isAdmin } from "@/lib/clinicalAuth";
 export const NAVIGATION_GROUPS = [
   { label: "Overview", items: [{ label: "Pathfinder Overview", path: "/", icon: Home }] },
   { label: "Clinical practice", items: [
@@ -23,8 +23,10 @@ export const NAVIGATION_GROUPS = [
     { label: "Pathfinder AI", path: "/voice-assistant", icon: Sparkles },
     { label: "AI Model Router", path: "/ai-models", icon: Sparkles },
   ] },
-  { label: "Administration", admin: true, items: [
+  { label: "Teaching team", staff: true, items: [
     { label: "ESP Tutor Review", path: "/esp-tutor-review", icon: ClipboardCheck },
+  ] },
+  { label: "Administration", admin: true, items: [
     { label: "User Management", path: "/user-management", icon: UserCog },
     { label: "Scenario Templates", path: "/scenario-templates", icon: FilePenLine },
     { label: "Scenario Authoring", path: "/scenario-authoring", icon: FilePenLine },
@@ -39,7 +41,7 @@ export default function PathfinderNavigation({ compact = false, onNavigate, user
   useEffect(() => { if (activeGroup) setExpanded(value => value.includes(activeGroup) ? value : [...value, activeGroup]); }, [activeGroup]);
   const groupPrefix = useId();
   return <nav className={`pf-navigation ${compact ? "pf-navigation-compact" : ""}`} aria-label="Primary navigation">
-    {NAVIGATION_GROUPS.filter(group => !group.admin || isAdmin()).map(group => {
+    {NAVIGATION_GROUPS.filter(group => (!group.admin || isAdmin()) && (!group.staff || canManageUsers())).map(group => {
       const open = expanded.includes(group.label);
       return <section className="pf-nav-group" key={group.label}>
         {!compact && <button type="button" className="pf-group-toggle" aria-expanded={open}
