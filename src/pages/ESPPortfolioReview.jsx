@@ -31,14 +31,14 @@ export default function ESPPortfolioReview() {
 
   if (!portfolio) return <main className="clinical-page-shell"><p>No active ESP portfolio.</p><button onClick={() => navigate("/esp-practice")}>Start in the ESP Hub</button></main>;
 
-  return <main className="clinical-page-shell min-h-screen bg-slate-50 pb-28 print:bg-white">
+  return <main className="esp-surface clinical-page-shell min-h-screen bg-slate-50 pb-28 print:bg-white">
     <div className="mx-auto max-w-5xl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <button onClick={() => navigate("/esp-practice")} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft className="h-4 w-4" />ESP Practice Hub</button>
         <button onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white"><Printer className="h-4 w-4" />Print / save PDF</button>
       </div>
 
-      <header className="rounded-[28px] bg-slate-950 p-7 text-white shadow-xl print:rounded-none print:bg-white print:p-0 print:text-black print:shadow-none">
+      <header className="esp-dark-panel rounded-[28px] bg-slate-950 p-7 text-white shadow-xl print:rounded-none print:bg-white print:p-0 print:text-black print:shadow-none">
         <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300 print:text-slate-600">Pathfinder Health · Original formative ESP practice</p>
         <h1 className="mt-2 text-3xl font-black">Connected evidence portfolio</h1>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
