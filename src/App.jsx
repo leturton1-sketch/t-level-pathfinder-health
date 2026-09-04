@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
+import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
 const Dashboard = lazy(() => import('./pages/CommandCenterDashboard'));
@@ -132,6 +133,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <ESPCaseProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
@@ -139,6 +141,7 @@ function App() {
         </Router>
         <Toaster />
       </QueryClientProvider>
+      </ESPCaseProvider>
     </AuthProvider>
   )
 }
