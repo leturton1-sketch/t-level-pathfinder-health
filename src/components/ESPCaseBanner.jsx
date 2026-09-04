@@ -12,7 +12,7 @@ export default function ESPCaseBanner() {
   const taskNumber = portfolio.active_task?.replace("task-", "") || "1";
   const controlled = CONTROLLED_SECTIONS.has(portfolio.active_section);
 
-  return <aside className="sticky top-0 z-40 border-b border-violet-200 bg-gradient-to-r from-slate-950 via-violet-950 to-slate-950 px-3 py-2 text-white shadow-lg" aria-label="Active ESP case">
+  return <aside className="esp-dark-panel sticky top-0 z-40 border-b border-violet-200 bg-gradient-to-r from-slate-950 via-violet-950 to-slate-950 px-3 py-2 text-white shadow-lg" aria-label="Active ESP case">
     <div className="mx-auto flex max-w-7xl items-center gap-3">
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 text-cyan-300"><BriefcaseMedical className="h-5 w-5" /></span>
       <div className="min-w-0 flex-1">
