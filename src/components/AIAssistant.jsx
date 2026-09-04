@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bot, X, Mic, Volume2, VolumeX, Square, GripVertical } from "lucide-react";
+import FloatingAICompanion from "@/components/ai/FloatingAICompanion";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
@@ -327,40 +328,17 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
       : state === "speaking" ? (cleanLast ? (cleanLast.length > 110 ? cleanLast.slice(0, 110) + "…" : cleanLast) : "Speaking…")
       : "";
   const panelClass = anchored
-    ? "fixed bottom-[136px] right-4 z-50"
-    : "fixed z-50";
+    ? "fixed bottom-[210px] right-6 z-[10000]"
+    : "fixed z-[10000]";
 
   return (
     <>
-      {/* Toggle — always visible so the panel opens beside it */}
-      <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-1.5">
-        {bubbleText && (
-          <div className="pointer-events-none max-w-[230px] rounded-2xl border border-white/70 bg-white/55 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
-            <span className="mr-1 font-bold text-clinical-teal">{identity.shortName}:</span>{bubbleText}
-          </div>
-        )}
-        <div className="flex items-center overflow-hidden rounded-full border border-clinical-teal/35 bg-white/80 shadow-lg backdrop-blur-xl">
-          <button type="button" onClick={() => setExpanded((v) => !v)}
-            className="group flex items-center gap-1.5 px-2.5 py-1.5 transition-all hover:bg-white" aria-label="Open AI Clinical Assistant">
-            <video
-              src="https://media.base44.com/videos/public/6a4759cc86fe95039e31fd09/28db769ba_generate_a_futuristic_wire_.mp4"
-              className="h-6 w-6 rounded-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
-            <span className="text-[10px] font-bold text-red-600">{identity.shortName}</span>
-          </button>
-          <button type="button" onClick={toggleAutoListen}
-            className={`mr-1 grid h-7 w-7 place-items-center rounded-full border transition ${autoListen ? "border-emerald-200 bg-emerald-100 text-emerald-700" : "border-slate-200 bg-slate-100 text-slate-500"}`}
-            title={autoListen ? "Turn off periodic command listening" : "Turn on periodic command listening"}
-            aria-label={autoListen ? "Voice command monitoring on" : "Voice command monitoring off"}
-            aria-pressed={autoListen}>
-            {autoListen ? <Volume2 className="h-3 w-3" /> : <VolumeX className="h-3 w-3" />}
-          </button>
+      <FloatingAICompanion state={state} onActivate={() => setExpanded((value) => !value)} />
+      {bubbleText && (
+        <div className="pointer-events-none fixed bottom-[194px] right-6 z-[10000] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
+          <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
         </div>
-      </div>
+      )}
 
       {/* Expanded panel — translucent, 10% smaller, draggable */}
       {expanded && (
