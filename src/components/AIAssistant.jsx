@@ -40,7 +40,7 @@ function Waveform({ state: currentState, monitoring = false, red = false, reacti
   );
 }
 
-const POS_KEY = "clinicaledge-ai-pos";
+const POS_KEY = "pathfinder-ai-panel-position";
 const DEFAULT_POS = { x: -1, y: -1 }; // -1 = use default anchor (beside the toggle)
 
 function loadPos() {
