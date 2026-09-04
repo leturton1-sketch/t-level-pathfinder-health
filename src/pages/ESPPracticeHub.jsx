@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, BookOpenCheck, Check, CheckCircle2,
@@ -6,8 +6,7 @@ import {
   ShieldCheck, Target, UsersRound,
 } from "lucide-react";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
-
-const STORAGE_KEY = "pathfinder_esp_hub_progress_v1";
+import { useESPCase } from "@/lib/ESPCaseContext";
 
 const AOS = {
   AO1: { label: "Plan an approach to the brief", marks: 9, pct: 7 },
@@ -68,10 +67,6 @@ const TASKS = [
   },
 ];
 
-const readProgress = () => {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
-};
-
 function MappingChip({ code, text, kind }) {
   const classes = kind === "ao"
     ? "border-amber-300 bg-amber-50 text-amber-900"
@@ -83,17 +78,20 @@ function MappingChip({ code, text, kind }) {
 
 export default function ESPPracticeHub() {
   const navigate = useNavigate();
-  const [activeTask, setActiveTask] = useState("task-1");
-  const [progress, setProgress] = useState(readProgress);
+  const { portfolio, startCase, enterSection, setSectionComplete } = useESPCase();
+  const [activeTask, setActiveTask] = useState(portfolio?.active_task || "task-1");
+  let progress = {};
+  try { progress = JSON.parse(portfolio?.section_progress || "{}"); } catch {}
+  useEffect(() => { if (!portfolio) startCase(); }, [portfolio]);
   const task = TASKS.find((item) => item.id === activeTask) || TASKS[0];
   const totalSections = TASKS.reduce((sum, item) => sum + item.sections.length, 0);
   const complete = useMemo(() => Object.values(progress).filter(Boolean).length, [progress]);
   const pct = Math.round((complete / totalSections) * 100);
 
-  const toggle = (id) => {
-    const next = { ...progress, [id]: !progress[id] };
-    setProgress(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const toggle = (id) => setSectionComplete(id, !progress[id]);
+  const launchSection = async (section) => {
+    await enterSection(task.id, section.id);
+    navigate(section.href);
   };
 
   return (
@@ -119,7 +117,7 @@ export default function ESPPracticeHub() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Journey progress</p><p className="mt-1 text-4xl font-black">{pct}%</p></div><p className="text-sm font-bold text-cyan-300">{complete}/{totalSections} sections</p></div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all" style={{ width: `${pct}%` }} /></div>
-              <button onClick={() => { setProgress({}); localStorage.removeItem(STORAGE_KEY); }} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
+              <button onClick={() => Object.keys(progress).forEach((key) => setSectionComplete(key, false))} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
             </div>
           </div>
         </section>
@@ -164,7 +162,7 @@ export default function ESPPracticeHub() {
                       {section.pos.map((code) => <MappingChip key={code} code={code} text={PERFORMANCE_OUTCOMES[code]} kind="po" />)}
                     </div>
                   </div>
-                  <button onClick={() => navigate(section.href)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-violet-700 sm:w-auto">{section.action}<ArrowRight className="h-4 w-4" /></button>
+                  <button onClick={() => launchSection(section)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-violet-700 sm:w-auto">{section.action}<ArrowRight className="h-4 w-4" /></button>
                 </article>;
               })}
             </div>
