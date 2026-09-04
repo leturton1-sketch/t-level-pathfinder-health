@@ -16,7 +16,7 @@ export default function ESPCaseDossier({ taskId }) {
       <ChevronDown className={`h-5 w-5 text-slate-500 transition ${open ? "rotate-180" : ""}`} />
     </button>
     {open && <div className="border-t border-violet-100 p-5">
-      <div className="flex flex-wrap gap-4 rounded-2xl bg-slate-950 p-4 text-white"><div className="flex items-center gap-2"><UserRound className="h-5 w-5 text-cyan-300" /><div><p className="text-[10px] font-bold text-slate-400">Individual</p><p className="text-sm font-black">{ESP_CASE.name}, {ESP_CASE.age} · {ESP_CASE.pronouns}</p></div></div><p className="min-w-[240px] flex-1 text-xs leading-5 text-slate-300">{ESP_CASE.employerBrief}</p></div>
+      <div className="esp-dark-panel flex flex-wrap gap-4 rounded-2xl bg-slate-950 p-4 text-white"><div className="flex items-center gap-2"><UserRound className="h-5 w-5 text-cyan-300" /><div><p className="text-[10px] font-bold text-slate-400">Individual</p><p className="text-sm font-black">{ESP_CASE.name}, {ESP_CASE.age} · {ESP_CASE.pronouns}</p></div></div><p className="min-w-[240px] flex-1 text-xs leading-5 text-slate-300">{ESP_CASE.employerBrief}</p></div>
       <h3 className="mb-3 mt-5 text-xs font-black uppercase tracking-wide text-slate-700">Information available from Task 1</h3><Rows rows={ESP_CASE.baseline} />
       {taskNumber >= 2 ? <><h3 className="mb-3 mt-5 text-xs font-black uppercase tracking-wide text-slate-700">Information released for Task 2</h3><Rows rows={ESP_CASE.task2Update} /></> : <Locked label="Task 2 interaction evidence" />}
       {taskNumber >= 3 ? <><h3 className="mb-3 mt-5 text-xs font-black uppercase tracking-wide text-slate-700">Information released for Task 3</h3><Rows rows={ESP_CASE.task3Update} /></> : <Locked label="Task 3 care-plan update" />}
