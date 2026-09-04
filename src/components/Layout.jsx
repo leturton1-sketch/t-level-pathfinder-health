@@ -18,7 +18,7 @@ export default function Layout() {
   return (
     <div className="pf-app-root">
       {isCommandCentre ? <Outlet /> : <PathfinderFrame><Outlet /></PathfinderFrame>}
-      {!isCommandCentre && !isVoiceAssistant && <AIAssistant />}
+      {!isVoiceAssistant && <AIAssistant />}
     </div>
   );
 }
