@@ -180,6 +180,7 @@ export default function ESPPracticeHub() {
             <section className="rounded-[24px] border border-white bg-white/90 p-5 shadow-md">
               <div className="flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-emerald-700" /><h2 className="font-black text-slate-950">Evidence journey</h2></div>
               <ol className="mt-3 space-y-2 text-xs text-slate-700">{["Research notes and report","Role-play notes, feedback and reflection","Updated person-centred care plan","Handover presentation and responses"].map((label, index) => <li key={label} className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /><span><strong>Task {index + 1}:</strong> {label}</span></li>)}</ol>
+              <button onClick={() => navigate("/esp-practice/portfolio")} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-3 text-xs font-black text-white hover:bg-emerald-800"><FileText className="h-4 w-4" />Review connected portfolio</button>
             </section>
           </aside>
         </div>
