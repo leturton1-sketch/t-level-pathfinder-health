@@ -208,7 +208,7 @@ export default function ESPWorkspace() {
     const current = readEvidence(portfolio?.workspace_evidence);
     setAnswers(current[key] || {});
     setChecks(current[`${key}:checks`] || []);
-  }, [key, portfolio?.id]);
+  }, [key, portfolio?.id, portfolio?.case_id, portfolio?.workspace_evidence]);
 
   const completedCount = useMemo(() => Object.values(answers).filter((value) => value?.trim()).length, [answers]);
   if (!module) return <div className="clinical-page-shell"><p>ESP module not found.</p><button onClick={() => navigate("/esp-practice")}>Return to hub</button></div>;
