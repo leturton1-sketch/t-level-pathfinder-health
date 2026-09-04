@@ -1,0 +1,91 @@
+{
+  "name": "ESPPortfolio",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_name": {
+      "type": "string"
+    },
+    "case_id": {
+      "type": "string"
+    },
+    "case_name": {
+      "type": "string"
+    },
+    "case_summary": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "submitted",
+        "reviewed"
+      ],
+      "default": "in_progress"
+    },
+    "active_task": {
+      "type": "string"
+    },
+    "active_section": {
+      "type": "string"
+    },
+    "section_progress": {
+      "type": "string"
+    },
+    "research_notes": {
+      "type": "string"
+    },
+    "research_report": {
+      "type": "string"
+    },
+    "role_play_notes": {
+      "type": "string"
+    },
+    "tutor_role_play_feedback": {
+      "type": "string"
+    },
+    "reflective_account": {
+      "type": "string"
+    },
+    "care_plan_submission_id": {
+      "type": "string"
+    },
+    "handover_plan": {
+      "type": "string"
+    },
+    "presentation_evidence": {
+      "type": "string"
+    },
+    "question_responses": {
+      "type": "string"
+    },
+    "ao_evidence": {
+      "type": "string"
+    },
+    "skills_evidenced": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_outcomes_evidenced": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tutor_feedback": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "student_id",
+    "case_id",
+    "case_name",
+    "status"
+  ]
+}

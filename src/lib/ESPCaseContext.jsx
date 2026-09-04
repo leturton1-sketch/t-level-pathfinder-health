@@ -50,8 +50,10 @@ export function ESPCaseProvider({ children }) {
     if (!user?.id) return next;
     try {
       let saved;
-      if (next.id) saved = await base44.entities.ESPPortfolio.update(next.id, next);
-      else saved = await base44.entities.ESPPortfolio.create({ ...next, student_id: user.id, student_name: user.full_name || user.username || "Learner" });
+      if (next.id) {
+        const { id, created_date, updated_date, created_by_id, ...payload } = next;
+        saved = await base44.entities.ESPPortfolio.update(id, payload);
+      } else saved = await base44.entities.ESPPortfolio.create({ ...next, student_id: user.id, student_name: user.full_name || user.username || "Learner" });
       const merged = { ...next, ...saved };
       setPortfolio(merged);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
@@ -76,6 +78,8 @@ export function ESPCaseProvider({ children }) {
     return persist({ ...base, section_progress: JSON.stringify(progress) });
   };
 
+  const updatePortfolio = (patch) => persist({ ...(portfolio || DEFAULT_ESP_CASE), ...patch });
+
   const resetProgress = () => {
     const base = portfolio || DEFAULT_ESP_CASE;
     return persist({ ...base, section_progress: "{}" });
@@ -86,7 +90,7 @@ export function ESPCaseProvider({ children }) {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const value = useMemo(() => ({ portfolio, loading, startCase, enterSection, setSectionComplete, resetProgress, exitCase }), [portfolio, loading]);
+  const value = useMemo(() => ({ portfolio, loading, startCase, enterSection, setSectionComplete, updatePortfolio, resetProgress, exitCase }), [portfolio, loading]);
   return <ESPCaseContext.Provider value={value}>{children}</ESPCaseContext.Provider>;
 }
 
