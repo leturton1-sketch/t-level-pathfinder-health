@@ -24,9 +24,9 @@ const TASKS = [
     conditions: "Activity 1a permits supervised internet research. Activity 1b uses research notes only, with no internet or generative AI.",
     aos: ["AO1", "AO2", "AO3", "AO4", "AO5"],
     sections: [
-      { id: "brief", title: "Interpret and plan the brief", outcome: "A clear plan responding to the employer need, audience, constraints and intended outcome.", skills: ["SK13", "SK18"], pos: ["PO1", "PO3", "PO5"], aos: ["AO1", "AO3"], href: "/theory", action: "Open core theory" },
-      { id: "research", title: "Research and evaluate evidence", outcome: "Relevant, credible evidence selected and recorded with traceable sources.", skills: ["SK13", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO2", "AO3", "AO4"], href: "/knowledge-library", action: "Open knowledge library" },
-      { id: "report", title: "Produce the research report", outcome: "A structured report applying evidence to the individual and reaching justified conclusions.", skills: ["SK10", "SK13", "SK14", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO2", "AO3", "AO4", "AO5"], href: "/voice-assistant", action: "Practise report planning" },
+      { id: "brief", title: "Interpret and plan the brief", outcome: "A clear plan responding to the employer need, audience, constraints and intended outcome.", skills: ["SK13", "SK18"], pos: ["PO1", "PO3", "PO5"], aos: ["AO1", "AO3"], href: "/theory", action: "Open practice section" },
+      { id: "research", title: "Research and evaluate evidence", outcome: "Relevant, credible evidence selected and recorded with traceable sources.", skills: ["SK13", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO2", "AO3", "AO4"], href: "/knowledge-library", action: "Open practice section" },
+      { id: "report", title: "Produce the research report", outcome: "A structured report applying evidence to the individual and reaching justified conclusions.", skills: ["SK10", "SK13", "SK14", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO2", "AO3", "AO4", "AO5"], href: "/voice-assistant", action: "Open practice section" },
     ],
   },
   {
@@ -36,9 +36,9 @@ const TASKS = [
     conditions: "The research report may be used in Activity 2a. Activity 2b uses role-play notes and tutor feedback; no internet or generative AI.",
     aos: ["AO1", "AO2", "AO3", "AO4", "AO5"],
     sections: [
-      { id: "prepare", title: "Prepare for the interaction", outcome: "An appropriate communication plan based on the individual, evidence and professional boundaries.", skills: ["SK9", "SK10", "SK11", "SK13"], pos: ["PO1", "PO3", "PO5", "PO7"], aos: ["AO1", "AO2", "AO3"], href: "/interactive-learning", action: "Practise communication" },
-      { id: "roleplay", title: "Complete the person-centred role play", outcome: "A safe, respectful interaction using active listening, suitable questions and reasonable adaptations.", skills: ["SK8", "SK9", "SK10", "SK11"], pos: ["PO2", "PO5", "PO6", "PO7"], aos: ["AO2", "AO3", "AO4"], href: "/ward-simulation", action: "Enter ward simulation" },
-      { id: "reflect", title: "Reflect and identify improvements", outcome: "A balanced reflective account using feedback to identify strengths and actionable improvements.", skills: ["SK12", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO2", "AO4", "AO5"], href: "/care-planning/tool/reflective-practice-log", action: "Open reflective log" },
+      { id: "prepare", title: "Prepare for the interaction", outcome: "An appropriate communication plan based on the individual, evidence and professional boundaries.", skills: ["SK9", "SK10", "SK11", "SK13"], pos: ["PO1", "PO3", "PO5", "PO7"], aos: ["AO1", "AO2", "AO3"], href: "/interactive-learning", action: "Open practice section" },
+      { id: "roleplay", title: "Complete the person-centred role play", outcome: "A safe, respectful interaction using active listening, suitable questions and reasonable adaptations.", skills: ["SK8", "SK9", "SK10", "SK11"], pos: ["PO2", "PO5", "PO6", "PO7"], aos: ["AO2", "AO3", "AO4"], href: "/ward-simulation", action: "Open practice section" },
+      { id: "reflect", title: "Reflect and identify improvements", outcome: "A balanced reflective account using feedback to identify strengths and actionable improvements.", skills: ["SK12", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO2", "AO4", "AO5"], href: "/care-planning/tool/reflective-practice-log", action: "Open practice section" },
     ],
   },
   {
@@ -48,9 +48,9 @@ const TASKS = [
     conditions: "The Task 1 report, Task 2 notes and supplied care plan may be used. No internet or generative AI.",
     aos: ["AO2", "AO3", "AO4", "AO5"],
     sections: [
-      { id: "review-plan", title: "Review the existing plan and new evidence", outcome: "Changed needs, risks, preferences and priorities are identified before editing.", skills: ["SK1", "SK2", "SK4", "SK9", "SK13"], pos: ["PO3", "PO4", "PO5", "PO6", "PO7"], aos: ["AO2", "AO3"], href: "/care-planning", action: "Open care-planning suite" },
-      { id: "update-plan", title: "Update needs, goals and interventions", outcome: "SMART, evidence-based actions identify responsibility, timescale and review arrangements.", skills: ["SK3", "SK4", "SK5", "SK9", "SK17", "SK18"], pos: ["PO2", "PO3", "PO4", "PO5", "PO6"], aos: ["AO2", "AO3", "AO4"], href: "/care-planning/shared", action: "Open shared care plan" },
-      { id: "quality-check", title: "Evaluate the updated plan", outcome: "The final plan is checked for safety, accuracy, individualisation and fitness for purpose.", skills: ["SK8", "SK12", "SK18"], pos: ["PO2", "PO3", "PO5", "PO7"], aos: ["AO2", "AO5"], href: "/care-planning/smart-goals", action: "Check SMART outcomes" },
+      { id: "review-plan", title: "Review the existing plan and new evidence", outcome: "Changed needs, risks, preferences and priorities are identified before editing.", skills: ["SK1", "SK2", "SK4", "SK9", "SK13"], pos: ["PO3", "PO4", "PO5", "PO6", "PO7"], aos: ["AO2", "AO3"], href: "/care-planning", action: "Open practice section" },
+      { id: "update-plan", title: "Update needs, goals and interventions", outcome: "SMART, evidence-based actions identify responsibility, timescale and review arrangements.", skills: ["SK3", "SK4", "SK5", "SK9", "SK17", "SK18"], pos: ["PO2", "PO3", "PO4", "PO5", "PO6"], aos: ["AO2", "AO3", "AO4"], href: "/care-planning/shared", action: "Open practice section" },
+      { id: "quality-check", title: "Evaluate the updated plan", outcome: "The final plan is checked for safety, accuracy, individualisation and fitness for purpose.", skills: ["SK8", "SK12", "SK18"], pos: ["PO2", "PO3", "PO5", "PO7"], aos: ["AO2", "AO5"], href: "/care-planning/smart-goals", action: "Open practice section" },
     ],
   },
   {
@@ -60,9 +60,9 @@ const TASKS = [
     conditions: "The Task 1 report, tutor notes and reflective account from Task 2, and updated care plan from Task 3 may be used.",
     aos: ["AO1", "AO2", "AO3", "AO4", "AO5"],
     sections: [
-      { id: "handover", title: "Select and structure the handover", outcome: "The most relevant clinical information is prioritised in a logical SBAR structure.", skills: ["SK1", "SK6", "SK10", "SK13", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO1", "AO2", "AO3"], href: "/care-planning/shared", action: "Practise SBAR handover" },
-      { id: "present", title: "Deliver the presentation", outcome: "Information is communicated accurately, professionally and appropriately for the audience.", skills: ["SK6", "SK10", "SK11", "SK14"], pos: ["PO1", "PO3", "PO4", "PO5"], aos: ["AO2", "AO4"], href: "/voice-assistant", action: "Rehearse aloud" },
-      { id: "questions", title: "Respond to questions and review", outcome: "Answers are justified from the evidence and the final outcome is critically reviewed against the brief.", skills: ["SK10", "SK12", "SK13", "SK14"], pos: ["PO1", "PO4", "PO5"], aos: ["AO2", "AO3", "AO5"], href: "/performance", action: "Review performance" },
+      { id: "handover", title: "Select and structure the handover", outcome: "The most relevant clinical information is prioritised in a logical SBAR structure.", skills: ["SK1", "SK6", "SK10", "SK13", "SK18"], pos: ["PO3", "PO4", "PO5"], aos: ["AO1", "AO2", "AO3"], href: "/care-planning/shared", action: "Open practice section" },
+      { id: "present", title: "Deliver the presentation", outcome: "Information is communicated accurately, professionally and appropriately for the audience.", skills: ["SK6", "SK10", "SK11", "SK14"], pos: ["PO1", "PO3", "PO4", "PO5"], aos: ["AO2", "AO4"], href: "/voice-assistant", action: "Open practice section" },
+      { id: "questions", title: "Respond to questions and review", outcome: "Answers are justified from the evidence and the final outcome is critically reviewed against the brief.", skills: ["SK10", "SK12", "SK13", "SK14"], pos: ["PO1", "PO4", "PO5"], aos: ["AO2", "AO3", "AO5"], href: "/performance", action: "Open practice section" },
     ],
   },
 ];
