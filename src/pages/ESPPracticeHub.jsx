@@ -78,7 +78,7 @@ function MappingChip({ code, text, kind }) {
 
 export default function ESPPracticeHub() {
   const navigate = useNavigate();
-  const { portfolio, startCase, enterSection, setSectionComplete } = useESPCase();
+  const { portfolio, startCase, enterSection, setSectionComplete, resetProgress } = useESPCase();
   const [activeTask, setActiveTask] = useState(portfolio?.active_task || "task-1");
   let progress = {};
   try { progress = JSON.parse(portfolio?.section_progress || "{}"); } catch {}
@@ -117,7 +117,7 @@ export default function ESPPracticeHub() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Journey progress</p><p className="mt-1 text-4xl font-black">{pct}%</p></div><p className="text-sm font-bold text-cyan-300">{complete}/{totalSections} sections</p></div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all" style={{ width: `${pct}%` }} /></div>
-              <button onClick={() => Object.keys(progress).forEach((key) => setSectionComplete(key, false))} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
+              <button onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
             </div>
           </div>
         </section>
