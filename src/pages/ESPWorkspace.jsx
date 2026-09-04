@@ -234,14 +234,14 @@ export default function ESPWorkspace() {
   const toggleCheck = (index) => setChecks((value) => value.includes(index) ? value.filter((item) => item !== index) : [...value, index]);
   const ready = completedCount === module.fields.length && checks.length === module.checklist.length;
 
-  return <main className="clinical-page-shell min-h-screen bg-slate-50 pb-32">
+  return <main className="esp-surface clinical-page-shell min-h-screen bg-slate-50 pb-32">
     <div className="mx-auto max-w-6xl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <button onClick={() => navigate("/esp-practice")} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft className="h-4 w-4" />ESP Practice Hub</button>
         <Timer minutes={module.minutes} />
       </div>
 
-      <section className="overflow-hidden rounded-[28px] bg-slate-950 p-6 text-white shadow-xl sm:p-8">
+      <section className="esp-dark-panel no-command-panel overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950 p-6 text-white shadow-xl sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300">{module.task} · {module.minutes} minute practice module</p><h1 className="mt-2 text-3xl font-black">{module.title}</h1><p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{module.purpose}</p></div>
           <span className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black ${module.controlled ? "bg-amber-400/15 text-amber-200" : "bg-emerald-400/15 text-emerald-200"}`}>{module.controlled ? <ShieldAlert className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}{module.controlled ? "Controlled practice · no AI/internet" : "Guided practice resources allowed"}</span>
