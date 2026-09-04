@@ -1,19 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { createPortfolioForCase, getESPCase } from "@/lib/espCaseData";
 
 const STORAGE_KEY = "pathfinder_active_esp_case_v1";
 const ESPCaseContext = createContext(null);
 
-export const DEFAULT_ESP_CASE = {
-  case_id: "practice-amira-khan",
-  case_name: "Amira Khan",
-  case_summary: "A connected formative case spanning research, person-centred communication, care-plan review and professional handover.",
-  status: "in_progress",
-  active_task: "task-1",
-  active_section: "brief",
-  section_progress: "{}",
-};
+export const DEFAULT_ESP_CASE = createPortfolioForCase(getESPCase("practice-amira-khan"));
 
 function readLocal() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; }
@@ -67,7 +60,24 @@ export function ESPCaseProvider({ children }) {
     }
   };
 
-  const startCase = () => persist({ ...DEFAULT_ESP_CASE, ...(portfolio || {}), status: "in_progress" });
+  const startCase = async (caseId = DEFAULT_ESP_CASE.case_id) => {
+    const caseData = getESPCase(caseId);
+    if (portfolio?.case_id === caseData.id) return persist({ ...portfolio, status: "in_progress" });
+    if (user?.id) {
+      try {
+        const rows = await base44.entities.ESPPortfolio.filter({ student_id: user.id, case_id: caseData.id }, "-updated_date", 1);
+        if (rows?.[0]) {
+          const resumed = { ...rows[0], status: "in_progress" };
+          setPortfolio(resumed);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(resumed));
+          return resumed;
+        }
+      } catch {
+        // Start a local portfolio if the saved scenario cannot be reached.
+      }
+    }
+    return persist(createPortfolioForCase(caseData));
+  };
 
   const enterSection = (taskId, sectionId) => {
     const base = portfolio || DEFAULT_ESP_CASE;
