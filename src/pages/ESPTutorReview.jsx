@@ -47,13 +47,13 @@ export default function ESPTutorReview() {
 
   if (!allowed) return <main className="clinical-page-shell"><div className="mx-auto max-w-xl rounded-2xl border border-amber-200 bg-amber-50 p-6"><ShieldAlert className="h-7 w-7 text-amber-700" /><h1 className="mt-3 text-xl font-black text-amber-950">Tutor access required</h1><p className="mt-2 text-sm text-amber-900">ESP portfolio review is restricted to tutors and administrators.</p></div></main>;
 
-  return <main className="clinical-page-shell min-h-screen bg-slate-50 pb-28">
+  return <main className="esp-surface clinical-page-shell min-h-screen bg-slate-50 pb-28">
     <div className="mx-auto max-w-7xl">
       <div className="mb-5 flex items-center justify-between gap-3">
         <button onClick={() => navigate("/")} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft className="h-4 w-4" />Overview</button>
         <button onClick={load} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-700"><RefreshCw className="h-4 w-4" />Refresh</button>
       </div>
-      <header className="rounded-[28px] bg-slate-950 p-7 text-white shadow-xl"><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300">Tutor workspace</p><h1 className="mt-2 text-3xl font-black">ESP portfolio review</h1><p className="mt-2 text-sm text-slate-300">Review the complete evidence chain, provide holistic feedback and release a reviewed status.</p></header>
+      <header className="esp-dark-panel rounded-[28px] bg-slate-950 p-7 text-white shadow-xl"><p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300">Tutor workspace</p><h1 className="mt-2 text-3xl font-black">ESP portfolio review</h1><p className="mt-2 text-sm text-slate-300">Review the complete evidence chain, provide holistic feedback and release a reviewed status.</p></header>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[340px_1fr]">
         <aside className="rounded-[22px] border border-white bg-white p-4 shadow-sm">
