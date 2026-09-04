@@ -108,23 +108,23 @@ export default function ESPPracticeHub() {
           <ArrowLeft className="h-4 w-4" /> Pathfinder overview
         </button>
 
-        <section className="esp-dark-panel no-command-panel overflow-hidden rounded-[30px] border border-slate-800 bg-slate-950 text-white shadow-2xl">
+        <section className="no-command-panel overflow-hidden rounded-[30px] border border-violet-200 bg-gradient-to-br from-white via-violet-50/70 to-cyan-50/70 text-slate-950 shadow-xl">
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_340px]">
             <div>
-              <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-300">Pearson T Level Health · Formative practice</p>
+              <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-700">Pearson T Level Health · Formative practice</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Employer Set Project Practice Hub</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Follow one connected project journey from research to professional handover. Every section shows the assessment objectives, core skill set and performance outcomes it develops.</p>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">Follow one connected project journey from research to professional handover. Every section shows the assessment objectives, core skill set and performance outcomes it develops.</p>
               <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold">
-                <span className="rounded-full bg-white/10 px-3 py-1.5">4 linked tasks</span>
-                <span className="rounded-full bg-white/10 px-3 py-1.5">9h 45m total</span>
-                <span className="rounded-full bg-white/10 px-3 py-1.5">126 marks</span>
-                <span className="rounded-full bg-amber-400/15 px-3 py-1.5 text-amber-200">Original practice — not live assessment material</span>
+                <span className="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-900">4 linked tasks</span>
+                <span className="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-900">9h 45m total</span>
+                <span className="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-900">126 marks</span>
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-800">Original practice — not live assessment material</span>
               </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Journey progress</p><p className="mt-1 text-4xl font-black">{pct}%</p></div><p className="text-sm font-bold text-cyan-300">{complete}/{totalSections} sections</p></div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all" style={{ width: `${pct}%` }} /></div>
-              <button onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
+            <div className="rounded-2xl border border-violet-200 bg-white/85 p-5 shadow-sm">
+              <div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Journey progress</p><p className="mt-1 text-4xl font-black">{pct}%</p></div><p className="text-sm font-bold text-cyan-700">{complete}/{totalSections} sections</p></div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 transition-all" style={{ width: `${pct}%` }} /></div>
+              <button onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-800"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
             </div>
           </div>
         </section>
