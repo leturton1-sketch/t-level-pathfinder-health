@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronRight, GripHorizontal,
+  BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronRight, ClipboardCheck, GripHorizontal,
   HeartPulse, Home, Library, User, Users, X,
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
@@ -10,6 +10,13 @@ const STORAGE_KEY = "clinicaledge_nav_pos";
 const NAV_WIDTH = 448;
 
 const PRACTICE_DESTINATIONS = [
+  {
+    icon: ClipboardCheck,
+    label: "ESP Practice Hub",
+    detail: "Complete the four linked employer-set project tasks",
+    path: "/esp-practice",
+    tone: "from-violet-500 to-fuchsia-700",
+  },
   {
     icon: BedDouble,
     label: "3D Ward Simulation",
