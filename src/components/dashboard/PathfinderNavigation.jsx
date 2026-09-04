@@ -24,6 +24,7 @@ export const NAVIGATION_GROUPS = [
     { label: "AI Model Router", path: "/ai-models", icon: Sparkles },
   ] },
   { label: "Administration", admin: true, items: [
+    { label: "ESP Tutor Review", path: "/esp-tutor-review", icon: ClipboardCheck },
     { label: "User Management", path: "/user-management", icon: UserCog },
     { label: "Scenario Templates", path: "/scenario-templates", icon: FilePenLine },
     { label: "Scenario Authoring", path: "/scenario-authoring", icon: FilePenLine },
