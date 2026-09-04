@@ -8,6 +8,7 @@ import {
 import { useESPCase } from "@/lib/ESPCaseContext";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import ESPCaseDossier from "@/components/ESPCaseDossier";
+import { getESPCase } from "@/lib/espCaseData";
 
 const MODULES = {
   "task-1:brief": {
@@ -102,7 +103,7 @@ const MODULES = {
     aos: ["AO2", "AO3", "AO4"], skills: ["SK3", "SK4", "SK5", "SK9", "SK17", "SK18"], pos: ["PO2", "PO3", "PO4", "PO5", "PO6"],
     fields: [
       ["updated_needs", "Assessed needs and risks", "Record evidence-based physical, psychological, social and communication needs."],
-      ["updated_goals", "SMART goals", "Write specific, measurable, achievable, relevant and time-bound outcomes agreed with Amira."],
+      ["updated_goals", "SMART goals", "Write specific, measurable, achievable, relevant and time-bound outcomes agreed with the individual."],
       ["updated_interventions", "Interventions and rationale", "State action, responsible person, frequency/timing, rationale and escalation threshold."],
       ["review_arrangements", "Monitoring and review", "Specify measures, review dates and what would trigger earlier reassessment."],
     ],
@@ -191,6 +192,12 @@ export default function ESPWorkspace() {
   const { portfolio, enterSection, updatePortfolio, setSectionComplete } = useESPCase();
   const key = `${taskId}:${sectionId}`;
   const module = MODULES[key];
+  const caseData = getESPCase(portfolio?.case_id);
+  const practiceStimulus = key === "task-2:roleplay"
+    ? caseData.roleplayStimulus
+    : key === "task-4:questions"
+      ? `Question prompts: ${caseData.questionPrompts}`
+      : module?.scenario;
   const stored = readEvidence(portfolio?.workspace_evidence);
   const [answers, setAnswers] = useState(stored[key] || {});
   const [checks, setChecks] = useState(stored[`${key}:checks`] || []);
@@ -257,7 +264,7 @@ export default function ESPWorkspace() {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_320px]">
         <section className="space-y-4">
-          {module.scenario && <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><div className="flex gap-3"><UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-violet-700" /><div><p className="text-xs font-black uppercase tracking-wide text-violet-900">Practice stimulus</p><p className="mt-2 whitespace-pre-line text-sm leading-6 text-violet-950">{module.scenario}</p></div></div></div>}
+          {practiceStimulus && <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><div className="flex gap-3"><UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-violet-700" /><div><p className="text-xs font-black uppercase tracking-wide text-violet-900">Practice stimulus</p><p className="mt-2 whitespace-pre-line text-sm leading-6 text-violet-950">{practiceStimulus}</p></div></div></div>}
           {module.fields.map(([field, label, prompt], index) => <article key={field} className="rounded-[22px] border border-white bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-violet-100 text-xs font-black text-violet-800">{index + 1}</span><div><label htmlFor={field} className="font-black text-slate-950">{label}</label><p className="mt-1 text-xs leading-5 text-slate-600">{prompt}</p></div></div>
             <textarea id={field} value={answers[field] || ""} onChange={(event) => setAnswers((value) => ({ ...value, [field]: event.target.value }))} rows={7} className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-900 outline-none focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100" placeholder="Enter your evidence here…" />
