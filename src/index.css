@@ -808,39 +808,27 @@
   color: white !important;
 }
 
-/* ESP pages keep dark clinical headers readable inside the global glass theme. */
-.esp-dark-panel,
-.app-command-surface .esp-surface .esp-dark-panel,
-.clinical-global-theme .esp-surface .esp-dark-panel,
-.app-command-surface .esp-dark-panel,
-.clinical-global-theme .esp-dark-panel {
+/* ESP pages keep dark clinical headers readable without affecting the global case banner. */
+.esp-surface .esp-dark-panel {
   color: #fff !important;
   background: linear-gradient(145deg, #0f172a, #172554) !important;
   border-color: rgba(56, 189, 248, .28) !important;
   box-shadow: 0 20px 48px -30px rgba(15, 23, 42, .88) !important;
 }
 
-.esp-dark-panel :where(h1, h2, h3),
-.app-command-surface .esp-dark-panel :where(h1, h2, h3),
-.clinical-global-theme .esp-dark-panel :where(h1, h2, h3) {
+.esp-surface .esp-dark-panel :where(h1, h2, h3) {
   color: #fff !important;
 }
 
-.esp-dark-panel :where(.text-slate-300),
-.app-command-surface .esp-dark-panel :where(.text-slate-300),
-.clinical-global-theme .esp-dark-panel :where(.text-slate-300) {
+.esp-surface .esp-dark-panel :where(.text-slate-300) {
   color: #cbd5e1 !important;
 }
 
-.esp-dark-panel :where(.text-slate-400),
-.app-command-surface .esp-dark-panel :where(.text-slate-400),
-.clinical-global-theme .esp-dark-panel :where(.text-slate-400) {
+.esp-surface .esp-dark-panel :where(.text-slate-400) {
   color: #94a3b8 !important;
 }
 
-.esp-dark-panel [class*="bg-white/"],
-.app-command-surface .esp-dark-panel [class*="bg-white/"],
-.clinical-global-theme .esp-dark-panel [class*="bg-white/"] {
+.esp-surface .esp-dark-panel [class*="bg-white/"] {
   color: inherit !important;
   background: rgba(255, 255, 255, .1) !important;
   border-color: rgba(255, 255, 255, .12) !important;
