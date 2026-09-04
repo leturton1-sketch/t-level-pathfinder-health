@@ -84,6 +84,7 @@ export default function ESPPracticeHub() {
   try { progress = JSON.parse(portfolio?.section_progress || "{}"); } catch {}
   useEffect(() => { if (!portfolio) startCase(); }, [portfolio]);
   const task = TASKS.find((item) => item.id === activeTask) || TASKS[0];
+  const ActiveTaskIcon = task.icon;
   const totalSections = TASKS.reduce((sum, item) => sum + item.sections.length, 0);
   const complete = useMemo(() => Object.values(progress).filter(Boolean).length, [progress]);
   const pct = Math.round((complete / totalSections) * 100);
@@ -95,13 +96,13 @@ export default function ESPPracticeHub() {
   };
 
   return (
-    <main className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(39,181,168,.12),transparent_30%)] pb-32">
+    <main className="esp-surface clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(39,181,168,.12),transparent_30%)] pb-32">
       <div className="mx-auto max-w-7xl">
         <button onClick={() => navigate("/")} className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white/70">
           <ArrowLeft className="h-4 w-4" /> Pathfinder overview
         </button>
 
-        <section className="overflow-hidden rounded-[30px] border border-white/90 bg-slate-950 text-white shadow-2xl">
+        <section className="esp-dark-panel no-command-panel overflow-hidden rounded-[30px] border border-slate-800 bg-slate-950 text-white shadow-2xl">
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_340px]">
             <div>
               <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-300">Pearson T Level Health · Formative practice</p>
@@ -139,7 +140,7 @@ export default function ESPPracticeHub() {
           <section>
             <div className="rounded-[26px] border border-white bg-white/90 p-5 shadow-lg sm:p-6">
               <div className="flex items-start gap-4">
-                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${task.tone} text-white`}><task.icon className="h-6 w-6" /></span>
+                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${task.tone} text-white`}><ActiveTaskIcon className="h-6 w-6" /></span>
                 <div><p className="text-xs font-black uppercase tracking-wider text-violet-700">Task {task.number} · {task.duration} · {task.marks} marks</p><h2 className="mt-1 text-2xl font-black text-slate-950">{task.title}</h2><p className="mt-2 text-sm leading-6 text-slate-700">{task.summary}</p></div>
               </div>
               <div className="mt-5 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4"><LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" /><div><p className="text-xs font-black uppercase tracking-wide text-amber-900">Practice conditions</p><p className="mt-1 text-xs leading-5 text-amber-900">{task.conditions}</p></div></div>
