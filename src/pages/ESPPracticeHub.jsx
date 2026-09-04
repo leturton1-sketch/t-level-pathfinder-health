@@ -91,7 +91,7 @@ export default function ESPPracticeHub() {
   const toggle = (id) => setSectionComplete(id, !progress[id]);
   const launchSection = async (section) => {
     await enterSection(task.id, section.id);
-    navigate(section.href);
+    navigate(`/esp-practice/${task.id}/${section.id}`);
   };
 
   return (
