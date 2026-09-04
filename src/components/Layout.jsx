@@ -21,7 +21,7 @@ export default function Layout() {
 
   return (
     <div className="pf-app-root">
-      {isCommandCentre ? <Outlet /> : <PathfinderFrame><ESPCaseBanner /><Outlet /></PathfinderFrame>}
+      {isCommandCentre ? <Outlet /> : <PathfinderFrame><div className="min-h-0"><ESPCaseBanner /><Outlet /></div></PathfinderFrame>}
       {!isVoiceAssistant && !noAISupport && <AIAssistant />}
     </div>
   );
