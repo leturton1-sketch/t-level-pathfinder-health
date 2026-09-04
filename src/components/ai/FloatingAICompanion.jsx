@@ -3,7 +3,11 @@ import * as THREE from "three";
 import "./FloatingAICompanion.css";
 
 const POSITION_KEY = "pathfinder-clinical-ai-companion-position";
+const MINIMIZED_KEY = "pathfinder-clinical-ai-companion-minimized";
 const MARGIN = 12;
+const SNAP_DISTANCE = 48;
+const FULL_SIZE = { width: 140, height: 180 };
+const HEAD_SIZE = { width: 78, height: 78 };
 
 function makeMaterial(colour, emissive = 0x000000) {
   return new THREE.MeshPhysicalMaterial({
@@ -99,7 +103,24 @@ function buildCompanion() {
   hoverGlow.position.y = -1.42;
   root.add(hoverGlow);
 
-  return { root, head, wave, hoverGlow, chest };
+  const voiceRings = [0, 1, 2].map((index) => {
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x52efff,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.48, 0.53, 48), material);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = -1.4 + index * 0.008;
+    ring.visible = false;
+    root.add(ring);
+    return ring;
+  });
+
+  return { root, torso, head, wave, hoverGlow, chest, joint, voiceRings };
 }
 
 function loadPosition() {
@@ -110,44 +131,74 @@ function loadPosition() {
   return null;
 }
 
+function loadMinimized() {
+  try { return localStorage.getItem(MINIMIZED_KEY) === "true"; } catch { return false; }
+}
+
+function dockPosition(minimized) {
+  const size = minimized ? HEAD_SIZE : FULL_SIZE;
+  return {
+    x: Math.max(MARGIN, window.innerWidth - size.width - MARGIN),
+    y: Math.max(MARGIN, window.innerHeight - size.height - MARGIN),
+  };
+}
+
 export default function FloatingAICompanion({ state = "idle", onActivate }) {
   const mountRef = useRef(null);
   const widgetRef = useRef(null);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
-  const [position, setPosition] = useState(loadPosition);
+  const clickTimerRef = useRef(null);
+  const positionRef = useRef(loadPosition());
+  const [position, setPositionState] = useState(positionRef.current);
+  const [minimized, setMinimized] = useState(loadMinimized);
+
+  const setPosition = (next) => {
+    positionRef.current = next;
+    setPositionState(next);
+  };
+
+  useEffect(() => () => window.clearTimeout(clickTimerRef.current), []);
 
   useEffect(() => {
-    const widget = widgetRef.current;
-    if (!widget || !position) return;
     const clamp = () => {
-      const rect = widget.getBoundingClientRect();
+      if (!positionRef.current) return;
+      const size = minimized ? HEAD_SIZE : FULL_SIZE;
+      const current = positionRef.current;
       const next = {
-        x: Math.max(MARGIN, Math.min(position.x, window.innerWidth - rect.width - MARGIN)),
-        y: Math.max(MARGIN, Math.min(position.y, window.innerHeight - rect.height - MARGIN)),
+        x: Math.max(MARGIN, Math.min(current.x, window.innerWidth - size.width - MARGIN)),
+        y: Math.max(MARGIN, Math.min(current.y, window.innerHeight - size.height - MARGIN)),
       };
-      if (next.x !== position.x || next.y !== position.y) setPosition(next);
+      if (next.x !== current.x || next.y !== current.y) setPosition(next);
     };
     clamp();
     window.addEventListener("resize", clamp);
     return () => window.removeEventListener("resize", clamp);
-  }, [position]);
+  }, [minimized]);
 
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return undefined;
+    const dimensions = minimized ? HEAD_SIZE : FULL_SIZE;
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, 140 / 180, 0.1, 20);
+    const camera = new THREE.PerspectiveCamera(34, dimensions.width / dimensions.height, 0.1, 20);
     camera.position.set(0, 0, 4.3);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
     renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(140, 180, false);
+    renderer.setSize(dimensions.width, dimensions.height, false);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
     const companion = buildCompanion();
+    companion.torso.visible = !minimized;
+    companion.chest.visible = !minimized;
+    companion.joint.visible = !minimized;
+    companion.hoverGlow.visible = !minimized;
+    companion.voiceRings.forEach((ring) => { ring.visible = false; });
+    companion.root.position.y = minimized ? -0.78 : 0;
+    companion.root.scale.setScalar(minimized ? 1.3 : 1);
     scene.add(companion.root);
     scene.add(new THREE.HemisphereLight(0xf5fdff, 0x10212a, 2.6));
     const soft = new THREE.PointLight(0xffffff, 5.2, 10);
@@ -163,7 +214,9 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
       frame = requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
       const active = state === "listening" || state === "speaking" || state === "thinking";
-      companion.root.position.y = Math.sin(t * 1.7) * 0.045;
+      const listening = state === "listening";
+      const baseY = minimized ? -0.78 : 0;
+      companion.root.position.y = baseY + Math.sin(t * 1.7) * 0.045;
       companion.root.rotation.y = Math.sin(t * 0.65) * 0.08;
       companion.head.rotation.z = Math.sin(t * 0.9) * 0.025;
       companion.wave.forEach((bar, index) => {
@@ -173,6 +226,16 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
       const glow = 0.18 + Math.sin(t * 2.2) * 0.06;
       companion.hoverGlow.material.opacity = active ? glow + 0.12 : glow;
       companion.chest.scale.setScalar(active ? 1 + Math.sin(t * 4) * 0.04 : 1);
+      companion.voiceRings.forEach((ring, index) => {
+        if (minimized) {
+          ring.visible = false;
+          return;
+        }
+        const phase = (t * 1.65 + index / 3) % 1;
+        ring.visible = listening;
+        ring.scale.setScalar(1 + phase * 1.9);
+        ring.material.opacity = listening ? (1 - phase) * 0.2 : 0;
+      });
       renderer.render(scene, camera);
     };
     animate();
@@ -188,10 +251,23 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
       renderer.forceContextLoss();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
-  }, [state]);
+  }, [state, minimized]);
+
+  const snapToNearbyEdge = (point) => {
+    const size = minimized ? HEAD_SIZE : FULL_SIZE;
+    const maxX = window.innerWidth - size.width - MARGIN;
+    const maxY = window.innerHeight - size.height - MARGIN;
+    const distances = [
+      { axis: "x", value: MARGIN, distance: Math.abs(point.x - MARGIN) },
+      { axis: "x", value: maxX, distance: Math.abs(point.x - maxX) },
+      { axis: "y", value: MARGIN, distance: Math.abs(point.y - MARGIN) },
+      { axis: "y", value: maxY, distance: Math.abs(point.y - maxY) },
+    ].filter((edge) => edge.distance <= SNAP_DISTANCE);
+    if (!distances.length) return point;
+    return distances.reduce((next, edge) => ({ ...next, [edge.axis]: edge.value }), point);
+  };
 
   const onPointerDown = (event) => {
-    if (event.target.closest("button")) return;
     const rect = widgetRef.current.getBoundingClientRect();
     dragRef.current = { pointerId: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
     movedRef.current = false;
@@ -200,12 +276,13 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
 
   const onPointerMove = (event) => {
     if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) return;
-    const rect = widgetRef.current.getBoundingClientRect();
+    const size = minimized ? HEAD_SIZE : FULL_SIZE;
     const next = {
-      x: Math.max(MARGIN, Math.min(event.clientX - dragRef.current.dx, window.innerWidth - rect.width - MARGIN)),
-      y: Math.max(MARGIN, Math.min(event.clientY - dragRef.current.dy, window.innerHeight - rect.height - MARGIN)),
+      x: Math.max(MARGIN, Math.min(event.clientX - dragRef.current.dx, window.innerWidth - size.width - MARGIN)),
+      y: Math.max(MARGIN, Math.min(event.clientY - dragRef.current.dy, window.innerHeight - size.height - MARGIN)),
     };
-    if (Math.abs(next.x - rect.left) > 3 || Math.abs(next.y - rect.top) > 3) movedRef.current = true;
+    const current = positionRef.current || widgetRef.current.getBoundingClientRect();
+    if (Math.abs(next.x - current.x) > 3 || Math.abs(next.y - current.y) > 3) movedRef.current = true;
     setPosition(next);
   };
 
@@ -213,8 +290,25 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
     if (!dragRef.current) return;
     try { widgetRef.current.releasePointerCapture(event.pointerId); } catch {}
     dragRef.current = null;
-    if (position) localStorage.setItem(POSITION_KEY, JSON.stringify(position));
-    if (!movedRef.current) onActivate?.();
+    if (movedRef.current) {
+      const snapped = snapToNearbyEdge(positionRef.current || dockPosition(minimized));
+      setPosition(snapped);
+      localStorage.setItem(POSITION_KEY, JSON.stringify(snapped));
+      return;
+    }
+    window.clearTimeout(clickTimerRef.current);
+    clickTimerRef.current = window.setTimeout(() => onActivate?.(), 220);
+  };
+
+  const onDoubleClick = (event) => {
+    event.preventDefault();
+    window.clearTimeout(clickTimerRef.current);
+    const nextMinimized = !minimized;
+    const docked = dockPosition(nextMinimized);
+    setMinimized(nextMinimized);
+    setPosition(docked);
+    localStorage.setItem(MINIMIZED_KEY, String(nextMinimized));
+    localStorage.setItem(POSITION_KEY, JSON.stringify(docked));
   };
 
   const style = position ? { left: position.x, top: position.y, right: "auto", bottom: "auto" } : undefined;
@@ -223,19 +317,21 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
   return (
     <div
       ref={widgetRef}
-      className="ai-companion-container"
+      className={`ai-companion-container${minimized ? " is-minimized" : ""}`}
       style={style}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      onDoubleClick={onDoubleClick}
       role="button"
       tabIndex={0}
-      aria-label="Open Pathfinder clinical AI companion"
+      aria-label={minimized ? "Open docked Pathfinder clinical AI companion" : "Open Pathfinder clinical AI companion"}
+      title="Drag to move · Double-click to dock or restore"
       onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onActivate?.(); }}
     >
       <div ref={mountRef} className="ai-companion-canvas" aria-hidden="true" />
-      <div className="ai-status-pill" role="status"><i />{status}</div>
+      {!minimized && <div className="ai-status-pill" role="status"><i />{status}</div>}
     </div>
   );
 }
