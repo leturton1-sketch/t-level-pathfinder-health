@@ -1,10 +1,11 @@
 import { useEffect, useId, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine } from "lucide-react";
+import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine } from "lucide-react";
 import { isAdmin } from "@/lib/clinicalAuth";
 export const NAVIGATION_GROUPS = [
   { label: "Overview", items: [{ label: "Pathfinder Overview", path: "/", icon: Home }] },
   { label: "Clinical practice", items: [
+    { label: "ESP Practice Hub", path: "/esp-practice", icon: ClipboardCheck },
     { label: "3D Ward Simulation", path: "/ward-simulation", icon: BedDouble },
     { label: "Care Planning", path: "/care-planning", icon: BriefcaseMedical },
     { label: "3D Anatomy & Physiology", path: "/anatomy-physiology", icon: Brain },
