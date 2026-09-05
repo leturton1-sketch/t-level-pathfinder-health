@@ -18,7 +18,9 @@ const EDUCATOR_TRANSPARENCY_KEY = "pathfinder-educator-text-transparency";
 
 function loadEducatorTransparency() {
   if (typeof window === "undefined") return 10;
-  const saved = Number(window.localStorage.getItem(EDUCATOR_TRANSPARENCY_KEY));
+  const raw = window.localStorage.getItem(EDUCATOR_TRANSPARENCY_KEY);
+  if (raw === null) return 10;
+  const saved = Number(raw);
   return Number.isFinite(saved) ? Math.min(45, Math.max(0, saved)) : 10;
 }
 
