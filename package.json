@@ -11,6 +11,7 @@
     "desktop:build": "npm run build && electron-builder --win nsis",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
+    "test": "npm run lint",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview"
   },
