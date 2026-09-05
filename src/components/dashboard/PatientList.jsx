@@ -14,8 +14,8 @@ export default function PatientList({ patients, selectedId, onSelect, now }) {
   );
 
   return (
-    <div className="rounded-2xl border border-sky-200/70 bg-card shadow-sm overflow-hidden flex flex-col max-h-[78vh]">
-      <div className="bg-gradient-to-r from-sky-500 to-sky-600 px-4 py-3">
+    <div className="pf-patient-list rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col max-h-[78vh]">
+      <div className="pf-dashboard-header px-4 py-3">
         <h3 className="text-sm font-heading font-bold text-white">Patient List</h3>
         <p className="text-[10px] text-white/80">{patients.length} on ward · live</p>
       </div>
@@ -39,11 +39,11 @@ export default function PatientList({ patients, selectedId, onSelect, now }) {
             <button
               key={p.id}
               onClick={() => onSelect(p.id)}
-              className={`w-full text-left rounded-xl border p-2.5 transition-all ${isSel ? "border-sky-400 bg-sky-50 ring-1 ring-sky-300" : "border-border bg-card hover:bg-muted/40"}`}
+              className={`w-full text-left rounded-xl border p-2.5 transition-[background-color,border-color,box-shadow] ${isSel ? "border-sky-400 bg-sky-50 ring-1 ring-sky-300" : "border-border bg-card hover:bg-muted/40"}`}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${tone.dot}`} />
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${tone.dot}`} aria-hidden="true" />
                   <span className="text-xs font-heading font-bold text-foreground truncate">{p.name}</span>
                 </div>
                 <span className="text-[10px] font-mono text-muted-foreground shrink-0">{bedOf(p)}</span>
@@ -55,7 +55,7 @@ export default function PatientList({ patients, selectedId, onSelect, now }) {
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-1.5">
-                <span className={`text-[10px] font-bold ${tone.text}`}>NEWS2 {p.initial_news2}</span>
+                <span className={`text-[10px] font-bold ${tone.text}`}>NEWS2 {p.initial_news2} · {tone.label}</span>
                 <span className="text-[10px] text-muted-foreground">· {p.age}y</span>
               </div>
             </button>

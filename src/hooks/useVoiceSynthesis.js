@@ -71,6 +71,13 @@ export function useVoiceSynthesis() {
     const profile = VOICE_PROFILES.find((p) => p.id === prefs.profileId) || VOICE_PROFILES[0];
 
     if (prefs.engine === "cloud") {
+      let browserFallbackStarted = false;
+      const fallbackToBrowser = () => {
+        if (browserFallbackStarted) return;
+        browserFallbackStarted = true;
+        console.warn(`Cloud voice unavailable; using ${profile.backupName}.`);
+        speakBrowser(clean, prefs, profile, onStart, onEnd);
+      };
       try {
         setSpeaking(true);
         const res = await base44.integrations.Core.GenerateSpeech({
@@ -87,12 +94,26 @@ export function useVoiceSynthesis() {
         // waveform animation aligns to real playback duration (not the
         // cloud-generation latency).
         audio.onplay = () => onStart?.();
-        audio.onended = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
-        audio.onerror = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
+        let completed = false;
+        const finish = () => {
+          if (completed) return;
+          completed = true;
+          audioRef.current = null;
+          setSpeaking(false);
+          onEnd?.();
+        };
+        audio.onended = finish;
+        audio.onerror = () => {
+          if (completed) return;
+          completed = true;
+          audioRef.current = null;
+          fallbackToBrowser();
+        };
         await audio.play();
         return;
       } catch {
-        // fall back to browser TTS
+        fallbackToBrowser();
+        return;
       }
     }
     speakBrowser(clean, prefs, profile, onStart, onEnd);

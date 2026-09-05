@@ -18,9 +18,10 @@ See the [Base44 CLI docs](https://docs.base44.com/developers/references/cli/get-
 Run the full local development environment from the project root:
 
 ```bash
-base44 dev
+npm run dev:base44
 ```
 
+This requires the Base44 CLI (`npm install -g base44@latest`).
 `base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
 
 For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
@@ -44,6 +45,30 @@ npm run dev
 ```
 
 Open the local URL printed by Vite.
+
+## Build the Windows installer
+
+The repository can produce a standalone Windows installer. The installer bundles
+the built frontend and Electron, so end users do not need Node.js, npm, or the
+Base44 CLI installed.
+
+Before building, provide the Base44 backend settings in `.env.local`:
+
+```bash
+VITE_BASE44_APP_ID=your_app_id
+VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
+```
+
+Then run:
+
+```bash
+npm run desktop:build
+```
+
+The installer is written to `release/Pathfinder Health Setup.exe`. The installed
+desktop app still requires network access to the configured Base44 backend for
+authentication, data, and server functions; this packaging step does not create
+an offline replacement backend.
 
 ## Use The Hosted Backend
 

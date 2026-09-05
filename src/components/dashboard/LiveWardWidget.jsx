@@ -10,7 +10,7 @@ export default function LiveWardWidget({ patients, selectedId, onSelect }) {
   patients.forEach((p) => { byBed[bedOf(p)] = p; });
 
   return (
-    <div className="rounded-2xl border border-sky-200/70 bg-card p-4 shadow-sm">
+    <div className="pf-ward-widget rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Widget3DGraphic type="ward" tone="sky" size="sm" />
@@ -20,8 +20,14 @@ export default function LiveWardWidget({ patients, selectedId, onSelect }) {
           </div>
         </div>
         <span className="flex items-center gap-1 text-[9px] font-heading uppercase tracking-wider text-clinical-teal">
-          <span className="w-1.5 h-1.5 rounded-full bg-clinical-green animate-pulse" /> Live
+          <span className="w-1.5 h-1.5 rounded-full bg-clinical-green animate-pulse" aria-hidden="true" /> Live
         </span>
+      </div>
+      <div className="pf-ward-legend mb-3" aria-label="Ward map legend">
+        <span><i className="pf-legend-dot pf-legend-stable" /> Stable</span>
+        <span><i className="pf-legend-dot pf-legend-review" /> Review</span>
+        <span><i className="pf-legend-dot pf-legend-urgent" /> Urgent</span>
+        <span><i className="pf-legend-dot pf-legend-empty" /> Empty</span>
       </div>
 
       <div className="grid grid-cols-4 gap-2.5">
@@ -34,14 +40,15 @@ export default function LiveWardWidget({ patients, selectedId, onSelect }) {
             <button
               key={bed}
               onClick={() => occupied && onSelect(p.id)}
-              className={`group relative rounded-xl p-2 text-left transition-all overflow-hidden border ${
+              aria-label={occupied ? `${bed}, ${p.name}, NEWS2 ${p.initial_news2}, ${tone.label}` : `${bed}, empty`}
+              className={`group relative rounded-xl p-2 text-left transition-[box-shadow,transform] overflow-hidden border ${
                 occupied ? `${tone.border} ${tone.bg} hover:-translate-y-0.5 hover:shadow-md` : "border-dashed border-slate-200 bg-slate-50/60"
-              } ${isSelected ? "ring-2 ring-sky-400" : ""}`}
+              } ${p?.initial_news2 >= 7 ? "pf-urgent-bed" : ""} ${isSelected ? "ring-2 ring-purple-400" : ""}`}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
               <div className="relative flex items-center justify-between">
                 <span className="text-[10px] font-heading font-bold text-foreground">{bed}</span>
-                {occupied && <span className={`w-1.5 h-1.5 rounded-full ${tone.dot} animate-pulse`} />}
+                {occupied && <span className={`w-1.5 h-1.5 rounded-full ${tone.dot} animate-pulse`} aria-hidden="true" />}
               </div>
               <div className="relative mt-1.5 h-8 flex items-center">
                 {occupied ? (
@@ -54,7 +61,7 @@ export default function LiveWardWidget({ patients, selectedId, onSelect }) {
                 )}
               </div>
               {occupied && (
-                <span className={`relative mt-1 inline-block text-[9px] font-bold ${tone.text}`}>NEWS2 {p.initial_news2}</span>
+                <span className={`relative mt-1 inline-block text-[9px] font-bold ${tone.text}`}>NEWS2 {p.initial_news2} · {tone.label}</span>
               )}
             </button>
           );

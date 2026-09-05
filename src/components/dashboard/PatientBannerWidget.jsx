@@ -23,8 +23,8 @@ export default function PatientBannerWidget({ patient, now, onDischarge }) {
   const v = patient.initial_vitals || {};
 
   return (
-    <div className="rounded-2xl border border-sky-200/70 bg-card shadow-sm overflow-hidden">
-      <div className="bg-gradient-to-r from-sky-500 to-sky-600 px-4 py-3 flex items-center justify-between">
+    <div className="pf-patient-banner rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="pf-dashboard-header px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Widget3DGraphic type="clipboard" tone="sky" size="sm" />
           <div>
@@ -32,7 +32,7 @@ export default function PatientBannerWidget({ patient, now, onDischarge }) {
             <h3 className="text-base font-heading font-bold text-white">{patient.name}</h3>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-heading font-bold bg-white/95 ${statusToneClass(status.tone)}`}>
+        <span role="status" className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-heading font-bold bg-white/95 ${statusToneClass(status.tone)}`}>
           {status.label}
         </span>
       </div>
@@ -50,7 +50,7 @@ export default function PatientBannerWidget({ patient, now, onDischarge }) {
             <p className="text-[10px] text-muted-foreground uppercase tracking-wide">NEWS2</p>
             <div className="flex items-baseline gap-2">
               <span className={`text-2xl font-heading font-bold ${tone.text}`}>{patient.initial_news2}</span>
-              <span className={`text-[10px] font-bold ${tone.text}`}>{tone.label}</span>
+              <span className={`text-[10px] font-bold ${tone.text}`}>NEWS2 {tone.label}</span>
             </div>
           </div>
           <div className="rounded-xl border border-clinical-amber/30 bg-clinical-amber/5 p-2.5">

@@ -173,7 +173,7 @@ export default function AppInstallerPanel() {
         {/* QR + link */}
         <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
           <div className="flex justify-center rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <img src={qrSrc} alt="QR code to install Pathfinder Health" className="h-40 w-40" />
+            <img src={qrSrc} alt="QR code to install Pathfinder Health" width="160" height="160" loading="lazy" className="h-40 w-40" />
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Install on another device</p>
