@@ -161,7 +161,9 @@ export default function Ward3D({
     itemsMapRef.current.clear();
     itemsArrayRef.current = [];
 
-    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 200);
+    const initialWidth = Math.max(container.clientWidth, 1);
+    const initialHeight = Math.max(container.clientHeight, 1);
+    const camera = new THREE.PerspectiveCamera(45, initialWidth / initialHeight, 0.1, 200);
     const SUITE_CAMERAS = {
       A: { pos: { x: -30, y: 10, z: 16 }, target: { x: -30, y: 0, z: 0 } },
       B: { pos: { x: 0, y: 10, z: 16 }, target: { x: 0, y: 0, z: 0 } },
@@ -175,7 +177,7 @@ export default function Ward3D({
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false, powerPreference: "high-performance" });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(initialWidth, initialHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -578,9 +580,10 @@ export default function Ward3D({
       }
       controls.update();
       renderer.render(scene, camera);
-      if (cameraTargetRef.current || hasActiveCall || Math.abs(targetDark - currentDark) > 0.001 || flickerStrength > 0) {
-        requestRender();
-      }
+      // Keep the ward alive while it is visible. This also ensures OrbitControls
+      // damping, camera suite transitions and restored WebGL surfaces are painted
+      // even when the browser does not emit a change event.
+      requestRender();
     };
     invalidateRef.current = requestRender;
     controls.addEventListener("change", requestRender);
@@ -763,8 +766,8 @@ export default function Ward3D({
   }, [visibleItems, selectedItemId, editMode, activeCallBed]);
 
   return (
-    <div className="relative w-full h-full">
-      <div ref={containerRef} className="w-full h-full" />
+    <div className="relative w-full h-full min-h-[420px]">
+      <div ref={containerRef} className="w-full h-full min-h-[420px]" />
       {bedTooltip && !editMode && (
         <div
           className="pointer-events-none absolute z-40 w-[232px] rounded-2xl border border-white/90 bg-slate-950/90 px-3.5 py-3 text-white shadow-[0_18px_45px_-18px_rgba(15,23,42,.9)] backdrop-blur-xl"
