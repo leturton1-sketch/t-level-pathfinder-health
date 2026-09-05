@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import { installErrorCollector } from './lib/diagnosticService';
 import { Toaster } from "@/components/ui/toaster"
@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
+import LoginGate from './components/auth/LoginGate';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
@@ -43,6 +44,7 @@ const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
 
   useEffect(() => {
     const stop = installErrorCollector();
@@ -61,6 +63,11 @@ const AuthenticatedApp = () => {
         <OAuthConsent />
       </Suspense>
     );
+  }
+
+  // PIN/QR identification gate — shown on first run over a blurred overview
+  if (!unlocked) {
+    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
 
   // Show loading spinner while checking app public settings or auth
