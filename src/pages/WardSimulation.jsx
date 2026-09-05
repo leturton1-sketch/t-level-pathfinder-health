@@ -24,6 +24,28 @@ import {
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
 
+function normaliseWardLayout(rawLayout) {
+  if (!Array.isArray(rawLayout) || rawLayout.length === 0) return generateDefaultItems();
+  const validItems = rawLayout.filter((item) =>
+    item &&
+    typeof item.id === "string" &&
+    typeof item.type === "string" &&
+    Number.isFinite(Number(item.x)) &&
+    Number.isFinite(Number(item.z))
+  ).map((item) => ({ ...item, x: Number(item.x), z: Number(item.z) }));
+  return validItems.length > 0 ? consolidateTeachingTables(validItems) : generateDefaultItems();
+}
+
+function readLocalWardLayout() {
+  try {
+    const stored = localStorage.getItem("wardLayout_ward");
+    return stored ? normaliseWardLayout(JSON.parse(stored)) : generateDefaultItems();
+  } catch {
+    localStorage.removeItem("wardLayout_ward");
+    return generateDefaultItems();
+  }
+}
+
 function consolidateTeachingTables(layout) {
   let next = [...layout];
   const zones = [
@@ -103,16 +125,19 @@ export default function WardSimulation() {
     try {
       const existing = await base44.entities.WardLayout.filter({ suite: "ward" });
       if (existing.length > 0 && existing[0].items) {
-        const loaded = JSON.parse(existing[0].items || "[]");
-        setItems(loaded.length > 0 ? consolidateTeachingTables(loaded) : generateDefaultItems());
+        try {
+          setItems(normaliseWardLayout(JSON.parse(existing[0].items)));
+        } catch {
+          setItems(readLocalWardLayout());
+        }
       } else {
-        const local = localStorage.getItem("wardLayout_ward");
-        setItems(local ? consolidateTeachingTables(JSON.parse(local)) : generateDefaultItems());
+        setItems(readLocalWardLayout());
       }
     } catch {
-      const local = localStorage.getItem("wardLayout_ward");
-      setItems(local ? JSON.parse(local) : generateDefaultItems());
-    } finally { setLoading(false); }
+      setItems(readLocalWardLayout());
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Auto-save with debounce
@@ -597,7 +622,7 @@ export default function WardSimulation() {
       </div>
 
       {/* 3D Ward */}
-      <div className="flex-1 relative">
+      <div className="flex-1 min-h-0 relative">
         <Ward3D
           items={items}
           editMode={editMode}
