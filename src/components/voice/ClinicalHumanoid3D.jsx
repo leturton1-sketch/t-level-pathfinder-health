@@ -91,11 +91,11 @@ function buildRobot() {
   const waist = mesh(new THREE.CylinderGeometry(0.78, 1.05, 0.72, 40), white, [0, -1.85, 0]);
   rig.spine.add(waist);
 
-  const neckCowl = mesh(new THREE.CylinderGeometry(0.49, 0.7, 0.62, 40), silver, [0, 0.42, 0]);
-  rig.neck.add(neckCowl);
-  const seal = mesh(new THREE.TorusGeometry(0.66, 0.055, 12, 48), black, [0, 0.12, 0], [1, 1, 0.78]);
-  seal.rotation.x = Math.PI / 2;
-  rig.neck.add(seal);
+  // A compact ceramic ball joint keeps the head connected without the old
+  // tapered metallic collar or dark seal ring.
+  const neckJoint = mesh(new THREE.SphereGeometry(0.42, 40, 28), white, [0, 0.5, 0], [1, 0.72, 0.86]);
+  rig.rimMaterials.push(addRimShell(neckJoint));
+  rig.neck.add(neckJoint);
   rig.spine.add(rig.neck);
 
   const headShell = mesh(new THREE.SphereGeometry(0.92, 56, 40), white, [0, 1.45, 0], [1.08, 0.96, 0.82]);
