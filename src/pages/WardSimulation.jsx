@@ -622,7 +622,7 @@ export default function WardSimulation() {
       </div>
 
       {/* 3D Ward */}
-      <div className="flex-1 min-h-0 relative">
+      <div className="pf-ward-viewport relative">
         <Ward3D
           items={items}
           editMode={editMode}
