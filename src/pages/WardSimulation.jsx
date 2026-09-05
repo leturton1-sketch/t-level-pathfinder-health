@@ -748,7 +748,7 @@ export default function WardSimulation() {
           <div className="relative w-full sm:max-w-md bg-card h-full overflow-y-auto scrollbar-thin shadow-2xl animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
               <h2 className="font-heading font-bold text-sm text-foreground">Scenarios</h2>
-              <button onClick={() => setShowScenarioList(false)} className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
+              <button type="button" onClick={() => setShowScenarioList(false)} aria-label="Close scenario list" className="p-1.5 rounded-lg hover:bg-secondary/60"><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="p-3 pb-0">
               <button onClick={handleEndSimulationRequest}
