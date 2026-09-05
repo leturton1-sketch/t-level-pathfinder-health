@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { BODY_SHELLS, ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
-import { alignAnatomicalGroupToBody } from "@/lib/anatomicalSpatialAnchors";
+import { alignAnatomicalGroupToBody, keepGroupInsideBodyEnvelope } from "@/lib/anatomicalSpatialAnchors";
 
 const BODY_TARGET = new THREE.Vector3(0, 0.95, 0);
 
@@ -392,6 +392,9 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       structGroup.add(grp);
       if (["brain", "heart", "lungs", "liver", "stomach", "kidneys", "bladder"].includes(s.id)) {
         alignAnatomicalGroupToBody(shellGroup, grp, s.id, { applyScale: false });
+      }
+      if (["muscular", "skeletal", "nervous", "cardiovascular"].includes(s.system)) {
+        keepGroupInsideBodyEnvelope(shellGroup, grp);
       }
       groupsRef.current[s.id] = grp;
       baseColorsRef.current[s.id] = color;
