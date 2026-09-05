@@ -19,8 +19,6 @@ export function validateEnvironment() {
     } catch {
       errors.push("VITE_BASE44_APP_BASE_URL must be a valid URL.");
     }
-  } else if (appBaseUrl && isPlaceholder(appBaseUrl)) {
-    errors.push("VITE_BASE44_APP_BASE_URL still uses its placeholder value.");
   }
 
   return { valid: errors.length === 0, errors };
