@@ -185,6 +185,15 @@ const STRUCTURE_BLUEPRINTS = [
   { id: "spinal_cord", name: "Spinal Cord", system: "nervous", genders: "both", shape: { type: "cylinder", radiusTop: 0.012, radiusBottom: 0.01, height: 0.6, radialSegments: 12 }, position: [0, 1.24, -0.072],
     function: "Bundle of nerve fibres transmitting signals between brain and peripheral nervous system, protected by the vertebral column.",
     clinicalNote: "Spinal cord injury → immediate immobilisation and log-roll. Monitor for autonomic dysreflexia in injuries above T6." },
+  { id: "peripheral_nerves", name: "Major Peripheral Nerves", system: "nervous", genders: "both", color: 0xf3c969,
+    parts: [
+      { shape: { type: "tube", radius: 0.004, points: [[0,1.47,-0.06],[0.08,1.40,-0.035],[0.145,1.30,-0.015],[0.18,1.12,0]] } },
+      { shape: { type: "tube", radius: 0.004, points: [[0,1.47,-0.06],[-0.08,1.40,-0.035],[-0.145,1.30,-0.015],[-0.18,1.12,0]] } },
+      { shape: { type: "tube", radius: 0.0045, points: [[0,1.05,-0.065],[0.055,0.88,-0.03],[0.065,0.66,0],[0.065,0.30,0]] } },
+      { shape: { type: "tube", radius: 0.0045, points: [[0,1.05,-0.065],[-0.055,0.88,-0.03],[-0.065,0.66,0],[-0.065,0.30,0]] } },
+    ],
+    function: "Paired cranial, spinal and peripheral nerve pathways carry sensory input and motor commands between the central nervous system and the limbs.",
+    clinicalNote: "Assess sensation, power, reflexes and symmetry. A new focal deficit requires urgent neurological escalation." },
 
   // ── REPRODUCTIVE (gender-specific) ──
   { id: "prostate", name: "Prostate Gland", system: "reproductive", genders: "male", shape: { type: "sphere", radius: 0.025, scale: [1,0.8,1] }, position: [0, 0.815, 0.025],
@@ -290,6 +299,12 @@ const ANATOMICAL_ATLAS = {
   brain: { position: [0, 1.642, 0.008], scale: [1, 0.88, 1.1] },
   cerebellum: { position: [0, 1.595, -0.045] },
   spinal_cord: { position: [0, 1.235, -0.078] },
+  peripheral_nerves: { parts: [
+    { shape: { type: "tube", radius: 0.0035, points: [[0,1.47,-0.06],[0.075,1.40,-0.035],[0.14,1.30,-0.015],[0.18,1.12,0]] } },
+    { shape: { type: "tube", radius: 0.0035, points: [[0,1.47,-0.06],[-0.075,1.40,-0.035],[-0.14,1.30,-0.015],[-0.18,1.12,0]] } },
+    { shape: { type: "tube", radius: 0.004, points: [[0,1.05,-0.065],[0.05,0.88,-0.03],[0.062,0.66,0],[0.062,0.30,0]] } },
+    { shape: { type: "tube", radius: 0.004, points: [[0,1.05,-0.065],[-0.05,0.88,-0.03],[-0.062,0.66,0],[-0.062,0.30,0]] } },
+  ] },
 
   trachea: { position: [0, 1.485, 0.025] },
   lungs: { parts: [
