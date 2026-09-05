@@ -64,7 +64,7 @@ export default function KnowledgeLibrary() {
             <button type="button" onClick={() => setSelectedArticle(null)} aria-label="Return to Knowledge Library" className="p-1.5 rounded-lg hover:bg-muted">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
-            <h1 className="text-sm font-bold text-foreground flex-1 truncate">{selectedArticle.title}</h1>
+            <h1 className="text-sm font-bold leading-snug text-foreground flex-1">{selectedArticle.title}</h1>
           </div>
         </div>
         <div className="px-4 pt-4 pb-24 max-w-3xl mx-auto">
@@ -83,7 +83,8 @@ export default function KnowledgeLibrary() {
                 h3: ({ node, ...props }) => <h3 className="text-base font-bold text-clinical-teal mt-4 mb-1.5" {...props} />,
                 p: ({ node, ...props }) => <p className="text-sm text-foreground/90 leading-relaxed mb-3" {...props} />,
                 li: ({ node, ...props }) => <li className="text-sm text-foreground/90 leading-relaxed" {...props} />,
-                ul: ({ node, ...props }) => <ul className="space-y-1 mb-3 list-disc list-inside" {...props} />,
+                ul: ({ node, ...props }) => <ul className="space-y-1 mb-3 list-disc pl-5" {...props} />,
+                ol: ({ node, ...props }) => <ol className="space-y-1 mb-3 list-decimal pl-5" {...props} />,
                 strong: ({ node, ...props }) => <strong className="font-bold text-foreground" {...props} />,
               }}
             >
@@ -184,8 +185,12 @@ export default function KnowledgeLibrary() {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-sm text-foreground mb-0.5">{article.title}</h3>
-                  <p className="text-xs text-muted-foreground">{article.source}</p>
-                  <div className="mt-1.5">
+                  <p className="text-xs font-medium text-clinical-teal">{article.source}</p>
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                    {(article.content || "").replace(/[#*_`]/g, "").replace(/\\n+/g, " ").trim().slice(0, 180)}
+                    {(article.content || "").length > 180 ? "…" : ""}
+                  </p>
+                  <div className="mt-2">
                     <SKBadgeGroup skCodes={article.sk_codes || []} poCodes={article.performance_outcomes || []} />
                   </div>
                 </div>
