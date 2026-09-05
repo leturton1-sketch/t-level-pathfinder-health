@@ -10,7 +10,7 @@ export default function WardPropertiesPanel({ item, onRotate15, onRotate90, onDu
     <div className="polished-glass-edge absolute top-16 right-3 z-20 w-56 overflow-hidden rounded-2xl border border-white/80 bg-white/70 shadow-2xl backdrop-blur-2xl animate-slide-up">
       <div className="bg-gradient-to-r from-slate-700/90 to-emerald-800/85 text-white px-4 py-2.5 flex items-center justify-between">
         <h3 className="font-display text-xs tracking-wide">PROPERTIES</h3>
-        <button onClick={onClose} className="p-1 rounded hover:bg-slate-700" aria-label="Close properties">
+        <button type="button" onClick={onClose} className="p-1 rounded hover:bg-slate-700" aria-label="Close properties">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
