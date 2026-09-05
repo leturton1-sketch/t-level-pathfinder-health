@@ -12,7 +12,7 @@ import OrganLinkOverlay from "@/components/anatomy/OrganLinkOverlay";
 const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-gradient-to-br from-white/92 via-slate-100/82 to-slate-200/68 shadow-[0_12px_0_-6px_rgba(100,116,139,.24),0_28px_60px_-32px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl";
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
 const REBUILT_CORE_SYSTEMS = ["muscular", "skeletal", "nervous", "cardiovascular"];
-const CORE_ANATOMY_VERSION = "2026-09-core-systems-v3-muscular";
+const CORE_ANATOMY_VERSION = "2026-09-core-systems-v4-fitted-muscular-overlay";
 
 function Explorer() {
   const [genitalia, setGenitalia] = useState("male");
@@ -175,7 +175,7 @@ function Explorer() {
       )}
       <div className="relative h-[620px] overflow-hidden rounded-[22px] border border-slate-200 bg-[#F8FAFC]">
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
-          <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · SELECTABLE 360° LAYER</span>
+          <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · FITTED 360° OVERLAY</span>
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
           <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">DIAPHRAGM · FROSTED</span>
         </div>
