@@ -10,9 +10,7 @@ export function validateEnvironment() {
     errors.push("VITE_BASE44_APP_ID is missing or still uses its placeholder value.");
   }
 
-  if (isPlaceholder(appBaseUrl)) {
-    errors.push("VITE_BASE44_APP_BASE_URL is missing or still uses its placeholder value.");
-  } else {
+  if (appBaseUrl && !isPlaceholder(appBaseUrl)) {
     try {
       const url = new URL(appBaseUrl);
       if (!["http:", "https:"].includes(url.protocol)) {
