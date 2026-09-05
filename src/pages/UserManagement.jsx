@@ -35,7 +35,7 @@ export default function UserManagement() {
   const [showCreate, setShowCreate] = useState(false);
   const [activeTab, setActiveTab] = useState("users");
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
-  const [newUser, setNewUser] = useState({ username: "", full_name: "", role: "student", cohort: "" });
+  const [newUser, setNewUser] = useState({ username: "", full_name: "", role: "student", title: "", pin: "0000", cohort: "" });
 
   useEffect(() => {
     if (!isLoggedIn() || !canManageUsers()) {
@@ -53,8 +53,10 @@ export default function UserManagement() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const allUsers = await base44.entities.AppUser.list();
-      setUsers(allUsers);
+      const response = await base44.functions.invoke("listAppUsers");
+      const data = response?.data ?? response;
+      if (data?.error) throw new Error(data.error);
+      setUsers(data?.users || []);
     } catch {
       setUsers([]);
     } finally {
@@ -64,20 +66,25 @@ export default function UserManagement() {
 
   const handleCreate = async () => {
     if (!newUser.username.trim() || !newUser.full_name.trim()) return;
+    const pin = isSuperAdmin() ? newUser.pin.trim() : "0000";
+    if (!/^\d{4}$/.test(pin)) {
+      alert("PIN must be exactly 4 digits.");
+      return;
+    }
     try {
-      await base44.entities.AppUser.create({
+      await base44.functions.invoke("createAppUser", {
         username: newUser.username.toLowerCase().trim(),
-        pin: "0000",
+        pin,
         role: newUser.role,
         full_name: newUser.full_name,
+        title: newUser.title.trim() || undefined,
         cohort: newUser.cohort,
         first_login: true,
         active: true,
         ai_voice: "honey",
         ai_persona: "female",
-        is_protected: false,
       });
-      setNewUser({ username: "", full_name: "", role: "student", cohort: "" });
+      setNewUser({ username: "", full_name: "", role: "student", title: "", pin: "0000", cohort: "" });
       setShowCreate(false);
       loadUsers();
     } catch (err) {
@@ -347,8 +354,34 @@ export default function UserManagement() {
                   <option value="student">Student</option>
                   {isAdmin() && <option value="tutor">Lecturer</option>}
                   {isSuperAdmin() && <option value="admin">Admin</option>}
+                  {isSuperAdmin() && <option value="super_admin">System Architect</option>}
                 </select>
               </div>
+              {isSuperAdmin() && (
+                <>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Custom title (optional)</label>
+                    <input
+                      type="text"
+                      value={newUser.title}
+                      onChange={(e) => setNewUser({ ...newUser, title: e.target.value })}
+                      placeholder="e.g., System Architect"
+                      className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Initial PIN</label>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={4}
+                      value={newUser.pin}
+                      onChange={(e) => setNewUser({ ...newUser, pin: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                      className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-clinical-teal"
+                    />
+                  </div>
+                </>
+              )}
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Cohort (optional)</label>
                 <input
@@ -360,7 +393,7 @@ export default function UserManagement() {
                 />
               </div>
               <div className="rounded-lg bg-muted p-2 text-xs text-muted-foreground">
-                PIN will be set to <span className="font-bold text-foreground">0000</span> — user will be prompted to change on first login.
+                PIN will be set to <span className="font-bold text-foreground">{isSuperAdmin() ? newUser.pin || "0000" : "0000"}</span> — user will be prompted to change on first login.
               </div>
               <button
                 onClick={handleCreate}

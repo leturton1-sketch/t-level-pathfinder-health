@@ -1,5 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 
+async function hashPin(pin) {
+  const bytes = new TextEncoder().encode(pin);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return `sha256:${Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+}
+
 // Public identification verifier. Cross-references a PIN (optionally with a
 // username) or a QR token against the AppUser management list using the
 // service role, so it works before the user has a platform session.
@@ -25,7 +31,12 @@ export default async function(req) {
     }
 
     const base44 = createClientFromRequest(req);
-    const query = { pin: String(pin).trim(), active: true };
+    const normalizedPin = String(pin).trim();
+    if (!/^\d{4}$/.test(normalizedPin)) {
+      return Response.json({ granted: false, reason: "PIN must be exactly 4 digits." }, { status: 400 });
+    }
+
+    const query = { active: true };
     if (username) query.username = username;
 
     const matches = await base44.asServiceRole.entities.AppUser.filter(query);
@@ -33,13 +44,20 @@ export default async function(req) {
     if (!matches || matches.length === 0) {
       return Response.json({ granted: false, reason: "No matching account found." });
     }
-    if (matches.length > 1 && !username) {
+    const candidateHash = await hashPin(normalizedPin);
+    const pinMatches = matches.filter((candidate) => candidate.pin === candidateHash || candidate.pin === normalizedPin);
+    if (pinMatches.length > 1 && !username) {
       return Response.json({ granted: false, reason: "That PIN is shared by several accounts — enter your username too." });
     }
-
-    const u = matches[0];
+    const u = pinMatches[0];
+    if (!u) {
+      return Response.json({ granted: false, reason: "No matching account found." });
+    }
     if (u.active === false) {
       return Response.json({ granted: false, reason: "This account is inactive. Contact your administrator." });
+    }
+    if (u.pin !== candidateHash) {
+      await base44.asServiceRole.entities.AppUser.update(u.id, { pin: candidateHash });
     }
 
     return Response.json({

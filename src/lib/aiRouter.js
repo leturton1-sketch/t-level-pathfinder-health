@@ -15,6 +15,20 @@ export const FREE_OPENROUTER_MODELS = [
   "deepseek/deepseek-r1:free",
 ];
 
+const OPENROUTER_TIMEOUT_MS = 25000;
+const OPENROUTER_RETRY_COUNT = 2;
+const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+const isRetryableOpenRouterError = (error) => {
+  const message = String(error?.message || error || "");
+  return error?.name === "AbortError"
+    || /timed out|fetch failed|HTTP (408|409|429|5\d{2})|request failed \((408|409|429|5\d{2})\)/i.test(message);
+};
+
+const withTimeout = (task, timeoutMs) => Promise.race([
+  task(),
+  new Promise((_, reject) => setTimeout(() => reject(new Error("OpenRouter request timed out")), timeoutMs)),
+]);
+
 export async function fetchFreeOpenRouterModels() {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
@@ -119,11 +133,27 @@ export async function puterChat({ messages, model }) {
 }
 
 export async function openrouterChat({ messages, model }) {
-  const res = await base44.functions.invoke("openrouterChat", { messages, model });
-  const data = res?.data ?? res;
-  if (data?.error) throw new Error(data.error);
-  if (!data?.content) throw new Error("OpenRouter returned an empty response");
-  return { content: data.content, provider: "openrouter", model: data.model || model };
+  let lastError;
+  for (let attempt = 0; attempt <= OPENROUTER_RETRY_COUNT; attempt += 1) {
+    try {
+      const res = await withTimeout(
+        () => base44.functions.invoke("openrouterChat", { messages, model }),
+        OPENROUTER_TIMEOUT_MS
+      );
+      const data = res?.data ?? res;
+      if (data?.error) throw new Error(data.error);
+      if (!data?.content) throw new Error("OpenRouter returned an empty response");
+      return { content: data.content, provider: "openrouter", model: data.model || model };
+    } catch (error) {
+      lastError = error;
+      if (attempt < OPENROUTER_RETRY_COUNT && isRetryableOpenRouterError(error)) {
+        await wait(500 * (2 ** attempt));
+      } else {
+        break;
+      }
+    }
+  }
+  throw lastError || new Error("OpenRouter request failed");
 }
 
 const ORDER = { auto: ["local", "puter", "openrouter"], local: ["local"], puter: ["puter"], openrouter: ["openrouter"] };

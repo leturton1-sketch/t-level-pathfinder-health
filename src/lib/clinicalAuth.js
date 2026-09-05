@@ -71,9 +71,17 @@ export function logout() {
 // Entity-only helpers (AppUser records managed via User Management). These no
 // longer participate in authentication — they just maintain AppUser records.
 export async function changePin(userId, newPin) {
-  await base44.entities.AppUser.update(userId, { pin: newPin, first_login: false });
+  await base44.functions.invoke("changeAppUserPin", {
+    user_id: userId,
+    pin: newPin,
+    first_login: false,
+  });
 }
 
 export async function resetPin(userId) {
-  await base44.entities.AppUser.update(userId, { pin: "0000", first_login: true });
+  await base44.functions.invoke("changeAppUserPin", {
+    user_id: userId,
+    pin: "0000",
+    first_login: true,
+  });
 }
