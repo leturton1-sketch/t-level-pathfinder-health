@@ -89,6 +89,49 @@ export function alignAnatomicalGroupToBody(bodyEnvelope, organGroup, organKey, o
 }
 
 /**
+ * Keeps a procedural system inside the loaded body's overall envelope.
+ * Uniform scaling preserves anatomical proportions; translation only corrects
+ * overshoot caused by legacy coordinates or a differently scaled body asset.
+ */
+export function keepGroupInsideBodyEnvelope(bodyEnvelope, group, padding = 0.985) {
+  if (!bodyEnvelope || !group) return group;
+  bodyEnvelope.updateWorldMatrix(true, true);
+  group.updateWorldMatrix(true, true);
+
+  const bodyBounds = new THREE.Box3().setFromObject(bodyEnvelope);
+  const groupBounds = new THREE.Box3().setFromObject(group);
+  if (bodyBounds.isEmpty() || groupBounds.isEmpty()) return group;
+
+  const bodySize = bodyBounds.getSize(new THREE.Vector3()).multiplyScalar(padding);
+  const groupSize = groupBounds.getSize(new THREE.Vector3());
+  const ratios = [bodySize.x / groupSize.x, bodySize.y / groupSize.y, bodySize.z / groupSize.z]
+    .filter((value) => Number.isFinite(value) && value > 0);
+  const fitScale = Math.min(1, ...ratios);
+  if (fitScale < 1) {
+    group.scale.multiplyScalar(fitScale);
+    group.updateWorldMatrix(true, true);
+    groupBounds.setFromObject(group);
+  }
+
+  const inset = bodyBounds.clone();
+  const margin = bodyBounds.getSize(new THREE.Vector3()).multiplyScalar((1 - padding) / 2);
+  inset.min.add(margin);
+  inset.max.sub(margin);
+  const correction = new THREE.Vector3();
+  for (const axis of ["x", "y", "z"]) {
+    if (groupBounds.min[axis] < inset.min[axis]) correction[axis] += inset.min[axis] - groupBounds.min[axis];
+    if (groupBounds.max[axis] > inset.max[axis]) correction[axis] -= groupBounds.max[axis] - inset.max[axis];
+  }
+  if (correction.lengthSq() > 0 && group.parent) {
+    const originWorld = group.parent.localToWorld(new THREE.Vector3());
+    const correctedWorld = originWorld.clone().add(correction);
+    group.position.add(group.parent.worldToLocal(correctedWorld).sub(group.parent.worldToLocal(originWorld)));
+  }
+  group.updateWorldMatrix(true, true);
+  return group;
+}
+
+/**
  * Registers an imported organ model and aligns it to the body envelope.
  */
 export function registerOrganToBody(bodyEnvelope, organMesh, organKey, options = {}) {
