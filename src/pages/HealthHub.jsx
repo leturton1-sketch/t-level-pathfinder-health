@@ -404,7 +404,7 @@ function FeedbackSheet({ feedback, reference, clinicianName, clinicianDesignatio
     <section className="rounded-[28px] border border-violet-200 bg-white p-6 shadow-xl" aria-live="polite">
       <div className="flex items-start justify-between gap-3">
         <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-tl-purple">Formative feedback sheet</p><h2 className="text-lg font-black">{reference || "Health & Wellbeing Check"}</h2></div>
-        <div className="flex gap-2">{onPrint && <button onClick={onPrint} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Print feedback"><Printer className="h-4 w-4" /></button>}{onClose && <button onClick={onClose} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Close feedback"><X className="h-4 w-4" /></button>}</div>
+        <div className="flex gap-2">{onPrint && <button onClick={onPrint} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Print feedback"><Printer className="h-4 w-4" /></button>}{onClose && <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Close feedback"><X className="h-4 w-4" /></button>}</div>
       </div>
       <dl className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs sm:grid-cols-3">
         <div><dt className="font-bold text-slate-500">Check date</dt><dd className="mt-1 font-black text-slate-900">{checkDate || "Not recorded"}</dd></div>
