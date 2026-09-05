@@ -3,6 +3,11 @@
 .educator-eyebrow { color:#60438f; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:0 0 8px; }
 .educator-heading h1 { font-size:clamp(26px,3vw,38px); font-weight:800; letter-spacing:-.035em; margin:0 0 8px; line-height:1.15; }
 .educator-heading p:not(.educator-eyebrow) { color:#475569; font-size:14px; margin:0; }
+.educator-heading-actions { display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; gap:12px; }
+.educator-transparency { min-width:190px; display:grid; gap:5px; color:#475569; font-size:12px; font-weight:650; }
+.educator-transparency span { display:flex; justify-content:space-between; gap:12px; }
+.educator-transparency strong { color:#60438f; }
+.educator-transparency input { width:100%; accent-color:#765ab0; cursor:pointer; }
 .educator-settings { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid #ddd6ea; background:white; color:#60438f; border-radius:10px; }
 .educator-workspace { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(360px,1fr); gap:20px; align-items:stretch; }
 .educator-stage { min-width:0; background:#08080b; border:1px solid #765ab0; border-radius:16px; overflow:hidden; }
@@ -38,6 +43,8 @@
 @media(max-width:767px) {
  .clinical-educator { padding:14px 10px; }
  .educator-heading { margin-bottom:16px; }
+ .educator-heading-actions { width:100%; justify-content:space-between; }
+ .educator-transparency { flex:1; min-width:160px; }
  .educator-workspace { gap:12px; }
  .educator-video video { height:340px; max-height:50dvh; }
  .educator-conversation { height:640px; max-height:85dvh; min-height:500px; }
