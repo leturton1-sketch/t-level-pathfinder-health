@@ -348,7 +348,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
   return (
     <>
-      <FloatingAICompanion state={state} onActivate={() => setExpanded((value) => !value)} />
+      <FloatingAICompanion state={state} expanded={expanded} onActivate={() => setExpanded((value) => !value)} />
       {bubbleText && (
         <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[10000] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
           <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
