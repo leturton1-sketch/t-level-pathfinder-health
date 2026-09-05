@@ -348,7 +348,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         : isMuscle
           ? clinicalTextures.muscleMap
           : clinicalTextures.tissueMap;
-      const educationalOpacity = isIntegumentary ? 0.2 : isMuscle ? 0.36 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
+      const educationalOpacity = isIntegumentary ? 0.2 : isMuscle ? 0.68 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
       const mat = new THREE.MeshPhysicalMaterial({
         color: isDiaphragm ? new THREE.Color(0xd9f2f1) : color,
         metalness: 0,
@@ -366,8 +366,8 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         clearcoatRoughness: hasCapsule ? 0.58 : 0.74,
         sheen: isBone ? 0 : isMuscle ? 0.16 : 0.1,
         sheenColor: color.clone().lerp(new THREE.Color(0xffffff), 0.26),
-        transmission: isBone ? 0 : isDiaphragm ? 0.46 : isMuscle ? 0.12 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
-        thickness: isDiaphragm ? 0.025 : isMuscle ? 0.06 : isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
+        transmission: isBone ? 0 : isDiaphragm ? 0.46 : isMuscle ? 0.035 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
+        thickness: isDiaphragm ? 0.025 : isMuscle ? 0.035 : isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
         attenuationColor: color.clone().multiplyScalar(0.78),
         attenuationDistance: isParenchymal ? 0.38 : 0.7,
         specularIntensity: isBone ? 0.12 : hasCapsule ? 0.36 : 0.25,
