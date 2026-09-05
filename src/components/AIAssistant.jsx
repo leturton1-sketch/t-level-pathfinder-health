@@ -41,7 +41,14 @@ function Waveform({ state: currentState, monitoring = false, red = false, reacti
 }
 
 const POS_KEY = "pathfinder-ai-panel-position";
+const TRANSPARENCY_KEY = "pathfinder-ai-panel-transparency";
 const DEFAULT_POS = { x: -1, y: -1 }; // -1 = use default anchor (beside the toggle)
+
+function loadTransparency() {
+  if (typeof window === "undefined") return 15;
+  const saved = Number(window.localStorage.getItem(TRANSPARENCY_KEY));
+  return Number.isFinite(saved) ? Math.min(45, Math.max(0, saved)) : 15;
+}
 
 function loadPos() {
   try {
@@ -65,6 +72,7 @@ export default function AIAssistant({ context = "general" }) {
   const [inputMode, setInputMode] = useState("text");
   const [autoListen, setAutoListen] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("clinicaledge-auto-listen") === "true");
   const [pos, setPos] = useState(loadPos);
+  const [panelTransparency, setPanelTransparency] = useState(loadTransparency);
   const synth = useVoiceSynthesis();
   const muted = synth.prefs.muted;
   const messagesEndRef = useRef(null);
@@ -84,6 +92,9 @@ export default function AIAssistant({ context = "general" }) {
   useEffect(() => { mutedRef.current = muted; }, [muted]);
   useEffect(() => { autoListenRef.current = autoListen; }, [autoListen]);
   useEffect(() => { assistantStateRef.current = state; }, [state]);
+  useEffect(() => {
+    window.localStorage.setItem(TRANSPARENCY_KEY, String(panelTransparency));
+  }, [panelTransparency]);
 
   useEffect(() => () => {
     window.clearTimeout(listenTimerRef.current);
@@ -320,7 +331,8 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
   }, []);
 
   const anchored = pos.x < 0 || pos.y < 0;
-  const panelStyle = anchored ? {} : { left: pos.x, top: pos.y };
+  const textOpacity = 1 - panelTransparency / 100;
+  const panelStyle = { opacity: textOpacity, ...(anchored ? {} : { left: pos.x, top: pos.y }) };
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const cleanLast = lastAssistant ? lastAssistant.content.replace(/[*#`]/g, "").replace(/\s+/g, " ").trim() : "";
   const bubbleText =
@@ -336,7 +348,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
     <>
       <FloatingAICompanion state={state} onActivate={() => setExpanded((value) => !value)} />
       {bubbleText && (
-        <div className="pointer-events-none fixed bottom-[194px] right-6 z-[10000] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
+        <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[10000] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
           <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
         </div>
       )}
@@ -371,7 +383,22 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
                 </div>
               </div>
             </div>
-            <button onClick={() => setExpanded(false)} className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
+            <div className="flex items-center gap-2" onPointerDown={(event) => event.stopPropagation()}>
+              <label className="flex items-center gap-1.5 text-[9px] font-semibold text-slate-500" title="Adjust Pathfinder Clinical AI text transparency">
+                <span className="hidden sm:inline">Transparency</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="45"
+                  step="5"
+                  value={panelTransparency}
+                  onChange={(event) => setPanelTransparency(Number(event.target.value))}
+                  aria-label="Pathfinder Clinical AI text transparency"
+                  className="w-16 accent-teal-600"
+                />
+              </label>
+              <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => setExpanded(false)} aria-label="Close Pathfinder Clinical AI chat" title="Close chat" className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
+            </div>
           </div>
 
           {diagnostic && admin ? (
