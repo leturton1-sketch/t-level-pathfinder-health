@@ -8,14 +8,36 @@ import { base44 } from "@/api/base44Client";
  *   - "openrouter" : OpenRouter free cloud models (server-side API key)
  */
 
+export const OPENROUTER_AUTO_FREE_MODEL = "openrouter/free";
+
 export const FREE_OPENROUTER_MODELS = [
-  "meta-llama/llama-3.2-3b-instruct:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "google/gemini-2.0-flash-exp:free",
-  "mistralai/mistral-7b-instruct:free",
-  "qwen/qwen-2.5-72b-instruct:free",
+  OPENROUTER_AUTO_FREE_MODEL,
   "deepseek/deepseek-r1:free",
 ];
+
+export async function fetchFreeOpenRouterModels() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/models", {
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`OpenRouter model scan failed (HTTP ${response.status})`);
+    const payload = await response.json();
+    const models = Array.isArray(payload?.data) ? payload.data : [];
+    return models
+      .filter((model) => {
+        const promptPrice = Number.parseFloat(model?.pricing?.prompt ?? "0");
+        const completionPrice = Number.parseFloat(model?.pricing?.completion ?? "0");
+        return model?.id?.endsWith(":free") || (promptPrice === 0 && completionPrice === 0);
+      })
+      .map((model) => ({ id: model.id, name: model.name || model.id }))
+      .filter((model) => model.id)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export const PUTER_MODELS = [
   "gpt-4o-mini",
@@ -30,7 +52,7 @@ export const DEFAULT_PREFS = {
   localBaseURL: "http://localhost:8080",
   localModel: "gpt-3.5-turbo",
   puterModel: "gpt-4o-mini",
-  openrouterModel: FREE_OPENROUTER_MODELS[0],
+  openrouterModel: OPENROUTER_AUTO_FREE_MODEL,
   systemPrompt: "",
 };
 
