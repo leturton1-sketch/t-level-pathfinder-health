@@ -464,29 +464,51 @@ const ANATOMICAL_ATLAS = {
   vagina: { position: [0, 0.78, 0.015] },
 
   skin: { position: [0, 1.18, 0], scale: [1.55, 3.3, 0.9] },
-  major_muscles: { parts: [
-    // Pectoralis major — anterior chest, kept inside the torso silhouette
-    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [-0.06,1.345,0.115] },
-    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [0.06,1.345,0.115] },
-    // Deltoids — shoulder contour, pulled inboard so the cap stays within the arm shell
-    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [-0.15,1.395,0.01] },
-    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [0.15,1.395,0.01] },
-    // Rectus abdominis — anterior abdominal wall, tucked behind the torso surface
-    { shape: { type: "capsule", radius: 0.034, length: 0.26 }, position: [0,1.12,0.072] },
-    // External obliques — flanks, narrowed to the waist radius
-    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [-0.078,1.12,0.055] },
-    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [0.078,1.12,0.055] },
-    // Quadriceps — anterior thigh, centred in the leg envelope
-    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [-0.062,0.55,0.0] },
-    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [0.062,0.55,0.0] },
-    // Hamstring/calf groups — centred within each leg envelope
-    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [-0.062,0.28,0.0] },
-    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [0.062,0.28,0.0] },
-    // Biceps and forearm flexor groups — aligned to the arm shells
-    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [-0.185,1.29,0.005], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [0.185,1.29,0.005], rotation: [0,0,0.16] },
-    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [-0.215,1.06,0.005], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [0.215,1.06,0.005], rotation: [0,0,0.16] },
+  muscle_neck_shoulders: { parts: [
+    { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [-0.025,1.515,0.008], rotation: [0,0,-0.12] },
+    { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [0.025,1.515,0.008], rotation: [0,0,0.12] },
+    { shape: { type: "sphere", radius: 0.105, scale: [1.48,0.5,0.28] }, position: [0,1.425,-0.055] },
+    { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [-0.18,1.395,0], rotation: [0,0,-0.2] },
+    { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [0.18,1.395,0], rotation: [0,0,0.2] },
+  ] },
+  muscle_chest_abdomen: { parts: [
+    { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [-0.071,1.355,0.09], rotation: [0.04,0,-0.1] },
+    { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [0.071,1.355,0.09], rotation: [0.04,0,0.1] },
+    { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [-0.034,1.115,0.099] },
+    { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [0.034,1.115,0.099] },
+    { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [-0.108,1.11,0.057] },
+    { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [0.108,1.11,0.057] },
+  ] },
+  muscle_back: { parts: [
+    { shape: { type: "sphere", radius: 0.105, scale: [1.22,1.35,0.22] }, position: [0,1.225,-0.092] },
+    { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [-0.038,1.21,-0.105] },
+    { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [0.038,1.21,-0.105] },
+  ] },
+  muscle_arms: { parts: [
+    { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [-0.207,1.27,0.022], rotation: [0,0,-0.18] },
+    { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [0.207,1.27,0.022], rotation: [0,0,0.18] },
+    { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [-0.235,1.035,0.012], rotation: [0,0,-0.12] },
+    { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [0.235,1.035,0.012], rotation: [0,0,0.12] },
+  ] },
+  muscle_pelvis_gluteals: { parts: [
+    { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [-0.072,0.875,-0.07] },
+    { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [0.072,0.875,-0.07] },
+    { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [-0.115,0.89,0.045] },
+    { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [0.115,0.89,0.045] },
+  ] },
+  muscle_thighs: { parts: [
+    { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [-0.074,0.655,0.043] },
+    { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [0.074,0.655,0.043] },
+    { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [-0.074,0.655,-0.043] },
+    { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [0.074,0.655,-0.043] },
+    { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [-0.035,0.655,0.005], rotation: [0,0,-0.04] },
+    { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [0.035,0.655,0.005], rotation: [0,0,0.04] },
+  ] },
+  muscle_lower_legs: { parts: [
+    { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [-0.073,0.315,-0.034] },
+    { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [0.073,0.315,-0.034] },
+    { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [-0.073,0.315,0.039] },
+    { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [0.073,0.315,0.039] },
   ] },
 
   lymph_nodes: { parts: [
