@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, ChevronDown, FileText, Paperclip, Plus, Square, Stethoscope, X } from "lucide-react";
+import { ArrowUp, ChevronDown, FileText, Mic, Paperclip, Plus, Square, Stethoscope, X } from "lucide-react";
 import "./AIComposer.css";
 
 const DEFAULT_PLACEHOLDER = "Ask Pathfinder AI…";
@@ -17,6 +17,10 @@ export default function AIComposer({
   onDiagnosticChange,
   isAdmin = false,
   leadingControls = null,
+  inputMode = "text",
+  onInputModeChange,
+  isListening = false,
+  onVoicePress,
   placeholder = DEFAULT_PLACEHOLDER,
   hint = "Ask a question, create something, or diagnose an issue.",
 }) {
@@ -100,16 +104,39 @@ export default function AIComposer({
         </div>
       )}
       <div className="ai-composer-input-row">
-        <textarea ref={textareaRef} rows={2} value={value} onChange={(event) => onChange(event.target.value)}
-          onKeyDown={onKeyDown} placeholder={diagnosticEnabled ? DIAGNOSTIC_PLACEHOLDER : placeholder}
-          className="ai-composer-textarea" aria-label="Message Pathfinder AI" />
-        <button type="button" onClick={send} disabled={!value.trim() || isProcessing}
-          className="ai-composer-send" aria-label="Send message">
-          <ArrowUp className="h-5 w-5" />
-        </button>
+        {inputMode === "voice" ? (
+          <button type="button" onClick={onVoicePress}
+            className={`ai-composer-voice-button ${isListening ? "ai-composer-voice-active" : ""}`}
+            aria-label={isListening ? "Stop listening" : "Start voice input"}>
+            <Mic className="h-5 w-5" />
+            <span>{isListening ? "Listening… tap to stop" : "Tap to speak"}</span>
+          </button>
+        ) : (
+          <textarea ref={textareaRef} rows={2} value={value} onChange={(event) => onChange(event.target.value)}
+            onKeyDown={onKeyDown} placeholder={diagnosticEnabled ? DIAGNOSTIC_PLACEHOLDER : placeholder}
+            className="ai-composer-textarea" aria-label="Message Pathfinder AI" />
+        )}
+        {inputMode === "text" && (
+          <button type="button" onClick={send} disabled={!value.trim() || isProcessing}
+            className="ai-composer-send" aria-label="Send message">
+            <ArrowUp className="h-5 w-5" />
+          </button>
+        )}
       </div>
       <p className="ai-composer-hint">{hint}</p>
       <div className="ai-composer-toolbar">
+        <div className="ai-composer-mode-toggle" role="group" aria-label="Input mode">
+          <button type="button" onClick={() => onInputModeChange?.("text")}
+            className={`ai-composer-mode-button ${inputMode === "text" ? "ai-composer-mode-active" : ""}`}
+            aria-pressed={inputMode === "text"} aria-label="Text input">
+            <span className="text-[10px] font-bold uppercase tracking-wide">Text</span>
+          </button>
+          <button type="button" onClick={() => onInputModeChange?.("voice")}
+            className={`ai-composer-mode-button ${inputMode === "voice" ? "ai-composer-mode-active" : ""}`}
+            aria-pressed={inputMode === "voice"} aria-label="Voice input">
+            <Mic className="h-3 w-3" /><span className="text-[10px] font-bold uppercase tracking-wide">Voice</span>
+          </button>
+        </div>
         <div className="flex min-w-0 items-center gap-1.5">{leadingControls}</div>
         <div className="hidden items-center gap-1.5 sm:flex">{secondaryControls}</div>
         <div className="relative ml-auto sm:hidden">

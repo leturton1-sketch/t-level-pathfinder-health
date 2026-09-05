@@ -1,5 +1,4 @@
-
-  .ai-composer-shell {
+.ai-composer-shell {
     @apply relative rounded-[22px] border border-white/90 bg-slate-100/95 p-2.5 text-slate-700;
     box-shadow: 10px 10px 24px rgba(148, 163, 184, .28), -8px -8px 20px rgba(255, 255, 255, .96), inset 1px 1px 0 rgba(255, 255, 255, .9);
   }
@@ -19,4 +18,8 @@
   .ai-composer-diagnostic-label { @apply mb-2 rounded-lg bg-amber-100 px-2.5 py-1.5 text-center text-[10px] font-extrabold tracking-[.16em] text-amber-800; }
   .ai-composer-attachments { @apply mb-2 flex flex-wrap gap-1.5; }
   .ai-composer-attachment { @apply inline-flex max-w-full items-center gap-1 rounded-lg bg-white/70 px-2 py-1 text-[10px] font-medium text-slate-600; }
-
+  .ai-composer-mode-toggle { @apply inline-flex items-center gap-0.5 rounded-xl border border-white/80 bg-slate-100 p-0.5; box-shadow: inset 2px 2px 5px rgba(148,163,184,.2), inset -2px -2px 5px rgba(255,255,255,.9); }
+  .ai-composer-mode-button { @apply inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-500 transition hover:text-clinical-teal; }
+  .ai-composer-mode-active { @apply bg-clinical-teal text-white; box-shadow: 3px 3px 7px rgba(15,118,110,.26), -3px -3px 7px rgba(255,255,255,.5); }
+  .ai-composer-voice-button { @apply flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/70 py-3 text-sm font-semibold text-clinical-teal transition hover:bg-white/90; }
+  .ai-composer-voice-active { @apply animate-pulse bg-red-50 text-red-600; }

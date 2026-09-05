@@ -62,6 +62,7 @@ export default function AIAssistant({ context = "general" }) {
   const [contextEnabled, setContextEnabled] = useState(true);
   const admin = isAdmin();
   const [listening, setListening] = useState(false);
+  const [inputMode, setInputMode] = useState("text");
   const [autoListen, setAutoListen] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("clinicaledge-auto-listen") === "true");
   const [pos, setPos] = useState(loadPos);
   const synth = useVoiceSynthesis();
@@ -400,6 +401,14 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
               diagnosticEnabled={diagnostic}
               onDiagnosticChange={setDiagnostic}
               isAdmin={admin}
+              inputMode={inputMode}
+              onInputModeChange={(mode) => {
+                setInputMode(mode);
+                if (mode === "voice") toggleVoice();
+                else if (listening) toggleVoice();
+              }}
+              isListening={listening}
+              onVoicePress={toggleVoice}
               leadingControls={<>
                 <button onClick={toggleVoice} className={`ai-composer-plus ${listening ? "animate-pulse text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
                 <button onClick={toggleMute} className={`ai-composer-plus ${muted ? "text-red-600" : ""}`} aria-label={muted ? "Enable assistant speech" : "Mute assistant speech"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
