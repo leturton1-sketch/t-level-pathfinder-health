@@ -37,8 +37,8 @@ export default function KnowledgeLibrary() {
     setLoading(true);
     try {
       const existing = await base44.entities.KnowledgeArticle.list();
-      const merged = new Map(KNOWLEDGE_ARTICLES.map((article) => [article.title, article]));
-      existing.forEach((article) => merged.set(article.title, article));
+      const merged = new Map(existing.map((article) => [article.title, article]));
+      KNOWLEDGE_ARTICLES.forEach((article) => merged.set(article.title, article));
       setArticles(Array.from(merged.values()));
     } catch {
       setArticles(KNOWLEDGE_ARTICLES);
