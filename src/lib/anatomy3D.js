@@ -68,7 +68,7 @@ const STRUCTURE_BLUEPRINTS = [
   { id: "pelvis", name: "Pelvis", system: "skeletal", genders: "both", shape: { type: "torus", radius: 0.1, tube: 0.035, radialSegments: 12, tubularSegments: 28 }, position: [0, 0.9, -0.01], rotation: [Math.PI/2, 0, 0],
     function: "Bowl-shaped bone transferring weight from spine to lower limbs, protecting pelvic organs. Sexually dimorphic (wider in females).",
     clinicalNote: "Pelvic fractures can cause life-threatening haemorrhage. Apply a pelvic binder and monitor for retroperitoneal bleeding and bladder injury." },
-  { id: "femurs", name: "Femurs", system: "skeletal", genders: "both",
+  { id: "femurs", name: "Major Limb Bones", system: "skeletal", genders: "both",
     parts: [
       { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [0.06, 0.62, 0] },
       { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [-0.06, 0.62, 0] },
@@ -292,8 +292,16 @@ const ANATOMICAL_ATLAS = {
   ] },
   pelvis: { position: [0, 0.895, -0.015], rotation: [Math.PI / 2, 0, 0] },
   femurs: { parts: [
-    { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [-0.065, 0.61, 0] },
-    { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [0.065, 0.61, 0] },
+    // Femora and tibiae/fibulae follow the centres of the two leg shells.
+    { shape: { type: "capsule", radius: 0.023, length: 0.34 }, position: [-0.065, 0.66, -0.005] },
+    { shape: { type: "capsule", radius: 0.023, length: 0.34 }, position: [0.065, 0.66, -0.005] },
+    { shape: { type: "capsule", radius: 0.018, length: 0.32 }, position: [-0.065, 0.30, -0.005] },
+    { shape: { type: "capsule", radius: 0.018, length: 0.32 }, position: [0.065, 0.30, -0.005] },
+    // Humeri and forearm bones remain centred inside the angled arm shells.
+    { shape: { type: "capsule", radius: 0.015, length: 0.25 }, position: [-0.185, 1.29, -0.005], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.015, length: 0.25 }, position: [0.185, 1.29, -0.005], rotation: [0,0,0.16] },
+    { shape: { type: "capsule", radius: 0.012, length: 0.22 }, position: [-0.215, 1.05, -0.005], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.012, length: 0.22 }, position: [0.215, 1.05, -0.005], rotation: [0,0,0.16] },
   ] },
 
   brain: { position: [0, 1.642, 0.008], scale: [1, 0.88, 1.1] },
