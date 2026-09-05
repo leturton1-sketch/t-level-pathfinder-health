@@ -45,7 +45,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
       <div className="absolute right-0 top-0 h-full w-full sm:max-w-md bg-white shadow-2xl z-30 flex flex-col animate-slide-up">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
           <h2 className="font-heading font-bold text-slate-800">Bed {bedDesignation}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
+          <button type="button" onClick={onClose} aria-label="Close patient panel" className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-6">
@@ -85,7 +85,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
             <h2 className="text-lg font-heading font-bold text-[#15131A]">{patient.name}</h2>
             <p className="text-xs text-[#625D69]">Age {patient.age} · {patient.pronouns} · NHS {patient.nhs_number}</p>
           </div>
-          <button onClick={onClose} className="tlevel-3d-panel p-1.5 rounded-xl hover:-translate-y-0.5 mt-0.5">
+          <button type="button" onClick={onClose} aria-label="Close patient panel" className="tlevel-3d-panel p-1.5 rounded-xl hover:-translate-y-0.5 mt-0.5">
             <X className="w-4 h-4 text-[#625D69]" />
           </button>
         </div>
