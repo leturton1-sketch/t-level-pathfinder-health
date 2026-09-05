@@ -67,6 +67,16 @@ body.pf-theme-active {
 .pf-theme-active :is(input,textarea,select) { accent-color: var(--pf-purple); }
 .pf-theme-active :is([role="tablist"],.clinical-inline-cluster) { flex-wrap: wrap; }
 .pf-theme-active [role="tab"] { white-space: normal; }
+@media (prefers-reduced-motion: reduce) {
+  .pf-theme-active *,
+  .pf-theme-active *::before,
+  .pf-theme-active *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 /* Replace frosted surfaces; keep clinical status colours and 3D anatomy materials. */
 .pf-theme-active [class*="backdrop-blur"],
 .pf-theme-active :is(.polished-glass-edge,.tlevel-3d-panel,.clinical-glass-nav,[role="dialog"]) {
@@ -146,6 +156,37 @@ body.pf-theme-active {
 .pf-module > .pf-ward-page { min-height:calc(100dvh - 118px); }
 .pf-ward-viewport { flex:0 0 auto; height:calc(100dvh - 118px); min-height:600px; }
 .pf-ward-page canvas { touch-action:none; }
+.pf-clinical-dashboard {
+  --pf-dashboard-accent: #765ab0;
+  --pf-dashboard-accent-dark: #60438f;
+  --pf-dashboard-surface: #ffffff;
+  --pf-dashboard-line: #ddd6ea;
+}
+.pf-dashboard-header {
+  background: linear-gradient(110deg, var(--pf-dashboard-accent-dark), var(--pf-dashboard-accent));
+}
+.pf-clinical-dashboard :is(.border-sky-200\/70,.border-sky-100) { border-color: var(--pf-dashboard-line); }
+.pf-clinical-dashboard :is(.bg-sky-50,.bg-sky-50\/90) { background-color: #f5f1fb; }
+.pf-clinical-dashboard :is(.text-sky-600,.text-sky-700,.text-clinical-teal) { color: var(--pf-dashboard-accent-dark); }
+.pf-clinical-dashboard :is(.bg-clinical-teal,.bg-sky-600,.bg-sky-500) { background-color: var(--pf-dashboard-accent); }
+.pf-ward-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  color: var(--pf-muted);
+  font-size: 11px;
+}
+.pf-ward-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.pf-legend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+.pf-legend-stable { background: #22c55e; }
+.pf-legend-review { background: #f59e0b; }
+.pf-legend-urgent { background: #ef4444; }
+.pf-legend-empty { background: #cbd5e1; }
+.pf-urgent-bed { animation: pf-urgent-pulse 2s ease-in-out infinite; }
+@keyframes pf-urgent-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(239 68 68 / 0); }
+  50% { box-shadow: 0 0 0 4px rgb(239 68 68 / 0.18); }
+}
 @media(max-width:767px) {
   .pf-module > .pf-ward-page { min-height:calc(100dvh - 80px); }
   .pf-ward-viewport { height:calc(100dvh - 80px); min-height:640px; }

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
+import { useToast } from "@/components/ui/use-toast";
 import TLevelLogo from "@/components/TLevelLogo";
 import PatientList from "@/components/dashboard/PatientList";
 import LiveWardWidget from "@/components/dashboard/LiveWardWidget";
@@ -9,8 +10,10 @@ import NEWS2LiveWidget from "@/components/dashboard/NEWS2LiveWidget";
 import RiskAssessmentWidget from "@/components/dashboard/RiskAssessmentWidget";
 import MandatoryIntakeRiskAssessment from "@/components/dashboard/MandatoryIntakeRiskAssessment";
 import WardStatsWidget from "@/components/dashboard/WardStatsWidget";
-import { initialBoard, admitIncoming, INCOMING_PATIENTS } from "@/lib/wardBoard";
-import { Activity, Clock, Stethoscope, Users, Sparkles, Bot, Sliders } from "lucide-react";
+import { INCOMING_PATIENTS } from "@/lib/wardBoard";
+import { readStoredValue, writeStoredValue } from "@/lib/localStorage";
+import { useWardBoard } from "@/hooks/useWardBoard";
+import { Activity, Clock, Stethoscope, Users, Sparkles, Bot, Sliders, FileText, LogOut } from "lucide-react";
 
 const ADMIN_TOOLS = [
   { to: "/scenario-authoring", label: "Scenario Authoring", icon: Stethoscope },
@@ -20,25 +23,46 @@ const ADMIN_TOOLS = [
   { to: "/voice-assistant", label: "Voice Assistant", icon: Bot },
 ];
 
+function WardClock() {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const dateTime = new Date(now);
+  const clock = dateTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const date = dateTime.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+
+  return (
+    <div className="hidden sm:flex items-center gap-1.5 text-xs text-white/90" aria-label={`Current time ${clock}, ${date}`}>
+      <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+      <time className="font-mono" dateTime={dateTime.toISOString()}>{clock}</time>
+      <span className="text-white/50" aria-hidden="true">·</span>
+      <span>{date}</span>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const user = getCurrentUser();
   const [now, setNow] = useState(() => Date.now());
-  const [patients, setPatients] = useState(() => initialBoard(Date.now()));
-  const [incoming, setIncoming] = useState(INCOMING_PATIENTS);
-  const [selectedId, setSelectedId] = useState(() => patients[0]?.id);
   const [intakePatient, setIntakePatient] = useState(null);
+  const board = useWardBoard();
+  const { patients, incoming, selected, selectedId, setSelectedId, setPatients, admit, discharge } = board;
+  useEffect(() => board.setIncoming(INCOMING_PATIENTS), [board.setIncoming]);
 
   useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
-  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
-
-  const selected = useMemo(() => patients.find((p) => p.id === selectedId) || patients[0], [patients, selectedId]);
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleAdmit = (p) => {
-    const admitted = admitIncoming(p, Date.now());
-    setPatients((prev) => [...prev, admitted]);
-    setIncoming((prev) => prev.filter((x) => x.id !== p.id));
-    setSelectedId(admitted.id);
+    const admitted = admit(p);
     setIntakePatient(admitted);
   };
 
@@ -46,31 +70,30 @@ export default function Dashboard() {
     setPatients((current) => current.map((patient) =>
       patient.id === intakePatient?.id ? { ...patient, riskAssessment: assessment } : patient
     ));
-    try {
-      const audit = JSON.parse(localStorage.getItem("clinicaledge_intake_audit") || "[]");
-      localStorage.setItem("clinicaledge_intake_audit", JSON.stringify([
-        ...audit.slice(-49),
-        { patientId: intakePatient?.id, patientName: intakePatient?.name, ...assessment },
-      ]));
-    } catch {
-      // The assessment remains in dashboard state if device storage is unavailable.
+    const audit = readStoredValue("clinicaledge_intake_audit", []);
+    const saved = writeStoredValue("clinicaledge_intake_audit", [
+      ...audit.slice(-49),
+      { patientId: intakePatient?.id, patientName: intakePatient?.name, ...assessment },
+    ]);
+    if (!saved) {
+      toast({
+        title: "Assessment saved for this session",
+        description: "Device storage was unavailable, so the audit could not be persisted.",
+        variant: "destructive",
+      });
     }
     setIntakePatient(null);
   };
 
   const handleDischarge = (p) => {
-    setPatients((prev) => prev.filter((x) => x.id !== p.id));
-    setSelectedId(null);
+    discharge(p);
   };
 
   const isAdmin = ["super_admin", "admin", "tutor"].includes(user?.role);
-  const clock = new Date(now).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
-
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="pf-clinical-dashboard min-h-screen bg-background pb-24">
       {/* NHS-style system header */}
-      <div className="bg-gradient-to-r from-sky-600 to-sky-500 text-white">
+      <div className="pf-dashboard-header text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shrink-0 shadow-inner">
@@ -82,12 +105,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-white/90">
-              <Clock className="w-3.5 h-3.5" />
-              <span className="font-mono">{clock}</span>
-              <span className="text-white/50">·</span>
-              <span>{date}</span>
-            </div>
+            <WardClock />
             <TLevelLogo size="sm" dark />
           </div>
         </div>
@@ -113,14 +131,14 @@ export default function Dashboard() {
             </div>
 
             {isAdmin && (
-              <div className="rounded-2xl border border-sky-200/70 bg-card p-3 shadow-sm">
+              <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
                 <p className="text-[10px] font-heading font-bold text-muted-foreground uppercase tracking-wide mb-2">Admin & Tools</p>
                 <div className="flex flex-wrap gap-2">
                   {ADMIN_TOOLS.map((t) => (
-                    <button key={t.to} onClick={() => navigate(t.to)}
+                    <Link key={t.to} to={t.to}
                       className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-heading font-semibold text-foreground hover:bg-sky-50 hover:border-sky-300 transition-colors">
-                      <t.icon className="w-3.5 h-3.5 text-clinical-teal" /> {t.label}
-                    </button>
+                      <t.icon className="w-3.5 h-3.5 text-clinical-teal" aria-hidden="true" /> {t.label}
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -129,6 +147,22 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {selected && (
+        <nav className="pf-mobile-actions" aria-label="Current patient actions">
+          <Link to="/care-planning" aria-label="Update records">
+            <FileText aria-hidden="true" /> <span>Records</span>
+          </Link>
+          <Link to="/care-planning/news2" aria-label="Record observations">
+            <Activity aria-hidden="true" /> <span>Observations</span>
+          </Link>
+          <Link to="/ward-simulation" aria-label="View patient in ward">
+            <Stethoscope aria-hidden="true" /> <span>Ward</span>
+          </Link>
+          <button type="button" onClick={() => handleDischarge(selected)} aria-label={`Discharge ${selected.name}`}>
+            <LogOut aria-hidden="true" /> <span>Discharge</span>
+          </button>
+        </nav>
+      )}
       <MandatoryIntakeRiskAssessment patient={intakePatient} onComplete={handleIntakeComplete} />
     </div>
   );

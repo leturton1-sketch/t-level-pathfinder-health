@@ -142,6 +142,21 @@
   .pf-team-trigger { display: flex; right: 12px; bottom: max(12px,env(safe-area-inset-bottom)); }
   .pf-drawer-team { top: auto; height: 82dvh; width: 100%; border-radius: 20px 20px 0 0; overflow: hidden; }
   .pf-drawer-navigation { width: min(360px,92vw); }
+  .pf-mobile-actions {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--pf-border); background: #fff;
+    box-shadow: 0 -4px 18px #0f172a18;
+  }
+  .pf-mobile-actions :is(a,button) {
+    min-height: 48px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; border: 0; background: transparent;
+    color: var(--pf-muted); font: inherit; font-size: 10px; font-weight: 700;
+    text-decoration: none;
+  }
+  .pf-mobile-actions :is(a,button):hover, .pf-mobile-actions :is(a,button):focus-visible { color: #075985; background: #f0f9ff; }
+  .pf-mobile-actions svg { width: 18px; height: 18px; }
 }
 @media (max-height: 720px) and (min-width: 768px) {
   .pf-navigation-compact { max-height: calc(100dvh - 308px); overflow-y: auto; }
