@@ -65,6 +65,8 @@ export default function AIAssistant({ context = "general" }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [state, setState] = useState("idle");
+  const [attentionCue, setAttentionCue] = useState(0);
+  const [attentionKind, setAttentionKind] = useState("none");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [diagnostic, setDiagnostic] = useState(false);
@@ -107,7 +109,7 @@ export default function AIAssistant({ context = "general" }) {
   const systemPrompt = `You are ${identity.fullName} (${identity.title}), the Pathfinder AI Clinical Assistant supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. Address the user by name and tailor your support to their role. The user is ${user?.full_name || "a student"} (role: ${user?.role || "student"}). Your role is to help with nursing studies, understanding and knowledge, the T Level specification, simulation, admin and knowledge-based tasks. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
 
 WARD MANAGEMENT: In edit mode you can help place items (bed, bedside_cabinet, observation_monitor, iv_stand, curtain, chair, overbed_table, waste_bin, sink). Bed designations: A1-A4 (Suite A), B1-B4 (Suite B).
-Include a ward_action object for ward commands, otherwise set action to "none".`;
+Include a ward_action object for ward commands, otherwise set action to "none". Set attention_cue to "advice" when giving important guidance, "suggestion" when proposing a helpful next step, or "none" for ordinary answers.`;
 
   useEffect(() => {
     const handler = (e) => { wardStateRef.current = e.detail; };
@@ -162,6 +164,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
           type: "object",
           properties: {
             reply: { type: "string" },
+            attention_cue: { type: "string", enum: ["advice", "suggestion", "none"] },
             ward_action: {
               type: "object",
               properties: {
@@ -184,7 +187,21 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
       if (response.ward_action && response.ward_action.action !== "none") {
         window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: response.ward_action }));
       }
-      await speak(reply);
+      const responseCue = response?.attention_cue;
+      const inferredCue = /\b(i (?:recommend|suggest|advise)|my (?:advice|suggestion)|you should|consider)\b/i.test(String(reply))
+        ? "suggestion"
+        : "none";
+      const cue = ["advice", "suggestion"].includes(responseCue) ? responseCue : inferredCue;
+      if (cue !== "none") {
+        setAttentionKind(cue);
+        setAttentionCue((current) => current + 1);
+      }
+      const spokenReply = cue === "advice"
+        ? `I have some advice for you. ${reply}`
+        : cue === "suggestion"
+          ? `I have a suggestion for you. ${reply}`
+          : reply;
+      await speak(spokenReply);
     } catch {
       if (requestId !== requestIdRef.current) return;
       setMessages((prev) => [...prev, { role: "assistant", content: "I apologise — I'm having trouble connecting right now. Please try again." }]);
@@ -348,7 +365,7 @@ Include a ward_action object for ward commands, otherwise set action to "none".`
 
   return (
     <>
-      <FloatingAICompanion state={state} expanded={expanded} onActivate={() => setExpanded((value) => !value)} />
+      <FloatingAICompanion state={state} expanded={expanded} attentionCue={attentionCue} attentionKind={attentionKind} onActivate={() => setExpanded((value) => !value)} />
       {bubbleText && (
         <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[10000] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
           <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
