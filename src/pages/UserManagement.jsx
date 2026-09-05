@@ -9,7 +9,7 @@ import VoiceSettings from "@/components/voice/VoiceSettings";
 import AppInstallerPanel from "@/components/admin/AppInstallerPanel";
 
 const ROLE_LABELS = {
-  super_admin: "Super Admin",
+  super_admin: "System Architect",
   admin: "Admin",
   tutor: "Lecturer",
   student: "Student",
@@ -101,7 +101,7 @@ export default function UserManagement() {
       return;
     }
     if (targetUser.role === "admin" && !isSuperAdmin()) {
-      alert("Only the Super Admin can delete Admin accounts.");
+      alert("Only the System Architect can delete Admin accounts.");
       return;
     }
     if (!confirm(`Delete ${targetUser.full_name}? This cannot be undone.`)) return;
@@ -219,7 +219,7 @@ export default function UserManagement() {
                 </div>
               </div>
               <span className={`text-[10px] font-semibold rounded-md border px-2 py-0.5 shrink-0 ${ROLE_COLORS[u.role]}`}>
-                {ROLE_LABELS[u.role]}
+                {u.title || ROLE_LABELS[u.role]}
               </span>
               <div className="flex gap-1">
                 <button

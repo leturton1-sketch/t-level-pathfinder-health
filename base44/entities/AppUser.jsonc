@@ -23,6 +23,11 @@
       ],
       "default": "student"
     },
+    "title": {
+      "type": "string",
+      "title": "Custom Role Title",
+      "description": "Optional override shown on the user's role badge (e.g. 'System Architect and T-Level Lead Clinical Educator')"
+    },
     "full_name": {
       "type": "string",
       "title": "Full Name"
@@ -65,7 +70,7 @@
     "is_protected": {
       "type": "boolean",
       "default": false,
-      "description": "Super Admin account cannot be deleted"
+      "description": "System Architect account cannot be deleted"
     }
   },
   "required": [
