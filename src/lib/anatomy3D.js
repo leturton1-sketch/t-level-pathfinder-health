@@ -408,9 +408,14 @@ const ANATOMICAL_ATLAS = {
     // Quadriceps — anterior thigh
     { shape: { type: "capsule", radius: 0.044, length: 0.5 }, position: [-0.062,0.55,0.03] },
     { shape: { type: "capsule", radius: 0.044, length: 0.5 }, position: [0.062,0.55,0.03] },
-    // Biceps brachii — upper arm
-    { shape: { type: "capsule", radius: 0.034, length: 0.42 }, position: [-0.185,1.17,0], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.034, length: 0.42 }, position: [0.185,1.17,0], rotation: [0,0,0.16] },
+    // Hamstring/calf groups — centred within each leg envelope
+    { shape: { type: "capsule", radius: 0.036, length: 0.28 }, position: [-0.062,0.28,0.018] },
+    { shape: { type: "capsule", radius: 0.036, length: 0.28 }, position: [0.062,0.28,0.018] },
+    // Biceps and forearm flexor groups — aligned to the arm shells
+    { shape: { type: "capsule", radius: 0.03, length: 0.24 }, position: [-0.185,1.29,0.015], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.03, length: 0.24 }, position: [0.185,1.29,0.015], rotation: [0,0,0.16] },
+    { shape: { type: "capsule", radius: 0.024, length: 0.20 }, position: [-0.215,1.06,0.012], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.024, length: 0.20 }, position: [0.215,1.06,0.012], rotation: [0,0,0.16] },
   ] },
 
   lymph_nodes: { parts: [
