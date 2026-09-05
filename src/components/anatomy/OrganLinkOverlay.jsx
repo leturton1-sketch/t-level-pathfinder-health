@@ -41,6 +41,7 @@ export default function OrganLinkOverlay({ selectedId, onClose }) {
           Theory <ExternalLink className="h-3 w-3" />
         </Link>
         <button
+          type="button"
           onClick={onClose}
           className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:text-rose-600"
           aria-label="Dismiss organ link"
