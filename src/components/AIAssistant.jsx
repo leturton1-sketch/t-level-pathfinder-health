@@ -46,7 +46,9 @@ const DEFAULT_POS = { x: -1, y: -1 }; // -1 = use default anchor (beside the tog
 
 function loadTransparency() {
   if (typeof window === "undefined") return 15;
-  const saved = Number(window.localStorage.getItem(TRANSPARENCY_KEY));
+  const raw = window.localStorage.getItem(TRANSPARENCY_KEY);
+  if (raw === null) return 15;
+  const saved = Number(raw);
   return Number.isFinite(saved) ? Math.min(45, Math.max(0, saved)) : 15;
 }
 
