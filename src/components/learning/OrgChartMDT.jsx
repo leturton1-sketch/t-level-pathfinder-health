@@ -71,7 +71,7 @@ export default function OrgChartMDT() {
                   {(() => { const Icon = ICONS[selected.icon] || User; return <Icon className="w-5 h-5 text-white" />; })()}
                   <h3 className="font-heading font-bold text-white">{selected.title}</h3>
                 </div>
-                <button onClick={() => setSelectedId(null)} className="text-white/80 hover:text-white">
+                <button type="button" onClick={() => setSelectedId(null)} aria-label="Close team member details" className="text-white/80 hover:text-white">
                   <X className="w-4 h-4" />
                 </button>
               </div>
