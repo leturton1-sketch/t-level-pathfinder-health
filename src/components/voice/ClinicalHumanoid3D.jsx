@@ -202,7 +202,9 @@ export default function ClinicalHumanoid3D({
     mount.appendChild(renderer.domElement);
 
     const rig = buildRobot();
-    rig.root.position.y = 0.2;
+    // Keep the model comfortably inside the stage: 70% of the original scene scale.
+    rig.root.scale.setScalar(0.7);
+    rig.root.position.y = 0.05;
     scene.add(rig.root);
     scene.add(new THREE.HemisphereLight(0xe8fbff, 0x08131b, 2.3));
     const key = new THREE.DirectionalLight(0xffffff, 4.8);
