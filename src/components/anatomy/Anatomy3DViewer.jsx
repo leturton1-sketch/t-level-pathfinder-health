@@ -396,6 +396,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       if (["muscular", "skeletal", "nervous", "cardiovascular"].includes(s.system)) {
         keepGroupInsideBodyEnvelope(shellGroup, grp);
       }
+      grp.userData.constrainedScale = grp.scale.clone();
       groupsRef.current[s.id] = grp;
       baseColorsRef.current[s.id] = color;
     });
@@ -633,7 +634,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         });
         // Preserve the OBJ-conformed scale of the integumentary neon outline
         // so toggling the layer off/on keeps it aligned with the visible body.
-        if (id !== "skin") grp.scale.setScalar(1);
+        if (id !== "skin") grp.scale.copy(grp.userData.constrainedScale || new THREE.Vector3(1, 1, 1));
       }
     });
     // Dim shell when isolating
