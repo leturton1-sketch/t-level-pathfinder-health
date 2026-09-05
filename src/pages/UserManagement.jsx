@@ -312,7 +312,7 @@ export default function UserManagement() {
           <div className="w-full sm:max-w-sm bg-card rounded-t-2xl sm:rounded-2xl border border-border p-4 animate-slide-up" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-foreground">Create New User</h2>
-              <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-muted">
+              <button type="button" onClick={() => setShowCreate(false)} aria-label="Close create user window" className="p-1 rounded-lg hover:bg-muted">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
