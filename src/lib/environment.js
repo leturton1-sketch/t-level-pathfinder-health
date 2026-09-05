@@ -1,0 +1,27 @@
+import { appParams } from "@/lib/app-params";
+
+const isPlaceholder = (value) => !value || /^your[_-]|<.*>$/i.test(value.trim());
+
+export function validateEnvironment() {
+  const errors = [];
+  const { appId, appBaseUrl } = appParams;
+
+  if (isPlaceholder(appId)) {
+    errors.push("VITE_BASE44_APP_ID is missing or still uses its placeholder value.");
+  }
+
+  if (isPlaceholder(appBaseUrl)) {
+    errors.push("VITE_BASE44_APP_BASE_URL is missing or still uses its placeholder value.");
+  } else {
+    try {
+      const url = new URL(appBaseUrl);
+      if (!["http:", "https:"].includes(url.protocol)) {
+        errors.push("VITE_BASE44_APP_BASE_URL must use http or https.");
+      }
+    } catch {
+      errors.push("VITE_BASE44_APP_BASE_URL must be a valid URL.");
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
