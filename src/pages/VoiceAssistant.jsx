@@ -32,6 +32,28 @@ const STATUS = {
   offline: "Unable to connect — please try again",
 };
 
+// Detects an emotive cue from the educator's reply so the 3D educator can react
+// with body language that matches the tone of the message.
+const EMOTION_CUES = [
+  { emotion: "celebrate", words: ["well done", "great job", "excellent", "fantastic", "brilliant", "perfect", "outstanding", "you've got it", "spot on", "fantastic work", "superb"] },
+  { emotion: "happy", words: ["good work", "correct", "exactly", "that's right", "right answer", "nice work", "good effort", "well reasoned", "yes, exactly"] },
+  { emotion: "empathetic", words: ["i'm sorry", "unfortunately", "sadly", "i understand", "that sounds", "it can be difficult", "that's completely understandable", "it's understandable"] },
+  { emotion: "confused", words: ["i'm not sure", "it's unclear", "not certain", "could you clarify", "can you rephrase", "i didn't quite catch"] },
+  { emotion: "thinking", words: ["let me think", "let's consider", "worth considering", "hmm", "let's explore", "let me consider", "an important consideration"] },
+  { emotion: "concerned", words: ["be careful", "caution", "important to remember", "must always", "never", "safety risk", "red flag", "warning sign"] },
+];
+
+function detectEmotion(reply) {
+  const text = (reply || "").toLowerCase();
+  for (const cue of EMOTION_CUES) {
+    if (cue.words.some((word) => text.includes(word))) return cue.emotion;
+  }
+  // Question-heavy short replies read as curious/curious-acknowledgement.
+  const questionMarks = (reply.match(/\?/g) || []).length;
+  if (questionMarks >= 2 && reply.length < 240) return "confused";
+  return "acknowledging";
+}
+
 async function invokeRoutedAssistant(prompt, onStage) {
   const prefs = loadPrefs();
   const messages = prefs.systemPrompt.trim()
@@ -51,6 +73,8 @@ export default function VoiceAssistant() {
   const [contextEnabled, setContextEnabled] = useState(true);
   const [diagnostic, setDiagnostic] = useState(false);
   const [conversationTransparency, setConversationTransparency] = useState(loadEducatorTransparency);
+  const [emotion, setEmotion] = useState("neutral");
+  const [emotionKey, setEmotionKey] = useState(0);
   const admin = isAdmin();
 
   const [listening, setListening] = useState(false);
@@ -109,6 +133,9 @@ export default function VoiceAssistant() {
       const reply = result.content || "Sorry, I didn't catch that.";
 
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
+      const detected = detectEmotion(reply);
+      setEmotion(detected);
+      setEmotionKey((key) => key + 1);
       await speakCompletion(reply);
     } catch {
       if (requestId !== requestIdRef.current) return;
@@ -190,7 +217,7 @@ export default function VoiceAssistant() {
       </header>
       <div className="educator-workspace">
         <section className="educator-stage" aria-label="Pathfinder humanoid Clinical Educator">
-          <ClinicalHumanoid3D state={status} speaking={synth.speaking} listening={listening} />
+          <ClinicalHumanoid3D state={status} speaking={synth.speaking} listening={listening} emotion={emotion} emotionKey={emotionKey} />
         </section>
         <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
