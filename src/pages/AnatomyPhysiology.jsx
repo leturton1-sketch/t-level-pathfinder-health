@@ -22,6 +22,7 @@ function Explorer() {
   const [editMode, setEditMode] = useState(false);
   const [overrides, setOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_overrides") || "{}"); } catch { return {}; } });
   const [draft, setDraft] = useState({});
+  const [transformDefaults, setTransformDefaults] = useState({});
   const { toast } = useToast();
   const [hidden, setHidden] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_hidden") || "[]"); } catch { return []; } });
   const [clipped, setClipped] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_clipped") || "[]"); } catch { return []; } });
@@ -58,9 +59,10 @@ function Explorer() {
   };
   const handleTransform = (id, transform) => {
     setDraft((d) => {
-      const def = ANATOMY_STRUCTURES.find((s) => s.id === id) || {};
+      const def = transformDefaults[id] || {};
       const existing = d[id] || {};
       return { ...d, [id]: {
+        ...existing, ...transform,
         position: transform.position ?? existing.position ?? (def.position ? [...def.position] : [0, 0, 0]),
         rotation: transform.rotation ?? existing.rotation ?? (def.rotation ? [...def.rotation] : [0, 0, 0]),
       }};
@@ -71,9 +73,10 @@ function Explorer() {
     const STEP = 0.06;
     const onKey = (e) => {
       if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+      if (e.target instanceof HTMLElement && (e.target.closest("input, select, textarea, button") || e.target.isContentEditable)) return;
       e.preventDefault();
       setDraft((d) => {
-        const def = ANATOMY_STRUCTURES.find((s) => s.id === selectedId) || {};
+        const def = transformDefaults[selectedId] || {};
         const existing = d[selectedId] || {};
         const rot = [...(existing.rotation || def.rotation || [0, 0, 0])];
         if (e.key === "ArrowLeft") rot[1] -= STEP;
@@ -81,6 +84,7 @@ function Explorer() {
         if (e.key === "ArrowUp") rot[0] -= STEP;
         if (e.key === "ArrowDown") rot[0] += STEP;
         return { ...d, [selectedId]: {
+          ...existing,
           position: existing.position ?? (def.position ? [...def.position] : [0, 0, 0]),
           rotation: rot,
         }};
@@ -88,7 +92,7 @@ function Explorer() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [editMode, selectedId]);
+  }, [editMode, selectedId, transformDefaults]);
 
   const activeSystems = BODY_LAYER_ORDER.filter((system) => !removed.includes(system));
   const selected = ANATOMY_STRUCTURES.find((item) => item.id === selectedId);
@@ -103,7 +107,7 @@ function Explorer() {
   {editMode && isAdminUser && (
     <div className="mb-4">
       <AnatomyAdminPanel
-        selectedId={selectedId}
+        selectedId={selectedId} onSelect={setSelectedId} defaults={transformDefaults}
         overrides={draft} setOverrides={setDraft}
         hidden={hidden} setHidden={setHidden}
         clipped={clipped} setClipped={setClipped}
@@ -164,7 +168,7 @@ function Explorer() {
             </button>
           )}
           {editMode && (
-            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-black text-amber-800">Drag an organ to move · arrow keys to rotate · Save to keep</span>
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-black text-amber-800">Drag a part to move · X/Y/Z controls to rotate 360° and resize · Save to keep</span>
           )}
         </div>
       )}
@@ -181,7 +185,7 @@ function Explorer() {
         </div>
         <AnimationOverlay animations={animations} active={activeAnims} />
         <OrganLinkOverlay selectedId={selectedId} onClose={() => setSelectedId(null)} />
-        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={activeOverrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom} editMode={editMode} onTransformStructure={handleTransform}/>
+        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={activeOverrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom} editMode={editMode} onTransformStructure={handleTransform} onTransformDefaults={setTransformDefaults}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
