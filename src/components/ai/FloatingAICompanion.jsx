@@ -143,7 +143,7 @@ function dockPosition(minimized) {
   };
 }
 
-export default function FloatingAICompanion({ state = "idle", onActivate }) {
+export default function FloatingAICompanion({ state = "idle", expanded = false, onActivate }) {
   const mountRef = useRef(null);
   const widgetRef = useRef(null);
   const dragRef = useRef(null);
@@ -327,8 +327,9 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
       onDoubleClick={onDoubleClick}
       role="button"
       tabIndex={0}
-      aria-label={minimized ? "Open docked Pathfinder clinical AI companion" : "Open Pathfinder clinical AI companion"}
-      title="Drag to move · Double-click to dock or restore"
+      aria-label={expanded ? "Close Pathfinder clinical AI text box" : "Open Pathfinder clinical AI text box"}
+      aria-expanded={expanded}
+      title={`${expanded ? "Click to close" : "Click to open"} · Drag to move · Double-click to dock or restore`}
       onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onActivate?.(); }}
     >
       <div ref={mountRef} className="ai-companion-canvas" aria-hidden="true" />
