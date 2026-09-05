@@ -12,7 +12,7 @@ export default async function(req) {
     const messages = Array.isArray(body?.messages) && body.messages.length
       ? body.messages
       : [{ role: 'user', content: String(body?.prompt || '') }];
-    const model = body?.model || 'meta-llama/llama-3.2-3b-instruct:free';
+    const model = body?.model || 'openrouter/free';
 
     const apiKey = secrets.get('OPENROUTER_API_KEY');
     if (!apiKey) return Response.json({ error: 'OpenRouter API key not configured on the server.' }, { status: 500 });
