@@ -88,7 +88,7 @@ export default function EHRModal({ patient, ehrOverrides, onClose, onLaunchTool 
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-semibold text-slate-600 hover:bg-slate-50 shrink-0">
+          <button type="button" onClick={onClose} aria-label="Close electronic health record" className="flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-heading font-semibold text-slate-600 hover:bg-slate-50 shrink-0">
             <X className="w-3.5 h-3.5" /> Close
           </button>
         </div>
