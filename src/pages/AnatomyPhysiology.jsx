@@ -10,10 +10,12 @@ import OrganLinkOverlay from "@/components/anatomy/OrganLinkOverlay";
 
 const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-gradient-to-br from-white/92 via-slate-100/82 to-slate-200/68 shadow-[0_12px_0_-6px_rgba(100,116,139,.24),0_28px_60px_-32px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl";
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
+const REBUILT_CORE_SYSTEMS = ["muscular", "skeletal", "nervous", "cardiovascular"];
+const CORE_ANATOMY_VERSION = "2026-09-core-systems-v2";
 
 function Explorer() {
   const [genitalia, setGenitalia] = useState("male");
-  const [removed, setRemoved] = useState(["muscular", "skeletal", "nervous", "lymphatic"]);
+  const [removed, setRemoved] = useState(() => BODY_LAYER_ORDER.filter((system) => !REBUILT_CORE_SYSTEMS.includes(system)));
   const [selectedId, setSelectedId] = useState("skin");
   const [viewMode, setViewMode] = useState("full");
   const [editMode, setEditMode] = useState(false);
@@ -26,6 +28,18 @@ function Explorer() {
   useEffect(() => { localStorage.setItem("anatomy_admin_hidden", JSON.stringify(hidden)); }, [hidden]);
   useEffect(() => { localStorage.setItem("anatomy_admin_clipped", JSON.stringify(clipped)); }, [clipped]);
   useEffect(() => { localStorage.setItem("anatomy_admin_custom", JSON.stringify(custom)); }, [custom]);
+  useEffect(() => {
+    if (localStorage.getItem("anatomy_core_system_version") === CORE_ANATOMY_VERSION) return;
+    const rebuiltIds = new Set(
+      ANATOMY_STRUCTURES.filter((item) => REBUILT_CORE_SYSTEMS.includes(item.system)).map((item) => item.id)
+    );
+    setOverrides((current) => Object.fromEntries(Object.entries(current).filter(([id]) => !rebuiltIds.has(id))));
+    setHidden((current) => current.filter((id) => !rebuiltIds.has(id)));
+    setClipped((current) => current.filter((id) => !rebuiltIds.has(id)));
+    setRemoved(BODY_LAYER_ORDER.filter((system) => !REBUILT_CORE_SYSTEMS.includes(system)));
+    setSelectedId(null);
+    localStorage.setItem("anatomy_core_system_version", CORE_ANATOMY_VERSION);
+  }, []);
   const [animations, setAnimations] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_animations") || "{}"); } catch { return {}; } });
   const [activeAnims, setActiveAnims] = useState([]);
   const [showAnimController, setShowAnimController] = useState(false);
