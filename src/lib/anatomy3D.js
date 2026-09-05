@@ -288,8 +288,8 @@ const STRUCTURE_BLUEPRINTS = [
 // Coordinates use anatomical position: patient-left = -X, superior = +Y,
 // anterior = +Z. The right kidney sits lower than the left because of the liver.
 const ANATOMICAL_ATLAS = {
-  skull: { position: [0, 1.64, 0], scale: [1, 0.95, 1.05] },
-  spine_bone: { position: [0, 1.235, -0.082] },
+  skull: { position: [0, 1.64, 0], scale: [0.9, 0.9, 0.94] },
+  spine_bone: { position: [0, 1.235, -0.06] },
   ribcage: { parts: [
     { shape: { type: "torus", radius: 0.125, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.20, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
     { shape: { type: "torus", radius: 0.138, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.26, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
@@ -297,7 +297,7 @@ const ANATOMICAL_ATLAS = {
     { shape: { type: "torus", radius: 0.15, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.38, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
     { shape: { type: "torus", radius: 0.142, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.44, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
   ] },
-  pelvis: { position: [0, 0.895, -0.015], rotation: [Math.PI / 2, 0, 0] },
+  pelvis: { shape: { type: "torus", radius: 0.058, tube: 0.026, radialSegments: 12, tubularSegments: 28 }, position: [0, 0.895, -0.015], rotation: [Math.PI / 2, 0, 0] },
   femurs: { parts: [
     // Femora and tibiae/fibulae follow the centres of the two leg shells.
     { shape: { type: "capsule", radius: 0.023, length: 0.34 }, position: [-0.065, 0.66, -0.005] },
@@ -311,8 +311,8 @@ const ANATOMICAL_ATLAS = {
     { shape: { type: "capsule", radius: 0.012, length: 0.22 }, position: [0.215, 1.05, -0.005], rotation: [0,0,0.16] },
   ] },
 
-  brain: { position: [0, 1.642, 0.008], scale: [1, 0.88, 1.1] },
-  cerebellum: { position: [0, 1.595, -0.045] },
+  brain: { position: [0, 1.642, 0], scale: [0.92, 0.85, 0.92] },
+  cerebellum: { position: [0, 1.595, -0.035] },
   spinal_cord: { position: [0, 1.235, -0.078] },
   peripheral_nerves: { parts: [
     { shape: { type: "tube", radius: 0.0035, points: [[0,1.47,-0.06],[0.075,1.40,-0.035],[0.14,1.30,-0.015],[0.18,1.12,0]] } },
@@ -405,28 +405,28 @@ const ANATOMICAL_ATLAS = {
 
   skin: { position: [0, 1.18, 0], scale: [1.55, 3.3, 0.9] },
   major_muscles: { parts: [
-    // Pectoralis major — anterior chest, hugging the body surface
-    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [-0.065,1.345,0.13] },
-    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [0.065,1.345,0.13] },
-    // Deltoids — shoulder contour
-    { shape: { type: "sphere", radius: 0.05, scale: [1.0,0.85,0.85] }, position: [-0.17,1.395,0.02] },
-    { shape: { type: "sphere", radius: 0.05, scale: [1.0,0.85,0.85] }, position: [0.17,1.395,0.02] },
-    // Rectus abdominis — anterior abdominal wall
-    { shape: { type: "capsule", radius: 0.036, length: 0.26 }, position: [0,1.12,0.1] },
-    // External obliques — flanks
-    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [-0.1,1.12,0.07] },
-    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [0.1,1.12,0.07] },
-    // Quadriceps — anterior thigh
-    { shape: { type: "capsule", radius: 0.044, length: 0.5 }, position: [-0.062,0.55,0.03] },
-    { shape: { type: "capsule", radius: 0.044, length: 0.5 }, position: [0.062,0.55,0.03] },
+    // Pectoralis major — anterior chest, kept inside the torso silhouette
+    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [-0.06,1.345,0.115] },
+    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [0.06,1.345,0.115] },
+    // Deltoids — shoulder contour, pulled inboard so the cap stays within the arm shell
+    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [-0.15,1.395,0.01] },
+    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [0.15,1.395,0.01] },
+    // Rectus abdominis — anterior abdominal wall, tucked behind the torso surface
+    { shape: { type: "capsule", radius: 0.034, length: 0.26 }, position: [0,1.12,0.072] },
+    // External obliques — flanks, narrowed to the waist radius
+    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [-0.078,1.12,0.055] },
+    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [0.078,1.12,0.055] },
+    // Quadriceps — anterior thigh, centred in the leg envelope
+    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [-0.062,0.55,0.0] },
+    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [0.062,0.55,0.0] },
     // Hamstring/calf groups — centred within each leg envelope
-    { shape: { type: "capsule", radius: 0.036, length: 0.28 }, position: [-0.062,0.28,0.018] },
-    { shape: { type: "capsule", radius: 0.036, length: 0.28 }, position: [0.062,0.28,0.018] },
+    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [-0.062,0.28,0.0] },
+    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [0.062,0.28,0.0] },
     // Biceps and forearm flexor groups — aligned to the arm shells
-    { shape: { type: "capsule", radius: 0.03, length: 0.24 }, position: [-0.185,1.29,0.015], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.03, length: 0.24 }, position: [0.185,1.29,0.015], rotation: [0,0,0.16] },
-    { shape: { type: "capsule", radius: 0.024, length: 0.20 }, position: [-0.215,1.06,0.012], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.024, length: 0.20 }, position: [0.215,1.06,0.012], rotation: [0,0,0.16] },
+    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [-0.185,1.29,0.005], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [0.185,1.29,0.005], rotation: [0,0,0.16] },
+    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [-0.215,1.06,0.005], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [0.215,1.06,0.005], rotation: [0,0,0.16] },
   ] },
 
   lymph_nodes: { parts: [
