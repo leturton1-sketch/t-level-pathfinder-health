@@ -60,7 +60,7 @@ VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
 
 When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
 
-The app validates these values at startup. If either value is missing, still contains a placeholder, or the Base44 URL is invalid, it shows a configuration screen instead of attempting API calls. The OpenRouter API key is server-only: configure `OPENROUTER_API_KEY` in the Base44 function secrets, never as a `VITE_` variable.
+The app validates these values at startup. A missing app ID is an error, while a missing Base44 URL is allowed when the Base44 local proxy is handling `/api` requests. A configured URL must not contain a placeholder and must use `http` or `https`. The OpenRouter API key is server-only: configure `OPENROUTER_API_KEY` in the Base44 function secrets, never as a `VITE_` variable.
 
 ## Publish Your Changes
 
