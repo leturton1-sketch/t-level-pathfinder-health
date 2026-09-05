@@ -96,7 +96,7 @@ function createClinicalTextures(renderer) {
   return { map, tissueMap, muscleMap, boneMap, roughnessMap, textures };
 }
 
-export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [] }) {
+export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [], editMode = false, onTransformStructure }) {
   const mountRef = useRef(null);
   const invalidateRef = useRef(() => {});
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
@@ -116,6 +116,9 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
   const neonOutlineRef = useRef(null);          // integumentary neon outline group
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
+  const editModeRef = useRef(editMode); editModeRef.current = editMode;
+  const selectedIdRef = useRef(selectedId); selectedIdRef.current = selectedId;
+  const transformCbRef = useRef(onTransformStructure); transformCbRef.current = onTransformStructure;
 
   // ── Scene setup (once) ──
   useEffect(() => {
@@ -403,12 +406,47 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
 
     // ── Orbit controls (manual) ──
     let dragging = false, panning = false, lastX = 0, lastY = 0;
+    let movingId = null;
+    let moveStart = null;
     const onDown = (e) => {
+      // Edit-mode grab: if a structure is selected and the pointer lands on it,
+      // translate the organ instead of orbiting the camera.
+      if (editModeRef.current && selectedIdRef.current) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+        const pickMeshes = [];
+        Object.values(groupsRef.current).forEach((g) => { if (g.visible) g.traverse((m) => { if (m.isMesh) pickMeshes.push(m); }); });
+        const hits = raycaster.intersectObjects(pickMeshes, false);
+        if (hits.length && hits[0].object.userData.id === selectedIdRef.current) {
+          movingId = selectedIdRef.current;
+          const grp = groupsRef.current[movingId];
+          moveStart = { x: e.clientX, y: e.clientY, pos: grp.position.clone() };
+          renderer.domElement.style.cursor = "move";
+          return;
+        }
+      }
       dragging = true; panning = e.button === 2 || e.shiftKey;
       lastX = e.clientX; lastY = e.clientY;
       renderer.domElement.style.cursor = "grabbing";
     };
     const onMove = (e) => {
+      if (movingId) {
+        const grp = groupsRef.current[movingId];
+        if (grp && moveStart) {
+          const dx = e.clientX - moveStart.x;
+          const dy = e.clientY - moveStart.y;
+          const dist = camera.position.distanceTo(grp.position);
+          const scale = dist * 0.0016;
+          const right = new THREE.Vector3().crossVectors(camera.up, camera.getWorldDirection(new THREE.Vector3())).normalize();
+          const up = camera.up.clone();
+          const next = moveStart.pos.clone().addScaledVector(right, dx * scale).addScaledVector(up, -dy * scale);
+          grp.position.copy(next);
+          invalidateRef.current();
+        }
+        return;
+      }
       if (!dragging) return;
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       lastX = e.clientX; lastY = e.clientY;
@@ -427,7 +465,17 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       viewTween.radius = spherical.radius;
       viewTween.target.copy(BODY_TARGET);
     };
-    const onUp = () => { dragging = false; renderer.domElement.style.cursor = "grab"; };
+    const onUp = () => {
+      if (movingId) {
+        const grp = groupsRef.current[movingId];
+        if (grp) transformCbRef.current?.(movingId, { position: [grp.position.x, grp.position.y, grp.position.z] });
+        movingId = null;
+        moveStart = null;
+        renderer.domElement.style.cursor = "grab";
+        return;
+      }
+      dragging = false; renderer.domElement.style.cursor = "grab";
+    };
     const onWheel = (e) => {
       e.preventDefault();
       spherical.radius *= 1 + e.deltaY * 0.0012;

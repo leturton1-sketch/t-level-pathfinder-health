@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench } from "lucide-react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
 import { isAdmin } from "@/lib/clinicalAuth";
+import { useToast } from "@/components/ui/use-toast";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
 import AnatomyAnimationController, { AnimationOverlay } from "@/components/anatomy/AnatomyAnimationController";
@@ -20,6 +21,8 @@ function Explorer() {
   const [viewMode, setViewMode] = useState("full");
   const [editMode, setEditMode] = useState(false);
   const [overrides, setOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_overrides") || "{}"); } catch { return {}; } });
+  const [draft, setDraft] = useState({});
+  const { toast } = useToast();
   const [hidden, setHidden] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_hidden") || "[]"); } catch { return []; } });
   const [clipped, setClipped] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_clipped") || "[]"); } catch { return []; } });
   const [custom, setCustom] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_custom") || "[]"); } catch { return []; } });
@@ -44,6 +47,49 @@ function Explorer() {
   const [activeAnims, setActiveAnims] = useState([]);
   const [showAnimController, setShowAnimController] = useState(false);
   useEffect(() => { localStorage.setItem("anatomy_animations", JSON.stringify(animations)); }, [animations]);
+  const activeOverrides = editMode ? draft : overrides;
+  const toggleEdit = () => {
+    if (!editMode) { setDraft(JSON.parse(JSON.stringify(overrides))); setEditMode(true); }
+    else setEditMode(false);
+  };
+  const saveChanges = () => {
+    setOverrides(draft);
+    toast({ title: "Anatomy changes saved", description: "Organ positioning edits have been confirmed and saved." });
+  };
+  const handleTransform = (id, transform) => {
+    setDraft((d) => {
+      const def = ANATOMY_STRUCTURES.find((s) => s.id === id) || {};
+      const existing = d[id] || {};
+      return { ...d, [id]: {
+        position: transform.position ?? existing.position ?? (def.position ? [...def.position] : [0, 0, 0]),
+        rotation: transform.rotation ?? existing.rotation ?? (def.rotation ? [...def.rotation] : [0, 0, 0]),
+      }};
+    });
+  };
+  useEffect(() => {
+    if (!editMode || !selectedId) return;
+    const STEP = 0.06;
+    const onKey = (e) => {
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+      e.preventDefault();
+      setDraft((d) => {
+        const def = ANATOMY_STRUCTURES.find((s) => s.id === selectedId) || {};
+        const existing = d[selectedId] || {};
+        const rot = [...(existing.rotation || def.rotation || [0, 0, 0])];
+        if (e.key === "ArrowLeft") rot[1] -= STEP;
+        if (e.key === "ArrowRight") rot[1] += STEP;
+        if (e.key === "ArrowUp") rot[0] -= STEP;
+        if (e.key === "ArrowDown") rot[0] += STEP;
+        return { ...d, [selectedId]: {
+          position: existing.position ?? (def.position ? [...def.position] : [0, 0, 0]),
+          rotation: rot,
+        }};
+      });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [editMode, selectedId]);
+
   const activeSystems = BODY_LAYER_ORDER.filter((system) => !removed.includes(system));
   const selected = ANATOMY_STRUCTURES.find((item) => item.id === selectedId);
   const nextVisible = BODY_LAYER_ORDER.find((system) => activeSystems.includes(system));
@@ -58,7 +104,7 @@ function Explorer() {
     <div className="mb-4">
       <AnatomyAdminPanel
         selectedId={selectedId}
-        overrides={overrides} setOverrides={setOverrides}
+        overrides={draft} setOverrides={setDraft}
         hidden={hidden} setHidden={setHidden}
         clipped={clipped} setClipped={setClipped}
         custom={custom} setCustom={setCustom}
@@ -108,9 +154,19 @@ function Explorer() {
         </button>)}
       </div>
       {isAdminUser && (
-        <button onClick={() => setEditMode((v) => !v)} className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${editMode ? "border-rose-500 bg-rose-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-rose-300"}`}>
-          <Wrench className="h-3.5 w-3.5"/>{editMode ? "Exit edit" : "Edit anatomy"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button onClick={toggleEdit} className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${editMode ? "border-rose-500 bg-rose-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-rose-300"}`}>
+            <Wrench className="h-3.5 w-3.5"/>{editMode ? "Exit edit" : "Edit anatomy"}
+          </button>
+          {editMode && (
+            <button onClick={saveChanges} className="flex items-center gap-1.5 rounded-xl border border-emerald-500 bg-emerald-600 px-3 py-2 text-[11px] font-black text-white shadow-md transition hover:bg-emerald-700">
+              <Save className="h-3.5 w-3.5"/>Save changes
+            </button>
+          )}
+          {editMode && (
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-black text-amber-800">Drag an organ to move · arrow keys to rotate · Save to keep</span>
+          )}
+        </div>
       )}
       {isAdminUser && (
         <button onClick={() => setShowAnimController((v) => !v)} className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${showAnimController ? "border-violet-500 bg-violet-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-violet-300"}`}>
@@ -125,7 +181,7 @@ function Explorer() {
         </div>
         <AnimationOverlay animations={animations} active={activeAnims} />
         <OrganLinkOverlay selectedId={selectedId} onClose={() => setSelectedId(null)} />
-        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={overrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom}/>
+        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={activeOverrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom} editMode={editMode} onTransformStructure={handleTransform}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
