@@ -180,7 +180,7 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
             {isEditing ? <Copy className="w-4 h-4 text-clinical-teal" /> : <Sparkles className="w-4 h-4 text-clinical-teal" />}
             <h2 className="font-heading font-bold text-sm text-slate-800">{isEditing ? `Edit ${isTemplate ? "Template" : "Scenario"}` : `New ${isTemplate ? "Template" : "Scenario"}`}</h2>
           </div>
-          <button onClick={onCancel} className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
+          <button type="button" onClick={onCancel} aria-label="Close scenario editor" className="p-1.5 rounded-lg hover:bg-slate-100"><X className="w-4 h-4 text-slate-400" /></button>
         </div>
 
         <div className="p-4 space-y-4">
