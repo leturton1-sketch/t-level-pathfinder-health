@@ -198,7 +198,8 @@ export default function FloatingAICompanion({ state = "idle", onActivate }) {
     companion.hoverGlow.visible = !minimized;
     companion.voiceRings.forEach((ring) => { ring.visible = false; });
     companion.root.position.y = minimized ? -0.78 : 0;
-    companion.root.scale.setScalar(minimized ? 1.3 : 1);
+    // Match the main educator: reduce only the rendered model by 30%, not its touch target.
+    companion.root.scale.setScalar(minimized ? 0.91 : 0.7);
     scene.add(companion.root);
     scene.add(new THREE.HemisphereLight(0xf5fdff, 0x10212a, 2.6));
     const soft = new THREE.PointLight(0xffffff, 5.2, 10);
