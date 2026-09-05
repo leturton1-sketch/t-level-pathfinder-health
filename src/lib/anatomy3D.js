@@ -244,72 +244,75 @@ const STRUCTURE_BLUEPRINTS = [
     function: "The body's largest organ: a protective barrier supporting sensation, thermoregulation, vitamin D synthesis and fluid balance.",
     clinicalNote: "Inspect colour, temperature, moisture, integrity and pressure areas. Non-blanching erythema indicates pressure damage." },
   // ── MUSCULAR ──
-  // Separate selectable groups form a recognisable superficial muscle layer
-  // from the front, side and back while preserving the 360° peel-away view.
-  { id: "pectoralis_major", name: "Pectoralis Major", system: "muscular", genders: "both", color: 0xb8454f,
+  // A fitted superficial layer: overlapping bellies follow the same torso,
+  // arm and leg axes as the body shell so the system reads as one continuous body.
+  { id: "muscle_neck_shoulders", name: "Neck, Trapezius & Deltoids", system: "muscular", genders: "both", color: 0xa93642,
     parts: [
-      { shape: { type: "sphere", radius: 0.071, scale: [1.12,0.56,0.34] }, position: [-0.072,1.365,0.087], rotation: [0.04,0,-0.12] },
-      { shape: { type: "sphere", radius: 0.071, scale: [1.12,0.56,0.34] }, position: [0.072,1.365,0.087], rotation: [0.04,0,0.12] }
+      { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [-0.025,1.515,0.008], rotation: [0,0,-0.12] },
+      { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [0.025,1.515,0.008], rotation: [0,0,0.12] },
+      { shape: { type: "sphere", radius: 0.105, scale: [1.48,0.5,0.28] }, position: [0,1.425,-0.055] },
+      { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [-0.18,1.395,0], rotation: [0,0,-0.2] },
+      { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [0.18,1.395,0], rotation: [0,0,0.2] }
     ],
-    function: "Broad paired chest muscles that flex, adduct and medially rotate the humerus and assist forceful inspiration when the upper limbs are fixed.",
-    clinicalNote: "Assess symmetry, pain and power during resisted shoulder adduction. Chest-wall strain can mimic cardiac pain, so use a full clinical assessment." },
-  { id: "deltoids", name: "Deltoid Muscles", system: "muscular", genders: "both", color: 0xc5545d,
+    function: "The sternocleidomastoid, trapezius and deltoids position the head, stabilise the shoulder girdle and raise the arms.",
+    clinicalNote: "Assess neck movement, shoulder symmetry and resisted abduction. Weak shoulder elevation can indicate accessory nerve dysfunction." },
+  { id: "muscle_chest_abdomen", name: "Chest & Abdominal Muscles", system: "muscular", genders: "both", color: 0xbb4650,
     parts: [
-      { shape: { type: "sphere", radius: 0.055, scale: [0.78,1.12,0.82] }, position: [-0.184,1.405,0.012], rotation: [0,0,-0.22] },
-      { shape: { type: "sphere", radius: 0.055, scale: [0.78,1.12,0.82] }, position: [0.184,1.405,0.012], rotation: [0,0,0.22] }
+      { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [-0.071,1.355,0.09], rotation: [0.04,0,-0.1] },
+      { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [0.071,1.355,0.09], rotation: [0.04,0,0.1] },
+      { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [-0.034,1.115,0.099] },
+      { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [0.034,1.115,0.099] },
+      { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [-0.108,1.11,0.057] },
+      { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [0.108,1.11,0.057] }
     ],
-    function: "The deltoid forms the shoulder contour and is the principal abductor of the arm, with anterior and posterior fibres assisting flexion and extension.",
-    clinicalNote: "The central deltoid is a common intramuscular injection site. Locate landmarks carefully and assess axillary nerve function after shoulder injury." },
-  { id: "upper_arm_muscles", name: "Biceps & Triceps", system: "muscular", genders: "both", color: 0xad3f49,
+    function: "Pectoral, rectus and oblique muscles move the upper limb and trunk, support the abdominal contents and assist forced breathing.",
+    clinicalNote: "Observe breathing and abdominal movement. Guarding or rigidity may indicate peritoneal irritation and requires prompt assessment." },
+  { id: "muscle_back", name: "Back & Spinal Muscles", system: "muscular", genders: "both", color: 0x922f3d,
     parts: [
-      { shape: { type: "capsule", radius: 0.033, length: 0.20 }, position: [-0.208,1.25,0.036], rotation: [0,0,-0.18] },
-      { shape: { type: "capsule", radius: 0.033, length: 0.20 }, position: [0.208,1.25,0.036], rotation: [0,0,0.18] },
-      { shape: { type: "capsule", radius: 0.029, length: 0.21 }, position: [-0.208,1.25,-0.038], rotation: [0,0,-0.18] },
-      { shape: { type: "capsule", radius: 0.029, length: 0.21 }, position: [0.208,1.25,-0.038], rotation: [0,0,0.18] }
+      { shape: { type: "sphere", radius: 0.105, scale: [1.22,1.35,0.22] }, position: [0,1.225,-0.092] },
+      { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [-0.038,1.21,-0.105] },
+      { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [0.038,1.21,-0.105] }
     ],
-    function: "Biceps flexes the elbow and supinates the forearm; triceps extends the elbow. Together they provide controlled upper-limb movement.",
-    clinicalNote: "Compare power bilaterally, assess tendon integrity after injury and monitor for weakness associated with peripheral nerve damage." },
-  { id: "abdominal_wall", name: "Abdominal Wall", system: "muscular", genders: "both", color: 0xc65b58,
+    function: "Latissimus dorsi and the erector spinae extend and rotate the trunk, move the shoulder and maintain upright posture.",
+    clinicalNote: "Assess posture, spinal movement, tenderness and neurological symptoms. New weakness or altered bladder function requires urgent escalation." },
+  { id: "muscle_arms", name: "Upper & Lower Arm Muscles", system: "muscular", genders: "both", color: 0xb13d49,
     parts: [
-      { shape: { type: "capsule", radius: 0.031, length: 0.255 }, position: [-0.038,1.115,0.092] },
-      { shape: { type: "capsule", radius: 0.031, length: 0.255 }, position: [0.038,1.115,0.092] },
-      { shape: { type: "sphere", radius: 0.077, scale: [0.55,1.42,0.28] }, position: [-0.112,1.105,0.052], rotation: [0,0,-0.08] },
-      { shape: { type: "sphere", radius: 0.077, scale: [0.55,1.42,0.28] }, position: [0.112,1.105,0.052], rotation: [0,0,0.08] }
+      { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [-0.207,1.27,0.022], rotation: [0,0,-0.18] },
+      { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [0.207,1.27,0.022], rotation: [0,0,0.18] },
+      { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [-0.235,1.035,0.012], rotation: [0,0,-0.12] },
+      { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [0.235,1.035,0.012], rotation: [0,0,0.12] }
     ],
-    function: "Rectus abdominis and the obliques flex and rotate the trunk, support abdominal organs and raise intra-abdominal pressure.",
-    clinicalNote: "Guarding or rigidity can indicate peritoneal irritation. Observe abdominal movement and avoid repeated deep palpation when acute pathology is suspected." },
-  { id: "posterior_trunk_muscles", name: "Trapezius & Latissimus Dorsi", system: "muscular", genders: "both", color: 0x9f3544,
+    function: "Biceps, triceps and forearm flexor-extensor groups control the elbow, forearm, wrist and hand.",
+    clinicalNote: "Compare power, tone, grip and range bilaterally; combine this with distal circulation and sensation after limb injury." },
+  { id: "muscle_pelvis_gluteals", name: "Hip & Gluteal Muscles", system: "muscular", genders: "both", color: 0xa83a47,
     parts: [
-      { shape: { type: "sphere", radius: 0.105, scale: [1.42,0.78,0.22] }, position: [0,1.405,-0.088] },
-      { shape: { type: "sphere", radius: 0.105, scale: [1.16,1.38,0.2] }, position: [0,1.215,-0.091] }
+      { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [-0.072,0.875,-0.07] },
+      { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [0.072,0.875,-0.07] },
+      { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [-0.115,0.89,0.045] },
+      { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [0.115,0.89,0.045] }
     ],
-    function: "Trapezius stabilises and rotates the scapula; latissimus dorsi extends, adducts and medially rotates the upper limb.",
-    clinicalNote: "Inspect scapular symmetry and posture. Weakness, wasting or winging may indicate accessory, thoracodorsal or long thoracic nerve dysfunction." },
-  { id: "gluteals", name: "Gluteal Muscles", system: "muscular", genders: "both", color: 0xb94b57,
+    function: "The gluteal and hip muscles stabilise the pelvis and generate hip extension, abduction and rotation during gait.",
+    clinicalNote: "Observe gait and pelvic stability. Use correctly identified ventrogluteal landmarks when this injection site is indicated." },
+  { id: "muscle_thighs", name: "Quadriceps, Adductors & Hamstrings", system: "muscular", genders: "both", color: 0xb4414c,
     parts: [
-      { shape: { type: "sphere", radius: 0.075, scale: [0.86,1.02,0.62] }, position: [-0.07,0.875,-0.072] },
-      { shape: { type: "sphere", radius: 0.075, scale: [0.86,1.02,0.62] }, position: [0.07,0.875,-0.072] }
+      { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [-0.074,0.655,0.043] },
+      { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [0.074,0.655,0.043] },
+      { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [-0.074,0.655,-0.043] },
+      { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [0.074,0.655,-0.043] },
+      { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [-0.035,0.655,0.005], rotation: [0,0,-0.04] },
+      { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [0.035,0.655,0.005], rotation: [0,0,0.04] }
     ],
-    function: "The gluteal group extends, abducts and rotates the hip while stabilising the pelvis during standing and walking.",
-    clinicalNote: "Assess gait and hip abductor strength. Ventrogluteal landmarks provide a safer intramuscular injection site than the dorsogluteal region." },
-  { id: "thigh_muscles", name: "Quadriceps & Hamstrings", system: "muscular", genders: "both", color: 0xb34450,
+    function: "Quadriceps extend the knee, hamstrings flex it and the adductors draw the thigh towards the midline.",
+    clinicalNote: "Assess pain, swelling, movement and strength. Acute unilateral swelling requires assessment for injury or venous thrombosis." },
+  { id: "muscle_lower_legs", name: "Calf & Anterior Lower-Leg Muscles", system: "muscular", genders: "both", color: 0x9e3441,
     parts: [
-      { shape: { type: "capsule", radius: 0.049, length: 0.29 }, position: [-0.074,0.655,0.047] },
-      { shape: { type: "capsule", radius: 0.049, length: 0.29 }, position: [0.074,0.655,0.047] },
-      { shape: { type: "capsule", radius: 0.043, length: 0.29 }, position: [-0.074,0.655,-0.045] },
-      { shape: { type: "capsule", radius: 0.043, length: 0.29 }, position: [0.074,0.655,-0.045] }
+      { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [-0.073,0.315,-0.034] },
+      { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [0.073,0.315,-0.034] },
+      { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [-0.073,0.315,0.039] },
+      { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [0.073,0.315,0.039] }
     ],
-    function: "Quadriceps extend the knee; hamstrings flex the knee and extend the hip. Both groups are essential for gait, transfers and balance.",
-    clinicalNote: "Assess lower-limb power, pain and range of movement. Sudden swelling or tenderness requires evaluation for injury or venous thrombosis." },
-  { id: "lower_leg_muscles", name: "Calf & Anterior Leg Muscles", system: "muscular", genders: "both", color: 0xa53b47,
-    parts: [
-      { shape: { type: "capsule", radius: 0.038, length: 0.255 }, position: [-0.073,0.315,-0.035] },
-      { shape: { type: "capsule", radius: 0.038, length: 0.255 }, position: [0.073,0.315,-0.035] },
-      { shape: { type: "capsule", radius: 0.025, length: 0.255 }, position: [-0.073,0.315,0.038] },
-      { shape: { type: "capsule", radius: 0.025, length: 0.255 }, position: [0.073,0.315,0.038] }
-    ],
-    function: "Gastrocnemius and soleus plantar-flex the ankle and support venous return; anterior muscles dorsiflex the foot during gait.",
-    clinicalNote: "Assess calf pain, swelling and symmetry alongside circulation and sensation. Do not massage a calf when deep-vein thrombosis is suspected." },
+    function: "The calf plantar-flexes the ankle and supports venous return, while anterior muscles dorsiflex the foot for safe gait.",
+    clinicalNote: "Check calf symmetry, tenderness, distal pulses and sensation. Do not massage a calf if deep-vein thrombosis is suspected." },
   { id: "thyroid", name: "Thyroid Gland", system: "endocrine", genders: "both", shape: { type: "torus", radius: 0.025, tube: 0.009 }, position: [0,1.5,0.035],
     function: "Produces thyroid hormones that regulate metabolic rate, growth and heat production.",
     clinicalNote: "Observe for altered heart rate, weight, temperature tolerance and neck swelling." },
