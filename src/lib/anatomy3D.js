@@ -82,6 +82,13 @@ const STRUCTURE_BLUEPRINTS = [
     position: [-0.028, 1.255, 0.045], rotation: [0, 0, -0.15],
     function: "Four-chambered muscular pump. The right side pumps deoxygenated blood to the lungs; the muscular left side pumps oxygenated blood to the systemic circulation.",
     clinicalNote: "Assess via radial/apical pulses, BP, capillary refill, and ECG. Left-sided failure → pulmonary congestion; right-sided failure → peripheral oedema." },
+  { id: "coronary_vessels", name: "Coronary Circulation", system: "cardiovascular", genders: "both", color: 0xd9485f,
+    parts: [
+      { shape: { type: "tube", radius: 0.0035, points: [[-0.015,1.35,0.075],[-0.05,1.31,0.088],[-0.055,1.25,0.075],[-0.035,1.21,0.06]] } },
+      { shape: { type: "tube", radius: 0.003, points: [[-0.015,1.35,0.072],[0.012,1.31,0.084],[0.018,1.25,0.072],[0.0,1.22,0.06]] } },
+    ],
+    function: "The right and left coronary arteries supply oxygenated blood to the myocardium.",
+    clinicalNote: "Coronary occlusion causes myocardial ischaemia and infarction. Assess chest pain promptly and obtain a 12-lead ECG." },
   { id: "aorta", name: "Aorta", system: "cardiovascular", genders: "both", color: 0xb42335,
     shape: { type: "tube", radius: 0.016, points: [[-0.02,1.2,0.02],[-0.02,1.33,0.02],[-0.005,1.42,0.0],[0.015,1.43,-0.01],[0.03,1.4,0.0],[0.03,1.2,0.0],[0.03,1.0,0.0]] },
     function: "The largest artery, conducting high-pressure oxygenated blood from the left ventricle to the systemic circulation. Its elastic walls absorb systolic recoil.",
@@ -321,7 +328,11 @@ const ANATOMICAL_ATLAS = {
   ] },
   diaphragm: { position: [0, 1.145, -0.005], scale: [1.2, 0.22, 0.85] },
 
-  heart: { position: [-0.032, 1.285, 0.052], rotation: [0, 0, -0.18] },
+  heart: { position: [-0.032, 1.285, 0.052], rotation: [0, 0, -0.18], scale: [0.9, 1, 0.76] },
+  coronary_vessels: { parts: [
+    { shape: { type: "tube", radius: 0.0032, points: [[-0.015,1.35,0.075],[-0.05,1.31,0.088],[-0.055,1.25,0.075],[-0.035,1.21,0.06]] } },
+    { shape: { type: "tube", radius: 0.0028, points: [[-0.015,1.35,0.072],[0.012,1.31,0.084],[0.018,1.25,0.072],[0.0,1.22,0.06]] } },
+  ] },
   aorta: { shape: { type: "tube", radius: 0.014, points: [[-0.02,1.27,0.03],[-0.015,1.37,0.015],[0.0,1.415,-0.01],[0.02,1.405,-0.025],[0.025,1.33,-0.035],[0.025,1.16,-0.04],[0.022,0.95,-0.038]] } },
   vena_cava: { shape: { type: "tube", radius: 0.016, points: [[0.025,1.46,-0.035],[0.025,1.30,-0.035],[0.026,1.16,-0.04],[0.022,0.95,-0.035],[0.01,0.88,-0.02]] } },
   arterial_tree: { parts: [
