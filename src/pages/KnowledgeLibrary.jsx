@@ -8,13 +8,13 @@ import ReactMarkdown from "react-markdown";
 import { Library, Search, BookMarked, ChevronRight, ArrowLeft, ExternalLink } from "lucide-react";
 
 const CATEGORIES = [
-  { value: "all", label: "All" },
-  { value: "clinical_procedure", label: "Clinical Procedures" },
-  { value: "governance", label: "Governance & IPC" },
-  { value: "legislation", label: "Legislation" },
-  { value: "anatomy_physiology", label: "Anatomy & Physiology" },
-  { value: "pathophysiology", label: "Pathophysiology" },
-  { value: "terminology", label: "Terminology" },
+  { value: "all", label: "All", description: "Browse the complete clinical knowledge collection.", focus: "Use search or choose a subject area to focus your revision." },
+  { value: "clinical_procedure", label: "Clinical Procedures", description: "Step-by-step assessment, communication and person-centred care guidance.", focus: "Focus: safe preparation, systematic practice, documentation and escalation." },
+  { value: "governance", label: "Governance & IPC", description: "How services maintain quality, safety and infection prevention standards.", focus: "Focus: accountability, audit, incident learning, standard precautions and antimicrobial stewardship." },
+  { value: "legislation", label: "Legislation", description: "Core legal duties that shape safe, ethical health and care practice.", focus: "Focus: consent, capacity, confidentiality, equality, safeguarding and duty of candour." },
+  { value: "anatomy_physiology", label: "Anatomy & Physiology", description: "Normal body structures, systems and the processes that maintain homeostasis.", focus: "Focus: structure-function relationships and communication between body systems." },
+  { value: "pathophysiology", label: "Pathophysiology", description: "How disease disrupts normal physiology and produces clinical signs and symptoms.", focus: "Focus: recognising patterns, linking observations to mechanisms and escalating deterioration." },
+  { value: "terminology", label: "Terminology", description: "Clinical language, abbreviations and measurements used in health records and handovers.", focus: "Focus: accurate interpretation, plain-language explanation and avoiding unsafe abbreviations." },
 ];
 
 export default function KnowledgeLibrary() {
@@ -37,17 +37,17 @@ export default function KnowledgeLibrary() {
     setLoading(true);
     try {
       const existing = await base44.entities.KnowledgeArticle.list();
-      if (existing.length > 0) {
-        setArticles(existing);
-      } else {
-        setArticles(KNOWLEDGE_ARTICLES);
-      }
+      const merged = new Map(KNOWLEDGE_ARTICLES.map((article) => [article.title, article]));
+      existing.forEach((article) => merged.set(article.title, article));
+      setArticles(Array.from(merged.values()));
     } catch {
       setArticles(KNOWLEDGE_ARTICLES);
     } finally {
       setLoading(false);
     }
   };
+
+  const activeCategory = CATEGORIES.find((item) => item.value === category) || CATEGORIES[0];
 
   const filtered = articles.filter((a) => {
     const matchesSearch = a.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -61,7 +61,7 @@ export default function KnowledgeLibrary() {
       <div className="min-h-screen bg-background">
         <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border">
           <div className="flex items-center gap-3 px-4 py-3 max-w-3xl mx-auto">
-            <button onClick={() => setSelectedArticle(null)} className="p-1.5 rounded-lg hover:bg-muted">
+            <button type="button" onClick={() => setSelectedArticle(null)} aria-label="Return to Knowledge Library" className="p-1.5 rounded-lg hover:bg-muted">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
             <h1 className="text-sm font-bold text-foreground flex-1 truncate">{selectedArticle.title}</h1>
@@ -134,12 +134,15 @@ export default function KnowledgeLibrary() {
       </div>
 
       {/* Category filter */}
-      <div className="flex gap-1.5 mb-4 overflow-x-auto scrollbar-thin pb-1">
+      <div className="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-3 xl:grid-cols-7" role="tablist" aria-label="Knowledge Library categories">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.value}
+            type="button"
+            role="tab"
+            aria-selected={category === cat.value}
             onClick={() => setCategory(cat.value)}
-            className={`text-xs rounded-lg px-3 py-1.5 whitespace-nowrap font-semibold transition-all ${
+            className={`min-h-12 w-full rounded-xl px-2.5 py-2 text-center text-xs font-semibold leading-snug whitespace-normal break-words transition-all ${
               category === cat.value
                 ? "bg-clinical-teal text-white"
                 : "bg-muted text-muted-foreground border border-border"
@@ -150,6 +153,19 @@ export default function KnowledgeLibrary() {
         ))}
       </div>
 
+      <section className="mb-4 rounded-xl border border-clinical-teal/20 bg-clinical-teal/5 px-4 py-3" aria-live="polite">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-bold text-foreground">{activeCategory.label}</h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{activeCategory.description}</p>
+          </div>
+          <span className="rounded-full bg-background px-2.5 py-1 text-[10px] font-bold text-clinical-teal shadow-sm">
+            {filtered.length} {filtered.length === 1 ? "article" : "articles"}
+          </span>
+        </div>
+        <p className="mt-2 text-[11px] font-medium leading-relaxed text-foreground/75">{activeCategory.focus}</p>
+      </section>
+
       {/* Articles list */}
       {loading ? (
         <div className="flex justify-center py-12">
@@ -159,7 +175,8 @@ export default function KnowledgeLibrary() {
         <div className="space-y-2">
           {filtered.map((article, idx) => (
             <button
-              key={idx}
+              key={article.id || article.title || idx}
+              type="button"
               onClick={() => setSelectedArticle(article)}
               className="group w-full text-left rounded-xl border border-border bg-card hover:bg-card hover:border-clinical-teal/40 transition-all p-3 animate-slide-up"
               style={{ animationDelay: `${idx * 30}ms` }}
