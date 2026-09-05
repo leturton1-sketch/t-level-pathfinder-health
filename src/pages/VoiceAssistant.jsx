@@ -14,6 +14,14 @@ import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import ClinicalHumanoid3D from "@/components/voice/ClinicalHumanoid3D";
 import "@/components/ai/clinical-educator.css";
 
+const EDUCATOR_TRANSPARENCY_KEY = "pathfinder-educator-text-transparency";
+
+function loadEducatorTransparency() {
+  if (typeof window === "undefined") return 10;
+  const saved = Number(window.localStorage.getItem(EDUCATOR_TRANSPARENCY_KEY));
+  return Number.isFinite(saved) ? Math.min(45, Math.max(0, saved)) : 10;
+}
+
 const STATUS = {
   idle: "Ready to help",
   listening: "Listening…",
@@ -40,6 +48,7 @@ export default function VoiceAssistant() {
   const [status, setStatus] = useState("idle");
   const [contextEnabled, setContextEnabled] = useState(true);
   const [diagnostic, setDiagnostic] = useState(false);
+  const [conversationTransparency, setConversationTransparency] = useState(loadEducatorTransparency);
   const admin = isAdmin();
 
   const [listening, setListening] = useState(false);
@@ -55,6 +64,10 @@ export default function VoiceAssistant() {
       content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm your Clinical Educator. Ask me about a clinical skill, explore the theory behind it, or practise a care scenario. Type a question or use the microphone to begin.`,
     }]);
   }, [navigate]);
+
+  useEffect(() => {
+    window.localStorage.setItem(EDUCATOR_TRANSPARENCY_KEY, String(conversationTransparency));
+  }, [conversationTransparency]);
 
   useEffect(() => {
     const conversation = endRef.current?.parentElement;
@@ -155,15 +168,29 @@ export default function VoiceAssistant() {
           <h1>Clinical Educator</h1>
           <p>Explore clinical skills. Understand the theory. Practise with confidence.</p>
         </div>
-        <button type="button" className="educator-settings" onClick={() => navigate("/ai-models")}>
-          <Settings2 size={18} aria-hidden="true" /> AI settings
-        </button>
+        <div className="educator-heading-actions">
+          <label className="educator-transparency">
+            <span>Text transparency <strong>{conversationTransparency}%</strong></span>
+            <input
+              type="range"
+              min="0"
+              max="45"
+              step="5"
+              value={conversationTransparency}
+              onChange={(event) => setConversationTransparency(Number(event.target.value))}
+              aria-label="Clinical Educator text transparency"
+            />
+          </label>
+          <button type="button" className="educator-settings" onClick={() => navigate("/ai-models")}>
+            <Settings2 size={18} aria-hidden="true" /> AI settings
+          </button>
+        </div>
       </header>
       <div className="educator-workspace">
         <section className="educator-stage" aria-label="Pathfinder humanoid Clinical Educator">
           <ClinicalHumanoid3D state={status} speaking={synth.speaking} listening={listening} />
         </section>
-        <section className="educator-conversation" aria-labelledby="educator-conversation-title">
+        <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
             <h2 id="educator-conversation-title">Your conversation</h2>
             <p role="status" aria-live="polite">{synth.speaking ? "Educator speaking…" : STATUS[status]}</p>
