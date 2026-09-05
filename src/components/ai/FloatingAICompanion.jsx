@@ -143,12 +143,15 @@ function dockPosition(minimized) {
   };
 }
 
-export default function FloatingAICompanion({ state = "idle", expanded = false, onActivate }) {
+export default function FloatingAICompanion({ state = "idle", expanded = false, attentionCue = 0, attentionKind = "none", onActivate }) {
   const mountRef = useRef(null);
   const widgetRef = useRef(null);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
   const clickTimerRef = useRef(null);
+  const attentionStartRef = useRef(0);
+  const attentionKindRef = useRef("none");
+  const lookRef = useRef({ x: 0, y: 0 });
   const positionRef = useRef(loadPosition());
   const [position, setPositionState] = useState(positionRef.current);
   const [minimized, setMinimized] = useState(loadMinimized);
@@ -159,6 +162,11 @@ export default function FloatingAICompanion({ state = "idle", expanded = false, 
   };
 
   useEffect(() => () => window.clearTimeout(clickTimerRef.current), []);
+
+  useEffect(() => {
+    if (attentionCue > 0) attentionStartRef.current = performance.now();
+    attentionKindRef.current = attentionKind;
+  }, [attentionCue, attentionKind]);
 
   useEffect(() => {
     const clamp = () => {
@@ -216,26 +224,51 @@ export default function FloatingAICompanion({ state = "idle", expanded = false, 
       const t = clock.getElapsedTime();
       const active = state === "listening" || state === "speaking" || state === "thinking";
       const listening = state === "listening";
+      const speaking = state === "speaking";
+      const thinking = state === "thinking";
+      const attentionAge = (performance.now() - attentionStartRef.current) / 1000;
+      const attention = attentionStartRef.current > 0 && attentionAge < 3.4;
+      const attentionFade = attention ? Math.min(1, attentionAge / 0.18, (3.4 - attentionAge) / 0.45) : 0;
       const baseY = minimized ? -0.78 : 0;
+
+      // Match the main educator's layered motion language: breathing/hover,
+      // pointer awareness, listening focus, speaking rhythm and thinking tilt.
       companion.root.position.y = baseY + Math.sin(t * 1.7) * 0.045;
-      companion.root.rotation.y = Math.sin(t * 0.65) * 0.08;
-      companion.head.rotation.z = Math.sin(t * 0.9) * 0.025;
+      companion.root.rotation.y = Math.sin(t * 0.65) * 0.06 + lookRef.current.x * 0.09;
+      companion.root.rotation.x = lookRef.current.y * 0.025;
+      companion.head.rotation.y = lookRef.current.x * 0.08;
+      companion.head.rotation.x = listening ? 0.09 + Math.sin(t * 2.8) * 0.025 : thinking ? -0.07 : 0;
+      companion.head.rotation.z = Math.sin(t * 0.9) * 0.025 + (thinking ? 0.1 : 0);
+
+      if (attention) {
+        const gesture = Math.sin(attentionAge * Math.PI * 3.2);
+        companion.root.position.y += Math.abs(Math.sin(attentionAge * Math.PI * 2.3)) * 0.11 * attentionFade;
+        companion.root.rotation.y += gesture * 0.13 * attentionFade;
+        companion.head.rotation.x += Math.sin(attentionAge * Math.PI * 4.4) * 0.16 * attentionFade;
+        companion.head.rotation.z += (attentionKindRef.current === "advice" ? -0.12 : 0.12) * attentionFade;
+      }
+
       companion.wave.forEach((bar, index) => {
-        const pulse = active ? 0.55 + Math.abs(Math.sin(t * 7 + index * 0.8)) * 0.8 : 0.7;
-        bar.scale.y = pulse;
+        const speed = speaking ? 10 : listening ? 7 : thinking ? 4 : 1.8;
+        const pulse = active ? 0.5 + Math.abs(Math.sin(t * speed + index * 0.8)) * 0.95 : 0.7;
+        bar.scale.y += (pulse - bar.scale.y) * 0.34;
       });
       const glow = 0.18 + Math.sin(t * 2.2) * 0.06;
       companion.hoverGlow.material.opacity = active ? glow + 0.12 : glow;
-      companion.chest.scale.setScalar(active ? 1 + Math.sin(t * 4) * 0.04 : 1);
+      const chestPulse = attention ? 1 + Math.abs(Math.sin(attentionAge * Math.PI * 4)) * 0.18 * attentionFade : active ? 1 + Math.sin(t * 4) * 0.04 : 1;
+      companion.chest.scale.setScalar(chestPulse);
+      edge.intensity = 4 + (speaking ? Math.abs(Math.sin(t * 7)) * 1.5 : 0) + attentionFade * 3;
+
       companion.voiceRings.forEach((ring, index) => {
         if (minimized) {
           ring.visible = false;
           return;
         }
-        const phase = (t * 1.65 + index / 3) % 1;
-        ring.visible = listening;
-        ring.scale.setScalar(1 + phase * 1.9);
-        ring.material.opacity = listening ? (1 - phase) * 0.2 : 0;
+        const phase = ((attention ? attentionAge * 2.1 : t * 1.65) + index / 3) % 1;
+        ring.visible = listening || attention;
+        ring.material.color.setHex(attention ? 0xf0b84d : 0x52efff);
+        ring.scale.setScalar(1 + phase * (attention ? 2.35 : 1.9));
+        ring.material.opacity = (1 - phase) * (attention ? 0.32 * attentionFade : 0.2);
       });
       renderer.render(scene, camera);
     };
@@ -276,6 +309,11 @@ export default function FloatingAICompanion({ state = "idle", expanded = false, 
   };
 
   const onPointerMove = (event) => {
+    const bounds = widgetRef.current.getBoundingClientRect();
+    lookRef.current = {
+      x: ((event.clientX - bounds.left) / Math.max(bounds.width, 1) - 0.5) * 2,
+      y: ((event.clientY - bounds.top) / Math.max(bounds.height, 1) - 0.5) * 2,
+    };
     if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) return;
     const size = minimized ? HEAD_SIZE : FULL_SIZE;
     const next = {
