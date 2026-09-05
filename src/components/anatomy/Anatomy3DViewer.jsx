@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { BODY_SHELLS, ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
-import { alignAnatomicalGroupToBody, keepGroupInsideBodyEnvelope } from "@/lib/anatomicalSpatialAnchors";
+import { alignAnatomicalGroupToBody, conformGroupsToBodyEnvelope, keepGroupInsideBodyEnvelope } from "@/lib/anatomicalSpatialAnchors";
 
 const BODY_TARGET = new THREE.Vector3(0, 0.95, 0);
 
@@ -309,6 +309,18 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         shellGroup.visible = false;
         scene.add(object);
         importedSurfaceRef.current = object;
+        // The imported surface is the visual source of truth. Re-map every
+        // procedural system to its measured proportions before hiding the
+        // fallback shell, so limb structures track the actual silhouette.
+        conformGroupsToBodyEnvelope(
+          shellGroup,
+          object,
+          structGroup.children,
+          0.975,
+        );
+        structGroup.children.forEach((group) => {
+          group.userData.constrainedScale = group.scale.clone();
+        });
         // Conform the integumentary neon outline to the real imported surface
         // so it traces the visible body, not the procedural fallback shell.
         if (neonOutlineRef.current) {
