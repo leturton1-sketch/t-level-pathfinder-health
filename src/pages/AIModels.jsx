@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Send, Settings2, Cpu, Wifi, Cloud, HardDrive, Sparkles, RotateCw, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import {
-  loadPrefs, savePrefs, routeChat, probeProvider,
-  FREE_OPENROUTER_MODELS, PUTER_MODELS,
+  loadPrefs, savePrefs, routeChat, probeProvider, fetchFreeOpenRouterModels,
+  FREE_OPENROUTER_MODELS, OPENROUTER_AUTO_FREE_MODEL, PUTER_MODELS,
 } from "@/lib/aiRouter";
 
 const PURPLE = "#765AB0";
@@ -28,9 +28,11 @@ function ModelSelect({ value, onChange, options }) {
       onChange={(e) => onChange(e.target.value)}
       className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
     >
-      {options.map((opt) => (
-        <option key={opt} value={opt}>{opt}</option>
-      ))}
+      {options.map((opt) => {
+        const optionValue = typeof opt === "string" ? opt : opt.id;
+        const optionLabel = typeof opt === "string" ? opt : opt.name;
+        return <option key={optionValue} value={optionValue}>{optionLabel}</option>;
+      })}
     </select>
   );
 }
@@ -60,12 +62,44 @@ export default function AIModels() {
   const [showSettings, setShowSettings] = useState(false);
   const [status, setStatus] = useState({ local: "idle", puter: "idle", openrouter: "idle" });
   const [testing, setTesting] = useState(null);
+  const [openRouterModels, setOpenRouterModels] = useState([]);
+  const [modelScan, setModelScan] = useState({ state: "idle", message: "" });
   const endRef = useRef(null);
 
   useEffect(() => { savePrefs(prefs); }, [prefs]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, busy]);
 
   const update = (patch) => setPrefs((p) => ({ ...p, ...patch }));
+
+  const scanOpenRouterModels = useCallback(async () => {
+    setModelScan({ state: "loading", message: "Scanning OpenRouter…" });
+    try {
+      const models = await fetchFreeOpenRouterModels();
+      setOpenRouterModels(models);
+      setModelScan({
+        state: "success",
+        message: models.length ? `${models.length} free models available now.` : "No free models were returned; Auto Free remains available.",
+      });
+    } catch (scanError) {
+      setModelScan({
+        state: "error",
+        message: scanError?.name === "AbortError" ? "The model scan timed out. Try again." : (scanError?.message || "Unable to scan OpenRouter models."),
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (prefs.mode === "openrouter" && modelScan.state === "idle") scanOpenRouterModels();
+  }, [prefs.mode, modelScan.state, scanOpenRouterModels]);
+
+  const openRouterOptions = useMemo(() => {
+    const liveOptions = openRouterModels.filter((model) => model.id !== OPENROUTER_AUTO_FREE_MODEL);
+    const options = [{ id: OPENROUTER_AUTO_FREE_MODEL, name: "Auto Free — best available free model" }, ...liveOptions];
+    if (prefs.openrouterModel && !options.some((model) => model.id === prefs.openrouterModel)) {
+      options.push({ id: prefs.openrouterModel, name: `${prefs.openrouterModel} (saved)` });
+    }
+    return options;
+  }, [openRouterModels, prefs.openrouterModel]);
 
   const runStage = (provider, state) => {
     setStatus((s) => ({ ...s, [provider]: state }));
@@ -195,6 +229,40 @@ export default function AIModels() {
         )}
       </section>
 
+      {/* OpenRouter live model directory */}
+      {prefs.mode === "openrouter" && (
+        <section className="mb-4 rounded-2xl border border-border bg-card p-4 animate-slide-up">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-clinical-teal">OpenRouter free models</p>
+              <h2 className="mt-1 text-sm font-heading font-bold text-foreground">Live model directory</h2>
+              <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+                Auto Free lets OpenRouter choose a currently available free model. Scan the public directory to select a specific free model.
+              </p>
+            </div>
+            <button
+              onClick={scanOpenRouterModels}
+              disabled={modelScan.state === "loading"}
+              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors disabled:opacity-50 flex items-center gap-1.5"
+            >
+              <RotateCw className={`h-3.5 w-3.5 ${modelScan.state === "loading" ? "animate-spin" : ""}`} />
+              {modelScan.state === "loading" ? "Scanning…" : "Scan free models"}
+            </button>
+          </div>
+          <div className="mt-4">
+            <label className="text-xs font-semibold text-muted-foreground">Active OpenRouter model</label>
+            <div className="mt-1">
+              <ModelSelect value={prefs.openrouterModel} onChange={(value) => update({ openrouterModel: value })} options={openRouterOptions} />
+            </div>
+            {modelScan.message && (
+              <p className={`mt-2 text-[11px] ${modelScan.state === "error" ? "text-clinical-red" : "text-muted-foreground"}`}>
+                {modelScan.message}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Settings panel */}
       {showSettings && (
         <section className="mb-4 rounded-2xl border border-border bg-card p-4 animate-slide-up">
@@ -226,7 +294,7 @@ export default function AIModels() {
             </div>
             <div>
               <label className="text-xs font-semibold text-muted-foreground">OpenRouter model (free)</label>
-              <div className="mt-1"><ModelSelect value={prefs.openrouterModel} onChange={(v) => update({ openrouterModel: v })} options={FREE_OPENROUTER_MODELS} /></div>
+              <div className="mt-1"><ModelSelect value={prefs.openrouterModel} onChange={(v) => update({ openrouterModel: v })} options={openRouterOptions.length ? openRouterOptions : FREE_OPENROUTER_MODELS} /></div>
             </div>
             <div className="md:col-span-2">
               <label className="text-xs font-semibold text-muted-foreground">System prompt (optional)</label>
