@@ -3,6 +3,7 @@ import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, Mic } from "lucid
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
+import { setPathfinderUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import VoiceRecoveryPanel from "@/components/auth/VoiceRecoveryPanel";
 import "./LoginGate.css";
@@ -25,11 +26,7 @@ export default function LoginGate({ onUnlock }) {
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
   const grant = (user) => {
-    if (user?.voice_recovery_enrolled === false) {
-      setEnrolUser(user);
-      toast({ title: "Voice setup required", description: "Set up your spoken recovery phrase before continuing." });
-      return;
-    }
+    setPathfinderUser(user);
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
     announce(`Access granted. Welcome, ${user.full_name}. Your role is ${String(user.role || "user").replaceAll("_", " ")}.`);
     onUnlock?.();
