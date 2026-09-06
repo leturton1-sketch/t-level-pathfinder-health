@@ -19,7 +19,7 @@ function mat(color, opacity = 1) {
   });
 }
 
-function addPart(group, geometry, material, position, rotation = [0, 0, 0], scale = [1, 1, 1]) {
+function addPart(group, geometry, material, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(...position);
   mesh.rotation.set(...rotation);
