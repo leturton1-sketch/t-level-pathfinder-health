@@ -39,9 +39,14 @@ export const AuthProvider = ({ children }) => {
         const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
         setAppPublicSettings(publicSettings);
         
-        // If we got the app public settings successfully, always verify the current platform session.
-        // Relying only on the injected token made authentication state inconsistent across reloads/tabs.
-        await checkUserAuth();
+        // If we got the app public settings successfully, check if user is authenticated
+        if (appParams.token) {
+          await checkUserAuth();
+        } else {
+          setIsLoadingAuth(false);
+          setIsAuthenticated(false);
+          setAuthChecked(true);
+        }
         setIsLoadingPublicSettings(false);
       } catch (appError) {
         console.error('App state check failed:', appError);
@@ -92,7 +97,6 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setPlatformUser(currentUser);
-      setAuthError(null);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       setAuthChecked(true);

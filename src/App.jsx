@@ -43,13 +43,8 @@ const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
-  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
-  const platformEmail = String(user?.email || "").trim().toLowerCase();
-  const isProtectedSuperAdmin = [
-    "lee.turton@academic.rnngroup.ac.uk",
-    "leturton1@gmail.com",
-  ].includes(platformEmail);
 
   useEffect(() => {
     const stop = installErrorCollector();
@@ -70,9 +65,12 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Check the Base44 platform session before showing the Pathfinder PIN/QR gate.
-  // This prevents users from successfully unlocking Pathfinder only to be redirected
-  // into a second authentication flow immediately afterwards.
+  // PIN/QR identification gate — shown on first run over a blurred overview
+  if (!unlocked) {
+    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
+  }
+
+  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -92,17 +90,10 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Send unauthenticated users to the platform sign-in first.
+  // No custom login remains — send unauthenticated users to the platform sign-in
   if (authChecked && !isAuthenticated && !authError) {
     navigateToLogin();
     return null;
-  }
-
-  // Protected super-admin accounts have already passed Base44 identity verification,
-  // so do not subject them to a second PIN gate that can drift out of sync.
-  // Other users still use the Pathfinder PIN/QR identification gate.
-  if (!unlocked && !isProtectedSuperAdmin) {
-    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
 
   // Render the main app

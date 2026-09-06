@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2, Monitor, Clipboard, Network, ListChecks, HeartPulse, Scale } from "lucide-react";
 import { LEARNING_MODULES } from "@/lib/learningData";
+import InteractiveAtlas from "@/components/learning/InteractiveAtlas";
 import PPESequencer from "@/components/learning/PPESequencer";
 import HazardHunt from "@/components/learning/HazardHunt";
 import PathophysiologyMatcher from "@/components/learning/PathophysiologyMatcher";
@@ -15,12 +16,13 @@ import DutyOfCandour from "@/components/learning/DutyOfCandour";
 
 const MODULE_ICONS = { Body: PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Monitor, Clipboard, Network, ListChecks, HeartPulse, Scale };
 const MODULE_COMPONENTS = {
-  ppe: PPESequencer, hazard: HazardHunt,
+  atlas: InteractiveAtlas, ppe: PPESequencer, hazard: HazardHunt,
   patho: PathophysiologyMatcher, sciencedeck: SciHealthDeck,
   mockepr: MockEPR, carepersona: CarePlanPersona, orgchart: OrgChartMDT,
   sopmaster: SOPMaster, publichealth: PublicHealthAdvisor, dutyofcandour: DutyOfCandour,
 };
 const MODULE_COLORS = {
+  atlas: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200", icon: "bg-rose-100" },
   ppe: { bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200", icon: "bg-amber-100" },
   hazard: { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-200", icon: "bg-orange-100" },
   patho: { bg: "bg-violet-50", text: "text-violet-600", border: "border-violet-200", icon: "bg-violet-100" },
@@ -102,7 +104,7 @@ export default function InteractiveLearning() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {LEARNING_MODULES.map((mod, idx) => {
           const Icon = MODULE_ICONS[mod.icon] || Award;
-          const colors = MODULE_COLORS[mod.id] || MODULE_COLORS.ppe;
+          const colors = MODULE_COLORS[mod.id] || MODULE_COLORS.atlas;
           const isCompleted = completed.includes(mod.id);
           return (
             <motion.button key={mod.id} onClick={() => handleSelect(mod.id)}
