@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save } from "lucide-react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
+import AnatomySystems360 from "@/components/anatomy/AnatomySystems360";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
 import { isAdmin } from "@/lib/clinicalAuth";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,14 +12,10 @@ import OrganLinkOverlay from "@/components/anatomy/OrganLinkOverlay";
 
 const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-gradient-to-br from-white/92 via-slate-100/82 to-slate-200/68 shadow-[0_12px_0_-6px_rgba(100,116,139,.24),0_28px_60px_-32px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl";
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
-const REBUILT_CORE_SYSTEMS = ["muscular", "skeletal", "nervous", "cardiovascular"];
-const CORE_ANATOMY_VERSION = "2026-09-core-systems-v4-fitted-muscular-overlay";
-
 function Explorer() {
   const [genitalia, setGenitalia] = useState("male");
-  const [removed, setRemoved] = useState(() => BODY_LAYER_ORDER.filter((system) => !REBUILT_CORE_SYSTEMS.includes(system)));
+  const [removed, setRemoved] = useState([]);
   const [selectedId, setSelectedId] = useState("skin");
-  const [viewMode, setViewMode] = useState("full");
   const [editMode, setEditMode] = useState(false);
   const [overrides, setOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_overrides") || "{}"); } catch { return {}; } });
   const [draft, setDraft] = useState({});
@@ -32,18 +29,6 @@ function Explorer() {
   useEffect(() => { localStorage.setItem("anatomy_admin_hidden", JSON.stringify(hidden)); }, [hidden]);
   useEffect(() => { localStorage.setItem("anatomy_admin_clipped", JSON.stringify(clipped)); }, [clipped]);
   useEffect(() => { localStorage.setItem("anatomy_admin_custom", JSON.stringify(custom)); }, [custom]);
-  useEffect(() => {
-    if (localStorage.getItem("anatomy_core_system_version") === CORE_ANATOMY_VERSION) return;
-    const rebuiltIds = new Set(
-      ANATOMY_STRUCTURES.filter((item) => REBUILT_CORE_SYSTEMS.includes(item.system)).map((item) => item.id)
-    );
-    setOverrides((current) => Object.fromEntries(Object.entries(current).filter(([id]) => !rebuiltIds.has(id))));
-    setHidden((current) => current.filter((id) => !rebuiltIds.has(id)));
-    setClipped((current) => current.filter((id) => !rebuiltIds.has(id)));
-    setRemoved(BODY_LAYER_ORDER.filter((system) => !REBUILT_CORE_SYSTEMS.includes(system)));
-    setSelectedId(null);
-    localStorage.setItem("anatomy_core_system_version", CORE_ANATOMY_VERSION);
-  }, []);
   const [animations, setAnimations] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_animations") || "{}"); } catch { return {}; } });
   const [activeAnims, setActiveAnims] = useState([]);
   const [showAnimController, setShowAnimController] = useState(false);
@@ -147,16 +132,6 @@ function Explorer() {
         <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Interactive body systems</p><h2 className="font-black text-slate-900">360° whole-body anatomy visualiser</h2></div>
         <span className="flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-white"><Rotate3D className="h-3.5 w-3.5"/> Drag to rotate · scroll to zoom</span>
       </div>
-      <div className="mb-3 flex flex-wrap gap-2 px-2" role="group" aria-label="Anatomical camera view">
-        {[
-          ["full", "Full body", Rotate3D],
-          ["torso", "Torso focus", Focus],
-          ["cross-section", "Cross-section", ScanLine],
-        ].map(([mode, label, Icon]) => <button key={mode} onClick={() => setViewMode(mode)} aria-pressed={viewMode === mode}
-          className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${viewMode === mode ? "border-violet-600 bg-violet-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-violet-300"}`}>
-          <Icon className="h-3.5 w-3.5"/>{label}
-        </button>)}
-      </div>
       {isAdminUser && (
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={toggleEdit} className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${editMode ? "border-rose-500 bg-rose-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-rose-300"}`}>
@@ -181,11 +156,11 @@ function Explorer() {
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
           <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · FITTED 360° OVERLAY</span>
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
-          <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">DIAPHRAGM · FROSTED</span>
+          <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">CLICK VISIBLE LAYER TO REMOVE</span>
         </div>
         <AnimationOverlay animations={animations} active={activeAnims} />
         <OrganLinkOverlay selectedId={selectedId} onClose={() => setSelectedId(null)} />
-        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={activeOverrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom} editMode={editMode} onTransformStructure={handleTransform} onTransformDefaults={setTransformDefaults}/>
+        <AnatomySystems360 activeSystems={activeSystems} onRemoveSystem={peelLayer} />
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
