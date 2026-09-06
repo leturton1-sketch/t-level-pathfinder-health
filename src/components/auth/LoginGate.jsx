@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn } from "lucide-react";
+import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, Mic } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
@@ -134,12 +134,30 @@ export default function LoginGate({ onUnlock }) {
           </div>
         </header>
 
+        {enrolUser ? (
+          <VoiceRecoveryPanel
+            mode="enrol"
+            username={enrolUser.username}
+            pin={pin}
+            user={enrolUser}
+            onSuccess={() => {
+              const readyUser = { ...enrolUser, voice_recovery_enrolled: true };
+              setEnrolUser(null);
+              toast({ title: "Access granted", description: `Welcome, ${readyUser.full_name}.` });
+              announce(`Welcome, ${readyUser.full_name}. Your role is ${String(readyUser.role || "user").replaceAll("_", " ")}. Access granted.`);
+              onUnlock?.();
+            }}
+          />
+        ) : <>
         <div className="login-gate-tabs" role="tablist" aria-label="Sign-in method">
           <button type="button" role="tab" aria-selected={mode === "pin"} onClick={() => { setMode("pin"); stopCamera(); }} className={mode === "pin" ? "active" : ""}>
             <KeyRound size={16} /> PIN
           </button>
           <button type="button" role="tab" aria-selected={mode === "qr"} onClick={() => setMode("qr")} className={mode === "qr" ? "active" : ""}>
             <QrCode size={16} /> QR Scan
+          </button>
+          <button type="button" role="tab" aria-selected={mode === "voice"} onClick={() => { setMode("voice"); stopCamera(); }} className={mode === "voice" ? "active" : ""}>
+            <Mic size={16} /> Voice Backup
           </button>
         </div>
 
