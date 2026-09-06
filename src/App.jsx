@@ -100,14 +100,8 @@ const AuthenticatedApp = () => {
 
   // Protected super-admin accounts have already passed Base44 identity verification,
   // so do not subject them to a second PIN gate that can drift out of sync.
-  if (isProtectedSuperAdmin && !unlocked) {
-    sessionStorage.setItem("pathfinder-unlocked", "1");
-    setUnlocked(true);
-    return null;
-  }
-
   // Other users still use the Pathfinder PIN/QR identification gate.
-  if (!unlocked) {
+  if (!unlocked && !isProtectedSuperAdmin) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
 
