@@ -41,6 +41,10 @@ const ESPWorkspace = lazy(() => import('./pages/ESPWorkspace'));
 const ESPPortfolioReview = lazy(() => import('./pages/ESPPortfolioReview'));
 const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
+const SystemHealth = lazy(() => import('./pages/SystemHealth'));
+const CurriculumReadiness = lazy(() => import('./pages/CurriculumReadiness'));
+const EmployerPortal = lazy(() => import('./pages/EmployerPortal'));
+const TalentCardPage = lazy(() => import('./pages/TalentCardPage')); 
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
@@ -133,6 +137,10 @@ const AuthenticatedApp = () => {
         <Route path="/scenario-templates" element={<ScenarioTemplates />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/voice-assistant" element={<VoiceAssistant />} />
+        <Route path="/system-health" element={<SystemHealth />} />
+        <Route path="/curriculum-readiness" element={<CurriculumReadiness />} />
+        <Route path="/employer-portal" element={<EmployerPortal />} />
+        <Route path="/talent-card" element={<TalentCardPage />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
