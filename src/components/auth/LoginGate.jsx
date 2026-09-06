@@ -60,8 +60,10 @@ export default function LoginGate({ onUnlock }) {
 
   const handlePin = (e) => {
     e?.preventDefault?.();
-    if (!pin.trim() || busy) return;
-    submit({ username: username.trim(), pin: pin.trim() });
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedPin = pin.trim();
+    if (!normalizedUsername || !/^\d{4}$/.test(normalizedPin) || busy) return;
+    submit({ username: normalizedUsername, pin: normalizedPin });
   };
 
   const stopCamera = () => {
