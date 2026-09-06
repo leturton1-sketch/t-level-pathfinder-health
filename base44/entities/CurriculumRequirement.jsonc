@@ -1,0 +1,55 @@
+{
+  "name": "CurriculumRequirement",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "specification",
+        "performance_outcome",
+        "skill",
+        "ao",
+        "esp"
+      ]
+    },
+    "spec_area": {
+      "type": "string"
+    },
+    "ao": {
+      "type": "string"
+    },
+    "command_words": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "clinical_application": {
+      "type": "string"
+    },
+    "a_grade_evidence": {
+      "type": "string"
+    },
+    "esp_link": {
+      "type": "string"
+    },
+    "adult_nursing_link": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "code",
+    "title",
+    "category"
+  ]
+}

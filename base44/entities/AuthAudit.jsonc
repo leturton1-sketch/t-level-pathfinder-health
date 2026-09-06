@@ -1,0 +1,56 @@
+{
+  "name": "AuthAudit",
+  "type": "object",
+  "properties": {
+    "app_user_id": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "login_success",
+        "login_failed",
+        "pin_reset",
+        "pin_changed",
+        "role_changed",
+        "account_disabled",
+        "account_enabled",
+        "voice_recovery",
+        "qr_login"
+      ]
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "pin",
+        "qr",
+        "voice",
+        "platform",
+        "admin"
+      ]
+    },
+    "success": {
+      "type": "boolean",
+      "default": true
+    },
+    "detail": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "platform_user_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "event",
+    "method",
+    "success",
+    "occurred_at"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "EmployerProfile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "sector": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "placement_capacity": {
+      "type": "number",
+      "default": 0
+    },
+    "placement_days": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "technical_priorities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "power_skill_priorities": {
+      "type": "object"
+    },
+    "travel_notes": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "string"
+    },
+    "offers_employment_route": {
+      "type": "boolean",
+      "default": false
+    },
+    "offers_apprenticeship_route": {
+      "type": "boolean",
+      "default": false
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "sector",
+    "location"
+  ]
+}

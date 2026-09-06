@@ -1,0 +1,78 @@
+{
+  "name": "TalentCard",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_name": {
+      "type": "string"
+    },
+    "career_aspiration": {
+      "type": "string"
+    },
+    "attendance_pct": {
+      "type": "number"
+    },
+    "professionalism_score": {
+      "type": "number"
+    },
+    "technical_skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "digital_capability": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "power_skills": {
+      "type": "object"
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "placement_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "placement_experience": {
+      "type": "string"
+    },
+    "employer_feedback": {
+      "type": "string"
+    },
+    "travel_area": {
+      "type": "string"
+    },
+    "reasonable_adjustments": {
+      "type": "string"
+    },
+    "profile_visibility": {
+      "type": "string",
+      "enum": [
+        "private",
+        "placement_only",
+        "employer_match"
+      ],
+      "default": "placement_only"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "updated_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "student_id",
+    "student_name"
+  ]
+}

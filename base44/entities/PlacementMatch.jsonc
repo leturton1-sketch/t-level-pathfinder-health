@@ -1,0 +1,69 @@
+{
+  "name": "PlacementMatch",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_name": {
+      "type": "string"
+    },
+    "employer_id": {
+      "type": "string"
+    },
+    "employer_name": {
+      "type": "string"
+    },
+    "score": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "suggested",
+        "shortlisted",
+        "offered",
+        "accepted",
+        "declined",
+        "completed"
+      ],
+      "default": "suggested"
+    },
+    "aspiration_score": {
+      "type": "number"
+    },
+    "technical_score": {
+      "type": "number"
+    },
+    "travel_score": {
+      "type": "number"
+    },
+    "attendance_score": {
+      "type": "number"
+    },
+    "professionalism_score": {
+      "type": "number"
+    },
+    "power_skills_score": {
+      "type": "number"
+    },
+    "digital_score": {
+      "type": "number"
+    },
+    "requirements_score": {
+      "type": "number"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "next_step": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "student_id",
+    "employer_id",
+    "score",
+    "status"
+  ]
+}
