@@ -36,12 +36,23 @@ export default function LoginGate({ onUnlock }) {
   const submit = async (payload) => {
     setBusy(true);
     try {
-      const res = await base44.functions.invoke("verifyAccess", payload);
-      const data = res?.data ?? res;
-      if (data?.granted) grant(data.user);
-      else deny(data?.reason);
-    } catch (e) {
-      deny(e?.message);
+      let lastError = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          const res = await base44.functions.invoke("verifyAccess", payload);
+          const data = res?.data ?? res;
+          if (data?.granted) {
+            grant(data.user);
+            return;
+          }
+          deny(data?.reason);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+      }
+      deny(lastError?.message || "Unable to verify access. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -49,8 +60,10 @@ export default function LoginGate({ onUnlock }) {
 
   const handlePin = (e) => {
     e?.preventDefault?.();
-    if (!pin.trim() || busy) return;
-    submit({ username: username.trim(), pin: pin.trim() });
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedPin = pin.trim();
+    if (!normalizedUsername || !/^\d{4}$/.test(normalizedPin) || busy) return;
+    submit({ username: normalizedUsername, pin: normalizedPin });
   };
 
   const stopCamera = () => {
@@ -126,10 +139,10 @@ export default function LoginGate({ onUnlock }) {
         {mode === "pin" ? (
           <form className="login-gate-form" onSubmit={handlePin}>
             <label>
-              <span>Username <em>(optional)</em></span>
+              <span>Username</span>
               <input
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 placeholder="e.g. lee"
                 autoComplete="username"
               />
@@ -138,17 +151,17 @@ export default function LoginGate({ onUnlock }) {
               <span>PIN</span>
               <input
                 value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                 placeholder="0000"
                 inputMode="numeric"
                 type="password"
                 autoComplete="current-password"
               />
             </label>
-            <button type="submit" disabled={busy || !pin.trim()} className="login-gate-unlock">
+            <button type="submit" disabled={busy || !username.trim() || !/^\d{4}$/.test(pin.trim())} className="login-gate-unlock">
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
-            <p className="login-gate-hint">Default PIN is <strong>0000</strong> until you set your own.</p>
+            <p className="login-gate-hint">Enter your Pathfinder username and 4-digit PIN.</p>
           </form>
         ) : (
           <div className="login-gate-qr">
