@@ -97,7 +97,7 @@ function createClinicalTextures(renderer) {
   return { map, tissueMap, muscleMap, boneMap, roughnessMap, textures };
 }
 
-export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [], editMode = false, onTransformStructure, onTransformDefaults }) {
+export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [], editMode = false, assessmentMode = false, onTransformStructure, onTransformDefaults }) {
   const mountRef = useRef(null);
   const invalidateRef = useRef(() => {});
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
@@ -118,6 +118,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
   const editModeRef = useRef(editMode); editModeRef.current = editMode;
+  const assessmentModeRef = useRef(assessmentMode); assessmentModeRef.current = assessmentMode;
   const selectedIdRef = useRef(selectedId); selectedIdRef.current = selectedId;
   const transformCbRef = useRef(onTransformStructure); transformCbRef.current = onTransformStructure;
 
@@ -443,7 +444,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       // Edit-mode grab: if a structure is selected and the pointer lands on it,
       // translate the organ instead of orbiting the camera.
       if (e.isPrimary === false || e.button > 2) return;
-      if (editModeRef.current && e.button === 0 && !e.shiftKey) {
+      if ((editModeRef.current || assessmentModeRef.current) && e.button === 0 && !e.shiftKey) {
         const rect = renderer.domElement.getBoundingClientRect();
         pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -503,7 +504,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     const onUp = () => {
       if (movingId) {
         const grp = groupsRef.current[movingId];
-        if (grp && editModeRef.current) transformCbRef.current?.(movingId, { position: grp.position.clone().sub(grp.userData.pivotOffset || new THREE.Vector3()).toArray() });
+        if (grp && (editModeRef.current || assessmentModeRef.current)) transformCbRef.current?.(movingId, { position: grp.position.clone().sub(grp.userData.pivotOffset || new THREE.Vector3()).toArray() });
         movingId = null;
         moveStart = null;
         renderer.domElement.style.cursor = "grab";
@@ -726,6 +727,25 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       shellRef.current.mat.opacity = isolated ? 0.03 : 0.16;
     }
   }, [genitalia, activeSystems, isolatedId, hiddenStructures, structureOverrides, clippedStructures, viewMode]);
+
+  // ── Assessment mode: desaturate organs so students see them as "misplaced" ──
+  useEffect(() => {
+    const grey = new THREE.Color(0x9ca3af);
+    Object.values(groupsRef.current).forEach((grp) => {
+      grp.traverse((m) => {
+        if (!m.isMesh || m.material.userData.isNeonOutline) return;
+        if (assessmentMode) {
+          if (!m.material.userData.savedColor) m.material.userData.savedColor = m.material.color.clone();
+          m.material.color.copy(grey);
+        } else if (m.material.userData.savedColor) {
+          m.material.color.copy(m.material.userData.savedColor);
+          delete m.material.userData.savedColor;
+        }
+        m.material.needsUpdate = true;
+      });
+    });
+    invalidateRef.current();
+  }, [assessmentMode, activeSystems]);
 
   // ── Selected highlight ──
   useEffect(() => {

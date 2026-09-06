@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save } from "lucide-react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save, Trophy } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
 import { isAdmin } from "@/lib/clinicalAuth";
@@ -8,6 +8,7 @@ import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
 import AnatomyAnimationController, { AnimationOverlay } from "@/components/anatomy/AnatomyAnimationController";
 import OrganLinkOverlay from "@/components/anatomy/OrganLinkOverlay";
+import AnatomyAssessment from "@/components/anatomy/AnatomyAssessment";
 
 const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-gradient-to-br from-white/92 via-slate-100/82 to-slate-200/68 shadow-[0_12px_0_-6px_rgba(100,116,139,.24),0_28px_60px_-32px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl";
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
@@ -249,12 +250,12 @@ function ScenarioLab() {
 
 export default function AnatomyPhysiology() {
   const [tab,setTab]=useState("explore");
-  const tabs=[["explore","Anatomy & physiology",Layers3],["pathology","Pathophysiology",Brain],["scenario","Scenario lab",HeartPulse]];
+  const tabs=[["explore","Anatomy & physiology",Layers3],["pathology","Pathophysiology",Brain],["scenario","Scenario lab",HeartPulse],["assessment","Assessment",Trophy]];
   return <main className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_10%_5%,rgba(255,255,255,.98),transparent_30%),radial-gradient(circle_at_88%_14%,rgba(205,190,235,.48),transparent_32%),linear-gradient(145deg,#fbfafc,#f0edf5_54%,#f8f7fa)] text-slate-900">
     <div className="mx-auto max-w-[1600px]">
       <header className={`${panel} mb-6 flex flex-wrap items-center justify-between gap-4 p-6`}><div className="flex items-center gap-4"><span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-xl"><Brain className="h-7 w-7"/></span><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-violet-700">T Level Health · Areas 8–9</p><h1 className="text-2xl font-black tracking-tight sm:text-3xl">Anatomy, Physiology & Pathophysiology</h1><p className="mt-1 text-sm text-slate-600">Explore structures, visualise disease processes and practise care decisions safely.</p></div></div><span className="rounded-full bg-emerald-100 px-4 py-2 text-xs font-black text-emerald-800">Interactive learning module</span></header>
       <nav className="mb-4 flex flex-wrap gap-2">{tabs.map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-black shadow-sm transition ${tab===id?"bg-slate-900 text-white":"bg-white/85 text-slate-700 hover:bg-white"}`}><Icon className="h-4 w-4"/>{label}</button>)}</nav>
-      {tab==="explore"?<Explorer/>:tab==="pathology"?<Pathophysiology/>:<ScenarioLab/>}
+      {tab==="explore"?<Explorer/>:tab==="pathology"?<Pathophysiology/>:tab==="scenario"?<ScenarioLab/>:<AnatomyAssessment/>}
     </div>
   </main>;
 }
