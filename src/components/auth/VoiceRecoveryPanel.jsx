@@ -27,6 +27,54 @@ export default function VoiceRecoveryPanel({
 
   useEffect(() => () => stopListening(), []);
 
+  const drawIdleWave = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.max(1, Math.floor(rect.width * dpr));
+    const height = Math.max(1, Math.floor(rect.height * dpr));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, width, height);
+    const gradient = ctx.createLinearGradient(0, 0, width, 0);
+    if (status === "matched") {
+      gradient.addColorStop(0, "#16a34a");
+      gradient.addColorStop(1, "#22c55e");
+    } else if (status === "denied") {
+      gradient.addColorStop(0, "#ef4444");
+      gradient.addColorStop(1, "#f43f5e");
+    } else {
+      gradient.addColorStop(0, "#f43f5e");
+      gradient.addColorStop(0.5, "#c026d3");
+      gradient.addColorStop(1, "#6d28d9");
+    }
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 4 * dpr;
+    ctx.lineCap = "round";
+    const bars = 34;
+    const centre = height / 2;
+    const spacing = width / (bars + 1);
+    for (let i = 1; i <= bars; i += 1) {
+      const distance = Math.abs(i - (bars + 1) / 2) / (bars / 2);
+      const envelope = Math.max(0.2, 1 - distance * 0.72);
+      const variation = 0.45 + 0.55 * Math.abs(Math.sin(i * 1.37));
+      const barHeight = Math.max(8 * dpr, height * 0.62 * envelope * variation);
+      const x = spacing * i;
+      ctx.beginPath();
+      ctx.moveTo(x, centre - barHeight / 2);
+      ctx.lineTo(x, centre + barHeight / 2);
+      ctx.stroke();
+    }
+  };
+
+  useEffect(() => {
+    if (!listening) drawIdleWave();
+  }, [listening, status]);
+
   const drawWave = () => {
     const canvas = canvasRef.current;
     const analyser = analyserRef.current;
@@ -44,7 +92,19 @@ export default function VoiceRecoveryPanel({
     analyser.getByteTimeDomainData(data);
     ctx.clearRect(0, 0, width, height);
     ctx.lineWidth = 3 * dpr;
-    ctx.strokeStyle = status === "matched" ? "#22c55e" : status === "denied" ? "#ef4444" : "#38bdf8";
+    const gradient = ctx.createLinearGradient(0, 0, width, 0);
+    if (status === "matched") {
+      gradient.addColorStop(0, "#16a34a");
+      gradient.addColorStop(1, "#22c55e");
+    } else if (status === "denied") {
+      gradient.addColorStop(0, "#ef4444");
+      gradient.addColorStop(1, "#f43f5e");
+    } else {
+      gradient.addColorStop(0, "#f43f5e");
+      gradient.addColorStop(0.5, "#c026d3");
+      gradient.addColorStop(1, "#6d28d9");
+    }
+    ctx.strokeStyle = gradient;
     ctx.beginPath();
     const slice = width / data.length;
     let x = 0;
@@ -206,7 +266,7 @@ export default function VoiceRecoveryPanel({
           {status === "matched" && <ShieldCheck className="h-6 w-6 text-emerald-400" />}
           {status === "denied" && <ShieldX className="h-6 w-6 text-rose-400" />}
         </div>
-        <canvas ref={canvasRef} className="h-28 w-full rounded-xl border border-rose-100 bg-white/75 shadow-inner" aria-label="Live microphone waveform" />
+        <canvas ref={canvasRef} className="h-28 w-full rounded-xl border border-fuchsia-100 bg-white/80 shadow-inner" aria-label="Voice recovery waveform" />
         <p className={`mt-3 min-h-5 text-center text-xs font-bold ${status === "matched" ? "text-emerald-600" : status === "denied" ? "text-rose-600" : "text-fuchsia-700"}`}>
           {message || "Ready"}
         </p>
