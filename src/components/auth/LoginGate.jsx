@@ -156,9 +156,6 @@ export default function LoginGate({ onUnlock }) {
           <button type="button" role="tab" aria-selected={mode === "qr"} onClick={() => setMode("qr")} className={mode === "qr" ? "active" : ""}>
             <QrCode size={16} /> QR Scan
           </button>
-          <button type="button" role="tab" aria-selected={mode === "voice"} onClick={() => { setMode("voice"); stopCamera(); }} className={mode === "voice" ? "active" : ""}>
-            <Mic size={16} /> Voice Backup
-          </button>
         </div>
 
         {mode === "pin" ? (
@@ -187,6 +184,13 @@ export default function LoginGate({ onUnlock }) {
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
             <p className="login-gate-hint">Enter your Pathfinder username and 4-digit PIN.</p>
+            <button
+              type="button"
+              onClick={() => { setMode("voice"); setPin(""); stopCamera(); }}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-fuchsia-200 bg-white px-4 py-2.5 text-sm font-bold text-fuchsia-700 transition hover:bg-fuchsia-50"
+            >
+              <Mic size={16} /> Forgot PIN? Use voice recovery
+            </button>
           </form>
         ) : mode === "qr" ? (
           <div className="login-gate-qr">
@@ -208,6 +212,10 @@ export default function LoginGate({ onUnlock }) {
           </div>
         ) : (
           <div className="space-y-3">
+            <div className="rounded-2xl border border-fuchsia-100 bg-gradient-to-br from-rose-50 via-white to-violet-50 p-3 text-center">
+              <p className="text-sm font-black text-slate-900">PIN recovery</p>
+              <p className="mt-1 text-xs text-slate-600">Use your enrolled spoken recovery phrase only if you cannot remember your PIN.</p>
+            </div>
             <label className="login-gate-form">
               <span className="text-xs font-bold text-slate-700">Username</span>
               <input
@@ -222,6 +230,13 @@ export default function LoginGate({ onUnlock }) {
               username={username}
               onSuccess={(voiceUser) => grant(voiceUser)}
             />
+            <button
+              type="button"
+              onClick={() => setMode("pin")}
+              className="flex w-full items-center justify-center rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-rose-50"
+            >
+              Back to username + PIN
+            </button>
           </div>
         )}
         </>}
