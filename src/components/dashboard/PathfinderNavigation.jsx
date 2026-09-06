@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine } from "lucide-react";
+import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine, ShieldCheck, Building2, BadgeCheck } from "lucide-react";
 import { canManageUsers, isAdmin } from "@/lib/clinicalAuth";
 export const NAVIGATION_GROUPS = [
   { label: "Overview", items: [{ label: "Pathfinder Overview", path: "/", icon: Home }] },
@@ -20,6 +20,8 @@ export const NAVIGATION_GROUPS = [
   { label: "Account & resources", items: [
     { label: "User Analytics", path: "/profile", icon: UserRound },
     { label: "Progress", path: "/performance", icon: BarChart3 },
+    { label: "Curriculum Readiness", path: "/curriculum-readiness", icon: ClipboardCheck },
+    { label: "Talent Card", path: "/talent-card", icon: BadgeCheck },
     { label: "Pathfinder AI", path: "/voice-assistant", icon: Sparkles },
     { label: "AI Model Router", path: "/ai-models", icon: Sparkles },
   ] },
@@ -27,6 +29,8 @@ export const NAVIGATION_GROUPS = [
     { label: "ESP Tutor Review", path: "/esp-tutor-review", icon: ClipboardCheck },
   ] },
   { label: "Administration", admin: true, items: [
+    { label: "System Health", path: "/system-health", icon: ShieldCheck },
+    { label: "Employer Portal", path: "/employer-portal", icon: Building2 },
     { label: "User Management", path: "/user-management", icon: UserCog },
     { label: "Scenario Templates", path: "/scenario-templates", icon: FilePenLine },
     { label: "Scenario Authoring", path: "/scenario-authoring", icon: FilePenLine },
