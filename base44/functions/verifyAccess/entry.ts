@@ -52,6 +52,25 @@ export default async function(req) {
       return Response.json({ granted: false, reason: "PIN must be exactly 4 digits." }, { status: 400 });
     }
 
+    // Brute-force protection: this is the sign-in endpoint and must remain
+    // callable without a platform session (the PIN is the auth factor), so
+    // we throttle repeated failures per username using the audit log. After
+    // 5 denied attempts within 15 minutes the account is temporarily locked.
+    const LOCK_WINDOW_MS = 15 * 60 * 1000;
+    const LOCK_THRESHOLD = 5;
+    try {
+      const since = new Date(Date.now() - LOCK_WINDOW_MS).toISOString();
+      const recent = await base44.asServiceRole.entities.LoginAudit.filter({
+        username: normalizedUsername || 'unknown',
+        result: 'denied',
+        created_at_client: { $gte: since },
+      });
+      if (recent && recent.length >= LOCK_THRESHOLD) {
+        await audit(base44, normalizedUsername, method, 'denied', 'Account temporarily locked after repeated failures.');
+        return Response.json({ granted: false, reason: "Too many failed sign-in attempts. Please try again in a few minutes." }, { status: 429 });
+      }
+    } catch {}
+
     const query = { active: true };
     if (normalizedUsername) query.username = normalizedUsername;
 

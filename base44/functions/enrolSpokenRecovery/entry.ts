@@ -14,6 +14,33 @@ async function hashPin(pin) {
   return `sha256:${await hashValue(String(pin || '').trim())}`;
 }
 
+// In-memory brute-force limiter for voice recovery enrolment. This runs before
+// a platform session exists (the current PIN is the auth factor), so we throttle
+// repeated attempts per username. Cold starts reset the map; the database-backed
+// limiter in verifyAccess provides the primary brute-force defence for the PIN.
+const enrolAttempts = new Map(); // username -> { count, firstMs, lockedUntil }
+const ENROL_WINDOW_MS = 15 * 60 * 1000;
+const ENROL_THRESHOLD = 5;
+
+function enrolLocked(username) {
+  const entry = enrolAttempts.get(username);
+  if (!entry || !entry.lockedUntil) return false;
+  if (entry.lockedUntil > Date.now()) return true;
+  enrolAttempts.delete(username);
+  return false;
+}
+
+function enrolRecordFailure(username) {
+  const now = Date.now();
+  let entry = enrolAttempts.get(username);
+  if (!entry || now - entry.firstMs > ENROL_WINDOW_MS) {
+    entry = { count: 0, firstMs: now, lockedUntil: 0 };
+    enrolAttempts.set(username, entry);
+  }
+  entry.count += 1;
+  if (entry.count >= ENROL_THRESHOLD) entry.lockedUntil = now + ENROL_WINDOW_MS;
+}
+
 export default async function(req) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -29,6 +56,10 @@ export default async function(req) {
       return Response.json({ enrolled: false, reason: 'Choose a spoken recovery phrase between 8 and 120 characters.' }, { status: 400 });
     }
 
+    if (enrolLocked(username)) {
+      return Response.json({ enrolled: false, reason: 'Too many attempts. Please try again in a few minutes.' }, { status: 429 });
+    }
+
     const base44 = createClientFromRequest(req);
     const matches = await base44.asServiceRole.entities.AppUser.filter({ username, active: true });
     const user = matches?.[0];
@@ -36,6 +67,7 @@ export default async function(req) {
 
     const candidateHash = await hashPin(pin);
     if (!(user.pin === candidateHash || user.pin === pin)) {
+      enrolRecordFailure(username);
       return Response.json({ enrolled: false, reason: 'Current PIN could not be verified.' }, { status: 403 });
     }
 
