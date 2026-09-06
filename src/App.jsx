@@ -123,9 +123,9 @@ const AuthenticatedApp = () => {
   // successful platform session only, require spoken recovery setup once.
   if (isProtectedSuperAdmin && adminVoiceSetupRequired === null) {
     return (
-      <div className="fixed inset-0 z-[250] grid place-items-center bg-slate-950/85 p-6 backdrop-blur-xl">
-        <div className="w-full max-w-xl rounded-3xl border border-white/20 bg-white p-6 shadow-2xl">
-          <p className="text-center text-sm font-bold text-slate-700">Checking spoken recovery setup…</p>
+      <div className="fixed inset-0 z-[250] grid place-items-center bg-gradient-to-br from-white via-rose-50 to-violet-100 p-6">
+        <div className="w-full max-w-xl rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-[0_24px_80px_-34px_rgba(124,58,237,.35)] backdrop-blur-2xl">
+          <p className="text-center text-sm font-bold text-fuchsia-700">Checking spoken recovery setup…</p>
         </div>
       </div>
     );
@@ -133,11 +133,15 @@ const AuthenticatedApp = () => {
 
   if (isProtectedSuperAdmin && adminVoiceSetupRequired) {
     return (
-      <div className="fixed inset-0 z-[250] grid place-items-center bg-slate-950/85 p-6 backdrop-blur-xl">
-        <div className="w-full max-w-xl rounded-3xl border border-white/20 bg-white p-6 shadow-2xl">
-          <div className="mb-4 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-600">Pathfinder Health Security</p>
-            <h1 className="mt-1 text-2xl font-black text-slate-900">Set up backup voice access</h1>
+      <div className="fixed inset-0 z-[250] grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(244,63,94,.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(124,58,237,.18),transparent_38%),linear-gradient(135deg,#ffffff_0%,#fff1f2_46%,#f5f3ff_100%)] p-6">
+        <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden="true">
+          <div className="absolute -left-24 top-24 h-56 w-56 rotate-45 rounded-[44px] border-[24px] border-rose-300/30" />
+          <div className="absolute -right-28 bottom-10 h-72 w-72 rotate-45 rounded-[64px] border-[30px] border-violet-300/25" />
+        </div>
+        <div className="relative w-full max-w-xl rounded-[34px] border border-white/90 bg-white/88 p-6 shadow-[0_32px_90px_-38px_rgba(124,58,237,.4)] backdrop-blur-2xl">
+          <div className="mb-5 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Pathfinder Health Security</p>
+            <h1 className="mt-1 text-2xl font-black text-slate-900">Set up backup <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-fuchsia-600 to-violet-700">voice access</span></h1>
             <p className="mt-2 text-sm text-slate-600">Your microphone recording is not stored. Pathfinder saves only a salted hash of the phrase you choose.</p>
           </div>
           <VoiceRecoveryPanel
