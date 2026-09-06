@@ -65,12 +65,9 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // PIN/QR identification gate — shown on first run over a blurred overview
-  if (!unlocked) {
-    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
-  }
-
-  // Show loading spinner while checking app public settings or auth
+  // Check the Base44 platform session before showing the Pathfinder PIN/QR gate.
+  // This prevents users from successfully unlocking Pathfinder only to be redirected
+  // into a second authentication flow immediately afterwards.
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -90,10 +87,15 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // No custom login remains — send unauthenticated users to the platform sign-in
+  // Send unauthenticated users to the platform sign-in first.
   if (authChecked && !isAuthenticated && !authError) {
     navigateToLogin();
     return null;
+  }
+
+  // Once the Base44 session is valid, use the Pathfinder PIN/QR gate for app identification.
+  if (!unlocked) {
+    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
 
   // Render the main app
