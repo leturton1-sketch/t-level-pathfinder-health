@@ -43,8 +43,13 @@ const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
+  const platformEmail = String(user?.email || "").trim().toLowerCase();
+  const isProtectedSuperAdmin = [
+    "lee.turton@academic.rnngroup.ac.uk",
+    "leturton1@gmail.com",
+  ].includes(platformEmail);
 
   useEffect(() => {
     const stop = installErrorCollector();
@@ -93,7 +98,15 @@ const AuthenticatedApp = () => {
     return null;
   }
 
-  // Once the Base44 session is valid, use the Pathfinder PIN/QR gate for app identification.
+  // Protected super-admin accounts have already passed Base44 identity verification,
+  // so do not subject them to a second PIN gate that can drift out of sync.
+  if (isProtectedSuperAdmin && !unlocked) {
+    sessionStorage.setItem("pathfinder-unlocked", "1");
+    setUnlocked(true);
+    return null;
+  }
+
+  // Other users still use the Pathfinder PIN/QR identification gate.
   if (!unlocked) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
