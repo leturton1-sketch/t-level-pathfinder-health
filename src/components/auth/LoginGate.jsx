@@ -164,10 +164,10 @@ export default function LoginGate({ onUnlock }) {
         {mode === "pin" ? (
           <form className="login-gate-form" onSubmit={handlePin}>
             <label>
-              <span>Username <em>(optional)</em></span>
+              <span>Username</span>
               <input
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 placeholder="e.g. lee"
                 autoComplete="username"
               />
@@ -176,19 +176,19 @@ export default function LoginGate({ onUnlock }) {
               <span>PIN</span>
               <input
                 value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                 placeholder="0000"
                 inputMode="numeric"
                 type="password"
                 autoComplete="current-password"
               />
             </label>
-            <button type="submit" disabled={busy || !pin.trim()} className="login-gate-unlock">
+            <button type="submit" disabled={busy || !username.trim() || !/^\d{4}$/.test(pin.trim())} className="login-gate-unlock">
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
-            <p className="login-gate-hint">Default PIN is <strong>0000</strong> until you set your own.</p>
+            <p className="login-gate-hint">Enter your Pathfinder username and 4-digit PIN.</p>
           </form>
-        ) : (
+        ) : mode === "qr" ? (
           <div className="login-gate-qr">
             <div className="login-gate-qr-stage">
               <video ref={videoRef} muted playsInline className={scanning ? "active" : ""} />
@@ -206,7 +206,25 @@ export default function LoginGate({ onUnlock }) {
             )}
             <p className="login-gate-hint">Point the camera at your personal Pathfinder QR code.</p>
           </div>
+        ) : (
+          <div className="space-y-3">
+            <label className="login-gate-form">
+              <span className="text-xs font-bold text-slate-700">Username</span>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                placeholder="e.g. lee"
+                autoComplete="username"
+              />
+            </label>
+            <VoiceRecoveryPanel
+              mode="verify"
+              username={username}
+              onSuccess={(voiceUser) => grant(voiceUser)}
+            />
+          </div>
         )}
+        </>}
 
         <footer className="login-gate-footer">© {new Date().getFullYear()} Pathfinder T-Level Simulation</footer>
       </div>
