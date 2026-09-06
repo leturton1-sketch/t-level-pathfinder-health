@@ -3,6 +3,7 @@ import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn } from "lucide-rea
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
+import { setAppUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import "./LoginGate.css";
 
@@ -22,9 +23,10 @@ export default function LoginGate({ onUnlock }) {
 
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
-  const grant = (user) => {
+  const grant = (user, method = "pin") => {
+    setAppUser(user, method);
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
-    announce(`Access granted. Welcome, ${user.full_name}.`);
+    announce(`Access granted. Welcome, ${user.full_name}. Your role is ${String(user.role || "user").replaceAll("_", " ")}.`);
     onUnlock?.();
   };
 
@@ -38,7 +40,7 @@ export default function LoginGate({ onUnlock }) {
     try {
       const res = await base44.functions.invoke("verifyAccess", payload);
       const data = res?.data ?? res;
-      if (data?.granted) grant(data.user);
+      if (data?.granted) grant(data.user, payload?.qr ? "qr" : "pin");
       else deny(data?.reason);
     } catch (e) {
       deny(e?.message);
@@ -126,7 +128,7 @@ export default function LoginGate({ onUnlock }) {
         {mode === "pin" ? (
           <form className="login-gate-form" onSubmit={handlePin}>
             <label>
-              <span>Username <em>(optional)</em></span>
+              <span>Username</span>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -138,17 +140,17 @@ export default function LoginGate({ onUnlock }) {
               <span>PIN</span>
               <input
                 value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder="0000"
                 inputMode="numeric"
                 type="password"
                 autoComplete="current-password"
               />
             </label>
-            <button type="submit" disabled={busy || !pin.trim()} className="login-gate-unlock">
+            <button type="submit" disabled={busy || !username.trim() || !/^\d{4,6}$/.test(pin.trim())} className="login-gate-unlock">
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
-            <p className="login-gate-hint">Default PIN is <strong>0000</strong> until you set your own.</p>
+            <p className="login-gate-hint">Use your Pathfinder username and 4–6 digit PIN. Temporary PINs must be changed after first sign-in.</p>
           </form>
         ) : (
           <div className="login-gate-qr">
