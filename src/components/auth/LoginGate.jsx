@@ -14,7 +14,6 @@ export default function LoginGate({ onUnlock }) {
   const [mode, setMode] = useState("pin");
   const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
-  const [enrolUser, setEnrolUser] = useState(null);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef(null);
@@ -131,21 +130,6 @@ export default function LoginGate({ onUnlock }) {
           </div>
         </header>
 
-        {enrolUser ? (
-          <VoiceRecoveryPanel
-            mode="enrol"
-            username={enrolUser.username}
-            pin={pin}
-            user={enrolUser}
-            onSuccess={() => {
-              const readyUser = { ...enrolUser, voice_recovery_enrolled: true };
-              setEnrolUser(null);
-              toast({ title: "Access granted", description: `Welcome, ${readyUser.full_name}.` });
-              announce(`Welcome, ${readyUser.full_name}. Your role is ${String(readyUser.role || "user").replaceAll("_", " ")}. Access granted.`);
-              onUnlock?.();
-            }}
-          />
-        ) : <>
         <div className="login-gate-tabs" role="tablist" aria-label="Sign-in method">
           <button type="button" role="tab" aria-selected={mode === "pin"} onClick={() => { setMode("pin"); stopCamera(); }} className={mode === "pin" ? "active" : ""}>
             <KeyRound size={16} /> PIN
@@ -236,7 +220,6 @@ export default function LoginGate({ onUnlock }) {
             </button>
           </div>
         )}
-        </>}
 
         <footer className="login-gate-footer">© {new Date().getFullYear()} Pathfinder T-Level Simulation</footer>
       </div>
