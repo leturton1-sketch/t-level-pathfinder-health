@@ -23,6 +23,7 @@ export default function VoiceRecoveryPanel({
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
   const [personalMessage, setPersonalMessage] = useState("");
+  const [setupPin, setSetupPin] = useState(pin || "");
 
   useEffect(() => () => stopListening(), []);
 
@@ -93,7 +94,7 @@ export default function VoiceRecoveryPanel({
       if (mode === "enrol") {
         const result = await base44.functions.invoke("enrolSpokenRecovery", {
           username: String(username || user?.username || "").trim().toLowerCase(),
-          pin,
+          pin: (pin || setupPin).trim(),
           phrase,
           personal_message: personalMessage.trim(),
         });
@@ -211,6 +212,20 @@ export default function VoiceRecoveryPanel({
         </p>
         {transcript && <p className="mt-2 rounded-lg bg-black/20 px-3 py-2 text-center text-xs text-slate-200">Heard: “{transcript}”</p>}
       </div>
+
+      {mode === "enrol" && !pin && (
+        <label className="block text-xs font-bold text-slate-700">
+          Confirm your 4-digit PIN
+          <input
+            value={setupPin}
+            onChange={(event) => setSetupPin(event.target.value.replace(/\D/g, "").slice(0, 4))}
+            inputMode="numeric"
+            type="password"
+            placeholder="0000"
+            className="mt-1 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+          />
+        </label>
+      )}
 
       {mode === "enrol" && (
         <label className="block text-xs font-bold text-slate-700">
