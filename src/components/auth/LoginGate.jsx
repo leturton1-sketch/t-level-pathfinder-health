@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import TLevelLogo from "@/components/TLevelLogo";
+import VoiceRecoveryPanel from "@/components/auth/VoiceRecoveryPanel";
 import "./LoginGate.css";
 
 export default function LoginGate({ onUnlock }) {
@@ -12,6 +13,7 @@ export default function LoginGate({ onUnlock }) {
   const [mode, setMode] = useState("pin");
   const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
+  const [enrolUser, setEnrolUser] = useState(null);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef(null);
@@ -23,8 +25,13 @@ export default function LoginGate({ onUnlock }) {
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
   const grant = (user) => {
+    if (user?.voice_recovery_enrolled === false) {
+      setEnrolUser(user);
+      toast({ title: "Voice setup required", description: "Set up your spoken recovery phrase before continuing." });
+      return;
+    }
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
-    announce(`Access granted. Welcome, ${user.full_name}.`);
+    announce(`Access granted. Welcome, ${user.full_name}. Your role is ${String(user.role || "user").replaceAll("_", " ")}.`);
     onUnlock?.();
   };
 
