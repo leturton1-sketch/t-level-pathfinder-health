@@ -853,7 +853,6 @@ export const DUTY_OF_CANDOUR_SCENARIOS = [
 ];
 
 export const LEARNING_MODULES = [
-  { id: "atlas", title: "Interactive Anatomy Atlas", icon: "Body", specArea: "Area 8-9", skCodes: ["SK1", "SK17"], poCodes: ["PO8"], description: "Explore body systems with clickable SVG organs and clinical nursing notes." },
   { id: "ppe", title: "PPE Sequencer", icon: "Shield", specArea: "Area 7", skCodes: ["SK7"], poCodes: ["PO7"], description: "Master the correct donning and doffing sequence for personal protective equipment." },
   { id: "hazard", title: "Clinical Hazard Hunt", icon: "Alert", specArea: "Area 3", skCodes: ["SK7", "SK18"], poCodes: ["PO3", "PO7"], description: "Identify safety hazards in a clinical environment and learn the correct remediation." },
   { id: "patho", title: "Pathophysiology Matcher", icon: "Stethoscope", specArea: "Area 9", skCodes: ["SK1", "SK17"], poCodes: ["PO8"], description: "Match patient symptoms to chronic conditions and nursing interventions." },
