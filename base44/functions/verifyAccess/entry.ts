@@ -44,6 +44,16 @@ export default async function(req) {
     });
 
     if (matches.length === 0) {
+      try {
+        await base44.asServiceRole.entities.AuthAudit.create({
+          username: normalizedUsername || null,
+          event: "login_failed",
+          method: qr ? "qr" : "pin",
+          success: false,
+          detail: "No matching active account found.",
+          occurred_at: new Date().toISOString(),
+        });
+      } catch {}
       return Response.json({ granted: false, reason: "No matching account found." });
     }
     if (matches.length > 1 && !normalizedUsername) {
@@ -51,9 +61,27 @@ export default async function(req) {
     }
 
     const u = matches[0];
+
+    // Transparently migrate legacy plaintext PINs after a successful login.
+    if (String(u.pin || "").trim() === suppliedPin && !String(u.pin || "").startsWith("sha256:")) {
+      try { await base44.asServiceRole.entities.AppUser.update(u.id, { pin: hashedPin }); } catch {}
+    }
+
     if (u.active === false) {
       return Response.json({ granted: false, reason: "This account is inactive. Contact your administrator." });
     }
+
+    try {
+      await base44.asServiceRole.entities.AuthAudit.create({
+        app_user_id: u.id,
+        username: u.username,
+        event: qr ? "qr_login" : "login_success",
+        method: qr ? "qr" : "pin",
+        success: true,
+        detail: u.is_protected ? "Protected account authenticated." : "Account authenticated.",
+        occurred_at: new Date().toISOString(),
+      });
+    } catch {}
 
     return Response.json({
       granted: true,
