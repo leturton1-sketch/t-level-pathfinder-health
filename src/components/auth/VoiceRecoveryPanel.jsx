@@ -187,30 +187,30 @@ export default function VoiceRecoveryPanel({
   };
 
   const waveClass = status === "matched"
-    ? "border-emerald-400/70 bg-emerald-950/45"
+    ? "border-emerald-300 bg-emerald-50 shadow-[0_16px_40px_-28px_rgba(16,185,129,.55)]"
     : status === "denied"
-      ? "border-rose-400/70 bg-rose-950/45"
-      : "border-cyan-400/30 bg-slate-950/80";
+      ? "border-rose-300 bg-rose-50 shadow-[0_16px_40px_-28px_rgba(244,63,94,.5)]"
+      : "border-fuchsia-200 bg-gradient-to-br from-rose-50 via-white to-fuchsia-50 shadow-[0_18px_45px_-30px_rgba(217,70,239,.45)]";
 
   return (
     <div className="space-y-4">
       <div className={`rounded-2xl border p-4 transition-colors ${waveClass}`}>
         <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-white">
+          <div className="flex items-center gap-2 text-slate-900">
             <Waves className="h-5 w-5" />
             <div>
               <p className="text-xs font-black uppercase tracking-[0.16em]">{mode === "enrol" ? "Spoken Recovery Setup" : "Backup Voice Access"}</p>
-              <p className="text-[11px] text-slate-300">No recording or biometric voiceprint is stored.</p>
+              <p className="text-[11px] text-slate-500">No recording or biometric voiceprint is stored.</p>
             </div>
           </div>
           {status === "matched" && <ShieldCheck className="h-6 w-6 text-emerald-400" />}
           {status === "denied" && <ShieldX className="h-6 w-6 text-rose-400" />}
         </div>
-        <canvas ref={canvasRef} className="h-28 w-full rounded-xl bg-black/20" aria-label="Live microphone waveform" />
-        <p className={`mt-3 min-h-5 text-center text-xs font-bold ${status === "matched" ? "text-emerald-300" : status === "denied" ? "text-rose-300" : "text-cyan-200"}`}>
+        <canvas ref={canvasRef} className="h-28 w-full rounded-xl border border-rose-100 bg-white/75 shadow-inner" aria-label="Live microphone waveform" />
+        <p className={`mt-3 min-h-5 text-center text-xs font-bold ${status === "matched" ? "text-emerald-600" : status === "denied" ? "text-rose-600" : "text-fuchsia-700"}`}>
           {message || "Ready"}
         </p>
-        {transcript && <p className="mt-2 rounded-lg bg-black/20 px-3 py-2 text-center text-xs text-slate-200">Heard: “{transcript}”</p>}
+        {transcript && <p className="mt-2 rounded-lg border border-fuchsia-100 bg-white/80 px-3 py-2 text-center text-xs text-slate-700">Heard: “{transcript}”</p>}
       </div>
 
       {mode === "enrol" && !pin && (
@@ -222,7 +222,7 @@ export default function VoiceRecoveryPanel({
             inputMode="numeric"
             type="password"
             placeholder="0000"
-            className="mt-1 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+            className="mt-1 h-11 w-full rounded-xl border border-rose-200 bg-white px-3 text-sm outline-none shadow-sm focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-100"
           />
         </label>
       )}
@@ -234,23 +234,23 @@ export default function VoiceRecoveryPanel({
             value={personalMessage}
             onChange={(event) => setPersonalMessage(event.target.value.slice(0, 240))}
             placeholder="e.g. Your clinical dashboard is ready for today."
-            className="mt-1 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+            className="mt-1 h-11 w-full rounded-xl border border-rose-200 bg-white px-3 text-sm outline-none shadow-sm focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-100"
           />
         </label>
       )}
 
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={listening ? stopListening : startListening} className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-black text-white hover:bg-slate-800">
+        <button type="button" onClick={listening ? stopListening : startListening} className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 via-fuchsia-600 to-violet-700 px-4 py-2.5 text-sm font-black text-white shadow-[0_14px_30px_-18px_rgba(168,85,247,.8)] transition hover:brightness-105">
           {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           {listening ? "Stop listening" : mode === "enrol" ? "Record phrase" : "Speak recovery phrase"}
         </button>
         {status === "denied" && (
-          <button type="button" onClick={() => { setStatus("idle"); setMessage(""); setTranscript(""); }} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700">
+          <button type="button" onClick={() => { setStatus("idle"); setMessage(""); setTranscript(""); }} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-fuchsia-200 bg-white px-4 py-2.5 text-sm font-bold text-fuchsia-700 hover:bg-fuchsia-50">
             <RotateCcw className="h-4 w-4" /> Retry
           </button>
         )}
         {onCancel && (
-          <button type="button" onClick={onCancel} className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700">Cancel</button>
+          <button type="button" onClick={onCancel} className="min-h-11 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-rose-50">Cancel</button>
         )}
       </div>
       {mode === "enrol" && <p className="text-center text-[11px] text-slate-500"><Save className="mr-1 inline h-3.5 w-3.5" />Choose a phrase that is memorable but difficult for someone else to guess.</p>}
