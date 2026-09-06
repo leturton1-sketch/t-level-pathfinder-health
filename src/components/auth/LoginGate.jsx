@@ -139,10 +139,10 @@ export default function LoginGate({ onUnlock }) {
         {mode === "pin" ? (
           <form className="login-gate-form" onSubmit={handlePin}>
             <label>
-              <span>Username</span>
+              <span>Username <em>(optional)</em></span>
               <input
                 value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. lee"
                 autoComplete="username"
               />
@@ -151,17 +151,17 @@ export default function LoginGate({ onUnlock }) {
               <span>PIN</span>
               <input
                 value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
                 placeholder="0000"
                 inputMode="numeric"
                 type="password"
                 autoComplete="current-password"
               />
             </label>
-            <button type="submit" disabled={busy || !username.trim() || !/^\d{4}$/.test(pin.trim())} className="login-gate-unlock">
+            <button type="submit" disabled={busy || !pin.trim()} className="login-gate-unlock">
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
-            <p className="login-gate-hint">Enter your Pathfinder username and 4-digit PIN.</p>
+            <p className="login-gate-hint">Default PIN is <strong>0000</strong> until you set your own.</p>
           </form>
         ) : (
           <div className="login-gate-qr">

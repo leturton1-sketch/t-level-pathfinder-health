@@ -37,10 +37,6 @@ export default async function(req) {
       return Response.json({ granted: false, reason: "PIN must be exactly 4 digits." }, { status: 400 });
     }
 
-    if (!qr && !normalizedUsername) {
-      return Response.json({ granted: false, reason: "A username is required." }, { status: 400 });
-    }
-
     const query = { active: true };
     if (normalizedUsername) query.username = normalizedUsername;
 

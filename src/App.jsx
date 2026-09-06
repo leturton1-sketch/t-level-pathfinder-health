@@ -70,9 +70,8 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Check the Base44 platform session before showing the Pathfinder PIN/QR gate.
-  // This prevents users from successfully unlocking Pathfinder only to be redirected
-  // into a second authentication flow immediately afterwards.
+  // Resolve Base44 authentication first. Showing the PIN gate before platform auth
+  // created a second, inconsistent sign-in path and caused intermittent denials.
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -98,9 +97,8 @@ const AuthenticatedApp = () => {
     return null;
   }
 
-  // Protected super-admin accounts have already passed Base44 identity verification,
-  // so do not subject them to a second PIN gate that can drift out of sync.
-  // Other users still use the Pathfinder PIN/QR identification gate.
+  // Protected super-admin identities have already been strongly authenticated by
+  // Base44, so they bypass the redundant Pathfinder PIN gate entirely.
   if (!unlocked && !isProtectedSuperAdmin) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }

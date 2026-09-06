@@ -39,8 +39,8 @@ export const AuthProvider = ({ children }) => {
         const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
         setAppPublicSettings(publicSettings);
         
-        // If we got the app public settings successfully, always verify the current platform session.
-        // Relying only on the injected token made authentication state inconsistent across reloads/tabs.
+        // Always resolve the live Base44 session. Depending on an injected token made
+        // authentication behave differently across reloads, tabs and hosted contexts.
         await checkUserAuth();
         setIsLoadingPublicSettings(false);
       } catch (appError) {
