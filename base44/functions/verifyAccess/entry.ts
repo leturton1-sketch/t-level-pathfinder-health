@@ -32,12 +32,17 @@ export default async function(req) {
 
     const base44 = createClientFromRequest(req);
     const normalizedPin = String(pin).trim();
+    const normalizedUsername = String(username || "").trim().toLowerCase();
     if (!/^\d{4}$/.test(normalizedPin)) {
       return Response.json({ granted: false, reason: "PIN must be exactly 4 digits." }, { status: 400 });
     }
 
+    if (!qr && !normalizedUsername) {
+      return Response.json({ granted: false, reason: "A username is required." }, { status: 400 });
+    }
+
     const query = { active: true };
-    if (username) query.username = username;
+    if (normalizedUsername) query.username = normalizedUsername;
 
     const matches = await base44.asServiceRole.entities.AppUser.filter(query);
 
@@ -46,7 +51,7 @@ export default async function(req) {
     }
     const candidateHash = await hashPin(normalizedPin);
     const pinMatches = matches.filter((candidate) => candidate.pin === candidateHash || candidate.pin === normalizedPin);
-    if (pinMatches.length > 1 && !username) {
+    if (pinMatches.length > 1 && !normalizedUsername) {
       return Response.json({ granted: false, reason: "That PIN is shared by several accounts — enter your username too." });
     }
     const u = pinMatches[0];
