@@ -13,16 +13,18 @@ let cachedUser = null;
 // Build an app-shaped user object from the platform user so existing call sites
 // (role checks, full_name, persona defaults) keep working unchanged.
 export function setPlatformUser(platformUser) {
-  if (!platformUser) {
-    cachedUser = null;
-    return;
-  }
+  if (!platformUser) return;
   const email = (platformUser.email || "").toLowerCase().trim();
   const role = SUPER_ADMIN_EMAILS.has(email)
     ? "super_admin"
     : ["admin", "super_admin"].includes(platformUser.role)
       ? platformUser.role
       : "student";
+
+  // Do not overwrite an authenticated Pathfinder AppUser session with the
+  // background Base44 platform identity. The in-app username + PIN login is
+  // authoritative for role, cohort and permissions.
+  if (cachedUser?.auth_method === "pathfinder") return;
 
   cachedUser = {
     id: platformUser.id,
@@ -37,6 +39,26 @@ export function setPlatformUser(platformUser) {
     ai_persona: "female",
     is_protected: role === "super_admin",
     auth_method: "platform",
+  };
+}
+
+export function setPathfinderUser(appUser) {
+  if (!appUser) {
+    cachedUser = null;
+    return;
+  }
+  cachedUser = {
+    ...appUser,
+    username: String(appUser.username || "").trim().toLowerCase(),
+    full_name: appUser.full_name || appUser.username || "User",
+    role: appUser.role || "student",
+    institution: appUser.institution || "Pathfinder T-Level Simulation",
+    cohort: appUser.cohort || null,
+    first_login: !!appUser.first_login,
+    ai_voice: appUser.ai_voice || "honey",
+    ai_persona: appUser.ai_persona || "female",
+    is_protected: !!appUser.is_protected,
+    auth_method: "pathfinder",
   };
 }
 
