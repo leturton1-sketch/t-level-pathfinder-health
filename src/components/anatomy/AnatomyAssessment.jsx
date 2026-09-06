@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Brain, CheckCircle2, RotateCcw, Sparkles, Target, Trophy, XCircle } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
-import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
+import { ANATOMY_STRUCTURES } from "@/lib/anatomy3D";
 
 // Organs students must place. Internal systems only — outer layers are hidden
 // so the body shell reads as a translucent mannequin to place organs into.
