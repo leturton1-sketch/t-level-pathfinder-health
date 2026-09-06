@@ -111,6 +111,32 @@ function buildProceduralAnatomy() {
   return root;
 }
 
+function makeTextSprite(text) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
+  ctx.roundRect(8, 8, 496, 112, 24);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.32)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 38px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const clean = String(text || "Clinical note").slice(0, 28);
+  ctx.fillText(clean, 256, 64);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true }));
+  sprite.scale.set(1.55, 0.39, 1);
+  sprite.position.set(0, 0.2, 0);
+  return sprite;
+}
+
 function summariseMeshes(root) {
   const rows = [];
   root?.traverse((obj) => {
@@ -365,12 +391,14 @@ export default function AnatomyCanvasWorkspace() {
         );
         marker.position.copy(hit.point);
         marker.name = "Annotation marker";
+        const labelText = annotationTextRef.current.trim() || "Clinical note";
+        marker.add(makeTextSprite(labelText));
         scene.add(marker);
         markersRef.current.push(marker);
         const id = crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
         setAnnotations((current) => [...current, {
           id,
-          text: annotationTextRef.current.trim() || "Clinical note",
+          text: labelText,
           structure: hit.object.name || "Structure",
           position: hit.point.toArray(),
         }]);
@@ -403,7 +431,6 @@ export default function AnatomyCanvasWorkspace() {
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
-      grid.visible = gridVisible;
       controls.update();
       renderer.render(scene, camera);
     };
@@ -554,7 +581,15 @@ export default function AnatomyCanvasWorkspace() {
         </div>
       </aside>
 
-      <section className="min-w-0 overflow-hidden rounded-3xl border border-slate-800 bg-[#111318] shadow-[0_24px_70px_-34px_rgba(15,23,42,.85)]">
+      <section
+        className="min-w-0 overflow-hidden rounded-3xl border border-slate-800 bg-[#111318] shadow-[0_24px_70px_-34px_rgba(15,23,42,.85)]"
+        onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
+        onDrop={(event) => {
+          event.preventDefault();
+          const file = event.dataTransfer.files?.[0];
+          if (file) loadFile(file);
+        }}
+      >
         <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-slate-950/70 p-3 backdrop-blur-xl">
           <button type="button" onClick={() => setMode("select")} className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold ${mode === "select" ? "bg-violet-600 text-white" : "bg-white/8 text-slate-200 hover:bg-white/12"}`}>
             <MousePointer2 className="h-4 w-4" /> Select
@@ -583,6 +618,7 @@ export default function AnatomyCanvasWorkspace() {
             <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[9px] font-bold text-slate-300 backdrop-blur-md">Drag · rotate 360°</span>
             <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[9px] font-bold text-slate-300 backdrop-blur-md">Wheel · zoom</span>
             <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[9px] font-bold text-slate-300 backdrop-blur-md">Right drag · pan</span>
+            <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[9px] font-bold text-slate-300 backdrop-blur-md">Drop GLB/GLTF · load model</span>
           </div>
         </div>
       </section>
