@@ -8,7 +8,26 @@ const SUPER_ADMIN_EMAILS = new Set([
 // Platform user cached after base44.auth.me() resolves. Authentication is now
 // owned entirely by the Base44 platform (Google/PIN login removed). These
 // helpers preserve the synchronous user API the rest of the app expects.
+const PATHFINDER_SESSION_KEY = "pathfinder-user-session";
 let cachedUser = null;
+
+function readStoredPathfinderUser() {
+  try {
+    const raw = sessionStorage.getItem(PATHFINDER_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.auth_method === "pathfinder" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistPathfinderUser(user) {
+  try {
+    if (user) sessionStorage.setItem(PATHFINDER_SESSION_KEY, JSON.stringify(user));
+    else sessionStorage.removeItem(PATHFINDER_SESSION_KEY);
+  } catch {}
+}
 
 // Build an app-shaped user object from the platform user so existing call sites
 // (role checks, full_name, persona defaults) keep working unchanged.
@@ -60,14 +79,16 @@ export function setPathfinderUser(appUser) {
     is_protected: !!appUser.is_protected,
     auth_method: "pathfinder",
   };
+  persistPathfinderUser(cachedUser);
 }
 
 export function getCurrentUser() {
+  if (!cachedUser) cachedUser = readStoredPathfinderUser();
   return cachedUser;
 }
 
 export function isLoggedIn() {
-  return cachedUser !== null;
+  return getCurrentUser() !== null;
 }
 
 export function isSuperAdmin() {
@@ -84,9 +105,10 @@ export function canManageUsers() {
 
 export function logout() {
   cachedUser = null;
-  // Hand off to the platform auth logout, which clears the token and returns to
-  // the homepage (where AuthContext prompts the platform sign-in again).
-  base44.auth.logout(window.location.origin + "/");
+  persistPathfinderUser(null);
+  try { sessionStorage.removeItem("pathfinder-unlocked"); } catch {}
+  // Platform logout is best-effort; Pathfinder's own session is cleared above.
+  try { base44.auth.logout(window.location.origin + "/"); } catch {}
   return true;
 }
 
