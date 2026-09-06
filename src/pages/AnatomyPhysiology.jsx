@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save, Trophy } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
+import AnatomyViewer from "@/components/AnatomyViewer";
 import { isAdmin } from "@/lib/clinicalAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
@@ -189,6 +190,14 @@ function Explorer() {
       </> : <div className="grid min-h-[400px] place-items-center text-center"><div><Info className="mx-auto h-10 w-10 text-violet-500"/><h2 className="mt-3 font-black text-slate-900">Select a body part</h2><p className="mt-2 text-sm text-slate-600">Click any visible structure to explore its anatomy, physiology and clinical relevance.</p></div></div>}
     </aside>
   </div>
+  <section className={`${panel} mt-4 p-4`}>
+    <p className="text-[10px] font-black uppercase tracking-[.18em] text-violet-700">BodyParts3D clinical atlas</p>
+    <h2 className="mt-1 text-xl font-black text-slate-900">Higher-fidelity anatomical systems</h2>
+    <p className="mt-1 mb-3 text-sm leading-6 text-slate-600">
+      Explore detailed Human Atlas geometry by anatomical system, with independent layer visibility controls.
+    </p>
+    <AnatomyViewer />
+  </section>
   </>;
 }
 
