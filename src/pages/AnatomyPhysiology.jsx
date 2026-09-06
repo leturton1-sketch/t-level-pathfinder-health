@@ -1,5 +1,6 @@
 import { Activity, Cuboid, Layers3, ScanLine, Sparkles } from "lucide-react";
 import AnatomyCanvasWorkspace from "@/components/anatomy/AnatomyCanvasWorkspace";
+import AnatomyViewer from "@/components/AnatomyViewer";
 
 export default function AnatomyPhysiology() {
   return (
@@ -27,7 +28,21 @@ export default function AnatomyPhysiology() {
         </div>
       </div>
 
-      <AnatomyCanvasWorkspace />
+      <div className="mb-4 rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600">BodyParts3D clinical atlas</p>
+        <h2 className="mt-1 text-lg font-black text-slate-950">Detailed anatomical systems</h2>
+        <p className="mt-1 text-sm leading-6 text-slate-600">
+          Explore the higher-fidelity atlas model by anatomical system. The model is loaded from the
+          Human Atlas dataset and can be isolated with the layer controls.
+        </p>
+      </div>
+      <AnatomyViewer />
+      <details className="mt-4 rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+        <summary className="cursor-pointer text-sm font-black text-slate-900">Open model inspection workspace</summary>
+        <div className="mt-4">
+          <AnatomyCanvasWorkspace />
+        </div>
+      </details>
     </div>
   );
 }

@@ -14,7 +14,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
-import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { fetchAtlas, fetchChunkBuffer, resolveChunkUrl } from '../lib/atlasLoader';
 
 export default function AnatomyViewer({ atlasUrl = 'https://raw.githubusercontent.com/ashemag/human-atlas/main/public/models/atlas.json' }) {
@@ -70,7 +70,7 @@ export default function AnatomyViewer({ atlasUrl = 'https://raw.githubuserconten
         // Merge per-system geometries, create meshes and materials
         const meshes = {};
         sysMap.forEach((geoms, system) => {
-          let merged = geoms.length === 1 ? geoms[0] : mergeBufferGeometries(geoms, false);
+          let merged = geoms.length === 1 ? geoms[0] : mergeGeometries(geoms, false);
           if (!merged) merged = geoms[0];
           const color = getSystemColor(system);
           const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.08 });

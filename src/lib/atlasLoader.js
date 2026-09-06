@@ -20,5 +20,5 @@ export function resolveChunkUrl(chunk) {
   if (!chunk) return null;
   // If chunk.url is already absolute, return it. Otherwise assume it is the filename under public/models/.
   if (chunk.url && /^https?:\/\//.test(chunk.url)) return chunk.url;
-  return `https://raw.githubusercontent.com/ashemag/human-atlas/main/public/models/${chunk.url.replace(/^.*\\//, '')}`;
+  return `https://raw.githubusercontent.com/ashemag/human-atlas/main/public/models/${chunk.url.replace(/^.*\//, '')}`;
 }
