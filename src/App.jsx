@@ -11,8 +11,6 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import LoginGate from './components/auth/LoginGate';
-import VoiceRecoveryPanel from './components/auth/VoiceRecoveryPanel';
-import { base44 } from '@/api/base44Client';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
@@ -45,37 +43,13 @@ const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
-  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
-  const [adminVoiceSetupRequired, setAdminVoiceSetupRequired] = useState(null);
-  const platformEmail = String(user?.email || "").trim().toLowerCase();
-  const isProtectedSuperAdmin = [
-    "lee.turton@academic.rnngroup.ac.uk",
-    "leturton1@gmail.com",
-  ].includes(platformEmail);
 
   useEffect(() => {
     const stop = installErrorCollector();
     return stop;
   }, []);
-
-  useEffect(() => {
-    let active = true;
-    if (!isAuthenticated || !isProtectedSuperAdmin) {
-      setAdminVoiceSetupRequired(false);
-      return () => { active = false; };
-    }
-    setAdminVoiceSetupRequired(null);
-    base44.functions.invoke("getSpokenRecoveryStatus", { username: "lee" })
-      .then((response) => {
-        const data = response?.data ?? response;
-        if (active) setAdminVoiceSetupRequired(!data?.voice_recovery_enrolled);
-      })
-      .catch(() => {
-        if (active) setAdminVoiceSetupRequired(false);
-      });
-    return () => { active = false; };
-  }, [isAuthenticated, isProtectedSuperAdmin]);
 
   // MCP OAuth consent renders even when signed out — the page gates on its own
   // server session (cookie + token), bypassing the app's normal auth flow.
@@ -118,44 +92,9 @@ const AuthenticatedApp = () => {
     return null;
   }
 
-  // Protected super-admin identities have already been strongly authenticated by
-  // Base44, so they bypass the redundant Pathfinder PIN gate entirely. On the first
-  // successful platform session only, require spoken recovery setup once.
-  if (isProtectedSuperAdmin && adminVoiceSetupRequired === null) {
-    return (
-      <div className="fixed inset-0 z-[250] grid place-items-center bg-gradient-to-br from-white via-rose-50 to-violet-100 p-6">
-        <div className="w-full max-w-xl rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-[0_24px_80px_-34px_rgba(124,58,237,.35)] backdrop-blur-2xl">
-          <p className="text-center text-sm font-bold text-fuchsia-700">Checking spoken recovery setup…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isProtectedSuperAdmin && adminVoiceSetupRequired) {
-    return (
-      <div className="fixed inset-0 z-[250] grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(244,63,94,.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(124,58,237,.18),transparent_38%),linear-gradient(135deg,#ffffff_0%,#fff1f2_46%,#f5f3ff_100%)] p-6">
-        <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden="true">
-          <div className="absolute -left-24 top-24 h-56 w-56 rotate-45 rounded-[44px] border-[24px] border-rose-300/30" />
-          <div className="absolute -right-28 bottom-10 h-72 w-72 rotate-45 rounded-[64px] border-[30px] border-violet-300/25" />
-        </div>
-        <div className="relative w-full max-w-xl rounded-[34px] border border-white/90 bg-white/88 p-6 shadow-[0_32px_90px_-38px_rgba(124,58,237,.4)] backdrop-blur-2xl">
-          <div className="mb-5 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Pathfinder Health Security</p>
-            <h1 className="mt-1 text-2xl font-black text-slate-900">Set up backup <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-fuchsia-600 to-violet-700">voice access</span></h1>
-            <p className="mt-2 text-sm text-slate-600">Your microphone recording is not stored. Pathfinder saves only a salted hash of the phrase you choose.</p>
-          </div>
-          <VoiceRecoveryPanel
-            mode="enrol"
-            username="lee"
-            user={{ username: "lee", full_name: "Lee Turton", role: "super_admin" }}
-            onSuccess={() => setAdminVoiceSetupRequired(false)}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (!unlocked && !isProtectedSuperAdmin) {
+  // Pathfinder username + PIN is the primary application sign-in for every user.
+  // Spoken recovery is available from the login screen only as a fallback when a PIN is forgotten.
+  if (!unlocked) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
 
