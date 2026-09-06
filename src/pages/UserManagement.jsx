@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, isAdmin, isSuperAdmin, resetPin } from "@/lib/clinicalAuth";
-import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download, Waves } from "lucide-react";
+import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download, Waves, ShieldCheck, Activity, KeyRound, AlertTriangle, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import VoiceSettings from "@/components/voice/VoiceSettings";
@@ -35,6 +35,9 @@ export default function UserManagement() {
   const [showCreate, setShowCreate] = useState(false);
   const [activeTab, setActiveTab] = useState("users");
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
+  const [diagnostics, setDiagnostics] = useState({ users: [], events: [] });
+  const [diagnosticsLoading, setDiagnosticsLoading] = useState(false);
+  const [securityFilter, setSecurityFilter] = useState("");
   const [newUser, setNewUser] = useState({ username: "", full_name: "", role: "student", title: "", pin: "0000", cohort: "" });
 
   useEffect(() => {
@@ -63,6 +66,24 @@ export default function UserManagement() {
       setLoading(false);
     }
   };
+
+  const loadDiagnostics = async () => {
+    setDiagnosticsLoading(true);
+    try {
+      const response = await base44.functions.invoke("getAuthDiagnostics", { limit: 150 });
+      const data = response?.data ?? response;
+      if (data?.error) throw new Error(data.error);
+      setDiagnostics({ users: data?.users || [], events: data?.events || [] });
+    } catch (error) {
+      toast({ title: "Diagnostics unavailable", description: error?.message || "Unable to load authentication diagnostics.", variant: "destructive" });
+    } finally {
+      setDiagnosticsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "security") loadDiagnostics();
+  }, [activeTab]);
 
   const handleCreate = async () => {
     if (!newUser.username.trim() || !newUser.full_name.trim()) return;
@@ -99,6 +120,19 @@ export default function UserManagement() {
       loadUsers();
     } catch {
       alert("Failed to reset PIN.");
+    }
+  };
+
+  const handleResetVoice = async (targetUser) => {
+    if (!confirm(`Reset spoken recovery for ${targetUser.full_name}? They will need to enrol it again.`)) return;
+    try {
+      const response = await base44.functions.invoke("resetSpokenRecovery", { user_id: targetUser.id });
+      const data = response?.data ?? response;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Voice recovery reset", description: `${targetUser.full_name} will be prompted to enrol again.` });
+      await Promise.all([loadUsers(), loadDiagnostics()]);
+    } catch (error) {
+      toast({ title: "Reset failed", description: error?.message || "Unable to reset spoken recovery.", variant: "destructive" });
     }
   };
 
@@ -143,7 +177,7 @@ export default function UserManagement() {
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-3 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
+      <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/75 p-1.5 shadow-[0_14px_35px_-24px_rgba(118,90,176,.35),inset_1px_1px_1px_white] backdrop-blur-xl sm:grid-cols-4" role="tablist" aria-label="User management sections">
         <button
           type="button"
           role="tab"
@@ -152,6 +186,15 @@ export default function UserManagement() {
           className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "users" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
         >
           <Users className="h-4 w-4" /> Users
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "security"}
+          onClick={() => setActiveTab("security")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "security" ? "bg-white text-fuchsia-700 shadow-md" : "text-slate-600 hover:bg-white/60"}`}
+        >
+          <ShieldCheck className="h-4 w-4" /> Security & Access
         </button>
         <button
           type="button"
@@ -258,6 +301,86 @@ export default function UserManagement() {
         </div>
       )}
       </div>
+
+      {activeTab === "security" && (
+        <section className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Active users", diagnostics.users.filter((u) => u.active).length, Users, "from-rose-500 to-fuchsia-600"],
+              ["Successful logins", diagnostics.events.filter((e) => e.result === "success").length, ShieldCheck, "from-fuchsia-600 to-violet-700"],
+              ["Denied attempts", diagnostics.events.filter((e) => e.result === "denied").length, AlertTriangle, "from-rose-500 to-red-600"],
+              ["Voice enrolled", diagnostics.users.filter((u) => u.voice_recovery_enrolled).length, Waves, "from-violet-500 to-purple-700"],
+            ].map(([label, value, Icon, gradient]) => (
+              <div key={label} className="rounded-2xl border border-white/90 bg-white/85 p-4 shadow-[0_16px_36px_-28px_rgba(118,90,176,.45)]">
+                <div className={`mb-3 grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md`}><Icon className="h-5 w-5" /></div>
+                <p className="text-2xl font-black text-slate-900">{value}</p>
+                <p className="text-xs font-semibold text-slate-500">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-[28px] border border-white/90 bg-white/80 p-5 shadow-[0_24px_55px_-34px_rgba(118,90,176,.45)] backdrop-blur-xl">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.18em] text-rose-500">Authentication Diagnostics</p>
+                <h2 className="text-lg font-black text-slate-900">Security & Access</h2>
+                <p className="text-xs text-slate-500">Actual PIN, QR and voice recovery events from Pathfinder authentication.</p>
+              </div>
+              <button type="button" onClick={loadDiagnostics} disabled={diagnosticsLoading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 via-fuchsia-600 to-violet-700 px-4 py-2.5 text-sm font-bold text-white shadow-md disabled:opacity-50">
+                <RefreshCw className={`h-4 w-4 ${diagnosticsLoading ? "animate-spin" : ""}`} /> Refresh diagnostics
+              </button>
+            </div>
+
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input value={securityFilter} onChange={(e) => setSecurityFilter(e.target.value)} placeholder="Filter by user…" className="w-full rounded-xl border border-fuchsia-100 bg-white py-2.5 pl-10 pr-3 text-sm outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100" />
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-fuchsia-100">
+              <table className="w-full min-w-[760px] text-left text-xs">
+                <thead className="bg-gradient-to-r from-rose-50 via-white to-violet-50 text-slate-600">
+                  <tr>
+                    <th className="px-3 py-3">User</th><th className="px-3 py-3">Role</th><th className="px-3 py-3">PIN</th><th className="px-3 py-3">Voice recovery</th><th className="px-3 py-3">Success</th><th className="px-3 py-3">Denied</th><th className="px-3 py-3">Last method</th><th className="px-3 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diagnostics.users.filter((u) => !securityFilter || u.username?.includes(securityFilter.toLowerCase()) || u.full_name?.toLowerCase().includes(securityFilter.toLowerCase())).map((u) => {
+                    const target = users.find((item) => item.username === u.username);
+                    return (
+                      <tr key={u.username} className="border-t border-fuchsia-50 bg-white/80">
+                        <td className="px-3 py-3"><p className="font-bold text-slate-900">{u.full_name}</p><p className="text-slate-500">@{u.username}</p></td>
+                        <td className="px-3 py-3 capitalize text-slate-600">{String(u.role || "").replaceAll("_", " ")}</td>
+                        <td className="px-3 py-3"><span className={`rounded-full px-2 py-1 font-bold ${u.first_login ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{u.first_login ? "Reset required" : "Ready"}</span></td>
+                        <td className="px-3 py-3"><span className={`rounded-full px-2 py-1 font-bold ${u.voice_recovery_enrolled ? "bg-violet-50 text-violet-700" : "bg-rose-50 text-rose-700"}`}>{u.voice_recovery_enrolled ? "Enrolled" : "Not enrolled"}</span></td>
+                        <td className="px-3 py-3 font-bold text-emerald-700">{u.successes}</td>
+                        <td className="px-3 py-3 font-bold text-rose-700">{u.denials}</td>
+                        <td className="px-3 py-3 uppercase text-slate-500">{u.last_method || "—"}</td>
+                        <td className="px-3 py-3"><div className="flex gap-2">{target && <><button onClick={() => handleResetPin(target)} className="rounded-lg border border-fuchsia-100 bg-white p-2 text-fuchsia-700 hover:bg-fuchsia-50" title="Reset PIN"><KeyRound className="h-4 w-4" /></button><button onClick={() => handleResetVoice(target)} className="rounded-lg border border-violet-100 bg-white p-2 text-violet-700 hover:bg-violet-50" title="Reset voice recovery"><Waves className="h-4 w-4" /></button></>}</div></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="rounded-[28px] border border-white/90 bg-white/80 p-5 shadow-[0_24px_55px_-34px_rgba(118,90,176,.45)] backdrop-blur-xl">
+            <div className="mb-3 flex items-center gap-2"><Activity className="h-5 w-5 text-fuchsia-700" /><h3 className="font-black text-slate-900">Recent authentication events</h3></div>
+            <div className="max-h-80 overflow-auto rounded-2xl border border-fuchsia-100">
+              {diagnostics.events.slice(0, 50).map((event) => (
+                <div key={event.id || `${event.username}-${event.created_date}`} className="grid gap-1 border-b border-fuchsia-50 bg-white/85 px-4 py-3 text-xs sm:grid-cols-[1fr_90px_90px_2fr_150px] sm:items-center">
+                  <span className="font-bold text-slate-900">@{event.username}</span>
+                  <span className="uppercase text-slate-500">{event.method}</span>
+                  <span className={`font-black uppercase ${event.result === "success" ? "text-emerald-600" : event.result === "denied" ? "text-rose-600" : "text-amber-600"}`}>{event.result}</span>
+                  <span className="text-slate-600">{event.reason || "—"}</span>
+                  <span className="text-slate-400">{event.created_date ? new Date(event.created_date).toLocaleString("en-GB") : "—"}</span>
+                </div>
+              ))}
+              {!diagnosticsLoading && diagnostics.events.length === 0 && <p className="p-6 text-center text-sm text-slate-500">No authentication events recorded yet.</p>}
+            </div>
+          </div>
+        </section>
+      )}
 
       {activeTab === "voice" && (
         <section className="polished-glass-edge overflow-hidden rounded-[28px] border border-white/90 bg-white/70 shadow-[0_20px_55px_-34px_rgba(15,23,42,.65),inset_1px_1px_2px_white] backdrop-blur-2xl">
