@@ -80,7 +80,7 @@ export default function Profile() {
         <p className="text-xs text-muted-foreground mb-3">Skill codes mapped to T Level Performance Outcomes</p>
         <div className="space-y-1.5">
           {Object.entries(SK_CODES).slice(0, 10).map(([code, desc]) => {
-            const completed = Math.random() > 0.5;
+            const completed = results.some((r) => (r.sk_codes || []).includes(code)) || submissions.some((s) => ["submitted", "reviewed"].includes(s.status) && (s.sk_codes || []).includes(code));
             return (
               <div key={code} className="flex items-center gap-2 text-xs">
                 <span className="font-mono font-semibold text-clinical-teal w-10">{code}</span>
