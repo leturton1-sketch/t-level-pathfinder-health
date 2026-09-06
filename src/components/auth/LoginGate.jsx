@@ -36,12 +36,23 @@ export default function LoginGate({ onUnlock }) {
   const submit = async (payload) => {
     setBusy(true);
     try {
-      const res = await base44.functions.invoke("verifyAccess", payload);
-      const data = res?.data ?? res;
-      if (data?.granted) grant(data.user);
-      else deny(data?.reason);
-    } catch (e) {
-      deny(e?.message);
+      let lastError = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          const res = await base44.functions.invoke("verifyAccess", payload);
+          const data = res?.data ?? res;
+          if (data?.granted) {
+            grant(data.user);
+            return;
+          }
+          deny(data?.reason);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+      }
+      deny(lastError?.message || "Unable to verify access. Please try again.");
     } finally {
       setBusy(false);
     }
