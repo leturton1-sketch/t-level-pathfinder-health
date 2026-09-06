@@ -74,6 +74,8 @@ export default async function(req) {
         ai_voice: u.ai_voice || "honey",
         ai_persona: u.ai_persona || "female",
         is_protected: !!u.is_protected,
+        voice_recovery_enrolled: !!u.voice_recovery_enrolled,
+        voice_personal_message: u.voice_personal_message || "",
       },
     });
   } catch (error) {
