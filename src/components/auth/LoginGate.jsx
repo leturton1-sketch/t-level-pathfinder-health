@@ -187,13 +187,13 @@ export default function LoginGate({ onUnlock }) {
               <p>Access your personalised learning, resources and tools.</p>
             </div>
 
-            <label className="login-field">
+            <label className={`login-field${username.trim() ? " login-field--filled" : ""}`}>
               <span className="login-field-icon"><User size={20} /></span>
               <span className="login-field-copy"><strong>Username</strong><small>Enter your username</small></span>
               <input value={username} onChange={(event) => setUsername(event.target.value.toLowerCase())} autoComplete="username" aria-label="Username" />
             </label>
 
-            <label className="login-field">
+            <label className={`login-field${pin.trim() ? " login-field--filled" : ""}`}>
               <span className="login-field-icon"><LockKeyhole size={20} /></span>
               <span className="login-field-copy"><strong>4-digit PIN</strong><small>Enter your 4-digit PIN</small></span>
               <input value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" type={showPin ? "text" : "password"} autoComplete="current-password" aria-label="4-digit PIN" />
@@ -232,7 +232,7 @@ export default function LoginGate({ onUnlock }) {
               <h1>Voice recovery access</h1>
               <span>Use your registered spoken recovery phrase.</span>
             </div>
-            <label className="login-field login-field-voice">
+            <label className={`login-field login-field-voice${username.trim() ? " login-field--filled" : ""}`}>
               <span className="login-field-icon"><User size={20} /></span>
               <span className="login-field-copy"><strong>Username</strong><small>Enter your username</small></span>
               <input value={username} onChange={(event) => setUsername(event.target.value.toLowerCase())} autoComplete="username" aria-label="Username" />

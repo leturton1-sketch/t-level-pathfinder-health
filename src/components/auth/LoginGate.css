@@ -273,7 +273,8 @@
 }
 .login-field-copy { display: flex; flex-direction: column; min-width: 0; }
 .login-field-copy strong { font-size: 13px; font-weight: 800; color: #172033; }
-.login-field-copy small { margin-top: 2px; color: #64748b; font-size: 12px; }
+.login-field-copy small { margin-top: 2px; color: #64748b; font-size: 12px; transition: opacity .15s ease; }
+.login-field--filled .login-field-copy small { opacity: 0; }
 .login-field input {
   position: absolute;
   inset: 0;
