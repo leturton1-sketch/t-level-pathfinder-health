@@ -92,15 +92,15 @@ export function isLoggedIn() {
 }
 
 export function isSuperAdmin() {
-  return cachedUser?.role === "super_admin";
+  return getCurrentUser()?.role === "super_admin";
 }
 
 export function isAdmin() {
-  return ["super_admin", "admin"].includes(cachedUser?.role);
+  return ["super_admin", "admin"].includes(getCurrentUser()?.role);
 }
 
 export function canManageUsers() {
-  return ["super_admin", "admin", "tutor"].includes(cachedUser?.role);
+  return ["super_admin", "admin", "tutor"].includes(getCurrentUser()?.role);
 }
 
 export function logout() {
