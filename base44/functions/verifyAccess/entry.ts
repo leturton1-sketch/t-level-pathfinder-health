@@ -25,15 +25,28 @@ export default async function(req) {
     }
 
     const base44 = createClientFromRequest(req);
-    const query = { pin: String(pin).trim(), active: true };
-    if (username) query.username = username;
+    const suppliedPin = String(pin).trim();
+    const normalizedUsername = String(username || "").trim().toLowerCase();
 
-    const matches = await base44.asServiceRole.entities.AppUser.filter(query);
+    // Fetch candidate active accounts first, then verify the supplied PIN in code.
+    // This supports both legacy plaintext PINs and newer SHA-256 encoded PINs.
+    const query = { active: true };
+    if (normalizedUsername) query.username = normalizedUsername;
+    const candidates = await base44.asServiceRole.entities.AppUser.filter(query);
 
-    if (!matches || matches.length === 0) {
+    const encoder = new TextEncoder();
+    const digest = await crypto.subtle.digest("SHA-256", encoder.encode(suppliedPin));
+    const hashedPin = `sha256:${Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("")}`;
+
+    const matches = (candidates || []).filter((candidate) => {
+      const storedPin = String(candidate.pin || "").trim();
+      return storedPin === suppliedPin || storedPin === hashedPin;
+    });
+
+    if (matches.length === 0) {
       return Response.json({ granted: false, reason: "No matching account found." });
     }
-    if (matches.length > 1 && !username) {
+    if (matches.length > 1 && !normalizedUsername) {
       return Response.json({ granted: false, reason: "That PIN is shared by several accounts — enter your username too." });
     }
 
