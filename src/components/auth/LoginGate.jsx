@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, Mic } from "lucide-react";
+import { QrCode, ScanLine, Camera, CameraOff, Mic, User, LockKeyhole, Eye, EyeOff, ArrowRight, ShieldCheck, GraduationCap, Users, HeartPulse } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
@@ -8,24 +8,51 @@ import TLevelLogo from "@/components/TLevelLogo";
 import VoiceRecoveryPanel from "@/components/auth/VoiceRecoveryPanel";
 import "./LoginGate.css";
 
+const REMEMBERED_USERNAME_KEY = "pathfinder-remembered-username";
+
+function MiniWaveform() {
+  return (
+    <span className="login-mini-wave" aria-hidden="true">
+      {[7, 13, 20, 28, 18, 11, 22, 34, 24, 15, 9].map((height, index) => (
+        <i key={index} style={{ height: `${height}px`, animationDelay: `${index * 65}ms` }} />
+      ))}
+    </span>
+  );
+}
+
 export default function LoginGate({ onUnlock }) {
   const { toast } = useToast();
   const synth = useVoiceSynthesis();
   const [mode, setMode] = useState("pin");
   const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
+  const [rememberUsername, setRememberUsername] = useState(false);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const detectRef = useRef(false);
 
-  useEffect(() => () => stopCamera(), []);
+  useEffect(() => {
+    try {
+      const remembered = localStorage.getItem(REMEMBERED_USERNAME_KEY) || "";
+      if (remembered) {
+        setUsername(remembered);
+        setRememberUsername(true);
+      }
+    } catch {}
+    return () => stopCamera();
+  }, []);
 
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
   const grant = (user) => {
     setPathfinderUser(user);
+    try {
+      if (rememberUsername) localStorage.setItem(REMEMBERED_USERNAME_KEY, user?.username || username.trim().toLowerCase());
+      else localStorage.removeItem(REMEMBERED_USERNAME_KEY);
+    } catch {}
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
     announce(`Access granted. Welcome, ${user.full_name}. Your role is ${String(user.role || "user").replaceAll("_", " ")}.`);
     onUnlock?.();
@@ -61,8 +88,8 @@ export default function LoginGate({ onUnlock }) {
     }
   };
 
-  const handlePin = (e) => {
-    e?.preventDefault?.();
+  const handlePin = (event) => {
+    event?.preventDefault?.();
     const normalizedUsername = username.trim().toLowerCase();
     const normalizedPin = pin.trim();
     if (!normalizedUsername || !/^\d{4}$/.test(normalizedPin) || busy) return;
@@ -72,7 +99,7 @@ export default function LoginGate({ onUnlock }) {
   const stopCamera = () => {
     detectRef.current = false;
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setScanning(false);
@@ -97,7 +124,7 @@ export default function LoginGate({ onUnlock }) {
         if (!detectRef.current) return;
         try {
           const codes = await detector.detect(videoRef.current);
-          if (codes && codes.length) {
+          if (codes?.length) {
             const value = codes[0].rawValue;
             stopCamera();
             submit({ qr: value });
@@ -107,8 +134,8 @@ export default function LoginGate({ onUnlock }) {
         requestAnimationFrame(tick);
       };
       tick();
-    } catch (e) {
-      toast({ title: "Camera unavailable", description: e?.message || "Check camera permissions.", variant: "destructive" });
+    } catch (error) {
+      toast({ title: "Camera unavailable", description: error?.message || "Check camera permissions.", variant: "destructive" });
       setScanning(false);
     }
   };
@@ -116,113 +143,124 @@ export default function LoginGate({ onUnlock }) {
   return (
     <div className="login-gate">
       <div className="login-gate-backdrop" aria-hidden="true">
-        <div className="login-gate-blur" />
-        <TLevelLogo variant="white" size="xl" className="login-gate-mark" />
-        <div className="login-gate-silhouette" />
+        <div className="login-diagonal login-diagonal-one" />
+        <div className="login-diagonal login-diagonal-two" />
+        <div className="login-diagonal login-diagonal-three" />
+        <div className="login-medical-cross"><span /><span /></div>
       </div>
 
-      <div className="login-gate-card">
-        <header className="login-gate-header">
-          <div className="login-gate-logo"><TLevelLogo variant="salmon" size="md" /></div>
-          <div>
-            <h1>Pathfinder Health</h1>
-            <p>T-Level Clinical Skills Academy</p>
-          </div>
+      <aside className="login-brand-panel" aria-hidden="true">
+        <div className="login-brand-lockup">
+          <TLevelLogo variant="black" size="xl" />
+          <strong>PATHFINDER <em>HEALTH</em></strong>
+          <small>LEARN <b>|</b> PRACTICE <b>|</b> PREPARE <b>|</b> PROGRESS</small>
+        </div>
+        <div className="login-left-message">
+          <span>EXPLORE</span>
+          <span>UNDERSTAND</span>
+          <span>APPLY</span>
+          <strong>THE NEXT LEVEL</strong>
+        </div>
+        <div className="login-benefits">
+          <div><GraduationCap /><span>REAL<br />SKILLS</span></div>
+          <div><Users /><span>REAL<br />CAREERS</span></div>
+          <div><HeartPulse /><span>A HEALTHIER<br />TOMORROW</span></div>
+        </div>
+      </aside>
+
+      <aside className="login-right-message" aria-hidden="true">
+        <span>REAL</span><span>SKILLS</span><span>REAL</span><span>CAREERS</span><span>A HEALTHIER</span><span>TOMORROW</span>
+      </aside>
+
+      <main className="login-gate-card" aria-label="Pathfinder Health sign in">
+        <header className="login-card-brand">
+          <p className="login-welcome">WELCOME TO</p>
+          <TLevelLogo variant="black" size="xl" />
+          <div className="login-pathfinder-wordmark">PATHFINDER <em>HEALTH</em></div>
+          <div className="login-brand-strapline">LEARN <b>|</b> PRACTICE <b>|</b> PREPARE <b>|</b> PROGRESS</div>
         </header>
 
-        <div className="login-gate-tabs" role="tablist" aria-label="Sign-in method">
-          <button type="button" role="tab" aria-selected={mode === "pin"} onClick={() => { setMode("pin"); stopCamera(); }} className={mode === "pin" ? "active" : ""}>
-            <KeyRound size={16} /> PIN
-          </button>
-          <button type="button" role="tab" aria-selected={mode === "qr"} onClick={() => setMode("qr")} className={mode === "qr" ? "active" : ""}>
-            <QrCode size={16} /> QR Scan
-          </button>
-        </div>
+        {mode === "pin" && (
+          <form className="login-primary-form" onSubmit={handlePin}>
+            <div className="login-intro">
+              <h1>Sign in to your account</h1>
+              <p>Access your personalised learning, resources and tools.</p>
+            </div>
 
-        {mode === "pin" ? (
-          <form className="login-gate-form" onSubmit={handlePin}>
-            <label>
-              <span>Username</span>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                placeholder="e.g. lee"
-                autoComplete="username"
-              />
+            <label className="login-field">
+              <span className="login-field-icon"><User size={20} /></span>
+              <span className="login-field-copy"><strong>Username</strong><small>Enter your username</small></span>
+              <input value={username} onChange={(event) => setUsername(event.target.value.toLowerCase())} autoComplete="username" aria-label="Username" />
             </label>
-            <label>
-              <span>PIN</span>
-              <input
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                placeholder="0000"
-                inputMode="numeric"
-                type="password"
-                autoComplete="current-password"
-              />
+
+            <label className="login-field">
+              <span className="login-field-icon"><LockKeyhole size={20} /></span>
+              <span className="login-field-copy"><strong>4-digit PIN</strong><small>Enter your 4-digit PIN</small></span>
+              <input value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" type={showPin ? "text" : "password"} autoComplete="current-password" aria-label="4-digit PIN" />
+              <button type="button" className="login-pin-visibility" onClick={() => setShowPin((value) => !value)} aria-label={showPin ? "Hide PIN" : "Show PIN"}>{showPin ? <EyeOff size={18} /> : <Eye size={18} />}</button>
             </label>
-            <button type="submit" disabled={busy || !username.trim() || !/^\d{4}$/.test(pin.trim())} className="login-gate-unlock">
-              <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
+
+            <div className="login-options-row">
+              <label className="login-remember"><input type="checkbox" checked={rememberUsername} onChange={(event) => setRememberUsername(event.target.checked)} /><span>Remember my username</span></label>
+              <button type="button" className="login-forgot" onClick={() => { setMode("voice"); setPin(""); }}>Forgot your PIN?</button>
+            </div>
+
+            <button type="submit" disabled={busy || !username.trim() || !/^\d{4}$/.test(pin.trim())} className="login-signin-button">
+              <span>{busy ? "Verifying…" : "Sign In"}</span><span className="login-signin-arrow"><ArrowRight size={21} /></span>
             </button>
-            <p className="login-gate-hint">Enter your Pathfinder username and 4-digit PIN.</p>
-            <button
-              type="button"
-              onClick={() => { setMode("voice"); setPin(""); stopCamera(); }}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-fuchsia-200 bg-white px-4 py-2.5 text-sm font-bold text-fuchsia-700 transition hover:bg-fuchsia-50"
-            >
-              <Mic size={16} /> Forgot PIN? Use voice recovery
+
+            <div className="login-or"><span />OR<span /></div>
+
+            <button type="button" className="login-voice-recovery-button" onClick={() => { setMode("voice"); setPin(""); }}>
+              <span className="login-voice-icon"><Mic size={22} /></span>
+              <span className="login-voice-copy"><strong>Use voice recovery instead</strong><small>Forgot your PIN? Use your registered voice phrase.</small></span>
+              <MiniWaveform />
+              <ArrowRight className="login-voice-arrow" size={20} />
             </button>
+
+            <div className="login-alt-access">
+              <ShieldCheck size={15} /><span>Secure Access</span><b>|</b><span>Your Data. Your Future.</span>
+              <button type="button" onClick={() => setMode("qr")}><QrCode size={14} /> QR access</button>
+            </div>
           </form>
-        ) : mode === "qr" ? (
-          <div className="login-gate-qr">
-            <div className="login-gate-qr-stage">
-              <video ref={videoRef} muted playsInline className={scanning ? "active" : ""} />
-              {!scanning && <div className="login-gate-qr-idle"><ScanLine size={28} /></div>}
-              <div className="login-gate-qr-reticle" />
-            </div>
-            {!scanning ? (
-              <button type="button" onClick={startCamera} className="login-gate-unlock">
-                <Camera size={16} /> Start camera
-              </button>
-            ) : (
-              <button type="button" onClick={stopCamera} className="login-gate-unlock secondary">
-                <CameraOff size={16} /> Stop camera
-              </button>
-            )}
-            <p className="login-gate-hint">Point the camera at your personal Pathfinder QR code.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-fuchsia-100 bg-gradient-to-br from-rose-50 via-white to-violet-50 p-3 text-center">
-              <p className="text-sm font-black text-slate-900">PIN recovery</p>
-              <p className="mt-1 text-xs text-slate-600">Use your enrolled spoken recovery phrase only if you cannot remember your PIN.</p>
-            </div>
-            <label className="login-gate-form">
-              <span className="text-xs font-bold text-slate-700">Username</span>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                placeholder="e.g. lee"
-                autoComplete="username"
-              />
-            </label>
-            <VoiceRecoveryPanel
-              mode="verify"
-              username={username}
-              onSuccess={(voiceUser) => grant(voiceUser)}
-            />
-            <button
-              type="button"
-              onClick={() => setMode("pin")}
-              className="flex w-full items-center justify-center rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-rose-50"
-            >
-              Back to username + PIN
-            </button>
-          </div>
         )}
 
-        <footer className="login-gate-footer">© {new Date().getFullYear()} Pathfinder T-Level Simulation</footer>
-      </div>
+        {mode === "voice" && (
+          <section className="login-recovery-panel">
+            <div className="login-recovery-heading">
+              <p>PIN RECOVERY</p>
+              <h1>Voice recovery access</h1>
+              <span>Use your registered spoken recovery phrase.</span>
+            </div>
+            <label className="login-field login-field-voice">
+              <span className="login-field-icon"><User size={20} /></span>
+              <span className="login-field-copy"><strong>Username</strong><small>Enter your username</small></span>
+              <input value={username} onChange={(event) => setUsername(event.target.value.toLowerCase())} autoComplete="username" aria-label="Username" />
+            </label>
+            <VoiceRecoveryPanel mode="verify" username={username} onSuccess={(voiceUser) => grant(voiceUser)} />
+            <button type="button" className="login-back-button" onClick={() => setMode("pin")}>Back to username + PIN</button>
+          </section>
+        )}
+
+        {mode === "qr" && (
+          <section className="login-recovery-panel">
+            <div className="login-recovery-heading"><p>QR ACCESS</p><h1>Scan your Pathfinder ID</h1><span>Use the QR code issued to your account.</span></div>
+            <div className="login-gate-qr-stage">
+              <video ref={videoRef} muted playsInline className={scanning ? "active" : ""} />
+              {!scanning && <div className="login-gate-qr-idle"><ScanLine size={34} /></div>}
+              <div className="login-gate-qr-reticle" />
+            </div>
+            {!scanning ? <button type="button" onClick={startCamera} className="login-signin-button"><span><Camera size={17} /> Start camera</span><span className="login-signin-arrow"><ArrowRight size={21} /></span></button> : <button type="button" onClick={stopCamera} className="login-back-button"><CameraOff size={16} /> Stop camera</button>}
+            <button type="button" className="login-back-button" onClick={() => { stopCamera(); setMode("pin"); }}>Back to username + PIN</button>
+          </section>
+        )}
+      </main>
+
+      <footer className="login-screen-footer" aria-hidden="true">
+        <div className="login-footer-brand">T-LEVELS <b>|</b> PATHFINDER HEALTH</div>
+        <div className="login-footer-values"><span>SAFE</span><b>|</b><span>SUPPORTIVE</span><b>|</b><span>PROGRESSIVE</span></div>
+        <div className="login-footer-future">BUILT FOR A BRIGHTER, HEALTHIER FUTURE <i /><i /><i /></div>
+      </footer>
     </div>
   );
 }
