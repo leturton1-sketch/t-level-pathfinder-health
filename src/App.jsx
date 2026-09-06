@@ -43,8 +43,13 @@ const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
+  const platformEmail = String(user?.email || "").trim().toLowerCase();
+  const isProtectedSuperAdmin = [
+    "lee.turton@academic.rnngroup.ac.uk",
+    "leturton1@gmail.com",
+  ].includes(platformEmail);
 
   useEffect(() => {
     const stop = installErrorCollector();
@@ -65,12 +70,8 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // PIN/QR identification gate — shown on first run over a blurred overview
-  if (!unlocked) {
-    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
-  }
-
-  // Show loading spinner while checking app public settings or auth
+  // Resolve Base44 authentication first. Showing the PIN gate before platform auth
+  // created a second, inconsistent sign-in path and caused intermittent denials.
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -90,10 +91,16 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // No custom login remains — send unauthenticated users to the platform sign-in
+  // Send unauthenticated users to the platform sign-in first.
   if (authChecked && !isAuthenticated && !authError) {
     navigateToLogin();
     return null;
+  }
+
+  // Protected super-admin identities have already been strongly authenticated by
+  // Base44, so they bypass the redundant Pathfinder PIN gate entirely.
+  if (!unlocked && !isProtectedSuperAdmin) {
+    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
 
   // Render the main app
