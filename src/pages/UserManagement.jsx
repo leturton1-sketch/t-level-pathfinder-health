@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, isAdmin, isSuperAdmin, resetPin } from "@/lib/clinicalAuth";
-import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download } from "lucide-react";
+import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download, Waves } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import VoiceSettings from "@/components/voice/VoiceSettings";
@@ -223,6 +223,10 @@ export default function UserManagement() {
                   <span>@{u.username}</span>
                   {u.cohort && <span>· {u.cohort}</span>}
                   {u.first_login && <span className="text-clinical-amber">· PIN reset needed</span>}
+                  <span className={`inline-flex items-center gap-1 ${u.voice_recovery_enrolled ? "text-emerald-600" : "text-amber-600"}`}>
+                    <Waves className="h-3 w-3" />
+                    {u.voice_recovery_enrolled ? "Voice recovery ready" : "Voice setup required"}
+                  </span>
                 </div>
               </div>
               <span className={`text-[10px] font-semibold rounded-md border px-2 py-0.5 shrink-0 ${ROLE_COLORS[u.role]}`}>
