@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
-import AnatomySystems360 from "@/components/anatomy/AnatomySystems360";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
 import { isAdmin } from "@/lib/clinicalAuth";
 import { useToast } from "@/components/ui/use-toast";
@@ -156,11 +155,26 @@ function Explorer() {
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
           <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · FITTED 360° OVERLAY</span>
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
-          <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">CLICK VISIBLE LAYER TO REMOVE</span>
+          <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">CLICK A STRUCTURE TO INSPECT</span>
         </div>
         <AnimationOverlay animations={animations} active={activeAnims} />
         <OrganLinkOverlay selectedId={selectedId} onClose={() => setSelectedId(null)} />
-        <AnatomySystems360 activeSystems={activeSystems} onRemoveSystem={peelLayer} />
+        <Anatomy3DViewer
+          genitalia={genitalia}
+          activeSystems={activeSystems}
+          selectedId={selectedId}
+          isolatedId={null}
+          reconstructId={null}
+          onSelectStructure={setSelectedId}
+          editMode={editMode && isAdminUser}
+          structureOverrides={activeOverrides}
+          onTransformStructure={handleTransform}
+          onTransformDefaults={setTransformDefaults}
+          customStructures={custom}
+          hiddenStructures={hidden}
+          clippedStructures={clipped}
+          resetNonce={0}
+        />
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
