@@ -1,0 +1,272 @@
+.login-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.login-gate-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 149, 103, 0.42), transparent 42rem),
+    radial-gradient(circle at 84% 22%, rgba(118, 90, 176, 0.46), transparent 40rem),
+    linear-gradient(150deg, #1a1626 0%, #2a2140 48%, #15131a 100%);
+}
+
+.login-gate-blur {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(22px) saturate(120%);
+  -webkit-backdrop-filter: blur(22px) saturate(120%);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+
+.login-gate-mark {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(2.4);
+  opacity: 0.16;
+  filter: blur(2px);
+}
+
+.login-gate-silhouette {
+  position: absolute;
+  bottom: -18%;
+  left: 50%;
+  width: 78%;
+  height: 60%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(118, 90, 176, 0.22), transparent 68%);
+  filter: blur(8px);
+}
+
+.login-gate-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.75rem 1.5rem 1.25rem;
+  border-radius: 24px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(246, 244, 248, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 30px 80px -28px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(28px) saturate(128%);
+  -webkit-backdrop-filter: blur(28px) saturate(128%);
+}
+
+.login-gate-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.login-gate-header h1 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #15131a;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.login-gate-header p {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #625d69;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.login-gate-logo {
+  display: grid;
+  place-items: center;
+  padding: 0.4rem 0.55rem;
+  border-radius: 14px;
+  background: rgba(118, 90, 176, 0.08);
+}
+
+.login-gate-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border-radius: 16px;
+  background: rgba(118, 90, 176, 0.08);
+}
+
+.login-gate-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #625d69;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.login-gate-tabs button.active {
+  color: #fff;
+  background: linear-gradient(145deg, #8a72c6, #5b4190);
+  box-shadow: 0 8px 18px -10px rgba(76, 53, 126, 0.6);
+}
+
+.login-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.login-gate-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #4a4452;
+  letter-spacing: 0.02em;
+}
+
+.login-gate-form label em {
+  font-style: normal;
+  color: #9a93a6;
+  font-weight: 500;
+}
+
+.login-gate-form input {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #dcd2ee;
+  background: #fff;
+  padding: 0 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #15131a;
+  letter-spacing: 0.12em;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-gate-form input:focus {
+  border-color: #765ab0;
+  box-shadow: 0 0 0 3px rgba(118, 90, 176, 0.18);
+}
+
+.login-gate-form input::placeholder {
+  color: #b6aec4;
+  letter-spacing: 0.12em;
+}
+
+.login-gate-unlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(145deg, #8a72c6, #5b4190);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 12px 22px -14px rgba(76, 53, 126, 0.6), inset 0 1px rgba(255, 255, 255, 0.4);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.login-gate-unlock:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px -16px rgba(76, 53, 126, 0.7);
+}
+
+.login-gate-unlock:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-gate-unlock.secondary {
+  background: linear-gradient(145deg, #64748b, #334155);
+  box-shadow: 0 12px 22px -14px rgba(30, 41, 59, 0.6);
+}
+
+.login-gate-hint {
+  font-size: 0.72rem;
+  color: #625d69;
+  text-align: center;
+}
+
+.login-gate-hint strong {
+  color: #15131a;
+}
+
+.login-gate-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.login-gate-qr-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 240px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #15131a;
+  display: grid;
+  place-items: center;
+}
+
+.login-gate-qr-stage video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.login-gate-qr-stage video.active {
+  opacity: 1;
+}
+
+.login-gate-qr-idle {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.login-gate-qr-reticle {
+  position: absolute;
+  inset: 18%;
+  border: 2px solid rgba(255, 149, 103, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px rgba(255, 149, 103, 0.18), inset 0 0 24px rgba(255, 149, 103, 0.2);
+  pointer-events: none;
+}
+
+.login-gate-footer {
+  text-align: center;
+  font-size: 0.65rem;
+  color: #9a93a6;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 480px) {
+  .login-gate-card {
+    padding: 1.4rem 1.1rem 1rem;
+  }
+  .login-gate-header h1 { font-size: 1.1rem; }
+}
