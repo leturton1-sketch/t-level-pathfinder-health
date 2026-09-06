@@ -100,6 +100,8 @@ export default function AnatomyViewer({ atlasUrl = 'https://raw.githubuserconten
 
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 640, position: 'relative' }}>
+      {/* React Three Fiber uses Three.js properties rather than DOM properties. */}
+      {/* eslint-disable react/no-unknown-property */}
       <Canvas camera={{ position: [0, 1.6, 3], fov: 40 }} style={{ background: '#f2f3f3' }}>
         <ambientLight intensity={0.9} />
         <directionalLight position={[5, 10, 5]} intensity={1.4} />
@@ -109,6 +111,7 @@ export default function AnatomyViewer({ atlasUrl = 'https://raw.githubuserconten
           <primitive key={name} object={systemMeshes[name]} visible={!!systemVisible[name]} />
         ))}
       </Canvas>
+      {/* eslint-enable react/no-unknown-property */}
 
       <div style={{ position: 'absolute', right: 12, top: 12, background: 'rgba(255,255,255,0.95)', padding: 8, borderRadius: 8, maxHeight: '80vh', overflow: 'auto' }}>
         <div style={{ marginBottom: 8, fontWeight: 600 }}>Systems</div>
