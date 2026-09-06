@@ -152,6 +152,8 @@ export default function AnatomyCanvasWorkspace() {
   const clippingRef = useRef({ x: null, y: null, z: null });
   const boundsRef = useRef(new THREE.Box3(new THREE.Vector3(-1, -3.5, -1), new THREE.Vector3(1, 3.5, 1)));
   const markersRef = useRef([]);
+  const modeRef = useRef("select");
+  const annotationTextRef = useRef("Clinical note");
 
   const [meshes, setMeshes] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -197,6 +199,14 @@ export default function AnatomyCanvasWorkspace() {
       });
     });
   };
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    annotationTextRef.current = annotationText;
+  }, [annotationText]);
 
   useEffect(() => {
     applyClipping();
@@ -329,7 +339,10 @@ export default function AnatomyCanvasWorkspace() {
     };
 
     const onPointerMove = (event) => {
-      if (mode !== "select") return;
+      if (modeRef.current !== "select") {
+        renderer.domElement.style.cursor = "crosshair";
+        return;
+      }
       const hit = pick(event);
       renderer.domElement.style.cursor = hit ? "pointer" : "grab";
     };
@@ -337,7 +350,7 @@ export default function AnatomyCanvasWorkspace() {
     const onPointerDown = (event) => {
       const hit = pick(event);
       if (!hit?.object) {
-        if (mode === "select") {
+        if (modeRef.current === "select") {
           clearHighlight();
           selectedRef.current = null;
           setSelected(null);
@@ -345,7 +358,7 @@ export default function AnatomyCanvasWorkspace() {
         return;
       }
 
-      if (mode === "annotate") {
+      if (modeRef.current === "annotate") {
         const marker = new THREE.Mesh(
           new THREE.SphereGeometry(0.055, 18, 12),
           new THREE.MeshStandardMaterial({ color: 0xffd447, emissive: 0x6b5200, emissiveIntensity: 0.7 }),
@@ -357,7 +370,7 @@ export default function AnatomyCanvasWorkspace() {
         const id = crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
         setAnnotations((current) => [...current, {
           id,
-          text: annotationText.trim() || "Clinical note",
+          text: annotationTextRef.current.trim() || "Clinical note",
           structure: hit.object.name || "Structure",
           position: hit.point.toArray(),
         }]);
@@ -418,27 +431,6 @@ export default function AnatomyCanvasWorkspace() {
     const grid = scene.getObjectByName("Anatomy grid");
     if (grid) grid.visible = gridVisible;
   }, [gridVisible]);
-
-  useEffect(() => {
-    // Annotation mode is kept in a ref-like closure by updating the canvas dataset,
-    // while pointer handling reads the latest mode through this tiny indirection.
-    if (rendererRef.current?.domElement) rendererRef.current.domElement.dataset.mode = mode;
-  }, [mode]);
-
-  // Keep the scene pointer handlers in sync with current mode/text without rebuilding WebGL.
-  useEffect(() => {
-    const canvas = rendererRef.current?.domElement;
-    if (!canvas) return;
-    const listener = (event) => {
-      // This event is consumed by the primary handler; setting properties here makes
-      // current React state available synchronously to future iterations if needed.
-      canvas.__pathfinderMode = mode;
-      canvas.__pathfinderAnnotationText = annotationText;
-    };
-    canvas.addEventListener("pointerenter", listener);
-    listener();
-    return () => canvas.removeEventListener("pointerenter", listener);
-  }, [mode, annotationText]);
 
   const toggleMesh = (uuid) => {
     const mesh = meshesRef.current.find((item) => item.uuid === uuid);
