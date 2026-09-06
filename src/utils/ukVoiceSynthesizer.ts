@@ -126,12 +126,11 @@ class UKVoiceService {
 
       const english = this.voices.filter((voice) => /^en(?:-|_)/i.test(voice.lang));
       const genderNames = settings.gender === "female"
-        ? /female|hazel|serena|sonia|libby|aria|susan|natural|neural/i
-        : /male|oliver|george|ryan|daniel|thomas|natural|neural/i;
+        ? /female|hazel|serena|sonia|libby|aria|susan/i
+        : /male|oliver|george|ryan|daniel|thomas/i;
       utterance.voice =
         english.find((voice) => voice.voiceURI === settings.voiceName) ||
         english.find((voice) => /en-GB/i.test(voice.lang) && genderNames.test(voice.name)) ||
-        english.find((voice) => genderNames.test(`${voice.name} ${voice.voiceURI}`)) ||
         english.find((voice) => /en-GB/i.test(voice.lang)) ||
         english[0] ||
         null;

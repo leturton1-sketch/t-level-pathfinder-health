@@ -21,9 +21,6 @@ export default function MedicalHumanoid({ state = "idle", speaking = false, list
         className="medical-humanoid-art"
         src="/images/pathfinder-clinical-robot-refined.jpg"
         alt="Friendly high-gloss white Pathfinder clinical robot with integrated shoulders, sensor panels and illuminated cyan face"
-        width="960"
-        height="960"
-        loading="lazy"
         draggable="false"
       />
 

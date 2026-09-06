@@ -63,7 +63,6 @@ export default function VoiceSettings({ open, onClose, onSaved, synth }) {
                     <p className="text-sm font-semibold text-slate-800">{p.name}</p>
                     <p className="text-[10px] text-slate-500">{p.desc}</p>
                     <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-cyan-700">Voice preset · {p.cloudVoice}</p>
-                    <p className="text-[9px] text-slate-400">Backup · {p.backupName}</p>
                   </div>
                 </div>
                 {draft.profileId === p.id && <Check className="w-4 h-4 text-clinical-teal" />}

@@ -10,18 +10,6 @@
     --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
     --tl-purple: 261 36% 52%;       /* #765AB0 official purple */
     --tl-navy: 257 16% 9%;          /* #15131A accessible near-black */
-    --pf-rose: #f43f5e;
-    --pf-fuchsia: #c026d3;
-    --pf-violet: #6d28d9;
-    --pf-purple: #765ab0;
-    --pf-salmon: #ff9567;
-    --pf-red: #fc4421;
-    --pf-ink: #15131a;
-    --pf-muted: #625d69;
-    --pf-soft-rose: #fff1f2;
-    --pf-soft-violet: #f5f3ff;
-    --pf-surface: rgba(255,255,255,.9);
-    --pf-gradient: linear-gradient(90deg, var(--pf-rose), var(--pf-fuchsia), var(--pf-violet));
 
     /* Official T Levels light application theme */
     --background: 266 26% 97%;          /* #F6F4F8 */
@@ -207,10 +195,9 @@
   body {
     min-height: 100vh;
     background:
-      radial-gradient(circle at 10% 4%, rgba(244,63,94,.10), transparent 30rem),
-      radial-gradient(circle at 88% 10%, rgba(109,40,217,.12), transparent 34rem),
-      radial-gradient(circle at 50% 100%, rgba(192,38,211,.08), transparent 28rem),
-      linear-gradient(145deg, #ffffff 0%, #fff7f8 46%, #f7f4ff 100%);
+      radial-gradient(circle at 12% 4%, rgba(255,255,255,.99), transparent 28rem),
+      radial-gradient(circle at 88% 12%, rgba(220,210,238,.48), transparent 32rem),
+      linear-gradient(145deg, #faf9fb 0%, #f2eef7 48%, #f8f6fa 100%);
     background-attachment: fixed;
   }
 
@@ -600,8 +587,8 @@
 .app-command-surface {
   --command-ink: #17212b;
   --command-secondary: #4a5c6b;
-  --command-glass: rgba(255, 255, 255, .82);
-  --command-line: rgba(216, 180, 254, .42);
+  --command-glass: rgba(248, 252, 255, .78);
+  --command-line: rgba(186, 230, 253, .58);
   position: relative;
   isolation: isolate;
   color: var(--command-ink);
@@ -609,9 +596,8 @@
     linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px),
     radial-gradient(circle at 16% 8%, rgba(255,255,255,.98), transparent 28rem),
-    radial-gradient(circle at 84% 18%, rgba(192,38,211,.10), transparent 34rem),
-    radial-gradient(circle at 16% 88%, rgba(244,63,94,.08), transparent 28rem),
-    linear-gradient(145deg, #ffffff 0%, #fff5f7 48%, #f7f4ff 100%);
+    radial-gradient(circle at 84% 18%, rgba(186,230,253,.28), transparent 34rem),
+    linear-gradient(145deg, #f8fbfc 0%, #eaf1f4 50%, #f7f9fb 100%);
   background-size: 42px 42px, 42px 42px, auto, auto, auto;
   background-attachment: fixed;
 }
@@ -689,12 +675,12 @@
 
 .app-command-header__mark {
   color: white;
-  background: linear-gradient(145deg, var(--pf-rose), var(--pf-violet));
+  background: linear-gradient(145deg, #38bdf8, #2563eb);
   box-shadow: 0 9px 0 -5px rgba(30,64,175,.42), 0 15px 24px -14px rgba(15,23,42,.7), inset 1px 1px rgba(255,255,255,.5);
 }
 
 .app-command-header__eyebrow {
-  color: #a21caf;
+  color: #1d6f8a;
   font-size: 9px;
   font-weight: 900;
   line-height: 1.2;
@@ -783,8 +769,8 @@
 }
 
 .app-command-surface :where(input, textarea, select, [role="combobox"]):focus {
-  border-color: var(--pf-fuchsia) !important;
-  box-shadow: 0 0 0 3px rgba(192,38,211,.14), inset 0 1px 2px rgba(15,23,42,.06) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56,189,248,.18), inset 0 1px 2px rgba(15,23,42,.06) !important;
 }
 
 .app-command-surface table {
@@ -798,7 +784,7 @@
 
 .app-command-surface thead {
   color: #243746;
-  background: linear-gradient(90deg, rgba(255,241,242,.94), rgba(255,255,255,.9), rgba(245,243,255,.92));
+  background: linear-gradient(180deg, rgba(224,242,254,.92), rgba(226,232,240,.78));
 }
 
 .app-command-surface tbody tr {
@@ -806,12 +792,12 @@
 }
 
 .app-command-surface tbody tr:hover {
-  background: rgba(250,232,255,.34);
+  background: rgba(224,242,254,.42);
 }
 
 .app-command-surface .clinical-glass-nav {
-  border-color: rgba(216,180,254,.48) !important;
-  background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,241,242,.82), rgba(245,243,255,.86)) !important;
+  border-color: rgba(186,230,253,.62) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(225,234,239,.82)) !important;
   box-shadow: 0 18px 46px -26px rgba(15,23,42,.68), inset 0 1px white !important;
 }
 

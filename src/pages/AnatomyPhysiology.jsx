@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
-import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, HeartPulse, Info, Layers3, Rotate3D, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save, Trophy } from "lucide-react";
+import { Activity, Brain, CheckCircle2, ChevronRight, ClipboardCheck, Film, Focus, HeartPulse, Info, Layers3, Rotate3D, ScanLine, ShieldAlert, Sparkles, Stethoscope, UserRound, Wrench, Save } from "lucide-react";
 import Anatomy3DViewer from "@/components/anatomy/Anatomy3DViewer";
 import AnatomyAdminPanel from "@/components/anatomy/AnatomyAdminPanel";
-import AnatomyViewer from "@/components/AnatomyViewer";
 import { isAdmin } from "@/lib/clinicalAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
 import { BODY_LAYER_ORDER, PATHOPHYSIOLOGY_CONDITIONS, STANDARDISED_PATIENTS, calculateScenarioFeedback } from "@/lib/pathophysiologyData";
 import AnatomyAnimationController, { AnimationOverlay } from "@/components/anatomy/AnatomyAnimationController";
 import OrganLinkOverlay from "@/components/anatomy/OrganLinkOverlay";
-import AnatomyAssessment from "@/components/anatomy/AnatomyAssessment";
 
 const panel = "polished-glass-edge rounded-[28px] border border-white/90 bg-gradient-to-br from-white/92 via-slate-100/82 to-slate-200/68 shadow-[0_12px_0_-6px_rgba(100,116,139,.24),0_28px_60px_-32px_rgba(15,23,42,.55),inset_1px_1px_2px_white] backdrop-blur-2xl";
 const input = "w-full rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
+const REBUILT_CORE_SYSTEMS = ["muscular", "skeletal", "nervous", "cardiovascular"];
+const CORE_ANATOMY_VERSION = "2026-09-core-systems-v2";
+
 function Explorer() {
   const [genitalia, setGenitalia] = useState("male");
-  const [removed, setRemoved] = useState([]);
+  const [removed, setRemoved] = useState(() => BODY_LAYER_ORDER.filter((system) => !REBUILT_CORE_SYSTEMS.includes(system)));
   const [selectedId, setSelectedId] = useState("skin");
+  const [viewMode, setViewMode] = useState("full");
   const [editMode, setEditMode] = useState(false);
   const [overrides, setOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_overrides") || "{}"); } catch { return {}; } });
   const [draft, setDraft] = useState({});
-  const [transformDefaults, setTransformDefaults] = useState({});
   const { toast } = useToast();
   const [hidden, setHidden] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_hidden") || "[]"); } catch { return []; } });
   const [clipped, setClipped] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_admin_clipped") || "[]"); } catch { return []; } });
@@ -30,6 +31,18 @@ function Explorer() {
   useEffect(() => { localStorage.setItem("anatomy_admin_hidden", JSON.stringify(hidden)); }, [hidden]);
   useEffect(() => { localStorage.setItem("anatomy_admin_clipped", JSON.stringify(clipped)); }, [clipped]);
   useEffect(() => { localStorage.setItem("anatomy_admin_custom", JSON.stringify(custom)); }, [custom]);
+  useEffect(() => {
+    if (localStorage.getItem("anatomy_core_system_version") === CORE_ANATOMY_VERSION) return;
+    const rebuiltIds = new Set(
+      ANATOMY_STRUCTURES.filter((item) => REBUILT_CORE_SYSTEMS.includes(item.system)).map((item) => item.id)
+    );
+    setOverrides((current) => Object.fromEntries(Object.entries(current).filter(([id]) => !rebuiltIds.has(id))));
+    setHidden((current) => current.filter((id) => !rebuiltIds.has(id)));
+    setClipped((current) => current.filter((id) => !rebuiltIds.has(id)));
+    setRemoved(BODY_LAYER_ORDER.filter((system) => !REBUILT_CORE_SYSTEMS.includes(system)));
+    setSelectedId(null);
+    localStorage.setItem("anatomy_core_system_version", CORE_ANATOMY_VERSION);
+  }, []);
   const [animations, setAnimations] = useState(() => { try { return JSON.parse(localStorage.getItem("anatomy_animations") || "{}"); } catch { return {}; } });
   const [activeAnims, setActiveAnims] = useState([]);
   const [showAnimController, setShowAnimController] = useState(false);
@@ -45,10 +58,9 @@ function Explorer() {
   };
   const handleTransform = (id, transform) => {
     setDraft((d) => {
-      const def = transformDefaults[id] || {};
+      const def = ANATOMY_STRUCTURES.find((s) => s.id === id) || {};
       const existing = d[id] || {};
       return { ...d, [id]: {
-        ...existing, ...transform,
         position: transform.position ?? existing.position ?? (def.position ? [...def.position] : [0, 0, 0]),
         rotation: transform.rotation ?? existing.rotation ?? (def.rotation ? [...def.rotation] : [0, 0, 0]),
       }};
@@ -59,10 +71,9 @@ function Explorer() {
     const STEP = 0.06;
     const onKey = (e) => {
       if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
-      if (e.target instanceof HTMLElement && (e.target.closest("input, select, textarea, button") || e.target.isContentEditable)) return;
       e.preventDefault();
       setDraft((d) => {
-        const def = transformDefaults[selectedId] || {};
+        const def = ANATOMY_STRUCTURES.find((s) => s.id === selectedId) || {};
         const existing = d[selectedId] || {};
         const rot = [...(existing.rotation || def.rotation || [0, 0, 0])];
         if (e.key === "ArrowLeft") rot[1] -= STEP;
@@ -70,7 +81,6 @@ function Explorer() {
         if (e.key === "ArrowUp") rot[0] -= STEP;
         if (e.key === "ArrowDown") rot[0] += STEP;
         return { ...d, [selectedId]: {
-          ...existing,
           position: existing.position ?? (def.position ? [...def.position] : [0, 0, 0]),
           rotation: rot,
         }};
@@ -78,7 +88,7 @@ function Explorer() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [editMode, selectedId, transformDefaults]);
+  }, [editMode, selectedId]);
 
   const activeSystems = BODY_LAYER_ORDER.filter((system) => !removed.includes(system));
   const selected = ANATOMY_STRUCTURES.find((item) => item.id === selectedId);
@@ -93,7 +103,7 @@ function Explorer() {
   {editMode && isAdminUser && (
     <div className="mb-4">
       <AnatomyAdminPanel
-        selectedId={selectedId} onSelect={setSelectedId} defaults={transformDefaults}
+        selectedId={selectedId}
         overrides={draft} setOverrides={setDraft}
         hidden={hidden} setHidden={setHidden}
         clipped={clipped} setClipped={setClipped}
@@ -130,8 +140,18 @@ function Explorer() {
 
     <section className={`${panel} overflow-hidden p-3`}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-2">
-        <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Interactive body systems</p><h2 className="font-black text-slate-900">360° whole-body anatomy visualiser</h2></div>
+        <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Interactive organ system</p><h2 className="font-black text-slate-900">360° thoracic & abdominal visualiser</h2></div>
         <span className="flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-white"><Rotate3D className="h-3.5 w-3.5"/> Drag to rotate · scroll to zoom</span>
+      </div>
+      <div className="mb-3 flex flex-wrap gap-2 px-2" role="group" aria-label="Anatomical camera view">
+        {[
+          ["full", "Full body", Rotate3D],
+          ["torso", "Torso focus", Focus],
+          ["cross-section", "Cross-section", ScanLine],
+        ].map(([mode, label, Icon]) => <button key={mode} onClick={() => setViewMode(mode)} aria-pressed={viewMode === mode}
+          className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-black transition ${viewMode === mode ? "border-violet-600 bg-violet-600 text-white shadow-md" : "border-slate-200 bg-white text-slate-700 hover:border-violet-300"}`}>
+          <Icon className="h-3.5 w-3.5"/>{label}
+        </button>)}
       </div>
       {isAdminUser && (
         <div className="flex flex-wrap items-center gap-2">
@@ -144,7 +164,7 @@ function Explorer() {
             </button>
           )}
           {editMode && (
-            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-black text-amber-800">Drag a part to move · X/Y/Z controls to rotate 360° and resize · Save to keep</span>
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[9px] font-black text-amber-800">Drag an organ to move · arrow keys to rotate · Save to keep</span>
           )}
         </div>
       )}
@@ -155,28 +175,13 @@ function Explorer() {
       )}
       <div className="relative h-[620px] overflow-hidden rounded-[22px] border border-slate-200 bg-[#F8FAFC]">
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
-          <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · FITTED 360° OVERLAY</span>
+          <span className="rounded-full border border-rose-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-rose-700 backdrop-blur-md">MUSCLE · SEMI-TRANSPARENT</span>
           <span className="rounded-full border border-emerald-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-emerald-700 backdrop-blur-md">ORGANS · OPAQUE</span>
-          <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">CLICK A STRUCTURE TO INSPECT</span>
+          <span className="rounded-full border border-cyan-200 bg-white/80 px-2.5 py-1 text-[9px] font-black text-cyan-700 backdrop-blur-md">DIAPHRAGM · FROSTED</span>
         </div>
         <AnimationOverlay animations={animations} active={activeAnims} />
         <OrganLinkOverlay selectedId={selectedId} onClose={() => setSelectedId(null)} />
-        <Anatomy3DViewer
-          genitalia={genitalia}
-          activeSystems={activeSystems}
-          selectedId={selectedId}
-          isolatedId={null}
-          reconstructId={null}
-          onSelectStructure={setSelectedId}
-          editMode={editMode && isAdminUser}
-          structureOverrides={activeOverrides}
-          onTransformStructure={handleTransform}
-          onTransformDefaults={setTransformDefaults}
-          customStructures={custom}
-          hiddenStructures={hidden}
-          clippedStructures={clipped}
-          resetNonce={0}
-        />
+        <Anatomy3DViewer genitalia={genitalia} activeSystems={activeSystems} selectedId={selectedId} isolatedId={null} reconstructId={null} onSelectStructure={setSelectedId} resetNonce={0} viewMode={viewMode} structureOverrides={activeOverrides} hiddenStructures={hidden} clippedStructures={clipped} customStructures={custom} editMode={editMode} onTransformStructure={handleTransform}/>
       </div>
       <p className="mt-2 px-2 text-xs text-slate-600">Current outermost visible layer: <strong>{SYSTEM_META[nextVisible]?.name || "All layers removed"}</strong>. Select a structure in the model for its physiology and clinical relevance.</p>
     </section>
@@ -190,14 +195,6 @@ function Explorer() {
       </> : <div className="grid min-h-[400px] place-items-center text-center"><div><Info className="mx-auto h-10 w-10 text-violet-500"/><h2 className="mt-3 font-black text-slate-900">Select a body part</h2><p className="mt-2 text-sm text-slate-600">Click any visible structure to explore its anatomy, physiology and clinical relevance.</p></div></div>}
     </aside>
   </div>
-  <section className={`${panel} mt-4 p-4`}>
-    <p className="text-[10px] font-black uppercase tracking-[.18em] text-violet-700">BodyParts3D clinical atlas</p>
-    <h2 className="mt-1 text-xl font-black text-slate-900">Higher-fidelity anatomical systems</h2>
-    <p className="mt-1 mb-3 text-sm leading-6 text-slate-600">
-      Explore detailed Human Atlas geometry by anatomical system, with independent layer visibility controls.
-    </p>
-    <AnatomyViewer />
-  </section>
   </>;
 }
 
@@ -259,12 +256,12 @@ function ScenarioLab() {
 
 export default function AnatomyPhysiology() {
   const [tab,setTab]=useState("explore");
-  const tabs=[["explore","Anatomy & physiology",Layers3],["pathology","Pathophysiology",Brain],["scenario","Scenario lab",HeartPulse],["assessment","Assessment",Trophy]];
+  const tabs=[["explore","Anatomy & physiology",Layers3],["pathology","Pathophysiology",Brain],["scenario","Scenario lab",HeartPulse]];
   return <main className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_10%_5%,rgba(255,255,255,.98),transparent_30%),radial-gradient(circle_at_88%_14%,rgba(205,190,235,.48),transparent_32%),linear-gradient(145deg,#fbfafc,#f0edf5_54%,#f8f7fa)] text-slate-900">
     <div className="mx-auto max-w-[1600px]">
       <header className={`${panel} mb-6 flex flex-wrap items-center justify-between gap-4 p-6`}><div className="flex items-center gap-4"><span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow-xl"><Brain className="h-7 w-7"/></span><div><p className="text-[10px] font-black uppercase tracking-[.22em] text-violet-700">T Level Health · Areas 8–9</p><h1 className="text-2xl font-black tracking-tight sm:text-3xl">Anatomy, Physiology & Pathophysiology</h1><p className="mt-1 text-sm text-slate-600">Explore structures, visualise disease processes and practise care decisions safely.</p></div></div><span className="rounded-full bg-emerald-100 px-4 py-2 text-xs font-black text-emerald-800">Interactive learning module</span></header>
       <nav className="mb-4 flex flex-wrap gap-2">{tabs.map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-black shadow-sm transition ${tab===id?"bg-slate-900 text-white":"bg-white/85 text-slate-700 hover:bg-white"}`}><Icon className="h-4 w-4"/>{label}</button>)}</nav>
-      {tab==="explore"?<Explorer/>:tab==="pathology"?<Pathophysiology/>:tab==="scenario"?<ScenarioLab/>:<AnatomyAssessment/>}
+      {tab==="explore"?<Explorer/>:tab==="pathology"?<Pathophysiology/>:<ScenarioLab/>}
     </div>
   </main>;
 }

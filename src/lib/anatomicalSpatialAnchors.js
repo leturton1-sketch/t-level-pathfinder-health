@@ -132,49 +132,6 @@ export function keepGroupInsideBodyEnvelope(bodyEnvelope, group, padding = 0.985
 }
 
 /**
- * Maps procedural structures from the fallback mannequin envelope into the
- * loaded surface model envelope. Axis-specific scaling is intentional: the
- * supplied surface has a wider shoulder/arm span than the compact fallback.
- */
-export function conformGroupsToBodyEnvelope(sourceEnvelope, targetEnvelope, groups, padding = 0.985) {
-  if (!sourceEnvelope || !targetEnvelope || !groups?.length) return groups;
-  sourceEnvelope.updateWorldMatrix(true, true);
-  targetEnvelope.updateWorldMatrix(true, true);
-
-  const sourceBounds = new THREE.Box3().setFromObject(sourceEnvelope);
-  const targetBounds = new THREE.Box3().setFromObject(targetEnvelope);
-  const sourceSize = sourceBounds.getSize(new THREE.Vector3());
-  const targetSize = targetBounds.getSize(new THREE.Vector3()).multiplyScalar(padding);
-  if (sourceBounds.isEmpty() || targetBounds.isEmpty() || sourceSize.x <= 0 || sourceSize.y <= 0 || sourceSize.z <= 0) return groups;
-
-  const scale = new THREE.Vector3(
-    targetSize.x / sourceSize.x,
-    targetSize.y / sourceSize.y,
-    targetSize.z / sourceSize.z,
-  );
-  const sourceMin = sourceBounds.min;
-  const targetMin = targetBounds.min.clone().add(
-    targetBounds.getSize(new THREE.Vector3()).sub(targetSize).multiplyScalar(0.5),
-  );
-
-  groups.forEach((group) => {
-    if (!group?.parent) return;
-    const worldPosition = group.parent.localToWorld(group.position.clone());
-    const mappedWorldPosition = new THREE.Vector3(
-      targetMin.x + (worldPosition.x - sourceMin.x) * scale.x,
-      targetMin.y + (worldPosition.y - sourceMin.y) * scale.y,
-      targetMin.z + (worldPosition.z - sourceMin.z) * scale.z,
-    );
-    group.position.copy(group.parent.worldToLocal(mappedWorldPosition));
-    group.scale.multiply(scale);
-    group.updateWorldMatrix(true, true);
-    keepGroupInsideBodyEnvelope(targetEnvelope, group, padding);
-  });
-
-  return groups;
-}
-
-/**
  * Registers an imported organ model and aligns it to the body envelope.
  */
 export function registerOrganToBody(bodyEnvelope, organMesh, organKey, options = {}) {

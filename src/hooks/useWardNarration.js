@@ -46,29 +46,6 @@ export function useWardNarration() {
     }, 10000);
   }, [supported]);
 
-  const speakBrowser = useCallback((clean, prefs, onEnd) => {
-    if (!supported) { setSpeaking(false); onEnd?.(); return; }
-    const profile = getVoiceProfile(prefs?.profileId);
-    const u = new SpeechSynthesisUtterance(clean);
-    u.rate = prefs?.rate ?? profile.rate;
-    u.pitch = prefs?.pitch ?? profile.pitch;
-    u.volume = prefs?.muted ? 0 : (prefs?.volume ?? 1);
-    const voices = window.speechSynthesis.getVoices();
-    const patterns = profile.browserVoicePatterns || [];
-    const pattern = new RegExp(patterns.join("|"), "i");
-    const match = voices.find((voice) => voice.voiceURI === prefs?.systemVoiceURI) ||
-      voices.find((voice) => /^en-GB/i.test(voice.lang) && pattern.test(`${voice.name} ${voice.voiceURI}`)) ||
-      voices.find((voice) => /^en/i.test(voice.lang) && pattern.test(`${voice.name} ${voice.voiceURI}`)) ||
-      voices.find((voice) => /^en-GB/i.test(voice.lang)) ||
-      voices.find((voice) => /^en/i.test(voice.lang));
-    if (match) u.voice = match;
-    u.onend = () => { setSpeaking(false); onEnd?.(); };
-    u.onerror = () => { setSpeaking(false); onEnd?.(); };
-    setSpeaking(true);
-    startResumeGuard();
-    window.speechSynthesis.speak(u);
-  }, [supported, startResumeGuard]);
-
   const speak = useCallback(async (text, { onEnd } = {}) => {
     const clean = prepareSpeechText(String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000));
     if (!clean || !enabled) { onEnd?.(); return; }
@@ -79,12 +56,6 @@ export function useWardNarration() {
     // Cloud neural voice path (preferred when chosen in Voice Settings)
     if (prefs?.engine === "cloud") {
       const cloudVoice = getVoiceProfile(prefs.profileId).cloudVoice;
-      let browserFallbackStarted = false;
-      const fallbackToBrowser = () => {
-        if (browserFallbackStarted) return;
-        browserFallbackStarted = true;
-        speakBrowser(clean, prefs, onEnd);
-      };
       try {
         setSpeaking(true);
         const res = await base44.integrations.Core.GenerateSpeech({
@@ -98,21 +69,33 @@ export function useWardNarration() {
         audioRef.current = audio;
         audio.volume = prefs.volume ?? 1;
         audio.onended = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
-        audio.onerror = () => {
-          audioRef.current = null;
-          fallbackToBrowser();
-        };
+        audio.onerror = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
         await audio.play();
         return;
       } catch {
-        fallbackToBrowser();
-        return;
+        // fall back to browser TTS
       }
     }
 
     // Browser Web Speech API fallback
-    speakBrowser(clean, prefs, onEnd);
-  }, [enabled, stop, supported, speakBrowser]);
+    if (!supported) { setSpeaking(false); onEnd?.(); return; }
+    const u = new SpeechSynthesisUtterance(clean);
+    u.rate = prefs?.rate ?? 0.95;
+    u.pitch = prefs?.pitch ?? 1.0;
+    u.volume = prefs?.muted ? 0 : (prefs?.volume ?? 1);
+    const sv = window.speechSynthesis.getVoices();
+    const match = sv.find(v => v.voiceURI === prefs?.systemVoiceURI) ||
+                  sv.find(v => /en-GB/i.test(v.lang) && /natural|neural|aria|sonia|ryan|libby/i.test(`${v.name} ${v.voiceURI}`)) ||
+                  sv.find(v => /^en/i.test(v.lang) && /natural|neural/i.test(`${v.name} ${v.voiceURI}`)) ||
+                  sv.find(v => /en-GB/i.test(v.lang)) ||
+                  sv.find(v => /^en/i.test(v.lang));
+    if (match) u.voice = match;
+    u.onend = () => { if (resumeTimerRef.current) { clearInterval(resumeTimerRef.current); resumeTimerRef.current = null; } setSpeaking(false); onEnd?.(); };
+    u.onerror = () => { if (resumeTimerRef.current) { clearInterval(resumeTimerRef.current); resumeTimerRef.current = null; } setSpeaking(false); onEnd?.(); };
+    setSpeaking(true);
+    startResumeGuard();
+    window.speechSynthesis.speak(u);
+  }, [enabled, stop, supported, startResumeGuard]);
 
   useEffect(() => () => stop(), [stop]);
 

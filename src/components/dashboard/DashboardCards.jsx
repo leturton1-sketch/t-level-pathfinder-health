@@ -5,7 +5,6 @@ import {
   BookOpen, Stethoscope, ClipboardList, Brain, BarChart3, Network,
   CheckCircle, Circle, ChevronRight,
 } from "lucide-react";
-import { readStoredValue } from "@/lib/localStorage";
 
 const TOOLTIP_STYLE = { fontSize: "10px", background: "#ffffff", border: "1px solid #D8DEE6", borderRadius: "8px" };
 
@@ -18,7 +17,7 @@ function Skeleton() {
 
 export function WhiteboardCard({ icon: Icon, title, onNavigate, loading, children }) {
   return (
-    <button onClick={onNavigate} className="group w-full text-left rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-[box-shadow,transform] flex flex-col h-full">
+    <button onClick={onNavigate} className="group w-full text-left rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col h-full">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FFA07A] to-[#FF4528] flex items-center justify-center shadow-sm">
@@ -48,10 +47,8 @@ export function LearningCard({ onNavigate }) {
       try {
         const m = await base44.entities.TheoryModule.list("order_index", 50);
         if (m.length) setModules(m);
-      } catch (error) {
-        console.error("Unable to load learning modules.", error);
-      }
-      setProgress(readStoredValue("theory_progress", {}));
+      } catch {}
+      setProgress(JSON.parse(localStorage.getItem("theory_progress") || "{}"));
       setLoading(false);
     })();
   }, []);
@@ -86,10 +83,7 @@ export function WardCard({ onNavigate }) {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    base44.entities.Scenario.list()
-      .then((s) => setCount(s.length))
-      .catch((error) => console.error("Unable to load ward scenarios.", error))
-      .finally(() => setLoading(false));
+    base44.entities.Scenario.list().then((s) => setCount(s.length)).catch(() => {}).finally(() => setLoading(false));
   }, []);
   return (
     <WhiteboardCard icon={Stethoscope} title="Ward Simulation" loading={loading} onNavigate={onNavigate}>
@@ -115,10 +109,7 @@ export function CarePlanningCard({ onNavigate, userId }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (!userId) { setLoading(false); return; }
-    base44.entities.CarePlanSubmission.filter({ student_id: userId })
-      .then(setSubs)
-      .catch((error) => console.error("Unable to load care-plan submissions.", error))
-      .finally(() => setLoading(false));
+    base44.entities.CarePlanSubmission.filter({ student_id: userId }).then(setSubs).catch(() => {}).finally(() => setLoading(false));
   }, [userId]);
   const submitted = subs.filter((s) => s.status === "submitted" || s.status === "reviewed").length;
   const byType = ["abcde", "news2", "smart_goals", "handover_sbar", "risk_assessment"].map((t) => ({
@@ -147,10 +138,7 @@ export function KnowledgeCard({ onNavigate }) {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    base44.entities.KnowledgeArticle.list()
-      .then(setArticles)
-      .catch((error) => console.error("Unable to load knowledge articles.", error))
-      .finally(() => setLoading(false));
+    base44.entities.KnowledgeArticle.list().then(setArticles).catch(() => {}).finally(() => setLoading(false));
   }, []);
   return (
     <WhiteboardCard icon={Brain} title="Knowledge" loading={loading} onNavigate={onNavigate}>

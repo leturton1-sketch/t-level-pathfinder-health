@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { captureTransform, applyTransform } from "@/lib/anatomyTransforms";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { BODY_SHELLS, ANATOMY_STRUCTURES, SYSTEM_META } from "@/lib/anatomy3D";
-import { alignAnatomicalGroupToBody, conformGroupsToBodyEnvelope, keepGroupInsideBodyEnvelope } from "@/lib/anatomicalSpatialAnchors";
+import { alignAnatomicalGroupToBody, keepGroupInsideBodyEnvelope } from "@/lib/anatomicalSpatialAnchors";
 
 const BODY_TARGET = new THREE.Vector3(0, 0.95, 0);
 
@@ -97,7 +96,7 @@ function createClinicalTextures(renderer) {
   return { map, tissueMap, muscleMap, boneMap, roughnessMap, textures };
 }
 
-export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [], editMode = false, assessmentMode = false, onTransformStructure, onTransformDefaults }) {
+export default function Anatomy3DViewer({ genitalia = "male", activeSystems, selectedId, isolatedId, reconstructId, onSelectStructure, resetNonce, pathologyStructureId = null, viewMode = "full", structureOverrides = {}, hiddenStructures = [], clippedStructures = [], customStructures = [], editMode = false, onTransformStructure }) {
   const mountRef = useRef(null);
   const invalidateRef = useRef(() => {});
   const groupsRef = useRef({});            // id -> THREE.Group (structure)
@@ -118,18 +117,8 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
   const cbRef = useRef(onSelectStructure);
   cbRef.current = onSelectStructure;
   const editModeRef = useRef(editMode); editModeRef.current = editMode;
-  const assessmentModeRef = useRef(assessmentMode); assessmentModeRef.current = assessmentMode;
   const selectedIdRef = useRef(selectedId); selectedIdRef.current = selectedId;
   const transformCbRef = useRef(onTransformStructure); transformCbRef.current = onTransformStructure;
-
-  const overridesRef = useRef(structureOverrides); overridesRef.current = structureOverrides;
-  const defaultsCbRef = useRef(onTransformDefaults); defaultsCbRef.current = onTransformDefaults;
-  const publishDefaults = () => defaultsCbRef.current?.(Object.fromEntries(
-    Object.entries(groupsRef.current).map(([id, group]) => [id, {
-      position: group.userData.transformBase?.position.toArray() || [0, 0, 0],
-      rotation: group.userData.transformBase?.rotation.toArray().slice(0, 3) || [0, 0, 0],
-    }])
-  ));
 
   // ── Scene setup (once) ──
   useEffect(() => {
@@ -320,29 +309,11 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         shellGroup.visible = false;
         scene.add(object);
         importedSurfaceRef.current = object;
-        // The imported surface is the visual source of truth. Re-map every
-        // procedural system to its measured proportions before hiding the
-        // fallback shell, so limb structures track the actual silhouette.
-        structGroup.children.forEach((group) => applyTransform(group));
-        conformGroupsToBodyEnvelope(
-          shellGroup,
-          object,
-          structGroup.children,
-          0.975,
-        );
-        structGroup.children.forEach((group) => {
-          group.userData.constrainedScale = group.scale.clone();
-          captureTransform(group);
-          applyTransform(group, overridesRef.current[group.userData.id]);
-        });
         // Conform the integumentary neon outline to the real imported surface
         // so it traces the visible body, not the procedural fallback shell.
         if (neonOutlineRef.current) {
           neonOutlineRef.current.buildFromObject(object);
-          captureTransform(neonGroup);
-          applyTransform(neonGroup, overridesRef.current.skin);
         }
-        publishDefaults();
         invalidateRef.current();
       },
       undefined,
@@ -377,7 +348,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         : isMuscle
           ? clinicalTextures.muscleMap
           : clinicalTextures.tissueMap;
-      const educationalOpacity = isIntegumentary ? 0.2 : isMuscle ? 0.68 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
+      const educationalOpacity = isIntegumentary ? 0.2 : isMuscle ? 0.36 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
       const mat = new THREE.MeshPhysicalMaterial({
         color: isDiaphragm ? new THREE.Color(0xd9f2f1) : color,
         metalness: 0,
@@ -395,8 +366,8 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         clearcoatRoughness: hasCapsule ? 0.58 : 0.74,
         sheen: isBone ? 0 : isMuscle ? 0.16 : 0.1,
         sheenColor: color.clone().lerp(new THREE.Color(0xffffff), 0.26),
-        transmission: isBone ? 0 : isDiaphragm ? 0.46 : isMuscle ? 0.035 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
-        thickness: isDiaphragm ? 0.025 : isMuscle ? 0.035 : isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
+        transmission: isBone ? 0 : isDiaphragm ? 0.46 : isMuscle ? 0.12 : isLymphatic ? 0.2 : isParenchymal ? 0.085 : 0.025,
+        thickness: isDiaphragm ? 0.025 : isMuscle ? 0.06 : isLymphatic ? 0.04 : isParenchymal ? 0.14 : 0.055,
         attenuationColor: color.clone().multiplyScalar(0.78),
         attenuationDistance: isParenchymal ? 0.38 : 0.7,
         specularIntensity: isBone ? 0.12 : hasCapsule ? 0.36 : 0.25,
@@ -433,9 +404,6 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       baseColorsRef.current[s.id] = color;
     });
 
-    Object.values(groupsRef.current).forEach(captureTransform);
-    publishDefaults();
-
     // ── Orbit controls (manual) ──
     let dragging = false, panning = false, lastX = 0, lastY = 0;
     let movingId = null;
@@ -443,8 +411,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     const onDown = (e) => {
       // Edit-mode grab: if a structure is selected and the pointer lands on it,
       // translate the organ instead of orbiting the camera.
-      if (e.isPrimary === false || e.button > 2) return;
-      if ((editModeRef.current || assessmentModeRef.current) && e.button === 0 && !e.shiftKey) {
+      if (editModeRef.current && selectedIdRef.current) {
         const rect = renderer.domElement.getBoundingClientRect();
         pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -452,10 +419,8 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         const pickMeshes = [];
         Object.values(groupsRef.current).forEach((g) => { if (g.visible) g.traverse((m) => { if (m.isMesh) pickMeshes.push(m); }); });
         const hits = raycaster.intersectObjects(pickMeshes, false);
-        if (hits.length && hits[0].object.userData.id) {
-          movingId = hits[0].object.userData.id;
-          cbRef.current?.(movingId);
-          renderer.domElement.setPointerCapture(e.pointerId);
+        if (hits.length && hits[0].object.userData.id === selectedIdRef.current) {
+          movingId = selectedIdRef.current;
           const grp = groupsRef.current[movingId];
           moveStart = { x: e.clientX, y: e.clientY, pos: grp.position.clone() };
           renderer.domElement.style.cursor = "move";
@@ -467,16 +432,15 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       renderer.domElement.style.cursor = "grabbing";
     };
     const onMove = (e) => {
-      if (movingId && !editModeRef.current) { movingId = null; moveStart = null; }
       if (movingId) {
         const grp = groupsRef.current[movingId];
         if (grp && moveStart) {
           const dx = e.clientX - moveStart.x;
           const dy = e.clientY - moveStart.y;
-          const dist = camera.position.distanceTo(grp.getWorldPosition(new THREE.Vector3()));
-          const scale = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / renderer.domElement.clientHeight;
-          const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 0);
-          const up = new THREE.Vector3().setFromMatrixColumn(camera.matrix, 1);
+          const dist = camera.position.distanceTo(grp.position);
+          const scale = dist * 0.0016;
+          const right = new THREE.Vector3().crossVectors(camera.up, camera.getWorldDirection(new THREE.Vector3())).normalize();
+          const up = camera.up.clone();
           const next = moveStart.pos.clone().addScaledVector(right, dx * scale).addScaledVector(up, -dy * scale);
           grp.position.copy(next);
           invalidateRef.current();
@@ -504,7 +468,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     const onUp = () => {
       if (movingId) {
         const grp = groupsRef.current[movingId];
-        if (grp && (editModeRef.current || assessmentModeRef.current)) transformCbRef.current?.(movingId, { position: grp.position.clone().sub(grp.userData.pivotOffset || new THREE.Vector3()).toArray() });
+        if (grp) transformCbRef.current?.(movingId, { position: [grp.position.x, grp.position.y, grp.position.z] });
         movingId = null;
         moveStart = null;
         renderer.domElement.style.cursor = "grab";
@@ -521,8 +485,6 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       updateCamera();
     };
     renderer.domElement.style.cursor = "grab";
-    renderer.domElement.style.touchAction = "none";
-    window.addEventListener("pointercancel", onUp);
     renderer.domElement.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
@@ -632,7 +594,6 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       renderer.domElement.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
       renderer.domElement.removeEventListener("wheel", onWheel);
       renderer.domElement.removeEventListener("pointerdown", onPickDown);
       renderer.domElement.removeEventListener("pointerup", onPickUp);
@@ -675,7 +636,9 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     Object.entries(groupsRef.current).forEach(([id, grp]) => {
       const def = ANATOMY_STRUCTURES.find((s) => s.id === id);
       // Apply admin position/rotation overrides
-      applyTransform(grp, overrides[id]);
+      const ov = overrides[id];
+      if (ov?.position) grp.position.set(ov.position[0], ov.position[1], ov.position[2]);
+      if (ov?.rotation) grp.rotation.set(ov.rotation[0], ov.rotation[1], ov.rotation[2]);
       if (!def) {
         // Custom admin-added structure
         grp.visible = !hidden.has(id);
@@ -719,7 +682,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         });
         // Preserve the OBJ-conformed scale of the integumentary neon outline
         // so toggling the layer off/on keeps it aligned with the visible body.
-        // applyTransform preserves the fitted baseline scale and chosen size.
+        if (id !== "skin") grp.scale.copy(grp.userData.constrainedScale || new THREE.Vector3(1, 1, 1));
       }
     });
     // Dim shell when isolating
@@ -727,25 +690,6 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       shellRef.current.mat.opacity = isolated ? 0.03 : 0.16;
     }
   }, [genitalia, activeSystems, isolatedId, hiddenStructures, structureOverrides, clippedStructures, viewMode]);
-
-  // ── Assessment mode: desaturate organs so students see them as "misplaced" ──
-  useEffect(() => {
-    const grey = new THREE.Color(0x9ca3af);
-    Object.values(groupsRef.current).forEach((grp) => {
-      grp.traverse((m) => {
-        if (!m.isMesh || m.material.userData.isNeonOutline) return;
-        if (assessmentMode) {
-          if (!m.material.userData.savedColor) m.material.userData.savedColor = m.material.color.clone();
-          m.material.color.copy(grey);
-        } else if (m.material.userData.savedColor) {
-          m.material.color.copy(m.material.userData.savedColor);
-          delete m.material.userData.savedColor;
-        }
-        m.material.needsUpdate = true;
-      });
-    });
-    invalidateRef.current();
-  }, [assessmentMode, activeSystems]);
 
   // ── Selected highlight ──
   useEffect(() => {
@@ -804,14 +748,10 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       mesh.receiveShadow = true;
       grp.add(mesh);
       group.add(grp);
-      captureTransform(grp);
-      applyTransform(grp, overridesRef.current[c.id]);
-      grp.visible = !hiddenStructures.includes(c.id);
       customGroupsRef.current[c.id] = grp;
       groupsRef.current[c.id] = grp;
       baseColorsRef.current[c.id] = color;
     });
-    publishDefaults();
   }, [customStructures]);
 
   // ── Reset camera ──

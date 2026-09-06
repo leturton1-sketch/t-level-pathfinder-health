@@ -6,7 +6,8 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import { AuthProvider } from '@/lib/AuthContext';
+import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import LoginGate from './components/auth/LoginGate';
@@ -42,6 +43,7 @@ const ESPTutorReview = lazy(() => import('./pages/ESPTutorReview'));
 const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 
 const AuthenticatedApp = () => {
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
 
   useEffect(() => {
@@ -63,11 +65,35 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Pathfinder AppUser authentication is authoritative for application access.
-  // The Base44 platform session may initialise in the background for platform services,
-  // but it must never block or redirect a valid Pathfinder username + PIN login.
+  // PIN/QR identification gate — shown on first run over a blurred overview
   if (!unlocked) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
+  }
+
+  // Show loading spinner while checking app public settings or auth
+  if (isLoadingPublicSettings || isLoadingAuth) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Handle authentication errors
+  if (authError) {
+    if (authError.type === 'user_not_registered') {
+      return <UserNotRegisteredError />;
+    } else if (authError.type === 'auth_required') {
+      // Redirect to login automatically
+      navigateToLogin();
+      return null;
+    }
+  }
+
+  // No custom login remains — send unauthenticated users to the platform sign-in
+  if (authChecked && !isAuthenticated && !authError) {
+    navigateToLogin();
+    return null;
   }
 
   // Render the main app

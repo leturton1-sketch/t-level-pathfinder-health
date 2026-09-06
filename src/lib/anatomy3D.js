@@ -243,76 +243,16 @@ const STRUCTURE_BLUEPRINTS = [
   { id: "skin", name: "Skin", system: "integumentary", genders: "both", shape: { type: "sphere", radius: 0.13, scale: [1.55,3.3,0.9] }, position: [0,1.18,0],
     function: "The body's largest organ: a protective barrier supporting sensation, thermoregulation, vitamin D synthesis and fluid balance.",
     clinicalNote: "Inspect colour, temperature, moisture, integrity and pressure areas. Non-blanching erythema indicates pressure damage." },
-  // ── MUSCULAR ──
-  // A fitted superficial layer: overlapping bellies follow the same torso,
-  // arm and leg axes as the body shell so the system reads as one continuous body.
-  { id: "muscle_neck_shoulders", name: "Neck, Trapezius & Deltoids", system: "muscular", genders: "both", color: 0xa93642,
+  { id: "major_muscles", name: "Major Torso & Leg Muscle Groups", system: "muscular", genders: "both",
     parts: [
-      { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [-0.025,1.515,0.008], rotation: [0,0,-0.12] },
-      { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [0.025,1.515,0.008], rotation: [0,0,0.12] },
-      { shape: { type: "sphere", radius: 0.105, scale: [1.48,0.5,0.28] }, position: [0,1.425,-0.055] },
-      { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [-0.18,1.395,0], rotation: [0,0,-0.2] },
-      { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [0.18,1.395,0], rotation: [0,0,0.2] }
+      { shape: { type: "sphere", radius: 0.075, scale: [1.15,0.62,0.42] }, position: [0.075,1.36,0.055] },
+      { shape: { type: "sphere", radius: 0.075, scale: [1.15,0.62,0.42] }, position: [-0.075,1.36,0.055] },
+      { shape: { type: "capsule", radius: 0.048, length: 0.24 }, position: [0,1.135,0.045] },
+      { shape: { type: "capsule", radius: 0.052, length: 0.59 }, position: [0.075,0.52,0] },
+      { shape: { type: "capsule", radius: 0.052, length: 0.59 }, position: [-0.075,0.52,0] }
     ],
-    function: "The sternocleidomastoid, trapezius and deltoids position the head, stabilise the shoulder girdle and raise the arms.",
-    clinicalNote: "Assess neck movement, shoulder symmetry and resisted abduction. Weak shoulder elevation can indicate accessory nerve dysfunction." },
-  { id: "muscle_chest_abdomen", name: "Chest & Abdominal Muscles", system: "muscular", genders: "both", color: 0xbb4650,
-    parts: [
-      { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [-0.071,1.355,0.09], rotation: [0.04,0,-0.1] },
-      { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [0.071,1.355,0.09], rotation: [0.04,0,0.1] },
-      { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [-0.034,1.115,0.099] },
-      { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [0.034,1.115,0.099] },
-      { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [-0.108,1.11,0.057] },
-      { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [0.108,1.11,0.057] }
-    ],
-    function: "Pectoral, rectus and oblique muscles move the upper limb and trunk, support the abdominal contents and assist forced breathing.",
-    clinicalNote: "Observe breathing and abdominal movement. Guarding or rigidity may indicate peritoneal irritation and requires prompt assessment." },
-  { id: "muscle_back", name: "Back & Spinal Muscles", system: "muscular", genders: "both", color: 0x922f3d,
-    parts: [
-      { shape: { type: "sphere", radius: 0.105, scale: [1.22,1.35,0.22] }, position: [0,1.225,-0.092] },
-      { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [-0.038,1.21,-0.105] },
-      { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [0.038,1.21,-0.105] }
-    ],
-    function: "Latissimus dorsi and the erector spinae extend and rotate the trunk, move the shoulder and maintain upright posture.",
-    clinicalNote: "Assess posture, spinal movement, tenderness and neurological symptoms. New weakness or altered bladder function requires urgent escalation." },
-  { id: "muscle_arms", name: "Upper & Lower Arm Muscles", system: "muscular", genders: "both", color: 0xb13d49,
-    parts: [
-      { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [-0.207,1.27,0.022], rotation: [0,0,-0.18] },
-      { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [0.207,1.27,0.022], rotation: [0,0,0.18] },
-      { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [-0.235,1.035,0.012], rotation: [0,0,-0.12] },
-      { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [0.235,1.035,0.012], rotation: [0,0,0.12] }
-    ],
-    function: "Biceps, triceps and forearm flexor-extensor groups control the elbow, forearm, wrist and hand.",
-    clinicalNote: "Compare power, tone, grip and range bilaterally; combine this with distal circulation and sensation after limb injury." },
-  { id: "muscle_pelvis_gluteals", name: "Hip & Gluteal Muscles", system: "muscular", genders: "both", color: 0xa83a47,
-    parts: [
-      { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [-0.072,0.875,-0.07] },
-      { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [0.072,0.875,-0.07] },
-      { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [-0.115,0.89,0.045] },
-      { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [0.115,0.89,0.045] }
-    ],
-    function: "The gluteal and hip muscles stabilise the pelvis and generate hip extension, abduction and rotation during gait.",
-    clinicalNote: "Observe gait and pelvic stability. Use correctly identified ventrogluteal landmarks when this injection site is indicated." },
-  { id: "muscle_thighs", name: "Quadriceps, Adductors & Hamstrings", system: "muscular", genders: "both", color: 0xb4414c,
-    parts: [
-      { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [-0.074,0.655,0.043] },
-      { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [0.074,0.655,0.043] },
-      { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [-0.074,0.655,-0.043] },
-      { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [0.074,0.655,-0.043] },
-      { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [-0.035,0.655,0.005], rotation: [0,0,-0.04] },
-      { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [0.035,0.655,0.005], rotation: [0,0,0.04] }
-    ],
-    function: "Quadriceps extend the knee, hamstrings flex it and the adductors draw the thigh towards the midline.",
-    clinicalNote: "Assess pain, swelling, movement and strength. Acute unilateral swelling requires assessment for injury or venous thrombosis." },
-  { id: "muscle_lower_legs", name: "Calf & Anterior Lower-Leg Muscles", system: "muscular", genders: "both", color: 0x9e3441,
-    parts: [
-      { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [-0.073,0.315,-0.034] },
-      { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [0.073,0.315,-0.034] },
-      { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [-0.073,0.315,0.039] },
-      { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [0.073,0.315,0.039] }
-    ],
-    function: "The calf plantar-flexes the ankle and supports venous return, while anterior muscles dorsiflex the foot for safe gait.",
-    clinicalNote: "Check calf symmetry, tenderness, distal pulses and sensation. Do not massage a calf if deep-vein thrombosis is suspected." },
+    function: "Skeletal muscles generate movement, stabilise joints, maintain posture and produce heat through contraction.",
+    clinicalNote: "Assess strength, tone, range of movement and pain. Immobility rapidly causes deconditioning and venous stasis." },
   { id: "thyroid", name: "Thyroid Gland", system: "endocrine", genders: "both", shape: { type: "torus", radius: 0.025, tube: 0.009 }, position: [0,1.5,0.035],
     function: "Produces thyroid hormones that regulate metabolic rate, growth and heat production.",
     clinicalNote: "Observe for altered heart rate, weight, temperature tolerance and neck swelling." },
@@ -464,51 +404,29 @@ const ANATOMICAL_ATLAS = {
   vagina: { position: [0, 0.78, 0.015] },
 
   skin: { position: [0, 1.18, 0], scale: [1.55, 3.3, 0.9] },
-  muscle_neck_shoulders: { parts: [
-    { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [-0.025,1.515,0.008], rotation: [0,0,-0.12] },
-    { shape: { type: "capsule", radius: 0.022, length: 0.09 }, position: [0.025,1.515,0.008], rotation: [0,0,0.12] },
-    { shape: { type: "sphere", radius: 0.105, scale: [1.48,0.5,0.28] }, position: [0,1.425,-0.055] },
-    { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [-0.18,1.395,0], rotation: [0,0,-0.2] },
-    { shape: { type: "sphere", radius: 0.054, scale: [0.82,1.1,0.82] }, position: [0.18,1.395,0], rotation: [0,0,0.2] },
-  ] },
-  muscle_chest_abdomen: { parts: [
-    { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [-0.071,1.355,0.09], rotation: [0.04,0,-0.1] },
-    { shape: { type: "sphere", radius: 0.072, scale: [1.14,0.58,0.34] }, position: [0.071,1.355,0.09], rotation: [0.04,0,0.1] },
-    { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [-0.034,1.115,0.099] },
-    { shape: { type: "capsule", radius: 0.027, length: 0.235 }, position: [0.034,1.115,0.099] },
-    { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [-0.108,1.11,0.057] },
-    { shape: { type: "sphere", radius: 0.072, scale: [0.58,1.42,0.26] }, position: [0.108,1.11,0.057] },
-  ] },
-  muscle_back: { parts: [
-    { shape: { type: "sphere", radius: 0.105, scale: [1.22,1.35,0.22] }, position: [0,1.225,-0.092] },
-    { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [-0.038,1.21,-0.105] },
-    { shape: { type: "capsule", radius: 0.025, length: 0.38 }, position: [0.038,1.21,-0.105] },
-  ] },
-  muscle_arms: { parts: [
-    { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [-0.207,1.27,0.022], rotation: [0,0,-0.18] },
-    { shape: { type: "capsule", radius: 0.033, length: 0.205 }, position: [0.207,1.27,0.022], rotation: [0,0,0.18] },
-    { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [-0.235,1.035,0.012], rotation: [0,0,-0.12] },
-    { shape: { type: "capsule", radius: 0.027, length: 0.225 }, position: [0.235,1.035,0.012], rotation: [0,0,0.12] },
-  ] },
-  muscle_pelvis_gluteals: { parts: [
-    { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [-0.072,0.875,-0.07] },
-    { shape: { type: "sphere", radius: 0.078, scale: [0.9,1.02,0.62] }, position: [0.072,0.875,-0.07] },
-    { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [-0.115,0.89,0.045] },
-    { shape: { type: "sphere", radius: 0.07, scale: [0.7,0.82,0.42] }, position: [0.115,0.89,0.045] },
-  ] },
-  muscle_thighs: { parts: [
-    { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [-0.074,0.655,0.043] },
-    { shape: { type: "capsule", radius: 0.047, length: 0.30 }, position: [0.074,0.655,0.043] },
-    { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [-0.074,0.655,-0.043] },
-    { shape: { type: "capsule", radius: 0.04, length: 0.30 }, position: [0.074,0.655,-0.043] },
-    { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [-0.035,0.655,0.005], rotation: [0,0,-0.04] },
-    { shape: { type: "capsule", radius: 0.023, length: 0.27 }, position: [0.035,0.655,0.005], rotation: [0,0,0.04] },
-  ] },
-  muscle_lower_legs: { parts: [
-    { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [-0.073,0.315,-0.034] },
-    { shape: { type: "capsule", radius: 0.037, length: 0.265 }, position: [0.073,0.315,-0.034] },
-    { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [-0.073,0.315,0.039] },
-    { shape: { type: "capsule", radius: 0.024, length: 0.265 }, position: [0.073,0.315,0.039] },
+  major_muscles: { parts: [
+    // Pectoralis major — anterior chest, kept inside the torso silhouette
+    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [-0.06,1.345,0.115] },
+    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [0.06,1.345,0.115] },
+    // Deltoids — shoulder contour, pulled inboard so the cap stays within the arm shell
+    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [-0.15,1.395,0.01] },
+    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [0.15,1.395,0.01] },
+    // Rectus abdominis — anterior abdominal wall, tucked behind the torso surface
+    { shape: { type: "capsule", radius: 0.034, length: 0.26 }, position: [0,1.12,0.072] },
+    // External obliques — flanks, narrowed to the waist radius
+    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [-0.078,1.12,0.055] },
+    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [0.078,1.12,0.055] },
+    // Quadriceps — anterior thigh, centred in the leg envelope
+    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [-0.062,0.55,0.0] },
+    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [0.062,0.55,0.0] },
+    // Hamstring/calf groups — centred within each leg envelope
+    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [-0.062,0.28,0.0] },
+    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [0.062,0.28,0.0] },
+    // Biceps and forearm flexor groups — aligned to the arm shells
+    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [-0.185,1.29,0.005], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [0.185,1.29,0.005], rotation: [0,0,0.16] },
+    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [-0.215,1.06,0.005], rotation: [0,0,-0.16] },
+    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [0.215,1.06,0.005], rotation: [0,0,0.16] },
   ] },
 
   lymph_nodes: { parts: [

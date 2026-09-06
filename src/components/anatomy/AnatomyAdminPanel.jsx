@@ -24,13 +24,13 @@ function Slider({ label, value, min, max, step, onChange, unit = "" }) {
   );
 }
 
-export default function AnatomyAdminPanel({ selectedId, onSelect, defaults = {}, overrides, setOverrides, hidden, setHidden, clipped, setClipped, custom, setCustom }) {
+export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides, hidden, setHidden, clipped, setClipped, custom, setCustom }) {
   const [newCustom, setNewCustom] = useState({ name: "", shape: "sphere", radius: "0.04", x: "0", y: "1", z: "0", color: "#765AB0" });
 
   const def = ANATOMY_STRUCTURES.find((s) => s.id === selectedId);
   const ov = overrides[selectedId] || {};
-  const pos = ov.position || defaults[selectedId]?.position || [0, 0, 0];
-  const rot = ov.rotation || defaults[selectedId]?.rotation || [0, 0, 0];
+  const pos = ov.position || (def?.position ? [...def.position] : [0, 0, 0]);
+  const rot = ov.rotation || (def?.rotation ? [...def.rotation] : [0, 0, 0]);
   const isHidden = hidden.includes(selectedId);
   const isClipped = clipped.includes(selectedId);
 
@@ -39,7 +39,7 @@ export default function AnatomyAdminPanel({ selectedId, onSelect, defaults = {},
     setOverrides((o) => ({ ...o, [selectedId]: { ...o[selectedId], position: next } }));
   };
   const setRot = (axis, val) => {
-    const next = [...rot]; next[axis] = parseFloat(val) * Math.PI / 180;
+    const next = [...rot]; next[axis] = parseFloat(val);
     setOverrides((o) => ({ ...o, [selectedId]: { ...o[selectedId], rotation: next } }));
   };
   const reset = () => setOverrides((o) => { const n = { ...o }; delete n[selectedId]; return n; });
@@ -77,31 +77,28 @@ export default function AnatomyAdminPanel({ selectedId, onSelect, defaults = {},
         {/* Transform */}
         <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
           <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-violet-700"><Move3D className="h-3.5 w-3.5" />Transform selected</p>
-          <select value={selectedId || ""} onChange={(e) => onSelect(e.target.value || null)} className={`${field} mb-2`} aria-label="Selected structure">
+          <select value={selectedId || ""} onChange={(e) => {/* selection comes from 3D click */}} disabled className={`${field} mb-2`} aria-label="Selected structure">
             <option value="">Select a structure in the model</option>
             {ANATOMY_STRUCTURES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             {custom.map((s) => <option key={s.id} value={s.id}>{s.name} (custom)</option>)}
           </select>
           <p className="truncate text-xs font-bold text-slate-800">{def?.name || (custom.find((c) => c.id === selectedId)?.name) || "None selected"}</p>
 
-          <fieldset disabled={!selectedId} className="disabled:opacity-40">
           <div className="mt-2 space-y-1.5">
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Position</p>
-            <Slider label="X" value={pos[0]} min={Math.min(-2, pos[0])} max={Math.max(2, pos[0])} step={0.005} onChange={(v) => setPos(0, v)} />
-            <Slider label="Y" value={pos[1]} min={-2} max={3} step={0.005} onChange={(v) => setPos(1, v)} />
-            <Slider label="Z" value={pos[2]} min={Math.min(-2, pos[2])} max={Math.max(2, pos[2])} step={0.005} onChange={(v) => setPos(2, v)} />
+            <Slider label="X" value={pos[0]} min={-0.6} max={0.6} step={0.005} onChange={(v) => setPos(0, v)} />
+            <Slider label="Y" value={pos[1]} min={0} max={2} step={0.005} onChange={(v) => setPos(1, v)} />
+            <Slider label="Z" value={pos[2]} min={-0.4} max={0.4} step={0.005} onChange={(v) => setPos(2, v)} />
           </div>
           <div className="mt-2 space-y-1.5">
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Rotation (degrees · full 360°)</p>
-            <Slider label="Rotate X" value={((rot[0] * 180 / Math.PI) % 360 + 360) % 360} min={0} max={360} step={1} unit="°" onChange={(v) => setRot(0, v)} />
-            <Slider label="Rotate Y" value={((rot[1] * 180 / Math.PI) % 360 + 360) % 360} min={0} max={360} step={1} unit="°" onChange={(v) => setRot(1, v)} />
-            <Slider label="Rotate Z" value={((rot[2] * 180 / Math.PI) % 360 + 360) % 360} min={0} max={360} step={1} unit="°" onChange={(v) => setRot(2, v)} />
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Rotation (rad)</p>
+            <Slider label="X" value={rot[0]} min={-3.14} max={3.14} step={0.01} onChange={(v) => setRot(0, v)} />
+            <Slider label="Y" value={rot[1]} min={-3.14} max={3.14} step={0.01} onChange={(v) => setRot(1, v)} />
+            <Slider label="Z" value={rot[2]} min={-3.14} max={3.14} step={0.01} onChange={(v) => setRot(2, v)} />
           </div>
-          <div className="mt-3"><Slider label="Size" value={(ov.size ?? 1) * 100} min={10} max={300} step={1} unit="%" onChange={(v) => setOverrides((o) => ({ ...o, [selectedId]: { ...o[selectedId], size: Number(v) / 100 } }))} /></div>
-          <button onClick={reset} disabled={!selectedId} className={`${btn} mt-2 w-full justify-center border-slate-200 bg-white text-slate-700 hover:border-violet-300 disabled:opacity-40`}>
+          <button onClick={reset} disabled={!def && !ov.position} className={`${btn} mt-2 w-full justify-center border-slate-200 bg-white text-slate-700 hover:border-violet-300 disabled:opacity-40`}>
             <RotateCcw className="h-3.5 w-3.5" />Reset transform
           </button>
-          </fieldset>
         </div>
 
         {/* Cut & delete */}
@@ -148,7 +145,7 @@ export default function AnatomyAdminPanel({ selectedId, onSelect, defaults = {},
           )}
         </div>
       </div>
-      <p className="mt-3 text-[10px] text-slate-500">Tip: click any structure in the 3D model to select it, then use the controls above. Use Save changes to keep position, rotation and size in this browser. Exit edit without saving to discard transform changes.</p>
+      <p className="mt-3 text-[10px] text-slate-500">Tip: click any structure in the 3D model to select it, then use the controls above. Changes are saved locally to this browser for admins only.</p>
     </div>
   );
 }

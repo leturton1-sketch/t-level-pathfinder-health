@@ -1,23 +1,19 @@
 {
-  "name": "pathfinder-health",
-  "productName": "Pathfinder Health",
+  "name": "base44-app",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:base44": "base44 dev",
     "build": "vite build",
-    "desktop:build": "npm run build && electron-builder --win nsis",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
-    "test": "npm run lint",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.46",
-    "@base44/vite-plugin": "^1.0.35",
+    "@base44/vite-plugin": "^1.0.34",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -47,8 +43,6 @@
     "@radix-ui/react-toggle": "^1.1.2",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.18.0",
     "@stripe/react-stripe-js": "^3.0.0",
     "@stripe/stripe-js": "^5.2.0",
     "@tanstack/react-query": "^5.84.1",
@@ -92,8 +86,6 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "baseline-browser-mapping": "^2.8.32",
-    "electron": "^36.5.0",
-    "electron-builder": "^26.0.12",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
@@ -104,42 +96,5 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.2",
     "vite": "^6.1.0"
-  },
-  "main": "electron/main.cjs",
-  "build": {
-    "appId": "uk.rnngroup.pathfinder-health",
-    "productName": "Pathfinder Health",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/main.cjs",
-      "package.json",
-      "!node_modules/**/*"
-    ],
-    "npmRebuild": false,
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Pathfinder Health"
-    }
-  },
-  "allowScripts": {
-    "electron@36.9.5": true,
-    "electron-winstaller@5.4.0": true,
-    "esbuild@0.25.12": true
   }
 }
