@@ -11,6 +11,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import LoginGate from './components/auth/LoginGate';
+import VoiceRecoveryPanel from './components/auth/VoiceRecoveryPanel';
+import { base44 } from '@/api/base44Client';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
@@ -45,6 +47,7 @@ const OAuthConsent = lazy(() => import('./pages/OAuthConsent'));
 const AuthenticatedApp = () => {
   const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
+  const [adminVoiceSetupRequired, setAdminVoiceSetupRequired] = useState(null);
   const platformEmail = String(user?.email || "").trim().toLowerCase();
   const isProtectedSuperAdmin = [
     "lee.turton@academic.rnngroup.ac.uk",
@@ -55,6 +58,24 @@ const AuthenticatedApp = () => {
     const stop = installErrorCollector();
     return stop;
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!isAuthenticated || !isProtectedSuperAdmin) {
+      setAdminVoiceSetupRequired(false);
+      return () => { active = false; };
+    }
+    setAdminVoiceSetupRequired(null);
+    base44.functions.invoke("getSpokenRecoveryStatus", { username: "lee" })
+      .then((response) => {
+        const data = response?.data ?? response;
+        if (active) setAdminVoiceSetupRequired(!data?.voice_recovery_enrolled);
+      })
+      .catch(() => {
+        if (active) setAdminVoiceSetupRequired(false);
+      });
+    return () => { active = false; };
+  }, [isAuthenticated, isProtectedSuperAdmin]);
 
   // MCP OAuth consent renders even when signed out — the page gates on its own
   // server session (cookie + token), bypassing the app's normal auth flow.
@@ -98,7 +119,38 @@ const AuthenticatedApp = () => {
   }
 
   // Protected super-admin identities have already been strongly authenticated by
-  // Base44, so they bypass the redundant Pathfinder PIN gate entirely.
+  // Base44, so they bypass the redundant Pathfinder PIN gate entirely. On the first
+  // successful platform session only, require spoken recovery setup once.
+  if (isProtectedSuperAdmin && adminVoiceSetupRequired === null) {
+    return (
+      <div className="fixed inset-0 z-[250] grid place-items-center bg-slate-950/85 p-6 backdrop-blur-xl">
+        <div className="w-full max-w-xl rounded-3xl border border-white/20 bg-white p-6 shadow-2xl">
+          <p className="text-center text-sm font-bold text-slate-700">Checking spoken recovery setup…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isProtectedSuperAdmin && adminVoiceSetupRequired) {
+    return (
+      <div className="fixed inset-0 z-[250] grid place-items-center bg-slate-950/85 p-6 backdrop-blur-xl">
+        <div className="w-full max-w-xl rounded-3xl border border-white/20 bg-white p-6 shadow-2xl">
+          <div className="mb-4 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-600">Pathfinder Health Security</p>
+            <h1 className="mt-1 text-2xl font-black text-slate-900">Set up backup voice access</h1>
+            <p className="mt-2 text-sm text-slate-600">Your microphone recording is not stored. Pathfinder saves only a salted hash of the phrase you choose.</p>
+          </div>
+          <VoiceRecoveryPanel
+            mode="enrol"
+            username="lee"
+            user={{ username: "lee", full_name: "Lee Turton", role: "super_admin" }}
+            onSuccess={() => setAdminVoiceSetupRequired(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (!unlocked && !isProtectedSuperAdmin) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
   }
