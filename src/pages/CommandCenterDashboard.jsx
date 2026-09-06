@@ -7,6 +7,7 @@ import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
 import TLevelLogo from "@/components/TLevelLogo";
 import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
 import Navigation from "@/components/dashboard/PathfinderNavigation";
+import RoleMissionPanel from "@/components/dashboard/RoleMissionPanel";
 
 const STAFF = [
   { name: "Dr Maya Chen", role: "Ward consultant", status: "Available", initials: "MC" },
@@ -97,6 +98,8 @@ export default function CommandCenterDashboard() {
       <div className="pf-heading"><p className="pf-eyebrow">T-Level Health · Simulation</p><h1>Pathfinder Overview</h1></div>
       <div className="pf-header-meta"><DashboardClock /><TLevelLogo size="sm" /></div>
     </header>
+
+    <RoleMissionPanel user={user} />
 
     <button type="button" className="pf-mobile-summary" aria-expanded={metricsOpen} aria-controls="pf-metrics"
       onClick={() => setMetricsOpen(value => !value)}>Overview · {critical.length} alerts · {24 - patients.length} beds available
