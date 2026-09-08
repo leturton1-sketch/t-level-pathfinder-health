@@ -1,4 +1,4 @@
-/* Official supplied T-Level palette. Neon is confined to static frame accents. */
+/* Official supplied T-Level palette with static neon edges and reflective depth. */
 body.pf-theme-active {
   --tl-purple: 259.535 35.246% 52.157%;
   --tl-red: 9.863 97.356% 55.49%;
@@ -11,7 +11,12 @@ body.pf-theme-active {
   --border: 260 22% 87%; --input: 260 22% 80%;
   --pf-purple: #765ab0; --pf-red: #fc4421; --pf-salmon: #ff9567;
   --pf-ink: #0f172a; --pf-muted: #475569; --pf-line: #ddd6ea;
-  --pf-frame-glow: 0 0 0 1px #765ab024, 0 0 12px #765ab018;
+  --font-heading: 'Inter', 'Segoe UI', sans-serif;
+  --font-display: 'Inter', 'Segoe UI', sans-serif;
+  --pf-frame-glow: inset 0 1px 0 #fff, 0 2px 3px #39265312, 0 16px 32px -22px #39265370, 0 0 18px #765ab01c;
+  --pf-surface: linear-gradient(155deg, #fff 0%, #fff 46%, #f6f2fb 100%);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  line-height: 1.55;
   background: #f8fafc; background-attachment: scroll; color: var(--pf-ink);
 }
 .pf-app-root { min-height: 100dvh; border-inline: 3px solid var(--pf-purple); }
@@ -67,7 +72,7 @@ body.pf-theme-active {
 .pf-theme-active :is(input,textarea,select) { accent-color: var(--pf-purple); }
 .pf-theme-active :is([role="tablist"],.clinical-inline-cluster) { flex-wrap: wrap; }
 .pf-theme-active [role="tab"] { white-space: normal; }
-/* Replace frosted surfaces; keep clinical status colours and 3D anatomy materials. */
+/* Opaque reflective surfaces keep text clear without costly backdrop blur. */
 .pf-theme-active [class*="backdrop-blur"],
 .pf-theme-active :is(.polished-glass-edge,.tlevel-3d-panel,.clinical-glass-nav,[role="dialog"]) {
   backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
@@ -106,6 +111,81 @@ body.pf-theme-active {
 .pf-voice-page .prose-invert { --tw-prose-body: #0f172a; --tw-prose-headings: #0f172a; --tw-prose-bold: #0f172a; --tw-prose-links: #60438f; --tw-prose-code: #0f172a; color: #0f172a; }
 .pf-voice-page [class*="bg-[#3a0ca3]"] { background: var(--pf-purple); }
 .pf-voice-page [class*="bg-[#0f0b18]/"] { background: #fff !important; }
+/* Hierarchy comes from bevelled edges, reflected light and static brand glow. */
+.pf-theme-active :is(h1,h2,h3,.pf-global-brand strong) {
+  font-family: var(--font-heading); letter-spacing: -.025em;
+  text-wrap: balance;
+}
+.pf-theme-active :is(p,li,td,textarea) { overflow-wrap: break-word; }
+.pf-theme-active :is(.pf-value,.pf-clock,table) { font-variant-numeric: tabular-nums; }
+.pf-theme-active :is(.pf-dashboard,.pf-global-workspace) {
+  background: radial-gradient(ellipse at 0 0, #765ab012, transparent 48%),
+    radial-gradient(ellipse at 100% 0, #ff956715, transparent 42%), #f8fafc;
+}
+.pf-theme-active :is(.pf-global-header,.pf-header) {
+  background: linear-gradient(115deg, #fff 45%, #f5f0fb 78%, #fff5ef);
+  box-shadow: inset 0 1px #fff, 0 4px 16px #765ab020;
+}
+.pf-global-header::after { box-shadow: 0 0 10px #fc442166; }
+.pf-theme-active :is(.pf-module,.pf-map-stage,.pf-team-rail,.pf-metric) {
+  background: var(--pf-surface); box-shadow: var(--pf-frame-glow);
+}
+.pf-theme-active :is(.polished-glass-edge,.tlevel-3d-panel,.bg-card) {
+  background: var(--pf-surface) !important;
+  box-shadow: var(--pf-frame-glow) !important;
+}
+.pf-theme-active :is(.pf-brand-icon,.pf-metric-icon) {
+  box-shadow: inset 0 2px 2px #ffffffc0, inset 0 -2px 3px #39265318, 0 6px 10px -7px #39265380;
+}
+.pf-theme-active .pf-nav-link[aria-current="page"] {
+  background: linear-gradient(115deg,#eee5fb,#faf7ff);
+  box-shadow: inset 3px 0 #765ab0, inset 0 1px #fff, 0 0 12px #765ab026;
+}
+.pf-theme-active :is(.pf-primary-button,button.bg-primary,a.bg-primary) {
+  background: linear-gradient(160deg,#765ab0,#60438f) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px #ffffff66, inset 0 -2px #39265355, 0 4px 10px #765ab030, 0 0 14px #765ab030;
+}
+.pf-theme-active :is(.pf-icon-button,.pf-secondary-button) {
+  box-shadow: inset 0 1px #fff, 0 2px 3px #39265312;
+}
+.pf-theme-active :is(.pf-nav-link,.pf-primary-button,.pf-secondary-button,.pf-icon-button) {
+  transition: background-color 160ms ease, box-shadow 160ms ease;
+}
+@media (hover:hover) {
+  .pf-theme-active .pf-nav-link:hover { background-color:#eee8f7; }
+  .pf-theme-active :is(.pf-primary-button,.pf-secondary-button,.pf-icon-button):hover {
+    box-shadow: inset 0 1px #ffffff88, 0 4px 12px #765ab035, 0 0 14px #765ab020;
+  }
+}
+.pf-theme-active :is(button,[role="button"]):disabled {
+  cursor:not-allowed;
+}
+.pf-theme-active .pf-dashboard .campus-plane {
+  border-radius: 14px;
+  box-shadow: 0 3px 0 #ddd6ea, 0 16px 28px -20px #39265390, 0 0 16px #765ab024;
+}
+.pf-theme-active .pf-map-viewport {
+  background: radial-gradient(ellipse at 50% 30%,#fff,#eee8f5);
+}
+.pf-theme-active .pf-dashboard .campus-map-controls {
+  box-shadow: inset 0 1px #fff, 0 4px 12px #39265318;
+}
+.pf-theme-active .pf-module { scroll-margin-top: 100px; }
+@media (prefers-contrast:more) {
+  .pf-theme-active { --pf-line:#765ab0; --pf-frame-glow:none; --pf-surface:#fff; }
+}
+@media (forced-colors:active) {
+  .pf-theme-active :is(.pf-module,.pf-metric,.pf-map-stage,.pf-nav-link,.pf-primary-button) {
+    box-shadow:none !important; border:1px solid CanvasText;
+  }
+  .pf-theme-active .pf-nav-link[aria-current="page"] { outline:2px solid Highlight; }
+}
+@media print {
+  .pf-theme-active :is(.pf-module,.pf-metric,.pf-map-stage,.polished-glass-edge,.tlevel-3d-panel,.bg-card) {
+    background:#fff !important; box-shadow:none !important;
+  }
+}
 /* Neon frames do not pulse or continuously repaint. */
 @media (max-width: 1439px) and (min-width: 768px) {
   .pf-app-frame { --pf-nav-space: 88px; }
