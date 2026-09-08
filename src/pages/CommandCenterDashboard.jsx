@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Activity, AlertTriangle, BedDouble, ChevronDown, HeartPulse, Menu, PanelLeftClose, PanelLeftOpen, Sparkles, Stethoscope, UsersRound, X } from "lucide-react";
+import { Activity, AlertTriangle, BedDouble, ChevronDown, HeartPulse, UsersRound, X } from "lucide-react";
 import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
-import TLevelLogo from "@/components/TLevelLogo";
 import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
-import Navigation from "@/components/dashboard/PathfinderNavigation";
 import RoleMissionPanel from "@/components/dashboard/RoleMissionPanel";
 
 const STAFF = [
@@ -58,46 +56,23 @@ function TeamContent() {
   </div>;
 }
 
-function AIFooter({ onNavigate }) {
-  return <footer className="pf-team-footer"><Link className="pf-primary-button" to="/voice-assistant" onClick={onNavigate}>
-    <Sparkles size={18} aria-hidden="true" />Ask Pathfinder AI
-  </Link></footer>;
-}
-
 export default function CommandCenterDashboard() {
   const navigate = useNavigate();
   useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
   const user = getCurrentUser();
   const [activeZone, setActiveZone] = useState("all");
   const [drawer, setDrawer] = useState(null);
-  const [desktop, setDesktop] = useState(() => window.matchMedia("(min-width: 1440px)").matches);
-  const [collapsed, setCollapsed] = useState(false);
   const [metricsOpen, setMetricsOpen] = useState(false);
-  const menuRef = useRef(null);
   const teamRef = useRef(null);
   const drawerTriggerRef = useRef(null);
   const patients = useMemo(() => initialBoard(Date.now()), []);
   const critical = patients.filter(patient => (patient.initial_news2 ?? 0) >= 5);
   const occupancy = Math.min(100, Math.round((patients.length / 24) * 100));
 
-  useEffect(() => {
-    const query = window.matchMedia("(min-width: 1440px)");
-    const change = () => { setDesktop(query.matches); setDrawer(null); };
-    query.addEventListener("change", change);
-    return () => query.removeEventListener("change", change);
-  }, []);
-
   const openDrawer = (kind, trigger) => { drawerTriggerRef.current = trigger; setDrawer(kind); };
-  const compact = !desktop || collapsed;
 
   return <div className="pf-dashboard">
-    <header className="pf-header">
-      <button type="button" ref={menuRef} className="pf-icon-button pf-mobile-menu" aria-label="Open navigation"
-        onClick={() => openDrawer("navigation", menuRef.current)}><Menu size={23} /></button>
-      <span className="pf-brand-icon"><Stethoscope size={24} aria-hidden="true" /></span>
-      <div className="pf-heading"><p className="pf-eyebrow">T-Level Health · Simulation</p><h1>Pathfinder Overview</h1></div>
-      <div className="pf-header-meta"><DashboardClock /><TLevelLogo size="sm" /></div>
-    </header>
+    <header className="pf-overview-heading"><h1>Pathfinder Overview</h1><DashboardClock /></header>
 
     <RoleMissionPanel user={user} />
 
@@ -111,16 +86,7 @@ export default function CommandCenterDashboard() {
       <Metric label="Staff on shift" value="18" note="6 clinical · 12 ward team" icon={UsersRound} tone="violet" />
     </section>
 
-    <div className={`pf-workspace ${compact ? "pf-workspace-compact" : ""}`}>
-      <aside className="pf-nav-rail">
-        <button type="button" className="pf-icon-button pf-nav-expand"
-          aria-label={desktop && !collapsed ? "Collapse navigation" : "Expand navigation"}
-          onClick={event => desktop ? setCollapsed(value => !value) : openDrawer("navigation", event.currentTarget)}>
-          {compact ? <PanelLeftOpen size={22} /> : <><PanelLeftClose size={22} /><span>Collapse navigation</span></>}
-        </button>
-        <Navigation compact={compact} user={user} />
-      </aside>
-
+    <div className="pf-overview-grid">
       <section className="pf-map-stage" aria-labelledby="pf-map-title">
         <div className="pf-map-heading"><div><p className="pf-eyebrow">Interactive campus</p>
           <h2 id="pf-map-title">Dearne Valley College</h2></div>
@@ -131,7 +97,7 @@ export default function CommandCenterDashboard() {
 
       <aside className="pf-team-rail" aria-label="Patient and staff panel">
         <div className="pf-team-heading"><h2>Response team</h2><span className="pf-badge">{STAFF.length} staff listed</span></div>
-        <TeamContent /><AIFooter />
+        <TeamContent />
       </aside>
     </div>
 
@@ -146,14 +112,13 @@ export default function CommandCenterDashboard() {
         <Dialog.Content className={`pf-drawer pf-drawer-${drawer}`}
           onCloseAutoFocus={event => { event.preventDefault(); drawerTriggerRef.current?.focus(); }}>
           <div className="pf-drawer-heading">
-            <Dialog.Title>{drawer === "team" ? "Response team" : "Pathfinder navigation"}</Dialog.Title>
+            <Dialog.Title>Response team</Dialog.Title>
             <Dialog.Close className="pf-icon-button" aria-label="Close panel"><X size={23} /></Dialog.Close>
           </div>
           <Dialog.Description className="pf-drawer-description">
-            {drawer === "team" ? "Simulation staff and incoming patient queues." : "Clinical practice, learning and account resources."}
+            Simulation staff and incoming patient queues.
           </Dialog.Description>
-          {drawer === "team" ? <><TeamContent /><AIFooter onNavigate={() => setDrawer(null)} /></> :
-            <div className="pf-drawer-nav"><Navigation user={user} onNavigate={() => setDrawer(null)} /></div>}
+          <TeamContent />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
