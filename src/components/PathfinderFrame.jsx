@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Menu, PanelLeftClose, PanelLeftOpen, Sparkles, X } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import Navigation from "@/components/dashboard/PathfinderNavigation";
@@ -10,8 +10,9 @@ export default function PathfinderFrame({ children }) {
   const { pathname } = useLocation();
   const user = getCurrentUser();
   const [desktop, setDesktop] = useState(() => window.matchMedia("(min-width: 1440px)").matches);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem("pathfinder-nav-collapsed") === "true"; } catch { return false; } });
   const [open, setOpen] = useState(false);
+  useEffect(() => { try { localStorage.setItem("pathfinder-nav-collapsed", String(collapsed)); } catch { /* Navigation still works without storage. */ } }, [collapsed]);
   const triggerRef = useRef(null);
   const compact = !desktop || collapsed;
   useEffect(() => {
@@ -32,7 +33,6 @@ export default function PathfinderFrame({ children }) {
       </Link>
       <div className="pf-global-header-actions">
         <TLevelLogo variant="purple" size="sm" />
-        <Link to="/voice-assistant" className="pf-icon-button" aria-label="Ask Pathfinder AI" title="Ask Pathfinder AI"><Sparkles size={22} /></Link>
       </div>
     </header>
     <div className="pf-global-workspace">
@@ -42,13 +42,8 @@ export default function PathfinderFrame({ children }) {
           {compact ? <PanelLeftOpen size={22} /> : <><PanelLeftClose size={22} /><span>Collapse navigation</span></>}
         </button>
         <Navigation compact={compact} user={user} />
-        <footer className="pf-global-nav-footer">
-          <Link to="/voice-assistant" className="pf-primary-button" aria-label="Ask Pathfinder AI" title="Ask Pathfinder AI">
-            <Sparkles size={20} />{!compact && <span>Ask Pathfinder AI</span>}
-          </Link>
-        </footer>
       </aside>
-      <div id="pf-module-content" tabIndex={-1} className="pf-module" data-module={pathname.split("/")[1] || "overview"}>{children}</div>
+      <main id="pf-module-content" tabIndex={-1} className="pf-module" data-module={pathname.split("/")[1] || "overview"}>{children}</main>
     </div>
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal><Dialog.Overlay className="pf-drawer-overlay" />
@@ -57,7 +52,6 @@ export default function PathfinderFrame({ children }) {
             <Dialog.Close className="pf-icon-button" aria-label="Close navigation"><X size={22} /></Dialog.Close></div>
           <Dialog.Description className="pf-drawer-description">Clinical practice, learning and account resources.</Dialog.Description>
           <div className="pf-drawer-nav"><Navigation user={user} onNavigate={() => setOpen(false)} /></div>
-          <footer className="pf-team-footer"><Link to="/voice-assistant" className="pf-primary-button" onClick={() => setOpen(false)}><Sparkles size={20} />Ask Pathfinder AI</Link></footer>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
