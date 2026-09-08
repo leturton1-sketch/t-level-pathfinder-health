@@ -25,7 +25,7 @@ export default function PathfinderFrame({ children }) {
   return <div className={`pf-app-frame ${compact ? "pf-app-compact" : ""}`}>
     <a href="#pf-module-content" className="pf-skip-link">Skip to page content</a>
     <header className="pf-global-header">
-      <button className="pf-icon-button pf-global-menu" onClick={openMenu} aria-label="Open navigation"><Menu size={22} /></button>
+      <button className="pf-icon-button pf-global-menu" onClick={openMenu} aria-expanded={open} aria-label="Open navigation"><Menu size={22} /></button>
       <Link to="/" className="pf-global-brand" aria-label="Pathfinder Overview">
         <img src="/branding/tl-purple.png" alt="" width="44" height="36" />
         <span><strong>Pathfinder</strong><small>T-Level Health · Simulation</small></span>
@@ -37,7 +37,7 @@ export default function PathfinderFrame({ children }) {
     </header>
     <div className="pf-global-workspace">
       <aside className="pf-global-nav">
-        <button className="pf-icon-button pf-nav-expand" aria-label={compact ? "Expand navigation" : "Collapse navigation"}
+        <button className="pf-icon-button pf-nav-expand" aria-expanded={desktop ? !compact : open} aria-label={compact ? "Expand navigation" : "Collapse navigation"}
           onClick={event => desktop ? setCollapsed(value => !value) : openMenu(event)}>
           {compact ? <PanelLeftOpen size={22} /> : <><PanelLeftClose size={22} /><span>Collapse navigation</span></>}
         </button>
