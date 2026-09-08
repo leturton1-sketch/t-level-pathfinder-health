@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { createWardItem, createTextTexture, clampToBounds, checkCollision, snapToWall, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import { computeDarkness, createLightingAudio } from "@/lib/wardDayNight";
 import WardItemDropdown from "@/components/WardItemDropdown";
@@ -189,12 +188,26 @@ export default function Ward3D({
     rendererRef.current = renderer;
 
     // Bake studio reflections once; no extra scene render on each frame.
-    const studio = new RoomEnvironment();
+    const studioCanvas = document.createElement("canvas");
+    studioCanvas.width = 512; studioCanvas.height = 256;
+    const studioContext = studioCanvas.getContext("2d");
+    const studioGradient = studioContext.createLinearGradient(0, 0, 0, 256);
+    studioGradient.addColorStop(0, "#ffffff");
+    studioGradient.addColorStop(0.5, "#b8adc9");
+    studioGradient.addColorStop(1, "#45404f");
+    studioContext.fillStyle = studioGradient;
+    studioContext.fillRect(0, 0, 512, 256);
+    studioContext.fillStyle = "#ffffff";
+    studioContext.fillRect(48, 38, 100, 44);
+    studioContext.fillRect(310, 48, 140, 28);
+    const studioTexture = new THREE.CanvasTexture(studioCanvas);
+    studioTexture.colorSpace = THREE.SRGBColorSpace;
+    studioTexture.mapping = THREE.EquirectangularReflectionMapping;
     const pmrem = new THREE.PMREMGenerator(renderer);
-    const reflectionTarget = pmrem.fromScene(studio, 0.04);
+    const reflectionTarget = pmrem.fromEquirectangular(studioTexture);
     scene.environment = reflectionTarget.texture;
     scene.environmentIntensity = 0.35;
-    studio.dispose();
+    studioTexture.dispose();
     pmrem.dispose();
 
     const controls = new OrbitControls(camera, renderer.domElement);
