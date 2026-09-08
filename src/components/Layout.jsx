@@ -1,13 +1,12 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import PathfinderFrame from "./PathfinderFrame";
 import ESPCaseBanner from "./ESPCaseBanner";
+import LearningJourney from "./LearningJourney";
 import "@/components/dashboard/pathfinder-dashboard.css";
 import "@/components/pathfinder-theme.css";
 
 export default function Layout() {
-  const location = useLocation();
-  const isCommandCentre = location.pathname === "/";
 
   useEffect(() => {
     document.body.classList.add("pf-theme-active");
@@ -16,7 +15,7 @@ export default function Layout() {
 
   return (
     <div className="pf-app-root">
-      {isCommandCentre ? <Outlet /> : <PathfinderFrame><div className="min-h-0"><ESPCaseBanner /><Outlet /></div></PathfinderFrame>}
+      <PathfinderFrame><div className="min-h-0"><ESPCaseBanner /><LearningJourney /><div id="learning-activity" tabIndex={-1}><Outlet /></div><LearningJourney footer /></div></PathfinderFrame>
     </div>
   );
 }
