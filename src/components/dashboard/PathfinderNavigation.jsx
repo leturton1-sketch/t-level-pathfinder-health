@@ -1,34 +1,37 @@
 import { useEffect, useId, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine, ShieldCheck, Building2, BadgeCheck } from "lucide-react";
+import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine, ShieldCheck, Building2 } from "lucide-react";
 import { canManageUsers, isAdmin } from "@/lib/clinicalAuth";
 export const NAVIGATION_GROUPS = [
   { label: "Overview", items: [{ label: "Pathfinder Overview", path: "/", icon: Home }] },
-  { label: "Clinical practice", items: [
-    { label: "ESP Practice Hub", path: "/esp-practice", icon: ClipboardCheck },
-    { label: "3D Ward Simulation", path: "/ward-simulation", icon: BedDouble },
-    { label: "Care Planning", path: "/care-planning", icon: BriefcaseMedical },
-    { label: "3D Anatomy & Physiology", path: "/anatomy-physiology", icon: Brain },
-  ] },
-  { label: "Health & learning", items: [
-    { label: "T-Level Health Hub", path: "/health-hub", icon: HeartPulse },
-    { label: "Clinical Skills Academy", path: "/clinical-skills-academy", icon: GraduationCap },
+  { label: "Learn", items: [
+    { label: "Health Hub", path: "/health-hub", icon: HeartPulse },
     { label: "Theory Modules", path: "/theory", icon: BookOpen },
-    { label: "Interactive Learning", path: "/interactive-learning", icon: Activity },
+    { label: "Anatomy & Physiology", path: "/anatomy-physiology", icon: Brain },
     { label: "Knowledge Library", path: "/knowledge-library", icon: LibraryBig },
   ] },
-  { label: "Account & resources", items: [
-    { label: "User Analytics", path: "/profile", icon: UserRound },
-    { label: "Progress", path: "/performance", icon: BarChart3 },
-    { label: "Curriculum Readiness", path: "/curriculum-readiness", icon: ClipboardCheck },
-    { label: "Talent Card", path: "/talent-card", icon: BadgeCheck },
+  { label: "Practise", items: [
+    { label: "Ward Simulation", path: "/ward-simulation", icon: BedDouble },
+    { label: "Clinical Skills Academy", path: "/clinical-skills-academy", icon: GraduationCap },
+    { label: "Clinical Skills Lab", path: "/interactive-learning", icon: Activity },
+    { label: "Care Planning", path: "/care-planning", icon: BriefcaseMedical },
+    { label: "Reflection", path: "/reflection", icon: FilePenLine },
+  ] },
+  { label: "Assessment preparation", items: [
+    { label: "ESP Practice Hub", path: "/esp-practice", icon: ClipboardCheck },
+  ] },
+  { label: "My progress", items: [
+    { label: "My progress", path: "/performance", icon: BarChart3 },
+  ] },
+  { label: "Support & account", items: [
     { label: "Pathfinder AI", path: "/voice-assistant", icon: Sparkles },
-    { label: "AI Model Router", path: "/ai-models", icon: Sparkles },
+    { label: "My profile", path: "/profile", icon: UserRound },
   ] },
   { label: "Teaching team", staff: true, items: [
     { label: "ESP Tutor Review", path: "/esp-tutor-review", icon: ClipboardCheck },
   ] },
   { label: "Administration", admin: true, items: [
+    { label: "AI settings", path: "/ai-models", icon: Sparkles },
     { label: "System Health", path: "/system-health", icon: ShieldCheck },
     { label: "Employer Portal", path: "/employer-portal", icon: Building2 },
     { label: "User Management", path: "/user-management", icon: UserCog },
@@ -41,7 +44,7 @@ export const NAVIGATION_GROUPS = [
 export default function PathfinderNavigation({ compact = false, onNavigate, user }) {
   const { pathname } = useLocation();
   const activeGroup = NAVIGATION_GROUPS.find(group => group.items.some(item => item.path === "/" ? pathname === "/" : pathname.startsWith(item.path)))?.label;
-  const [expanded, setExpanded] = useState(["Overview", activeGroup || "Clinical practice"]);
+  const [expanded, setExpanded] = useState(["Overview", activeGroup || "Learn"]);
   useEffect(() => { if (activeGroup) setExpanded(value => value.includes(activeGroup) ? value : [...value, activeGroup]); }, [activeGroup]);
   const groupPrefix = useId();
   return <nav className={`pf-navigation ${compact ? "pf-navigation-compact" : ""}`} aria-label="Primary navigation">
