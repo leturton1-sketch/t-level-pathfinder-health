@@ -26,6 +26,7 @@ const SMARTGoals = lazy(() => import('./pages/SMARTGoals'));
 const WardSimulation = lazy(() => import('./pages/WardSimulation'));
 const KnowledgeLibrary = lazy(() => import('./pages/KnowledgeLibrary'));
 const InteractiveLearning = lazy(() => import('./pages/InteractiveLearning'));
+const Reflection = lazy(() => import('./pages/Reflection'));
 const Performance = lazy(() => import('./pages/Performance'));
 const UserManagement = lazy(() => import('./pages/UserManagement'));
 const ScenarioAuthoring = lazy(() => import('./pages/ScenarioAuthoring'));
@@ -128,6 +129,7 @@ const AuthenticatedApp = () => {
         <Route path="/clinical-skills-academy" element={<ClinicalSkillsAcademy />} />
         <Route path="/ai-models" element={<AIModels />} />
         <Route path="/performance" element={<Performance />} />
+        <Route path="/reflection" element={<Reflection />} />
         <Route path="/esp-practice" element={<ESPPracticeHub />} />
         <Route path="/esp-practice/portfolio" element={<ESPPortfolioReview />} />
         <Route path="/esp-tutor-review" element={<ESPTutorReview />} />
