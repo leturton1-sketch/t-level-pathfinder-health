@@ -173,7 +173,7 @@ body.pf-theme-active {
 }
 .pf-theme-active .pf-module { scroll-margin-top: 100px; }
 @media (prefers-contrast:more) {
-  .pf-theme-active { --pf-line:#765ab0; --pf-frame-glow:none; --pf-surface:#fff; }
+  body.pf-theme-active { --pf-line:#765ab0; --pf-frame-glow:none; --pf-surface:#fff; }
 }
 @media (forced-colors:active) {
   .pf-theme-active :is(.pf-module,.pf-metric,.pf-map-stage,.pf-nav-link,.pf-primary-button) {
