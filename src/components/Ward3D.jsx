@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { createWardItem, createTextTexture, clampToBounds, checkCollision, snapToWall, SUITE_OFFSETS, SUITE_LABELS, DEFAULT_PATIENTS } from "@/lib/wardItems";
 import { computeDarkness, createLightingAudio } from "@/lib/wardDayNight";
 import WardItemDropdown from "@/components/WardItemDropdown";
@@ -186,6 +187,15 @@ export default function Ward3D({
     renderer.toneMappingExposure = 1.18;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // Bake studio reflections once; no extra scene render on each frame.
+    const studio = new RoomEnvironment();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const reflectionTarget = pmrem.fromScene(studio, 0.04);
+    scene.environment = reflectionTarget.texture;
+    scene.environmentIntensity = 0.35;
+    studio.dispose();
+    pmrem.dispose();
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -550,6 +560,7 @@ export default function Ward3D({
       sunLight.intensity = 1.15 * (1 - 0.92 * _d);
       fillLight.intensity = 0.55 * (1 - 0.85 * _d);
       renderer.toneMappingExposure = 1.18 - 0.55 * _d;
+      scene.environmentIntensity = 0.35 - 0.27 * _d;
       scene.background.lerpColors(dayBg, nightBg, _d);
       scene.fog.color.lerpColors(dayBg, nightBg, _d);
 
@@ -640,6 +651,8 @@ export default function Ward3D({
       renderer.domElement.removeEventListener("pointerup", onPointerUp);
       renderer.domElement.removeEventListener("pointerleave", onPointerLeave);
       controls.dispose();
+      scene.environment = null;
+      reflectionTarget.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);

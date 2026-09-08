@@ -1,0 +1,47 @@
+{
+  "name": "LearnerReadiness",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_name": {
+      "type": "string"
+    },
+    "overall_score": {
+      "type": "number"
+    },
+    "specification_score": {
+      "type": "number"
+    },
+    "esp_score": {
+      "type": "number"
+    },
+    "placement_score": {
+      "type": "number"
+    },
+    "evidence_score": {
+      "type": "number"
+    },
+    "priority_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "student_id",
+    "overall_score"
+  ]
+}
