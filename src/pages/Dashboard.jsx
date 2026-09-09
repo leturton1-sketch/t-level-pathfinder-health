@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HeaderClock from "@/components/dashboard/HeaderClock";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import PatientList from "@/components/dashboard/PatientList";
@@ -28,7 +29,11 @@ export default function Dashboard() {
   const [intakePatient, setIntakePatient] = useState(null);
 
   useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
-  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
+  // Patient/ward calculations below only need minute-level precision (hours-since-admitted
+  // math), so this ticks once a minute instead of every second — the visible header clock
+  // keeps its own 1s timer in an isolated component so the whole dashboard doesn't
+  // re-render every second.
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 60000); return () => clearInterval(id); }, []);
 
   const selected = useMemo(() => patients.find((p) => p.id === selectedId) || patients[0], [patients, selectedId]);
 
@@ -62,8 +67,6 @@ export default function Dashboard() {
   };
 
   const isAdmin = ["super_admin", "admin", "tutor"].includes(user?.role);
-  const clock = new Date(now).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  const date = new Date(now).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -82,9 +85,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3 shrink-0">
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-white/90">
               <Clock className="w-3.5 h-3.5" />
-              <span className="font-mono">{clock}</span>
-              <span className="text-white/50">·</span>
-              <span>{date}</span>
+              <HeaderClock />
             </div>
             <TLevelLogo size="sm" dark />
           </div>
