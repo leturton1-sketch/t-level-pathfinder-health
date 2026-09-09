@@ -23,3 +23,5 @@
 @media(max-width:1199px) { .pf-overview-grid { grid-template-columns:minmax(0,1fr); } .pf-overview-grid .pf-team-rail { display:none; } }
 @media(max-width:640px) { .pf-learning-guide { margin:12px; padding:16px; } .pf-learning-guide dl,.pf-progress-links { grid-template-columns:1fr; } .pf-learning-next { align-items:flex-start; flex-direction:column; } }
 @media print { .pf-learning-guide,.pf-global-header,.pf-global-nav { display:none!important; } .pf-global-workspace { display:block; padding:0; } }
+
+@media(max-width:1199px) { .pf-dashboard .pf-team-trigger { display:flex; } }
