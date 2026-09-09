@@ -15,5 +15,23 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Group large, slow-changing vendor libraries into their own cacheable
+        // chunks so a routine app-code change doesn't force users to
+        // re-download React, the 3D engine, or the charting library.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (/[\\/]three[\\/]/.test(id)) return 'vendor-three';
+          if (id.includes('recharts')) return 'vendor-charts';
+          if (id.includes('@radix-ui')) return 'vendor-radix';
+          if (id.includes('lucide-react')) return 'vendor-icons';
+          if (/react-router|react-dom|[\\/]react[\\/]/.test(id)) return 'vendor-react';
+          return undefined;
+        },
+      },
+    },
+  },
 });
