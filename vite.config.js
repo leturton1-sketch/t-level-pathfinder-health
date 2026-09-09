@@ -1,6 +1,7 @@
 import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -15,6 +16,14 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
+    // Only active for `npm run analyze` — writes dist/bundle-stats.html and
+    // never runs during normal dev/build so it has no effect on shipped output.
+    process.env.ANALYZE === 'true' && visualizer({
+      filename: 'dist/bundle-stats.html',
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap',
+    }),
   ],
   build: {
     rollupOptions: {
