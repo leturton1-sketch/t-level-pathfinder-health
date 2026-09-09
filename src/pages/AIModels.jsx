@@ -168,7 +168,7 @@ export default function AIModels() {
           </span>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">Pathfinder · AI Model Router</p>
-            <h1 className="text-xl font-heading font-bold text-foreground">Offline-to-Cloud AI Switching</h1>
+            <h1 className="text-xl font-heading font-bold text-foreground">Pathfinder AI settings</h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
