@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
+import { useESPCase } from "@/lib/ESPCaseContext";
 import { SPEC_AREAS } from "@/lib/specData";
 import { THEORY_MODULES } from "@/lib/theoryContent";
 import CompetencyRadar from "@/components/performance/CompetencyRadar";
@@ -14,6 +15,8 @@ import { ArrowLeft, BarChart3, BookOpen, Target, Stethoscope, ClipboardList, Tre
 export default function Performance() {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const { portfolio } = useESPCase();
+  const [loadError, setLoadError] = useState(false);
   const [results, setResults] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,13 +27,14 @@ export default function Performance() {
   }, [navigate]);
 
   const loadData = async () => {
-    try { const r = await base44.entities.SimulationResult.filter({ student_id: user?.id }); setResults(r || []); } catch {}
+    try { const r = await base44.entities.SimulationResult.filter({ student_id: user?.id }); setResults(r || []); } catch { setLoadError(true); }
     try { const s = await base44.entities.CarePlanSubmission.filter({ student_id: user?.id }); setSubmissions(s || []); } catch {}
     setLoading(false);
   };
 
-  const theoryProgress = JSON.parse(localStorage.getItem("theory_progress") || "{}");
-  const quizScores = JSON.parse(localStorage.getItem("theory_quiz_scores") || "{}");
+  const readLocal = key => { try { return JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch { return {}; } };
+  const theoryProgress = readLocal("theory_progress");
+  const quizScores = readLocal("theory_quiz_scores");
 
   // Per-area progress
   const areaData = SPEC_AREAS.map((area) => {
@@ -83,12 +87,25 @@ export default function Performance() {
         </button>
         <div className="flex-1">
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-clinical-teal" /> Performance Dashboard
+            <BarChart3 className="w-5 h-5 text-clinical-teal" /> My progress
           </h1>
-          <p className="text-xs text-muted-foreground">Pearson T Level Health — competency & knowledge check tracking</p>
+          <p className="text-xs text-muted-foreground">Your learning activity, practice evidence and feedback in one place</p>
         </div>
       </div>
 
+      {loadError && <p role="alert" className="mb-4 rounded-xl border border-amber-300 p-4">Some activity records could not be loaded. The figures below may be incomplete. Refresh to try again.</p>}
+      <section className="pf-progress-links" aria-label="Progress and evidence">
+        <Link to="/curriculum-readiness"><strong>Curriculum coverage</strong><span>Explore coverage and areas needing more evidence.</span></Link>
+        <Link to="/esp-practice/portfolio"><strong>ESP evidence & feedback</strong><span>{portfolio ? "Review your active portfolio and tutor comments." : "Start an ESP case to build your portfolio."}</span></Link>
+        <Link to="/talent-card"><strong>My Talent Card</strong><span>View your recorded strengths and career aspirations.</span></Link>
+        <Link to="/reflection"><strong>My reflections</strong><span>Review your browser-saved notes and next actions.</span></Link>
+      </section>
+      <section className="mb-6 rounded-xl border border-border p-4">
+        <h2 className="font-bold">How to read your progress</h2>
+        <p className="mt-2 text-sm">Completed activities show participation. Quiz and simulation scores show performance in that practice activity. Reviewed evidence and tutor feedback help identify what to develop next; completion alone does not confirm competence or assessment readiness.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Theory progress is stored on this browser. Simulation and care-plan records are loaded from your account.</p>
+        {portfolio && <p className="mt-2 text-sm">Active ESP portfolio: <strong>{portfolio.case_name}</strong> · Status: {portfolio.status?.replaceAll("_", " ") || "In progress"}</p>}
+      </section>
       {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {stats.map((stat, idx) => (
@@ -102,7 +119,7 @@ export default function Performance() {
 
       {/* Competency radar */}
       <div className="rounded-xl border border-border bg-card p-4 mb-4">
-        <h2 className="text-sm font-bold text-foreground mb-1">Competency Overview</h2>
+        <h2 className="text-sm font-bold text-foreground mb-1">Learning activity overview</h2>
         <p className="text-xs text-muted-foreground mb-2">Progress across all 9 spec areas (knowledge check % or completion)</p>
         <CompetencyRadar data={areaData} />
       </div>
@@ -136,8 +153,8 @@ export default function Performance() {
 
       {/* SK / PO coverage */}
       <div className="rounded-xl border border-border bg-card p-4 mb-4">
-        <h2 className="text-sm font-bold text-foreground mb-1">Competency Coverage</h2>
-        <p className="text-xs text-muted-foreground mb-3">Skills & performance outcomes evidenced through simulations, care plans and theory</p>
+        <h2 className="text-sm font-bold text-foreground mb-1">Skills encountered in practice</h2>
+        <p className="text-xs text-muted-foreground mb-3">Skills and performance outcomes linked to your activities; coverage is not a competence judgement.</p>
         <SKCoverageMatrix coveredSK={coveredSK} coveredPO={coveredPO} />
       </div>
 
@@ -158,7 +175,7 @@ export default function Performance() {
             </div>
           ))}
           {results.length === 0 && submissions.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-4">No activity yet — complete simulations and care plans to build your competency profile.</p>
+            <p className="text-xs text-muted-foreground text-center py-4">No activity yet — complete simulations and care plans to build your practice record.</p>
           )}
         </div>
       </div>
