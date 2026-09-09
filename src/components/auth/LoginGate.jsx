@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { setAppUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
+import jsQR from "jsqr";
 import "./LoginGate.css";
 
 export default function LoginGate({ onUnlock }) {
@@ -18,6 +19,7 @@ export default function LoginGate({ onUnlock }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const detectRef = useRef(false);
+  const canvasRef = useRef(null);
 
   useEffect(() => () => stopCamera(), []);
 
@@ -65,8 +67,8 @@ export default function LoginGate({ onUnlock }) {
   };
 
   const startCamera = async () => {
-    if (!window.BarcodeDetector) {
-      toast({ title: "QR scan unsupported", description: "Use PIN login instead.", variant: "destructive" });
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast({ title: "Camera unavailable", description: "Use PIN login instead.", variant: "destructive" });
       return;
     }
     try {
@@ -78,13 +80,26 @@ export default function LoginGate({ onUnlock }) {
       }
       setScanning(true);
       detectRef.current = true;
-      const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      const detector = window.BarcodeDetector
+        ? new window.BarcodeDetector({ formats: ["qr_code"] })
+        : null;
+      const canvas = canvasRef.current || document.createElement("canvas");
+      const context = canvas.getContext("2d", { willReadFrequently: true });
       const tick = async () => {
         if (!detectRef.current) return;
         try {
-          const codes = await detector.detect(videoRef.current);
-          if (codes && codes.length) {
-            const value = codes[0].rawValue;
+          let value = null;
+          if (detector) {
+            const codes = await detector.detect(videoRef.current);
+            value = codes?.[0]?.rawValue || null;
+          } else if (videoRef.current.readyState >= 2 && videoRef.current.videoWidth) {
+            canvas.width = videoRef.current.videoWidth;
+            canvas.height = videoRef.current.videoHeight;
+            context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const image = context.getImageData(0, 0, canvas.width, canvas.height);
+            value = jsQR(image.data, image.width, image.height)?.data || null;
+          }
+          if (value) {
             stopCamera();
             submit({ qr: value });
             return;
@@ -156,6 +171,7 @@ export default function LoginGate({ onUnlock }) {
           <div className="login-gate-qr">
             <div className="login-gate-qr-stage">
               <video ref={videoRef} muted playsInline className={scanning ? "active" : ""} />
+              <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
               {!scanning && <div className="login-gate-qr-idle"><ScanLine size={28} /></div>}
               <div className="login-gate-qr-reticle" />
             </div>
