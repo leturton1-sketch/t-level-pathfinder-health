@@ -87,7 +87,7 @@ export default function VoiceAssistant() {
     if (!isLoggedIn()) { navigate("/login"); return; }
     setMessages([{
       role: "assistant",
-      content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm your Clinical Educator. Ask me about a clinical skill, explore the theory behind it, or practise a care scenario. Type a question or use the microphone to begin.`,
+      content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm Pathfinder AI, your clinical learning assistant. Ask me about a clinical skill, explore the theory behind it, or practise a care scenario. Type a question or use the microphone to begin.`,
     }]);
   }, [navigate]);
 
@@ -194,7 +194,7 @@ export default function VoiceAssistant() {
     <main className="clinical-educator">
       <header className="educator-heading">
         <div><p className="educator-eyebrow">Pathfinder Health · T-Level learning</p>
-          <h1>Clinical Educator</h1>
+          <h1>Pathfinder AI</h1>
           <p>Explore clinical skills. Understand the theory. Practise with confidence.</p>
         </div>
         <div className="educator-heading-actions">
