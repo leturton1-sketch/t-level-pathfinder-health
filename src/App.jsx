@@ -11,6 +11,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import LoginGate from './components/auth/LoginGate';
+import WelcomeGreeting from './components/auth/WelcomeGreeting';
+import { getCurrentUser } from '@/lib/clinicalAuth';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
@@ -50,6 +52,7 @@ const TalentCardPage = lazy(() => import('./pages/TalentCardPage'));
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
+  const [welcomed, setWelcomed] = useState(() => sessionStorage.getItem("pathfinder-welcomed") === "1");
 
   useEffect(() => {
     const stop = installErrorCollector();
@@ -73,6 +76,16 @@ const AuthenticatedApp = () => {
   // PIN/QR identification gate — shown on first run over a blurred overview
   if (!unlocked) {
     return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
+  }
+
+  // Personalised welcome — shown once per session right after sign-in
+  if (!welcomed) {
+    return (
+      <WelcomeGreeting
+        user={getCurrentUser()}
+        onContinue={() => { sessionStorage.setItem("pathfinder-welcomed", "1"); setWelcomed(true); }}
+      />
+    );
   }
 
   // Show loading spinner while checking app public settings or auth

@@ -10,6 +10,7 @@ import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import AIComposer from "@/components/ai/AIComposer";
 import ReactMarkdown from "react-markdown";
+import { dispatchAiCommand } from "@/lib/aiTutorControl";
 
 const AI_STATES = {
   idle: { label: "Ready", color: "text-clinical-teal" },
@@ -109,7 +110,9 @@ export default function AIAssistant({ context = "general" }) {
   const systemPrompt = `You are ${identity.fullName} (${identity.title}), the Pathfinder AI Clinical Assistant supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. Address the user by name and tailor your support to their role. The user is ${user?.full_name || "a student"} (role: ${user?.role || "student"}). Your role is to help with nursing studies, understanding and knowledge, the T Level specification, simulation, admin and knowledge-based tasks. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
 
 WARD MANAGEMENT: In edit mode you can help place items (bed, bedside_cabinet, observation_monitor, iv_stand, curtain, chair, overbed_table, waste_bin, sink). Bed designations: A1-A4 (Suite A), B1-B4 (Suite B).
-Include a ward_action object for ward commands, otherwise set action to "none". Set attention_cue to "advice" when giving important guidance, "suggestion" when proposing a helpful next step, or "none" for ordinary answers.`;
+Include a ward_action object for ward commands, otherwise set action to "none".
+${["super_admin", "admin", "tutor"].includes(user?.role) ? `APP CONTROL: As this user is a ${user?.role}, you may also drive the wider app on their behalf using app_action. Supported types: start_simulation {scenarioId, scenarioName}, end_simulation {}, take_control {controller: "user"|"ai"}, assign_staff {name, dutyRole, status}, remove_staff {staffId}, create_user {username, fullName, role, cohort}, update_user_role {userId, role}. Only use app_action when the user clearly asks you to do one of these things (e.g. "start the sepsis scenario", "put Priya on shift as staff nurse", "take control of the simulation", "add a new student called..."). Never attempt to delete a user account — that always stays a manual, confirmed action for a human. Set app_action.type to "none" otherwise.` : "This user is a student, so do not offer or attempt app_action commands — only tutors and admins can direct simulations, staffing or accounts."}
+Set attention_cue to "advice" when giving important guidance, "suggestion" when proposing a helpful next step, or "none" for ordinary answers.`;
 
   useEffect(() => {
     const handler = (e) => { wardStateRef.current = e.detail; };
@@ -176,6 +179,24 @@ Include a ward_action object for ward commands, otherwise set action to "none". 
                 direction: { type: "string", enum: ["left", "right"] },
               },
             },
+            app_action: {
+              type: "object",
+              properties: {
+                type: { type: "string", enum: ["start_simulation", "end_simulation", "take_control", "assign_staff", "remove_staff", "create_user", "update_user_role", "none"] },
+                scenarioId: { type: "string" },
+                scenarioName: { type: "string" },
+                controller: { type: "string", enum: ["user", "ai"] },
+                name: { type: "string" },
+                dutyRole: { type: "string" },
+                status: { type: "string" },
+                staffId: { type: "string" },
+                username: { type: "string" },
+                fullName: { type: "string" },
+                role: { type: "string" },
+                cohort: { type: "string" },
+                userId: { type: "string" },
+              },
+            },
           },
         },
       });
@@ -186,6 +207,12 @@ Include a ward_action object for ward commands, otherwise set action to "none". 
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
       if (response.ward_action && response.ward_action.action !== "none") {
         window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: response.ward_action }));
+      }
+      if (response.app_action && response.app_action.type && response.app_action.type !== "none") {
+        const cmdResult = await dispatchAiCommand(response.app_action, user);
+        if (!cmdResult.ok) {
+          setMessages((prev) => [...prev, { role: "assistant", content: cmdResult.message }]);
+        }
       }
       const responseCue = response?.attention_cue;
       const inferredCue = /\b(i (?:recommend|suggest|advise)|my (?:advice|suggestion)|you should|consider)\b/i.test(String(reply))

@@ -16,6 +16,7 @@ import { storeCarePlanSimulation } from "@/lib/carePlanSimulation";
 import { WARD_ITEM_TYPES, generateDefaultItems } from "@/lib/wardItems";
 import { useWardNarration } from "@/hooks/useWardNarration";
 import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
+import { getSimulationState, startSimulation, endSimulation, setSimulationController, subscribeSimulationState } from "@/lib/simulationState";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
   Pencil, LayoutGrid, Settings, Camera, AlertTriangle, Power, Info,
@@ -95,6 +96,7 @@ export default function WardSimulation() {
   const [showDebrief, setShowDebrief] = useState(false);
   const [adlScenario, setAdlScenario] = useState(null);
   const [activeCallBed, setActiveCallBed] = useState(null);
+  const [simState, setSimState] = useState(getSimulationState);
 
   // Clinical narration during simulation
   const narration = useWardNarration();
@@ -177,6 +179,10 @@ export default function WardSimulation() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [editMode, items]);
 
+  // Keep the shared simulation state in sync so the dashboard never disagrees
+  // with what's actually happening on the ward.
+  useEffect(() => subscribeSimulationState(setSimState), []);
+
   // Ward state dispatch for AI assistant
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("ward-state-update", {
@@ -191,14 +197,28 @@ export default function WardSimulation() {
   // AI command listener
   useEffect(() => {
     const handler = (e) => {
-      const { action, itemType, designation } = e.detail;
+      const { action, itemType, designation, direction } = e.detail;
       switch (action) {
         case "place": if (editMode && itemType) handleItemPlace(itemType, 0, 0); break;
+        case "delete": {
+          if (!designation) break;
+          const target = items.find((i) => i.designation === designation);
+          if (target) modifyItems(items.filter((i) => i.id !== target.id));
+          break;
+        }
+        case "rotate": {
+          const target = designation ? items.find((i) => i.designation === designation) : items.find((i) => i.id === selectedItemId);
+          if (target) modifyItems(items.map((i) => i.id === target.id ? { ...i, rotationY: (i.rotationY || 0) + (direction === "left" ? -15 : 15) } : i));
+          break;
+        }
+        case "start-simulation": if (!simState.running) handleBeginTask(); break;
+        case "end-simulation": if (simState.running) handleEndSimulationRequest(); break;
+        case "take-control": setSimulationController(e.detail.controller === "user" ? "user" : "ai"); break;
       }
     };
     window.addEventListener("ward-ai-command", handler);
     return () => window.removeEventListener("ward-ai-command", handler);
-  }, [editMode, items]);
+  }, [editMode, items, selectedItemId, simState.running]);
 
   // --- History management ---
   const modifyItems = (newItems) => {
@@ -292,6 +312,7 @@ export default function WardSimulation() {
       setShowScenarioList(false);
       narration.stop();
       setCameraCommand({ type: "reset", nonce: Date.now() });
+      endSimulation();
     }
     setConfirmAction(null);
   };
@@ -370,6 +391,7 @@ export default function WardSimulation() {
 
   // --- Scenario ---
   const startScenario = (scenario) => {
+    startSimulation({ controller: "user", scenarioId: scenario.id, scenarioName: scenario.name });
     if (scenario.category === "activities_daily_living") {
       setShowScenarioList(false);
       setActiveScenario(null);
@@ -447,7 +469,7 @@ export default function WardSimulation() {
     if (stepIdx + 1 >= decisionSteps.length) setTimeout(() => setShowDebrief(true), 1500);
   };
   const score = decisions.filter(d => d.correct).length;
-  const exitScenario = () => { setActiveScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false); narration.stop(); };
+  const exitScenario = () => { setActiveScenario(null); setAdlScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false); narration.stop(); endSimulation(); };
 
   // Persist the simulation result when the debrief is reached — triggers the tutor email and feeds the performance dashboard
   const debriefSavedRef = useRef(false);
@@ -606,6 +628,16 @@ export default function WardSimulation() {
             </div>
             <div className="flex items-center gap-2">
               {activeScenario && <NEWS2Badge score={activeScenario.initial_news2} size="sm" />}
+              <div className="flex items-center rounded-lg border border-border bg-card p-0.5 text-xs" role="group" aria-label="Who is in control of this simulation">
+                <button type="button" onClick={() => setSimulationController("user")}
+                  className={`rounded-md px-2 py-1 font-heading font-medium transition-colors ${simState.controller === "ai" ? "text-muted-foreground hover:text-foreground" : "bg-clinical-teal text-white"}`}>
+                  You
+                </button>
+                <button type="button" onClick={() => setSimulationController("ai")}
+                  className={`rounded-md px-2 py-1 font-heading font-medium transition-colors ${simState.controller === "ai" ? "bg-clinical-teal text-white" : "text-muted-foreground hover:text-foreground"}`}>
+                  Pathfinder AI
+                </button>
+              </div>
               <button onClick={handleEndSimulationRequest} className="flex items-center gap-1.5 rounded-lg bg-clinical-red/10 border border-clinical-red/30 px-2.5 py-1.5 text-xs font-heading font-semibold text-clinical-red hover:bg-clinical-red/20 transition-colors">
                 <Power className="w-3.5 h-3.5" /><span className="hidden sm:inline">End Simulation</span>
               </button>

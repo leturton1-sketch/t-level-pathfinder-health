@@ -6,13 +6,7 @@ import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 import { initialBoard, INCOMING_PATIENTS } from "@/lib/wardBoard";
 import CampusZoomMap from "@/components/dashboard/CampusZoomMap";
 import RoleMissionPanel from "@/components/dashboard/RoleMissionPanel";
-
-const STAFF = [
-  { name: "Dr Maya Chen", role: "Ward consultant", status: "Available", initials: "MC" },
-  { name: "Sam Okafor", role: "Charge nurse", status: "With patient", initials: "SO" },
-  { name: "Priya Shah", role: "Staff nurse", status: "Available", initials: "PS" },
-  { name: "Alex Morgan", role: "Healthcare assistant", status: "Break · 8 min", initials: "AM" },
-];
+import { getSimulationState, subscribeSimulationState, getStaffing, subscribeStaffing } from "@/lib/simulationState";
 
 function DashboardClock() {
   const [now, setNow] = useState(() => new Date());
@@ -33,26 +27,34 @@ function Metric({ label, value, note, icon: Icon, tone }) {
   </article>;
 }
 
-function TeamContent() {
+function TeamContent({ staffing, running, canAssign }) {
   return <div className="pf-team-scroll">
-    <p className="pf-label pf-section-label">Patient & staff <span className="pf-badge">Simulation</span></p>
-    <ul className="pf-records" aria-label="Staff on shift">
-      {STAFF.map(person => <li key={person.name} className="pf-record">
-        <span className="pf-avatar">{person.initials}</span>
-        <div className="pf-record-copy"><strong>{person.name}</strong><p>{person.role}</p>
-          <span className={`pf-status ${person.status === "Available" ? "pf-status-available" : ""}`}>{person.status}</span>
-        </div>
-      </li>)}
-    </ul>
+    <p className="pf-label pf-section-label">Patient & staff <span className="pf-badge">{running ? "Simulation running" : "Idle"}</span></p>
+    {staffing.length > 0 ? (
+      <ul className="pf-records" aria-label="Staff on shift">
+        {staffing.map(person => <li key={person.id} className="pf-record">
+          <span className="pf-avatar">{person.name?.slice(0, 2).toUpperCase()}</span>
+          <div className="pf-record-copy"><strong>{person.name}</strong><p>{person.dutyRole}</p>
+            <span className={`pf-status ${person.status === "Available" ? "pf-status-available" : ""}`}>{person.status}</span>
+          </div>
+        </li>)}
+      </ul>
+    ) : (
+      <p className="pf-muted">No staff assigned to this shift yet.{canAssign ? " Assign staffing in User Management." : ""}</p>
+    )}
     <h3 className="pf-label pf-section-label">Incoming patients</h3>
-    <ul className="pf-records" aria-label="Incoming patients">
-      {INCOMING_PATIENTS.slice(0, 3).map((patient, index) => <li key={patient.id || index} className="pf-record">
-        <span className="pf-avatar"><Activity size={20} aria-hidden="true" /></span>
-        <div className="pf-record-copy"><strong>{patient.name}</strong><p>{patient.condition || "Awaiting assessment"}</p>
-          <span className="pf-status">Expected in {index * 4 + 3} min</span>
-        </div>
-      </li>)}
-    </ul>
+    {running ? (
+      <ul className="pf-records" aria-label="Incoming patients">
+        {INCOMING_PATIENTS.slice(0, 3).map((patient, index) => <li key={patient.id || index} className="pf-record">
+          <span className="pf-avatar"><Activity size={20} aria-hidden="true" /></span>
+          <div className="pf-record-copy"><strong>{patient.name}</strong><p>{patient.condition || "Awaiting assessment"}</p>
+            <span className="pf-status">Expected in {index * 4 + 3} min</span>
+          </div>
+        </li>)}
+      </ul>
+    ) : (
+      <p className="pf-muted">No simulation is running — the ward is empty.</p>
+    )}
   </div>;
 }
 
@@ -60,14 +62,20 @@ export default function CommandCenterDashboard() {
   const navigate = useNavigate();
   useEffect(() => { if (!isLoggedIn()) navigate("/login"); }, [navigate]);
   const user = getCurrentUser();
+  const canAssign = ["super_admin", "admin", "tutor"].includes(user?.role);
   const [activeZone, setActiveZone] = useState("all");
   const [drawer, setDrawer] = useState(null);
   const [metricsOpen, setMetricsOpen] = useState(false);
   const teamRef = useRef(null);
   const drawerTriggerRef = useRef(null);
-  const patients = useMemo(() => initialBoard(Date.now()), []);
+  const [simState, setSimState] = useState(getSimulationState);
+  const [staffing, setStaffing] = useState(getStaffing);
+  useEffect(() => subscribeSimulationState(setSimState), []);
+  useEffect(() => subscribeStaffing(setStaffing), []);
+  const running = simState.running;
+  const patients = useMemo(() => running ? initialBoard(Date.now()) : [], [running]);
   const critical = useMemo(() => patients.filter(patient => (patient.initial_news2 ?? 0) >= 5), [patients]);
-  const occupancy = useMemo(() => Math.min(100, Math.round((patients.length / 24) * 100)), [patients]);
+  const occupancy = useMemo(() => running ? Math.min(100, Math.round((patients.length / 24) * 100)) : 0, [patients, running]);
 
   const openDrawer = (kind, trigger) => { drawerTriggerRef.current = trigger; setDrawer(kind); };
 
@@ -77,13 +85,13 @@ export default function CommandCenterDashboard() {
     <RoleMissionPanel user={user} />
 
     <button type="button" className="pf-mobile-summary" aria-expanded={metricsOpen} aria-controls="pf-metrics"
-      onClick={() => setMetricsOpen(value => !value)}>Overview · {critical.length} alerts · {24 - patients.length} beds available
+      onClick={() => setMetricsOpen(value => !value)}>Overview · {critical.length} alerts · {running ? `${24 - patients.length} beds available` : "ward idle"}
       <ChevronDown size={18} aria-hidden="true" /></button>
     <section id="pf-metrics" className={`pf-metrics ${metricsOpen ? "pf-metrics-open" : ""}`} aria-label="Simulation overview">
       <Metric label="Critical alerts" value={critical.length} note="Requires clinical review" icon={AlertTriangle} tone="red" />
-      <Metric label="Bed availability" value={`${100 - occupancy}%`} note={`${24 - patients.length} of 24 beds available`} icon={BedDouble} tone="green" />
-      <Metric label="Patient vitals" value="Stable" note="Simulated observation summary" icon={HeartPulse} tone="blue" />
-      <Metric label="Staff on shift" value="18" note="6 clinical · 12 ward team" icon={UsersRound} tone="violet" />
+      <Metric label="Bed availability" value={running ? `${100 - occupancy}%` : "—"} note={running ? `${24 - patients.length} of 24 beds available` : "No simulation running"} icon={BedDouble} tone="green" />
+      <Metric label="Patient vitals" value={running ? "Stable" : "No simulation running"} note={running ? "Simulated observation summary" : "Ward is empty"} icon={HeartPulse} tone="blue" />
+      <Metric label="Staff on shift" value={staffing.length} note={staffing.length > 0 ? `${staffing.length} assigned` : "None assigned"} icon={UsersRound} tone="violet" />
     </section>
 
     <div className="pf-overview-grid">
@@ -96,14 +104,14 @@ export default function CommandCenterDashboard() {
       </section>
 
       <aside className="pf-team-rail" aria-label="Patient and staff panel">
-        <div className="pf-team-heading"><h2>Response team</h2><span className="pf-badge">{STAFF.length} staff listed</span></div>
-        <TeamContent />
+        <div className="pf-team-heading"><h2>Response team</h2><span className="pf-badge">{staffing.length} staff assigned</span></div>
+        <TeamContent staffing={staffing} running={running} canAssign={canAssign} />
       </aside>
     </div>
 
     <button type="button" ref={teamRef} className="pf-team-trigger pf-primary-button"
       onClick={() => openDrawer("team", teamRef.current)}>
-      <UsersRound size={21} aria-hidden="true" />Patient & staff<span className="pf-count">{INCOMING_PATIENTS.slice(0, 3).length}</span>
+      <UsersRound size={21} aria-hidden="true" />Patient & staff<span className="pf-count">{staffing.length}</span>
     </button>
 
     <Dialog.Root open={drawer !== null} onOpenChange={open => { if (!open) setDrawer(null); }}>
@@ -118,9 +126,10 @@ export default function CommandCenterDashboard() {
           <Dialog.Description className="pf-drawer-description">
             Simulation staff and incoming patient queues.
           </Dialog.Description>
-          <TeamContent />
+          <TeamContent staffing={staffing} running={running} canAssign={canAssign} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   </div>;
 }
+

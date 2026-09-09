@@ -34,7 +34,7 @@ export default function LoginGate({ onUnlock }) {
   const grant = (user, method = "pin") => {
     setAppUser(user, method);
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
-    announce(`Access granted. Welcome, ${user.full_name}. Your role is ${String(user.role || "user").replaceAll("_", " ")}.`);
+    // The richer personalised welcome (spoken + visual) is shown next, by WelcomeGreeting.
     onUnlock?.();
   };
 
