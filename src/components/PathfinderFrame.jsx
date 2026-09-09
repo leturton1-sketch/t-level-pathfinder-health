@@ -5,6 +5,7 @@ import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { getCurrentUser } from "@/lib/clinicalAuth";
 import TLevelLogo from "@/components/TLevelLogo";
 import Navigation from "@/components/dashboard/PathfinderNavigation";
+import VoiceCommandControl from "@/components/voice/VoiceCommandControl";
 
 export default function PathfinderFrame({ children }) {
   const { pathname } = useLocation();
@@ -23,6 +24,7 @@ export default function PathfinderFrame({ children }) {
   }, []);
   useEffect(() => { setOpen(false); }, [pathname]);
   const openMenu = event => { triggerRef.current = event.currentTarget; setOpen(true); };
+  const toggleNavByVoice = () => { if (desktop) setCollapsed(value => !value); else setOpen(value => !value); };
   return <div className={`pf-app-frame ${compact ? "pf-app-compact" : ""}`}>
     <a href="#pf-module-content" className="pf-skip-link">Skip to page content</a>
     <header className="pf-global-header">
@@ -32,6 +34,7 @@ export default function PathfinderFrame({ children }) {
         <span><strong>Pathfinder</strong><small>T-Level Health · Simulation</small></span>
       </Link>
       <div className="pf-global-header-actions">
+        <VoiceCommandControl onToggleNav={toggleNavByVoice} />
         <TLevelLogo variant="purple" size="sm" />
       </div>
     </header>

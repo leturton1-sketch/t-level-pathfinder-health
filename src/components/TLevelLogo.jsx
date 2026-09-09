@@ -15,6 +15,7 @@ const LOGOS = {
   red: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/2919fffdc_TLevel-Logo-RedWithStrapline.png",
   redNoStrap: "/branding/tlevel-red.png",
   black: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8acde0e8c_TLevel-Logo-BlackWithStrapline.png",
+  emblem: "/branding/tl-emblem.png",
 };
 
 const SIZE_MAP = {

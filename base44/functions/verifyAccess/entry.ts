@@ -3,14 +3,58 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 // Public identification verifier. Cross-references a PIN (optionally with a
 // username) or a QR token against the AppUser management list using the
 // service role, so it works before the user has a platform session.
-// QR tokens encode either "username:pin" or a bare pin.
+// QR tokens are either a unique ID-card token (qr_token, preferred) or the
+// legacy "username:pin"/bare-pin encoding.
+async function grantUser(base44, u, method) {
+  if (u.active === false) {
+    return Response.json({ granted: false, reason: "This account is inactive. Contact your administrator." });
+  }
+  try {
+    await base44.asServiceRole.entities.AuthAudit.create({
+      app_user_id: u.id,
+      username: u.username,
+      event: method === "qr" ? "qr_login" : "login_success",
+      method,
+      success: true,
+      detail: u.is_protected ? "Protected account authenticated." : "Account authenticated.",
+      occurred_at: new Date().toISOString(),
+    });
+  } catch {}
+  return Response.json({
+    granted: true,
+    user: {
+      id: u.id,
+      username: u.username,
+      full_name: u.full_name,
+      role: u.role,
+      title: u.title || null,
+      cohort: u.cohort || null,
+      institution: u.institution || null,
+      ai_voice: u.ai_voice || "honey",
+      ai_persona: u.ai_persona || "female",
+      is_protected: !!u.is_protected,
+    },
+  });
+}
+
 export default async function(req) {
   try {
     const body = await req.json().catch(() => ({}));
     let { username, pin, qr } = body || {};
 
+    const base44 = createClientFromRequest(req);
+
     if (qr) {
       const decoded = String(qr).trim();
+      // ID-card QR codes carry a long random token minted for the user (see
+      // qr_token on AppUser) rather than their PIN, so a card keeps working
+      // even after the user changes their PIN. Try that lookup first.
+      if (decoded.length >= 16) {
+        const byToken = await base44.asServiceRole.entities.AppUser.filter({ qr_token: decoded, active: true });
+        if (byToken && byToken.length === 1) {
+          return grantUser(base44, byToken[0], "qr");
+        }
+      }
       if (decoded.includes(":")) {
         const [u, p] = decoded.split(":");
         username = (u || "").trim().toLowerCase();
@@ -24,7 +68,6 @@ export default async function(req) {
       return Response.json({ granted: false, reason: "A PIN is required." }, { status: 400 });
     }
 
-    const base44 = createClientFromRequest(req);
     const suppliedPin = String(pin).trim();
     const normalizedUsername = String(username || "").trim().toLowerCase();
 
@@ -67,37 +110,7 @@ export default async function(req) {
       try { await base44.asServiceRole.entities.AppUser.update(u.id, { pin: hashedPin }); } catch {}
     }
 
-    if (u.active === false) {
-      return Response.json({ granted: false, reason: "This account is inactive. Contact your administrator." });
-    }
-
-    try {
-      await base44.asServiceRole.entities.AuthAudit.create({
-        app_user_id: u.id,
-        username: u.username,
-        event: qr ? "qr_login" : "login_success",
-        method: qr ? "qr" : "pin",
-        success: true,
-        detail: u.is_protected ? "Protected account authenticated." : "Account authenticated.",
-        occurred_at: new Date().toISOString(),
-      });
-    } catch {}
-
-    return Response.json({
-      granted: true,
-      user: {
-        id: u.id,
-        username: u.username,
-        full_name: u.full_name,
-        role: u.role,
-        title: u.title || null,
-        cohort: u.cohort || null,
-        institution: u.institution || null,
-        ai_voice: u.ai_voice || "honey",
-        ai_persona: u.ai_persona || "female",
-        is_protected: !!u.is_protected,
-      },
-    });
+    return grantUser(base44, u, qr ? "qr" : "pin");
   } catch (error) {
     return Response.json({ granted: false, reason: error.message || "Verification failed." }, { status: 500 });
   }

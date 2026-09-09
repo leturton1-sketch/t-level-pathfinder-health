@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { isLoggedIn, getCurrentUser, isAdmin, isSuperAdmin, resetPin } from "@/lib/clinicalAuth";
-import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download } from "lucide-react";
+import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volume2, Download, IdCard, UsersRound } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import VoiceSettings from "@/components/voice/VoiceSettings";
 import AppInstallerPanel from "@/components/admin/AppInstallerPanel";
+import QrIdCard from "@/components/admin/QrIdCard";
+import StaffingPanel from "@/components/admin/StaffingPanel";
 
 const ROLE_LABELS = {
   super_admin: "System Architect",
@@ -36,6 +38,7 @@ export default function UserManagement() {
   const [activeTab, setActiveTab] = useState("users");
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", full_name: "", role: "student", cohort: "" });
+  const [idCardUser, setIdCardUser] = useState(null);
 
   useEffect(() => {
     if (!isLoggedIn() || !canManageUsers()) {
@@ -136,7 +139,7 @@ export default function UserManagement() {
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-3 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
+      <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-2xl border border-white/90 bg-white/65 p-1.5 shadow-[0_14px_35px_-24px_rgba(15,23,42,.55),inset_1px_1px_1px_white] backdrop-blur-xl" role="tablist" aria-label="User management sections">
         <button
           type="button"
           role="tab"
@@ -145,6 +148,15 @@ export default function UserManagement() {
           className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "users" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
         >
           <Users className="h-4 w-4" /> Users
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "staffing"}
+          onClick={() => setActiveTab("staffing")}
+          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${activeTab === "staffing" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600 hover:bg-white/60"}`}
+        >
+          <UsersRound className="h-4 w-4" /> Staffing
         </button>
         <button
           type="button"
@@ -223,6 +235,13 @@ export default function UserManagement() {
               </span>
               <div className="flex gap-1">
                 <button
+                  onClick={() => setIdCardUser(u)}
+                  className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-clinical-teal transition-colors"
+                  title="Generate Academy ID card"
+                >
+                  <IdCard className="w-4 h-4" />
+                </button>
+                <button
                   onClick={() => handleResetPin(u)}
                   className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-clinical-amber transition-colors"
                   title="Reset PIN to 0000"
@@ -247,6 +266,10 @@ export default function UserManagement() {
         </div>
       )}
       </div>
+
+      {activeTab === "staffing" && (
+        <StaffingPanel users={users} />
+      )}
 
       {activeTab === "voice" && (
         <section className="polished-glass-edge overflow-hidden rounded-[28px] border border-white/90 bg-white/70 shadow-[0_20px_55px_-34px_rgba(15,23,42,.65),inset_1px_1px_2px_white] backdrop-blur-2xl">
@@ -305,6 +328,8 @@ export default function UserManagement() {
           setTimeout(() => voiceSynth.speak("Voice settings saved. Your voice is ready."), 80);
         }}
       />
+
+      {idCardUser && <QrIdCard user={idCardUser} onClose={() => setIdCardUser(null)} />}
 
       {/* Create user modal */}
       {showCreate && (
