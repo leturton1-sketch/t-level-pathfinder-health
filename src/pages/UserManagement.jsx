@@ -6,6 +6,7 @@ import { Users, UserPlus, RotateCcw, Trash2, Search, Shield, X, Settings2, Volum
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import VoiceSettings from "@/components/voice/VoiceSettings";
+import QRAccessPanel from "@/components/admin/QRAccessPanel";
 import AppInstallerPanel from "@/components/admin/AppInstallerPanel";
 import QrIdCard from "@/components/admin/QrIdCard";
 import StaffingPanel from "@/components/admin/StaffingPanel";
@@ -176,8 +177,10 @@ export default function UserManagement() {
         >
           <Download className="h-4 w-4" /> Install App
         </button>
+        {isAdmin() && <button type="button" role="tab" aria-selected={activeTab === "qr"} onClick={() => setActiveTab("qr")} className={`rounded-xl px-3 py-2.5 text-sm font-semibold ${activeTab === "qr" ? "bg-white text-clinical-teal shadow-md" : "text-slate-600"}`}>QR login codes</button>}
       </div>
 
+      {activeTab === "qr" && isAdmin() && <QRAccessPanel users={users} />}
       <div className={activeTab === "users" ? "block" : "hidden"}>
       {/* Search + Create */}
       <div className="flex gap-2 mb-4">

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, ClipboardCheck, BriefcaseBusiness, BarChart3, ShieldCheck, Users, Sparkles, BadgeCheck } from "lucide-react";
+import { BookOpen, ClipboardCheck, BriefcaseBusiness, BarChart3, ShieldCheck, Users, BadgeCheck } from "lucide-react";
 import { PATHFINDER_HUBS } from "@/lib/pathfinderOperatingModel";
 
 const CONFIG = {
@@ -11,7 +11,7 @@ const CONFIG = {
       ["Continue learning", "/theory", BookOpen],
       ["ESP readiness", "/curriculum-readiness", ClipboardCheck],
       ["My Talent Card", "/talent-card", BadgeCheck],
-      ["Progress", "/performance", BarChart3],
+      ["My progress", "/performance", BarChart3],
     ],
   },
   tutor: {
@@ -44,7 +44,7 @@ const CONFIG = {
       ["System health", "/system-health", ShieldCheck],
       ["Curriculum readiness", "/curriculum-readiness", ClipboardCheck],
       ["Employer portal", "/employer-portal", BriefcaseBusiness],
-      ["Pathfinder AI", "/voice-assistant", Sparkles],
+      ["My progress", "/performance", BarChart3],
     ],
   },
 };

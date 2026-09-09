@@ -531,6 +531,11 @@ export default function WardSimulation() {
           </div>
         </div>
         <div className="mb-4"><SKBadgeGroup skCodes={activeScenario.sk_codes} poCodes={activeScenario.performance_outcomes} /></div>
+        <div className="pf-progress-links" aria-label="Continue your learning">
+          <button className="pf-secondary-button" onClick={() => navigate("/care-planning")}>Continue to care planning</button>
+          <button className="pf-secondary-button" onClick={() => navigate("/reflection")}>Reflect on your decisions</button>
+          <button className="pf-secondary-button" onClick={() => navigate("/performance")}>View progress and feedback</button>
+        </div>
         <button onClick={() => { setShowDebrief(false); exitScenario(); }}
           className="w-full py-3 rounded-lg bg-clinical-teal text-white font-heading font-semibold text-sm hover:opacity-90">Back to Ward</button>
       </div>

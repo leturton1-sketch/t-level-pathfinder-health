@@ -37,12 +37,38 @@ async function grantUser(base44, u, method) {
   });
 }
 
+// Personal QR credentials are random, hashed at rest and revocable.
+// Legacy username:PIN codes remain supported for existing cards.
 export default async function(req) {
   try {
     const body = await req.json().catch(() => ({}));
     let { username, pin, qr } = body || {};
 
     const base44 = createClientFromRequest(req);
+
+    if (typeof qr === "string" && qr.startsWith("pfqr:")) {
+      const match = /^pfqr:v1:([a-zA-Z0-9_-]{1,128}):([a-f0-9]{64})$/.exec(qr.trim());
+      const rejected = () => Response.json({ granted: false, reason: "This QR code is invalid, expired or revoked. Use PIN sign-in or request a replacement." });
+      if (!match) return rejected();
+      const base44 = createClientFromRequest(req);
+      const rows = await base44.asServiceRole.entities.QRAccessCredential.filter({ id: match[1] });
+      const record = rows?.[0];
+      if (!record || record.revoked || !Number.isFinite(Date.parse(record.expires_at)) || Date.parse(record.expires_at) <= Date.now()) return rejected();
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(match[2]));
+      const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+      if (hash !== record.token_hash) return rejected();
+      const users = await base44.asServiceRole.entities.AppUser.filter({ id: record.app_user_id, active: true });
+      const u = users?.[0];
+      if (!u || u.active === false || u.is_protected || ["admin", "super_admin"].includes(u.role)) return rejected();
+      try {
+        await base44.asServiceRole.entities.AuthAudit.create({ app_user_id: u.id, username: u.username, event: "qr_login", method: "qr", success: true, detail: "Personal QR credential accepted.", occurred_at: new Date().toISOString() });
+      } catch {}
+      return Response.json({ granted: true, user: {
+        id: u.id, username: u.username, full_name: u.full_name, role: u.role,
+        title: u.title || null, cohort: u.cohort || null, institution: u.institution || null,
+        first_login: !!u.first_login, ai_voice: u.ai_voice || "honey", ai_persona: u.ai_persona || "female", is_protected: false
+      } }, { headers: { "Cache-Control": "no-store" } });
+    }
 
     if (qr) {
       const decoded = String(qr).trim();

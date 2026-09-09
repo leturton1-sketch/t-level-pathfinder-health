@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { Download, QrCode, Copy, Check, Share2, Smartphone, Laptop, Globe, Info, ShieldCheck, Sparkles } from "lucide-react";
 
 const PLATFORMS = [
@@ -111,7 +112,15 @@ export default function AppInstallerPanel() {
     }
   };
 
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=${encodeURIComponent(appUrl)}`;
+  const [qrSrc, setQrSrc] = useState("");
+  useEffect(() => {
+    let alive = true;
+    setQrSrc("");
+    QRCode.toDataURL(appUrl, { width: 320, margin: 4, errorCorrectionLevel: "M" })
+      .then(image => { if (alive) setQrSrc(image); })
+      .catch(() => { if (alive) setQrSrc(""); });
+    return () => { alive = false; };
+  }, [appUrl]);
   const current = PLATFORMS.find((p) => p.id === platform) || PLATFORMS[3];
 
   return (
@@ -173,7 +182,7 @@ export default function AppInstallerPanel() {
         {/* QR + link */}
         <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
           <div className="flex justify-center rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <img src={qrSrc} alt="QR code to install Pathfinder Health" className="h-40 w-40" />
+            {qrSrc ? <img src={qrSrc} alt="QR code to install Pathfinder Health" className="h-40 w-40" /> : <p className="text-sm">Use the app link below.</p>}
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Install on another device</p>
