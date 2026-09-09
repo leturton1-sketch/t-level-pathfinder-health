@@ -167,7 +167,7 @@ export default function AIModels() {
             <Sparkles className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">Pathfinder · AI Model Router</p>
+            <p className="text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">Pathfinder · AI settings</p>
             <h1 className="text-xl font-heading font-bold text-foreground">Pathfinder AI settings</h1>
           </div>
         </div>
