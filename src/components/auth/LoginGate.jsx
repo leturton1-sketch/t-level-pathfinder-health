@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { setAppUser } from "@/lib/clinicalAuth";
+import { decodeQrImage } from "@/lib/qrScanner";
 import TLevelLogo from "@/components/TLevelLogo";
 import "./LoginGate.css";
 
@@ -18,8 +19,15 @@ export default function LoginGate({ onUnlock }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const detectRef = useRef(false);
+  const generationRef = useRef(0);
+  const frameRef = useRef(null);
+  const busyRef = useRef(false);
+  const mountedRef = useRef(true);
+  const [starting, setStarting] = useState(false);
+  const [scanMessage, setScanMessage] = useState("");
+  const fileRef = useRef(null);
 
-  useEffect(() => () => stopCamera(), []);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; stopCamera(); }; }, []);
 
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
@@ -36,16 +44,21 @@ export default function LoginGate({ onUnlock }) {
   };
 
   const submit = async (payload) => {
+    if (busyRef.current || !mountedRef.current) return;
+    busyRef.current = true;
     setBusy(true);
     try {
       const res = await base44.functions.invoke("verifyAccess", payload);
       const data = res?.data ?? res;
+      if (!mountedRef.current) return;
+      setScanMessage(data?.granted ? "Access granted." : data?.reason || "Code not recognised. Try again or use PIN sign-in.");
       if (data?.granted) grant(data.user, payload?.qr ? "qr" : "pin");
       else deny(data?.reason);
     } catch (e) {
-      deny(e?.message);
+      if (mountedRef.current) deny(e?.response?.data?.reason || "Unable to verify. Please try again.");
     } finally {
-      setBusy(false);
+      busyRef.current = false;
+      if (mountedRef.current) setBusy(false);
     }
   };
 
@@ -56,46 +69,76 @@ export default function LoginGate({ onUnlock }) {
   };
 
   const stopCamera = () => {
+    generationRef.current += 1;
     detectRef.current = false;
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    setScanning(false);
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
+    streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    if (mountedRef.current) { setScanning(false); setStarting(false); }
   };
 
   const startCamera = async () => {
-    if (!window.BarcodeDetector) {
-      toast({ title: "QR scan unsupported", description: "Use PIN login instead.", variant: "destructive" });
-      return;
-    }
+    if (starting || scanning || busyRef.current) return;
+    stopCamera();
+    const generation = generationRef.current;
+    setStarting(true); setScanMessage("");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error("Camera access needs a supported browser and a secure connection. Choose a QR image or use PIN sign-in.");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+      if (!mountedRef.current || generation !== generationRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setScanning(true);
-      detectRef.current = true;
-      const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
-      const tick = async () => {
-        if (!detectRef.current) return;
-        try {
-          const codes = await detector.detect(videoRef.current);
-          if (codes && codes.length) {
-            const value = codes[0].rawValue;
-            stopCamera();
-            submit({ qr: value });
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
+      if (!mountedRef.current || generation !== generationRef.current) return;
+      setStarting(false); setScanning(true); detectRef.current = true;
+      setScanMessage("Hold your QR card steady in the frame.");
+      let lastScan = 0;
+      const tick = async now => {
+        if (!detectRef.current || generation !== generationRef.current) return;
+        if (now - lastScan >= 180 && videoRef.current?.readyState >= 2) {
+          lastScan = now;
+          try {
+            const value = await decodeQrImage(videoRef.current);
+            if (!detectRef.current || generation !== generationRef.current) return;
+            if (value) { stopCamera(); setScanMessage("Code detected. Verifying…"); await submit({ qr: value }); return; }
+          } catch {
+            if (generation === generationRef.current) { stopCamera(); setScanMessage("Unable to read the camera. Choose a QR image or use PIN sign-in."); }
             return;
           }
-        } catch {}
-        requestAnimationFrame(tick);
+        }
+        frameRef.current = requestAnimationFrame(tick);
       };
-      tick();
-    } catch (e) {
-      toast({ title: "Camera unavailable", description: e?.message || "Check camera permissions.", variant: "destructive" });
-      setScanning(false);
+      frameRef.current = requestAnimationFrame(tick);
+    } catch (error) {
+      if (!mountedRef.current || generation !== generationRef.current) return;
+      stopCamera();
+      setScanMessage(error?.name === "NotAllowedError" ? "Camera permission was denied. Allow camera access, choose a QR image or use PIN sign-in." : error?.message || "Camera unavailable. Use PIN sign-in.");
+    }
+  };
+
+  const scanFile = async event => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || busyRef.current) return;
+    stopCamera();
+    const generation = generationRef.current;
+    setStarting(true); setScanMessage("Reading QR image…");
+    let bitmap;
+    try {
+      if (file.size > 10 * 1024 * 1024) throw new Error("Choose an image smaller than 10 MB.");
+      bitmap = await createImageBitmap(file);
+      const value = await decodeQrImage(bitmap);
+      if (!mountedRef.current || generation !== generationRef.current) return;
+      if (!value) throw new Error("No QR code found. Try a clearer image or use PIN sign-in.");
+      setScanMessage("Code detected. Verifying…");
+      await submit({ qr: value });
+    } catch (error) {
+      if (mountedRef.current && generation === generationRef.current) setScanMessage(error?.message || "Unable to read this image.");
+    } finally {
+      bitmap?.close();
+      if (mountedRef.current && generation === generationRef.current) setStarting(false);
     }
   };
 
@@ -117,10 +160,10 @@ export default function LoginGate({ onUnlock }) {
         </header>
 
         <div className="login-gate-tabs" role="tablist" aria-label="Sign-in method">
-          <button type="button" role="tab" aria-selected={mode === "pin"} onClick={() => { setMode("pin"); stopCamera(); }} className={mode === "pin" ? "active" : ""}>
+          <button type="button" role="tab" aria-selected={mode === "pin"} disabled={busy} onClick={() => { setMode("pin"); stopCamera(); }} className={mode === "pin" ? "active" : ""}>
             <KeyRound size={16} /> PIN
           </button>
-          <button type="button" role="tab" aria-selected={mode === "qr"} onClick={() => setMode("qr")} className={mode === "qr" ? "active" : ""}>
+          <button type="button" role="tab" aria-selected={mode === "qr"} disabled={busy} onClick={() => setMode("qr")} className={mode === "qr" ? "active" : ""}>
             <QrCode size={16} /> QR Scan
           </button>
         </div>
@@ -160,15 +203,17 @@ export default function LoginGate({ onUnlock }) {
               <div className="login-gate-qr-reticle" />
             </div>
             {!scanning ? (
-              <button type="button" onClick={startCamera} className="login-gate-unlock">
-                <Camera size={16} /> Start camera
+              <button type="button" onClick={startCamera} disabled={busy || starting} className="login-gate-unlock">
+                <Camera size={16} /> {starting ? "Preparing scanner…" : busy ? "Verifying…" : "Start camera"}
               </button>
             ) : (
               <button type="button" onClick={stopCamera} className="login-gate-unlock secondary">
                 <CameraOff size={16} /> Stop camera
               </button>
             )}
-            <p className="login-gate-hint">Point the camera at your personal Pathfinder QR code.</p>
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={scanFile} />
+            <button type="button" className="login-gate-unlock secondary" disabled={busy || starting} onClick={() => fileRef.current?.click()}>Choose a QR image</button>
+            <p className="login-gate-hint" role="status" aria-live="polite">{scanMessage || "Point the camera at your personal Pathfinder QR code. Images are read on this device."}</p>
           </div>
         )}
 
