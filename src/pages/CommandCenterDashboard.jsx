@@ -66,8 +66,8 @@ export default function CommandCenterDashboard() {
   const teamRef = useRef(null);
   const drawerTriggerRef = useRef(null);
   const patients = useMemo(() => initialBoard(Date.now()), []);
-  const critical = patients.filter(patient => (patient.initial_news2 ?? 0) >= 5);
-  const occupancy = Math.min(100, Math.round((patients.length / 24) * 100));
+  const critical = useMemo(() => patients.filter(patient => (patient.initial_news2 ?? 0) >= 5), [patients]);
+  const occupancy = useMemo(() => Math.min(100, Math.round((patients.length / 24) * 100)), [patients]);
 
   const openDrawer = (kind, trigger) => { drawerTriggerRef.current = trigger; setDrawer(kind); };
 

@@ -1,6 +1,7 @@
 import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -15,5 +16,31 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
-  ]
+    // Only active for `npm run analyze` — writes dist/bundle-stats.html and
+    // never runs during normal dev/build so it has no effect on shipped output.
+    process.env.ANALYZE === 'true' && visualizer({
+      filename: 'dist/bundle-stats.html',
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap',
+    }),
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Group large, slow-changing vendor libraries into their own cacheable
+        // chunks so a routine app-code change doesn't force users to
+        // re-download React, the 3D engine, or the charting library.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (/[\\/]three[\\/]/.test(id)) return 'vendor-three';
+          if (id.includes('recharts')) return 'vendor-charts';
+          if (id.includes('@radix-ui')) return 'vendor-radix';
+          if (id.includes('lucide-react')) return 'vendor-icons';
+          if (/react-router|react-dom|[\\/]react[\\/]/.test(id)) return 'vendor-react';
+          return undefined;
+        },
+      },
+    },
+  },
 });
