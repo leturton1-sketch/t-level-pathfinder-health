@@ -10,14 +10,12 @@ import RiskAssessmentWidget from "@/components/dashboard/RiskAssessmentWidget";
 import MandatoryIntakeRiskAssessment from "@/components/dashboard/MandatoryIntakeRiskAssessment";
 import WardStatsWidget from "@/components/dashboard/WardStatsWidget";
 import { initialBoard, admitIncoming, INCOMING_PATIENTS } from "@/lib/wardBoard";
-import { Activity, Clock, Stethoscope, Users, Sparkles, Bot, Sliders } from "lucide-react";
+import { Activity, Clock, Stethoscope, Users, Sliders } from "lucide-react";
 
 const ADMIN_TOOLS = [
   { to: "/scenario-authoring", label: "Scenario Authoring", icon: Stethoscope },
   { to: "/scenario-templates", label: "Templates", icon: Sliders },
   { to: "/user-management", label: "Users", icon: Users },
-  { to: "/profile", label: "AI Tutor", icon: Sparkles },
-  { to: "/voice-assistant", label: "Voice Assistant", icon: Bot },
 ];
 
 export default function Dashboard() {

@@ -18,7 +18,7 @@ import { useWardNarration } from "@/hooks/useWardNarration";
 import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
-  Pencil, LayoutGrid, MessageSquare, Settings, Camera, AlertTriangle, Power, Info,
+  Pencil, LayoutGrid, Settings, Camera, AlertTriangle, Power, Info,
   Sun, Moon,
 } from "lucide-react";
 
@@ -582,9 +582,6 @@ export default function WardSimulation() {
               <>
                 <button aria-label="Pathfinder Overview" onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <LayoutGrid className="w-3.5 h-3.5" /><span className="hidden lg:inline">Dashboard</span>
-                </button>
-                <button aria-label="AI Tutor" onClick={() => navigateAway("/profile")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
-                  <MessageSquare className="w-3.5 h-3.5" /><span className="hidden lg:inline">AI Tutor</span>
                 </button>
                 <button aria-label="Scenarios" onClick={() => setShowScenarioList(true)}
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-heading font-medium border ${showScenarioList ? "bg-clinical-teal text-white border-clinical-teal" : "bg-card border-border text-muted-foreground hover:bg-secondary/40"}`}>
