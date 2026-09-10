@@ -1,7 +1,5 @@
-import { useEffect, useRef } from "react";
 import { Sparkles, GraduationCap, ClipboardCheck, MessageSquareText } from "lucide-react";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
-import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import TLevelLogo from "@/components/TLevelLogo";
 
 const ROLE_TITLES = {
@@ -31,13 +29,10 @@ const HELP_POINTS = [
  * WelcomeGreeting — shown once per session immediately after sign-in.
  * Greets the user by name and role, introduces Pathfinder AI, and
  * explains the app's purpose so new and returning users share the
- * same starting point. Speaks the greeting once (respects mute).
+ * same starting point. Speech requires the Listen action.
  */
 export default function WelcomeGreeting({ user, onContinue }) {
   const synth = useVoiceSynthesis();
-  const spokenRef = useRef(false);
-
-  const identity = getAssistantIdentity(synth.prefs, user);
   const firstName = user?.full_name?.split(" ")[0] || "there";
   const roleTitle = ROLE_TITLES[user?.role] || "Learner";
   const isStaff = user?.role === "tutor" || user?.role === "admin" || user?.role === "super_admin";
@@ -48,13 +43,6 @@ export default function WelcomeGreeting({ user, onContinue }) {
 
   const spokenGreeting = `Welcome, ${firstName}. I'm Pathfinder AI, your curriculum-to-industry AI tutor. ${purposeText}`;
 
-  useEffect(() => {
-    if (spokenRef.current) return;
-    spokenRef.current = true;
-    synth.speak(spokenGreeting);
-    return () => synth.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#15131a]/70 backdrop-blur-sm p-4">
@@ -84,7 +72,8 @@ export default function WelcomeGreeting({ user, onContinue }) {
           </ul>
         </div>
 
-        <div className="flex justify-end border-t border-[#765ab0]/15 px-6 py-4">
+        <div className="flex justify-end gap-3 border-t border-[#765ab0]/15 px-6 py-4">
+          <button type="button" onClick={() => synth.speak(spokenGreeting)} className="rounded-lg px-4 py-2 text-sm font-semibold text-violet-800">Listen to welcome</button>
           <button
             type="button"
             onClick={() => { synth.stop(); onContinue?.(); }}
