@@ -146,17 +146,24 @@ export default function LoginGate({ onUnlock }) {
     <div className="login-gate">
       <div className="login-gate-backdrop" aria-hidden="true">
         <div className="login-gate-blur" />
-        <TLevelLogo variant="white" size="xl" className="login-gate-mark" />
-        <div className="login-gate-silhouette" />
+        <div className="login-gate-ribbon login-gate-ribbon--top" />
+        <div className="login-gate-ribbon login-gate-ribbon--bottom" />
+        <div className="login-gate-cross" />
+        <div className="login-gate-brand">
+          <TLevelLogo variant="black" size="xl" />
+          <span>Learn | Practice | Prepare | Progress</span>
+        </div>
+        <p className="login-gate-message">Explore<br />understand<br />apply<strong>The next level</strong></p>
+        <p className="login-gate-promise">Real<br />skills<br />real<br />careers<br />a healthier<br />tomorrow</p>
       </div>
 
       <div className="login-gate-card">
         <header className="login-gate-header">
-          <div className="login-gate-logo"><TLevelLogo variant="salmon" size="md" /></div>
-          <div>
-            <h1>Pathfinder Health</h1>
-            <p>T-Level Clinical Skills Academy</p>
-          </div>
+          <p className="login-gate-welcome">Welcome to</p>
+          <TLevelLogo variant="black" size="lg" className="login-gate-logo" />
+          <p className="login-gate-tagline">Learn | Practice | Prepare | Progress</p>
+          <h1>Sign in to your account</h1>
+          <p>Access your personalised learning, resources and tools.</p>
         </header>
 
         <div className="login-gate-tabs" role="tablist" aria-label="Sign-in method">

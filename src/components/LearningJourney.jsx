@@ -21,7 +21,7 @@ export default function LearningJourney({ footer = false }) {
   const root = "/" + pathname.split("/")[1];
   const page = PAGES[root];
   // ESP workspaces already provide their own timed section navigation.
-  if (!page || (root === "/esp-practice" && pathname !== root)) return null;
+  if (!portfolio || !page || (root === "/esp-practice" && pathname !== root)) return null;
   const [stage, purpose, outcome, time, action, next, nextLabel] = page;
   if (footer) return <section className="pf-learning-guide pf-learning-next" aria-label="Next learning step">
     <div><h2>When you have finished</h2><p>Save your work in the activity before moving on. Moving between pages does not mark an activity complete.</p></div>
