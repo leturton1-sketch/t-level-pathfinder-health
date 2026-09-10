@@ -189,7 +189,7 @@ function Timer({ minutes }) {
 export default function ESPWorkspace() {
   const { taskId, sectionId } = useParams();
   const navigate = useNavigate();
-  const { portfolio, enterSection, updatePortfolio, setSectionComplete } = useESPCase();
+  const { portfolio, updatePortfolio, setSectionComplete } = useESPCase();
   const key = `${taskId}:${sectionId}`;
   const module = MODULES[key];
   const caseData = getESPCase(portfolio?.case_id);
@@ -203,7 +203,7 @@ export default function ESPWorkspace() {
   const [checks, setChecks] = useState(stored[`${key}:checks`] || []);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => { if (module) enterSection(taskId, sectionId); }, [taskId, sectionId]);
+
   useEffect(() => {
     const current = readEvidence(portfolio?.workspace_evidence);
     setAnswers(current[key] || {});
@@ -212,6 +212,8 @@ export default function ESPWorkspace() {
 
   const completedCount = useMemo(() => Object.values(answers).filter((value) => value?.trim()).length, [answers]);
   if (!module) return <div className="clinical-page-shell"><p>ESP module not found.</p><button onClick={() => navigate("/esp-practice")}>Return to hub</button></div>;
+
+  if (!portfolio) return <div className="clinical-page-shell"><p>No ESP session is active. Choose a scenario to start or resume.</p><button onClick={() => navigate("/esp-practice")}>Choose scenario</button></div>;
 
   const save = async (complete = false) => {
     const latest = readEvidence(portfolio?.workspace_evidence);
