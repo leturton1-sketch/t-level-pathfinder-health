@@ -3,43 +3,27 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { createPortfolioForCase, getESPCase } from "@/lib/espCaseData";
 
+import { getModuleGeneration } from "./moduleSession";
+
 const STORAGE_KEY = "pathfinder_active_esp_case_v1";
 const ESPCaseContext = createContext(null);
 
 export const DEFAULT_ESP_CASE = createPortfolioForCase(getESPCase("practice-amira-khan"));
 
-function readLocal() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; }
-}
+
 
 export function ESPCaseProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
-  const [portfolio, setPortfolio] = useState(readLocal);
+  const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated || !user?.id) return;
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const rows = await base44.entities.ESPPortfolio.filter({ student_id: user.id, status: "in_progress" }, "-updated_date", 1);
-        if (alive && rows?.[0]) {
-          setPortfolio(rows[0]);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(rows[0]));
-        }
-      } catch {
-        // The local session keeps the experience usable if the remote portfolio is unavailable.
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, [isAuthenticated, user?.id]);
+  useEffect(() => { setPortfolio(null); }, [isAuthenticated, user?.id]);
 
   const persist = async (next) => {
+    if (!portfolio) return null;
+    const generation = getModuleGeneration();
     setPortfolio(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
     if (!user?.id) return next;
     try {
       let saved;
@@ -52,6 +36,7 @@ export function ESPCaseProvider({ children }) {
         saved = await base44.entities.ESPPortfolio.update(next.id, payload);
       } else saved = await base44.entities.ESPPortfolio.create({ ...next, student_id: user.id, student_name: user.full_name || user.username || "Learner" });
       const merged = { ...next, ...saved };
+      if (generation !== getModuleGeneration()) return null;
       setPortfolio(merged);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
       return merged;
@@ -61,22 +46,34 @@ export function ESPCaseProvider({ children }) {
   };
 
   const startCase = async (caseId = DEFAULT_ESP_CASE.case_id) => {
+    const generation = getModuleGeneration();
     const caseData = getESPCase(caseId);
-    if (portfolio?.case_id === caseData.id) return persist({ ...portfolio, status: "in_progress" });
-    if (user?.id) {
-      try {
+    setLoading(true);
+    try {
+      let next = portfolio?.case_id === caseData.id ? portfolio : null;
+      if (!next && user?.id) {
         const rows = await base44.entities.ESPPortfolio.filter({ student_id: user.id, case_id: caseData.id }, "-updated_date", 1);
-        if (rows?.[0]) {
-          const resumed = { ...rows[0], status: "in_progress" };
-          setPortfolio(resumed);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(resumed));
-          return resumed;
-        }
-      } catch {
-        // Start a local portfolio if the saved scenario cannot be reached.
+        next = rows?.[0] || null;
       }
+      if (!next) {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+          if (saved?.student_id === user?.id && saved?.case_id === caseData.id) next = saved;
+        } catch {}
+      }
+      if (!next) {
+        next = { ...createPortfolioForCase(caseData), student_id: user?.id };
+        if (user?.id && generation === getModuleGeneration()) {
+          next = await base44.entities.ESPPortfolio.create({ ...next, student_name: user.full_name || user.username || "Learner" });
+        }
+      }
+      if (generation !== getModuleGeneration()) return null;
+      setPortfolio(next);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    } finally {
+      if (generation === getModuleGeneration()) setLoading(false);
     }
-    return persist(createPortfolioForCase(caseData));
   };
 
   const enterSection = (taskId, sectionId) => {
@@ -101,7 +98,7 @@ export function ESPCaseProvider({ children }) {
 
   const exitCase = () => {
     setPortfolio(null);
-    localStorage.removeItem(STORAGE_KEY);
+    // Keep saved evidence available for an explicit Start or resume action.
   };
 
   const value = useMemo(() => ({ portfolio, loading, startCase, enterSection, setSectionComplete, updatePortfolio, resetProgress, exitCase }), [portfolio, loading]);
