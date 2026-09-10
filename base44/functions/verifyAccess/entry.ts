@@ -37,6 +37,44 @@ async function grantUser(base44, u, method) {
   });
 }
 
+// Brute-force protection: after MAX_ATTEMPTS failed PIN attempts within
+// WINDOW_MS, further PIN attempts are rejected with 429 until the window
+// clears. Failures are tracked both per-target-username and per-requesting-IP
+// using AuthAudit records (the IP is stored in platform_user_id so it can be
+// filtered on), so an attacker cannot simply rotate usernames.
+const MAX_ATTEMPTS = 5;
+const WINDOW_MS = 15 * 60 * 1000;
+
+function clientIp(req) {
+  const headers = req.headers;
+  const get = (k) => (headers?.get ? headers.get(k) : headers?.[k]);
+  const fwd = get("x-forwarded-for");
+  if (fwd) return String(fwd).split(",")[0].trim();
+  return get("x-real-ip") || "unknown";
+}
+
+async function checkLockout(base44, username, ip) {
+  const since = Date.now() - WINDOW_MS;
+  const countRecent = (rows) => (rows || []).filter((r) => {
+    const t = r.occurred_at ? Date.parse(r.occurred_at) : 0;
+    return Number.isFinite(t) && t > since;
+  }).length;
+  try {
+    if (username) {
+      const rows = await base44.asServiceRole.entities.AuthAudit.filter(
+        { username, event: "login_failed", success: false }, "-occurred_at", MAX_ATTEMPTS + 5
+      );
+      if (countRecent(rows) >= MAX_ATTEMPTS) return true;
+    }
+    const ipRows = await base44.asServiceRole.entities.AuthAudit.filter(
+      { platform_user_id: ip, event: "login_failed", success: false }, "-occurred_at", MAX_ATTEMPTS + 5
+    );
+    return countRecent(ipRows) >= MAX_ATTEMPTS;
+  } catch {
+    return false;
+  }
+}
+
 // Personal QR credentials are random, hashed at rest and revocable.
 // Legacy username:PIN codes remain supported for existing cards.
 export default async function(req) {
@@ -96,6 +134,15 @@ export default async function(req) {
 
     const suppliedPin = String(pin).trim();
     const normalizedUsername = String(username || "").trim().toLowerCase();
+    const ip = clientIp(req);
+
+    // Enforce brute-force lockout before doing any PIN comparison.
+    if (await checkLockout(base44, normalizedUsername, ip)) {
+      return Response.json(
+        { granted: false, reason: "Too many failed attempts. Please try again in a few minutes." },
+        { status: 429, headers: { "Retry-After": "60", "Cache-Control": "no-store" } }
+      );
+    }
 
     // Fetch candidate active accounts first, then verify the supplied PIN in code.
     // This supports both legacy plaintext PINs and newer SHA-256 encoded PINs.
@@ -116,6 +163,7 @@ export default async function(req) {
       try {
         await base44.asServiceRole.entities.AuthAudit.create({
           username: normalizedUsername || null,
+          platform_user_id: ip,
           event: "login_failed",
           method: qr ? "qr" : "pin",
           success: false,

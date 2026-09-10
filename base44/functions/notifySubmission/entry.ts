@@ -65,6 +65,20 @@ function simulationBody(rec) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Require an authenticated tutor/admin caller — this endpoint sends email
+    // and reads submission records via asServiceRole, so anonymous access is
+    // not permitted.
+    let caller;
+    try {
+      caller = await base44.auth.me();
+    } catch {
+      return Response.json({ error: "Authentication required" }, { status: 401 });
+    }
+    if (!caller || !["admin", "super_admin", "tutor"].includes(caller.role)) {
+      return Response.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     const { entity_name, record_id } = await req.json();
 
     let subject, bodyText;
@@ -94,6 +108,6 @@ export default async function(req) {
     const data = await res.json();
     return Response.json({ ok: true, messageId: data.id });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: "Unable to process notification." }, { status: 500 });
   }
 }
