@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, BookOpenCheck, Check, CheckCircle2,
@@ -79,11 +79,11 @@ function MappingChip({ code, text, kind }) {
 
 export default function ESPPracticeHub() {
   const navigate = useNavigate();
-  const { portfolio, startCase, enterSection, setSectionComplete, resetProgress } = useESPCase();
+  const { loading, portfolio, startCase, enterSection, setSectionComplete, resetProgress } = useESPCase();
   const [activeTask, setActiveTask] = useState(portfolio?.active_task || "task-1");
   let progress = {};
   try { progress = JSON.parse(portfolio?.section_progress || "{}"); } catch {}
-  useEffect(() => { if (!portfolio) startCase(); }, [portfolio]);
+
   const task = TASKS.find((item) => item.id === activeTask) || TASKS[0];
   const ActiveTaskIcon = task.icon;
   const totalSections = TASKS.reduce((sum, item) => sum + item.sections.length, 0);
@@ -91,8 +91,10 @@ export default function ESPPracticeHub() {
   const pct = Math.round((complete / totalSections) * 100);
 
   const chooseScenario = async (caseId) => {
-    await startCase(caseId);
-    setActiveTask("task-1");
+    try {
+      await startCase(caseId);
+      setActiveTask("task-1");
+    } catch { alert("Unable to open the saved scenario. Please try again."); }
   };
 
   const toggle = (id) => setSectionComplete(id, !progress[id]);
@@ -124,20 +126,20 @@ export default function ESPPracticeHub() {
             <div className="rounded-2xl border border-violet-200 bg-white/85 p-5 shadow-sm">
               <div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Journey progress</p><p className="mt-1 text-4xl font-black">{pct}%</p></div><p className="text-sm font-bold text-cyan-700">{complete}/{totalSections} sections</p></div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 transition-all" style={{ width: `${pct}%` }} /></div>
-              <button onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-800"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
+              <button disabled={!portfolio || loading} onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-800"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
             </div>
           </div>
         </section>
 
         <section className="mt-5 rounded-[26px] border border-white bg-white/90 p-5 shadow-lg" aria-labelledby="esp-scenario-title">
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <div><p className="text-xs font-black uppercase tracking-[.16em] text-cyan-700">Scenario library</p><h2 id="esp-scenario-title" className="mt-1 text-xl font-black text-slate-950">Choose a connected practice scenario</h2><p className="mt-1 text-xs leading-5 text-slate-600">Each case has separate evidence and progress across all 12 ESP sections.</p></div>
+            <div><p className="text-xs font-black uppercase tracking-[.16em] text-cyan-700">Scenario library</p><h2 id="esp-scenario-title" className="mt-1 text-xl font-black text-slate-950">Choose a connected practice scenario</h2><p className="mt-1 text-xs leading-5 text-slate-600">Choose Start or resume to activate a case. Saved evidence stays available; no case runs automatically.</p></div>
             <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">{ESP_CASES.length} scenarios</span>
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {ESP_CASES.map((caseItem) => {
               const selected = portfolio?.case_id === caseItem.id;
-              return <button key={caseItem.id} type="button" aria-pressed={selected} onClick={() => chooseScenario(caseItem.id)} className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${selected ? "border-cyan-500 bg-cyan-50 ring-4 ring-cyan-100" : "border-slate-200 bg-white hover:border-cyan-300"}`}>
+              return <button key={caseItem.id} disabled={loading} type="button" aria-pressed={selected} onClick={() => chooseScenario(caseItem.id)} className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${selected ? "border-cyan-500 bg-cyan-50 ring-4 ring-cyan-100" : "border-slate-200 bg-white hover:border-cyan-300"}`}>
                 <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-slate-900 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-white">{caseItem.theme}</span>{selected && <CheckCircle2 className="h-5 w-5 text-cyan-700" />}</div>
                 <h3 className="mt-3 font-black text-slate-950">{caseItem.name}, {caseItem.age}</h3>
                 <p className="mt-1 text-[11px] font-bold text-slate-500">{caseItem.setting}</p>
@@ -177,7 +179,7 @@ export default function ESPPracticeHub() {
                 const isDone = !!progress[key];
                 return <article key={section.id} className="rounded-[24px] border border-white bg-white/90 p-5 shadow-md">
                   <div className="flex items-start gap-3">
-                    <button onClick={() => toggle(key)} aria-pressed={isDone} aria-label={isDone ? `Mark ${section.title} incomplete` : `Mark ${section.title} complete`} className={`mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition ${isDone ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-500"}`}>{isDone ? <Check className="h-5 w-5" /> : <span className="text-xs font-black">{index + 1}</span>}</button>
+                    <button disabled={!portfolio || loading} onClick={() => toggle(key)} aria-pressed={isDone} aria-label={isDone ? `Mark ${section.title} incomplete` : `Mark ${section.title} complete`} className={`mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition ${isDone ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-500"}`}>{isDone ? <Check className="h-5 w-5" /> : <span className="text-xs font-black">{index + 1}</span>}</button>
                     <div className="min-w-0 flex-1"><h3 className="text-lg font-black text-slate-950">{section.title}</h3><p className="mt-1 text-sm leading-6 text-slate-700">{section.outcome}</p></div>
                   </div>
                   <div className="mt-4 border-t border-slate-100 pt-4">
@@ -188,7 +190,7 @@ export default function ESPPracticeHub() {
                       {section.pos.map((code) => <MappingChip key={code} code={code} text={PERFORMANCE_OUTCOMES[code]} kind="po" />)}
                     </div>
                   </div>
-                  <button onClick={() => launchSection(section)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-violet-700 sm:w-auto">{section.action}<ArrowRight className="h-4 w-4" /></button>
+                  <button disabled={!portfolio || loading} onClick={() => launchSection(section)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-violet-700 sm:w-auto">{section.action}<ArrowRight className="h-4 w-4" /></button>
                 </article>;
               })}
             </div>
