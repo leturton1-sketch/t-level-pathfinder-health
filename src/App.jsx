@@ -4,7 +4,7 @@ import { installErrorCollector } from './lib/diagnosticService';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -14,6 +14,8 @@ import LoginGate from './components/auth/LoginGate';
 import WelcomeGreeting from './components/auth/WelcomeGreeting';
 import { getCurrentUser } from '@/lib/clinicalAuth';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
+
+import { MODULE_RESET_EVENT, resetModuleSession } from "@/lib/moduleSession";
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
 const Dashboard = lazy(() => import('./pages/CommandCenterDashboard'));
@@ -50,7 +52,7 @@ const EmployerPortal = lazy(() => import('./pages/EmployerPortal'));
 const TalentCardPage = lazy(() => import('./pages/TalentCardPage')); 
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
   const [welcomed, setWelcomed] = useState(() => sessionStorage.getItem("pathfinder-welcomed") === "1");
 
@@ -58,6 +60,23 @@ const AuthenticatedApp = () => {
     const stop = installErrorCollector();
     return stop;
   }, []);
+
+  const navigate = useNavigate();
+  const [startupUser, setStartupUser] = useState(null);
+  useEffect(() => {
+    const reset = () => setStartupUser(null);
+    window.addEventListener(MODULE_RESET_EVENT, reset);
+    return () => window.removeEventListener(MODULE_RESET_EVENT, reset);
+  }, []);
+  useEffect(() => {
+    if (!isAuthenticated) { setStartupUser(null); return; }
+    if (!unlocked || !welcomed || isLoadingAuth || isLoadingPublicSettings || window.location.pathname === "/oauth/consent") return;
+    if (startupUser !== user?.id) {
+      resetModuleSession();
+      navigate("/", { replace: true });
+      setStartupUser(user?.id);
+    }
+  }, [isAuthenticated, unlocked, welcomed, isLoadingAuth, isLoadingPublicSettings, user?.id, startupUser, navigate]);
 
   // MCP OAuth consent renders even when signed out — the page gates on its own
   // server session (cookie + token), bypassing the app's normal auth flow.
@@ -114,6 +133,9 @@ const AuthenticatedApp = () => {
     return null;
   }
 
+  // Mount routes only after verified authentication and the neutral landing transition.
+  if (!isAuthenticated || !startupUser || startupUser !== user?.id) return null;
+
   // Render the main app
   return (
     <Suspense fallback={
@@ -122,6 +144,7 @@ const AuthenticatedApp = () => {
       </div>
     }>
     <ErrorBoundary>
+    <ESPCaseProvider key={startupUser}>
     <Routes>
       <Route path="/login" element={<Navigate to="/" replace />} />
       <Route element={<Layout />}>
@@ -159,6 +182,7 @@ const AuthenticatedApp = () => {
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </ESPCaseProvider>
     </ErrorBoundary>
     </Suspense>
   );
@@ -169,7 +193,6 @@ function App() {
 
   return (
     <AuthProvider>
-      <ESPCaseProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
@@ -177,7 +200,6 @@ function App() {
         </Router>
         <Toaster />
       </QueryClientProvider>
-      </ESPCaseProvider>
     </AuthProvider>
   )
 }
