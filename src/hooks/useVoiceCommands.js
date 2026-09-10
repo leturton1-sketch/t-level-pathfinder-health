@@ -21,9 +21,7 @@ export function useVoiceCommands({ onToggleNav } = {}) {
   const [supported] = useState(
     () => typeof window !== "undefined" && !!(window.SpeechRecognition || window.webkitSpeechRecognition)
   );
-  const [enabled, setEnabled] = useState(() => {
-    try { return localStorage.getItem(STORAGE_KEY) === "true"; } catch { return false; }
-  });
+  const [enabled, setEnabled] = useState(false);
   const [listening, setListening] = useState(false);
   const [lastHeard, setLastHeard] = useState("");
 

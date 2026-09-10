@@ -1,3 +1,5 @@
+import { activateModule, isModuleActive } from "./moduleSession";
+
 export const CARE_PLAN_SIMULATIONS = {
   elvis: {
     briefing: "Prioritise respiratory deterioration, diabetes, constipation, medicines safety and timely escalation.",
@@ -62,6 +64,7 @@ export function getCarePlanSimulation(patient) {
 }
 
 export function storeCarePlanSimulation(patient, toolId) {
+  activateModule("care-plan");
   const simulation = getCarePlanSimulation(patient);
   localStorage.setItem("active_care_plan_simulation", JSON.stringify({
     patient,
@@ -73,6 +76,7 @@ export function storeCarePlanSimulation(patient, toolId) {
 }
 
 export function loadCarePlanSimulation(toolId) {
+  if (!isModuleActive("care-plan")) return null;
   try {
     const stored = JSON.parse(localStorage.getItem("active_care_plan_simulation") || "null");
     return stored?.toolId === toolId ? stored : null;

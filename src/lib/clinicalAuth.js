@@ -1,5 +1,7 @@
 import { base44 } from "@/api/base44Client";
 
+import { resetModuleSession } from "./moduleSession";
+
 const APP_SESSION_KEY = "pathfinder-app-user-v2";
 const SUPER_ADMIN_EMAILS = new Set([
   "lee.turton@academic.rnngroup.ac.uk",
@@ -26,6 +28,7 @@ function persist(user) {
 }
 
 export function setAppUser(appUser, method = "pin") {
+  resetModuleSession();
   if (!appUser) { persist(null); return; }
   const next = {
     id: appUser.id,
@@ -98,6 +101,8 @@ export function isAdmin() { return ["super_admin", "admin"].includes(cachedUser?
 export function canManageUsers() { return ["super_admin", "admin", "tutor"].includes(cachedUser?.role); }
 
 export function logout() {
+  resetModuleSession();
+  try { sessionStorage.removeItem("pathfinder-welcomed"); } catch {}
   persist(null);
   try { sessionStorage.removeItem("pathfinder-unlocked"); } catch {}
   base44.auth.logout(window.location.origin + "/");

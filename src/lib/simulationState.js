@@ -8,6 +8,8 @@
  * AI tutor, acting on their behalf) explicitly starts something.
  */
 
+import { activateModule, isModuleActive, MODULE_RESET_EVENT } from "./moduleSession";
+
 const STATE_KEY = "pf-simulation-state";
 const STAFFING_KEY = "pf-staffing-roster";
 const STATE_EVENT = "pf-simulation-change";
@@ -24,7 +26,7 @@ function defaultSimulationState() {
 }
 
 export function getSimulationState() {
-  if (typeof window === "undefined") return defaultSimulationState();
+  if (typeof window === "undefined" || !isModuleActive("ward")) return defaultSimulationState();
   try {
     const raw = window.localStorage.getItem(STATE_KEY);
     if (!raw) return defaultSimulationState();
@@ -43,6 +45,7 @@ function writeSimulationState(state) {
 
 /** Start a simulation. controller defaults to "user"; pass "ai" when the AI tutor initiates it. */
 export function startSimulation({ controller = "user", scenarioId = null, scenarioName = null } = {}) {
+  activateModule("ward");
   return writeSimulationState({ running: true, controller, scenarioId, scenarioName, startedAt: Date.now() });
 }
 
@@ -60,11 +63,13 @@ export function setSimulationController(controller) {
 
 export function subscribeSimulationState(callback) {
   if (typeof window === "undefined") return () => {};
-  const onChange = (event) => callback(event.detail ?? getSimulationState());
+  const onChange = (event) => callback(getSimulationState());
   const onStorage = (event) => { if (event.key === STATE_KEY) callback(getSimulationState()); };
+  window.addEventListener(MODULE_RESET_EVENT, onChange);
   window.addEventListener(STATE_EVENT, onChange);
   window.addEventListener("storage", onStorage);
   return () => {
+    window.removeEventListener(MODULE_RESET_EVENT, onChange);
     window.removeEventListener(STATE_EVENT, onChange);
     window.removeEventListener("storage", onStorage);
   };

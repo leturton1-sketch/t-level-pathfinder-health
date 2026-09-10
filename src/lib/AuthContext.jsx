@@ -4,6 +4,8 @@ import { appParams } from '@/lib/app-params';
 import { setPlatformUser } from '@/lib/clinicalAuth';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
+import { resetModuleSession } from "./moduleSession";
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -117,12 +119,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = (shouldRedirect = true) => {
+    resetModuleSession();
+    setPlatformUser(null);
+    for (const key of ["pathfinder-unlocked", "pathfinder-welcomed", "pathfinder-app-user-v2"]) {
+      try { sessionStorage.removeItem(key); } catch {}
+    }
     setUser(null);
     setIsAuthenticated(false);
     
     if (shouldRedirect) {
       // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
+      base44.auth.logout(window.location.origin + "/");
     } else {
       // Just remove the token without redirect
       base44.auth.logout();

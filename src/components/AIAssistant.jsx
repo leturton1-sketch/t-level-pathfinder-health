@@ -75,7 +75,7 @@ export default function AIAssistant({ context = "general" }) {
   const admin = isAdmin();
   const [listening, setListening] = useState(false);
   const [inputMode, setInputMode] = useState("text");
-  const [autoListen, setAutoListen] = useState(() => typeof window !== "undefined" && window.localStorage.getItem("clinicaledge-auto-listen") === "true");
+  const [autoListen, setAutoListen] = useState(false);
   const [pos, setPos] = useState(loadPos);
   const [panelTransparency, setPanelTransparency] = useState(loadTransparency);
   const synth = useVoiceSynthesis();
