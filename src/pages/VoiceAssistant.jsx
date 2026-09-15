@@ -11,7 +11,7 @@ import { base44 } from "@/api/base44Client";
 import AIComposer from "@/components/ai/AIComposer";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 
-import ClinicalHumanoid3D from "@/components/voice/ClinicalHumanoid3D";
+import InstructorViewer from "@/components/voice/InstructorViewer";
 import "@/components/ai/clinical-educator.css";
 
 const EDUCATOR_TRANSPARENCY_KEY = "pathfinder-educator-text-transparency";
@@ -217,7 +217,7 @@ export default function VoiceAssistant() {
       </header>
       <div className="educator-workspace">
         <section className="educator-stage" aria-label="Pathfinder humanoid Clinical Educator">
-          <ClinicalHumanoid3D state={status} speaking={synth.speaking} listening={listening} emotion={emotion} emotionKey={emotionKey} />
+          <InstructorViewer state={status} speaking={synth.speaking} listening={listening} />
         </section>
         <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
