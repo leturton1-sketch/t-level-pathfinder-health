@@ -30,12 +30,12 @@ export default function PathfinderFrame({ children }) {
     <header className="pf-global-header">
       <button className="pf-icon-button pf-global-menu" onClick={openMenu} aria-expanded={open} aria-label="Open navigation"><Menu size={22} /></button>
       <Link to="/" className="pf-global-brand" aria-label="Pathfinder Overview">
-        <img src="/branding/tl-blue.png" alt="" width="44" height="36" />
+        <TLevelLogo variant="emblem" size="sm" className="pf-global-brand-mark" />
         <span><strong>Pathfinder</strong><small>T-Level Health · Simulation</small></span>
       </Link>
       <div className="pf-global-header-actions">
         <VoiceCommandControl onToggleNav={toggleNavByVoice} />
-        <TLevelLogo variant="purple" size="sm" />
+        <TLevelLogo variant="blue" size="sm" />
       </div>
     </header>
     <div className="pf-global-workspace">
