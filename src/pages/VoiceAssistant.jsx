@@ -27,7 +27,8 @@ function loadEducatorTransparency() {
 const STATUS = {
   idle: "Ready to help",
   listening: "Listening…",
-  working: "Preparing your response…",
+  working: "Thinking through your question…",
+  voicing: "Connecting response to the educator…",
   complete: "Response ready",
   offline: "Unable to connect — please try again",
 };
@@ -98,10 +99,17 @@ export default function VoiceAssistant() {
   };
 
   const speakCompletion = async (text, completionCue) => {
-    setStatus("complete");
-    if (synth.prefs.muted) showEducatorCue(completionCue, true);
+    if (synth.prefs.muted) {
+      setStatus("complete");
+      showEducatorCue(completionCue, true);
+    } else {
+      setStatus("voicing");
+    }
     await synth.speak(text, {
-      onStart: () => showEducatorCue(completionCue, true),
+      onStart: () => {
+        setStatus("complete");
+        showEducatorCue(completionCue, true);
+      },
       onEnd: () => {
         setStatus(listeningRef.current ? "listening" : "idle");
         showEducatorCue("neutral");
@@ -217,7 +225,7 @@ export default function VoiceAssistant() {
         </div>
       </header>
       <div className="educator-workspace">
-        <ClinicalEducatorVideo cue={educatorCue} cueKey={educatorCueKey} speaking={synth.speaking} />
+        <ClinicalEducatorVideo cue={educatorCue} cueKey={educatorCueKey} speaking={synth.speaking} voiceState={status} />
         <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
             <h2 id="educator-conversation-title">Your conversation</h2>
