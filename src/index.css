@@ -3,29 +3,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Recolour official black artwork into the Pathfinder dark-blue brand tone. */
+.tlevel-logo--blue { filter: invert(18%) sepia(86%) saturate(2318%) hue-rotate(204deg) brightness(82%) contrast(103%); }
+
 @layer base {
   :root {
     /* T Level brand palette */
     --tl-salmon: 19 100% 70%;      /* #FF9567 official salmon */
     --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
     --tl-blue: 209 88% 45%;       /* Pathfinder blue #0F75D8 */
-    --tl-navy: 257 16% 9%;          /* #15131A accessible near-black */
+    --tl-navy: 214 74% 12%;          /* #15131A accessible near-black */
 
     /* Official T Levels light application theme */
     --background: 207 72% 98%;          /* #F6F4F8 */
-    --foreground: 257 16% 9%;           /* #15131A */
+    --foreground: 214 74% 12%;           /* #15131A */
     --card: 0 0% 100%;
-    --card-foreground: 257 16% 9%;
+    --card-foreground: 214 74% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 257 16% 9%;
+    --popover-foreground: 214 74% 12%;
     --primary: 209 88% 45%;             /* Pathfinder blue */
     --primary-foreground: 0 0% 100%;
     --secondary: 207 78% 96%;           /* ice blue */
-    --secondary-foreground: 257 16% 15%;
+    --secondary-foreground: 214 62% 18%;
     --muted: 207 78% 96%;
     --muted-foreground: 266 8% 38%;     /* #625D69 */
     --accent: 160 60% 46%;              /* healthcare green */
-    --accent-foreground: 257 16% 9%;
+    --accent-foreground: 214 74% 12%;
     --destructive: 10 97% 56%;          /* #FC4421 */
     --destructive-foreground: 0 0% 100%;
     --border: 209 42% 86%;              /* pale blue */
@@ -170,19 +173,19 @@
 @layer base {
   :root {
     --background: 207 72% 98%;
-    --foreground: 257 16% 9%;
+    --foreground: 214 74% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 257 16% 9%;
+    --card-foreground: 214 74% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 257 16% 9%;
+    --popover-foreground: 214 74% 12%;
     --primary: 209 88% 45%;
     --primary-foreground: 0 0% 100%;
     --secondary: 207 78% 96%;
-    --secondary-foreground: 257 16% 15%;
+    --secondary-foreground: 214 62% 18%;
     --muted: 207 78% 96%;
     --muted-foreground: 266 8% 38%;
     --accent: 19 100% 70%;
-    --accent-foreground: 257 16% 9%;
+    --accent-foreground: 214 74% 12%;
     --border: 209 42% 86%;
     --input: 209 42% 86%;
     --ring: 209 88% 45%;
