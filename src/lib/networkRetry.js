@@ -24,7 +24,7 @@ function retryAfterMs(error) {
   return Number.isFinite(at) ? Math.max(0, at - Date.now()) : 0;
 }
 
-const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+const wait = (ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 
 export async function withExponentialBackoff(
   operation,
