@@ -14,15 +14,18 @@ const LABELS = {
 export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, speaking = false, voiceState = "idle" }) {
   const distortionTimerRef = useRef(null);
   const [distorting, setDistorting] = useState(false);
-  const connectedState = speaking ? "speaking" : voiceState;
+  const normalisedVoiceState = voiceState === "offline" ? "unresponsive" : voiceState;
+  const connectedState = speaking ? "speaking" : normalisedVoiceState;
   const activeCue = LABELS[cue] ? cue : "neutral";
   const stateLabel = connectedState === "speaking"
     ? "Speaking with you"
     : connectedState === "listening"
       ? "Listening to your question"
-      : connectedState === "working" || connectedState === "voicing"
-        ? "Preparing your clinical learning response"
-        : LABELS[activeCue];
+      : connectedState === "unresponsive"
+        ? "Connection interrupted — awaiting recovery"
+        : connectedState === "working" || connectedState === "voicing"
+          ? "Preparing your clinical learning response"
+          : LABELS[activeCue];
 
   useEffect(() => {
     if (activeCue === "neutral") return undefined;
@@ -46,9 +49,17 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
             key={`${activeCue}-${cueKey}`}
             className="educator-character-model"
             src="/pathfinder-educator/clinical-educator-cartoon.webp"
-            alt="Cartoon Clinical Educator standing ready in blue scrubs"
+            alt="Cartoon Clinical Educator standing ready in blue scrubs with facial, finger rune and owl tattoos"
             draggable={false}
           />
+          <img
+            className="educator-character-echo"
+            src="/pathfinder-educator/clinical-educator-cartoon.webp"
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+          />
+          <div className="educator-eye-lights" aria-hidden="true"><span /><span /></div>
           <div className="educator-voice-aura" aria-hidden="true" />
           <div className="educator-hologram-noise" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-a" aria-hidden="true" />
