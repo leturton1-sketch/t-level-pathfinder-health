@@ -728,7 +728,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
     });
     customGroupsRef.current = {};
     (customStructures || []).forEach((c) => {
-      const color = new THREE.Color(c.color ?? 0x765AB0);
+      const color = new THREE.Color(c.color ?? 0x0F75D8);
       const mat = new THREE.MeshPhysicalMaterial({
         color, metalness: 0, roughness: 0.5, transparent: true, opacity: 0.92,
         side: THREE.DoubleSide, clearcoat: 0.12, depthWrite: true,
