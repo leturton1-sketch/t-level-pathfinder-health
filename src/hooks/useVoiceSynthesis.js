@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { VOICE_PROFILES, loadPrefs, savePrefs, applyProfile, prepareSpeechText } from "@/lib/voicePreferences";
+import { DEFAULT_PREFS, VOICE_PROFILES, loadPrefs, savePrefs, applyProfile, prepareSpeechText } from "@/lib/voicePreferences";
 import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
 
 /**
@@ -10,11 +10,15 @@ import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
  * Cloud failures fall back to browser TTS automatically.
  */
 export function useVoiceSynthesis() {
-  const [prefs, setPrefs] = useState(loadPrefs);
+  const [prefs, setPrefs] = useState(() => ({ ...DEFAULT_PREFS }));
   const [speaking, setSpeaking] = useState(false);
   const [supported] = useState(() => typeof window !== "undefined" && "speechSynthesis" in window);
   const [voices, setVoices] = useState([]);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    setPrefs(loadPrefs());
+  }, []);
 
   useEffect(() => {
     if (!supported) return;
