@@ -71,7 +71,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
   return (
     <div className="absolute right-0 top-0 h-full w-full sm:max-w-md bg-white shadow-2xl z-30 flex flex-col animate-slide-up overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-br from-white via-[#F6F4F8] to-[#E9E6EF] px-4 pt-4 pb-0 border-b border-[#DCD2EE] shadow-[0_10px_30px_-22px_rgba(36,27,58,.45)]">
+      <div className="bg-gradient-to-br from-white via-[#F4FAFF] to-[#D8EAF8] px-4 pt-4 pb-0 border-b border-[#BED9F2] shadow-[0_10px_30px_-22px_rgba(36,27,58,.45)]">
         <div className="flex items-start justify-between mb-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -97,7 +97,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-[#F2EEF7] rounded-none border-t border-[#E9E6EF]">
+        <div className="flex bg-[#EAF5FF] rounded-none border-t border-[#D8EAF8]">
           {tabs.map(t => {
             const Icon = t.icon;
             return (
