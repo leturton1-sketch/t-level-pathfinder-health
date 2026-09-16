@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn } from "lucide-react";
+import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, GraduationCap, Users, HeartPulse, ShieldCheck, ChartNoAxesColumnIncreasing } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
@@ -155,6 +155,16 @@ export default function LoginGate({ onUnlock }) {
         </div>
         <p className="login-gate-message">Explore<br />understand<br />apply<strong>The next level</strong></p>
         <p className="login-gate-promise">Real<br />skills<br />real<br />careers<br />a healthier<br />tomorrow</p>
+        <div className="login-gate-values" aria-hidden="true">
+          <span><GraduationCap />Real skills</span>
+          <span><Users />Real careers</span>
+          <span><HeartPulse />A healthier tomorrow</span>
+        </div>
+        <div className="login-gate-trust" aria-hidden="true">
+          <span><ShieldCheck />Safe</span>
+          <span><Users />Supportive</span>
+          <span><ChartNoAxesColumnIncreasing />Progressive</span>
+        </div>
       </div>
 
       <div className="login-gate-card">
