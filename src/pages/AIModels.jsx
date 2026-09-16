@@ -6,8 +6,6 @@ import {
   FREE_OPENROUTER_MODELS, OPENROUTER_AUTO_FREE_MODEL, PUTER_MODELS,
 } from "@/lib/aiRouter";
 
-const PURPLE = "#0F75D8";
-
 const MODES = [
   { key: "auto", label: "Auto", detail: "Local → Puter → OpenRouter", icon: RotateCw },
   { key: "local", label: "LocalAI", detail: "On-device server", icon: HardDrive },
