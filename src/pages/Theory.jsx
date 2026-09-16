@@ -46,11 +46,11 @@ export default function Theory() {
   }
 
   return (
-    <div className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.12),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
+    <div className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,117,216,0.12),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
       <main className="mx-auto max-w-4xl">
         <section className="polished-glass-edge mb-6 overflow-hidden rounded-[28px] border border-white/90 bg-white/85 p-6 shadow-[0_20px_45px_rgba(66,55,88,0.13),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl sm:p-8">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-blue to-sky-500 text-white shadow-[0_10px_20px_rgba(118,90,176,0.28),inset_0_1px_0_rgba(255,255,255,0.35)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-blue to-sky-500 text-white shadow-[0_10px_20px_rgba(41,231,255,0.28),inset_0_1px_0_rgba(255,255,255,0.35)]">
               <BookOpen className="h-6 w-6" aria-hidden="true" />
             </div>
             <div>
