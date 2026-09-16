@@ -12,11 +12,11 @@
     --tl-salmon: 19 100% 70%;      /* #FF9567 official salmon */
     --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
     --tl-blue: 209 88% 45%;       /* Pathfinder blue #0F75D8 */
-    --tl-navy: 214 74% 12%;          /* #15131A accessible near-black */
+    --tl-navy: 214 74% 12%;          /* deep clinical navy */
 
     /* Official T Levels light application theme */
     --background: 207 72% 98%;          /* #F6F4F8 */
-    --foreground: 214 74% 12%;           /* #15131A */
+    --foreground: 214 74% 12%;           /* deep clinical navy */
     --card: 0 0% 100%;
     --card-foreground: 214 74% 12%;
     --popover: 0 0% 100%;
@@ -26,7 +26,7 @@
     --secondary: 207 78% 96%;           /* ice blue */
     --secondary-foreground: 214 62% 18%;
     --muted: 207 78% 96%;
-    --muted-foreground: 266 8% 38%;     /* #625D69 */
+    --muted-foreground: 213 18% 38%;     /* #625D69 */
     --accent: 160 60% 46%;              /* healthcare green */
     --accent-foreground: 214 74% 12%;
     --destructive: 10 97% 56%;          /* #FC4421 */
@@ -183,8 +183,8 @@
     --secondary: 207 78% 96%;
     --secondary-foreground: 214 62% 18%;
     --muted: 207 78% 96%;
-    --muted-foreground: 266 8% 38%;
-    --accent: 19 100% 70%;
+    --muted-foreground: 213 18% 38%;
+    --accent: 160 60% 46%;
     --accent-foreground: 214 74% 12%;
     --border: 209 42% 86%;
     --input: 209 42% 86%;
