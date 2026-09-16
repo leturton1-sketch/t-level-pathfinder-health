@@ -194,7 +194,7 @@ body.pf-theme-active {
   [class*="text-violet-500"],[class*="text-violet-600"],[class*="text-violet-700"],[class*="text-violet-800"],[class*="text-violet-900"],
   [class*="text-fuchsia-500"],[class*="text-fuchsia-600"],[class*="text-fuchsia-700"]
 ) { color:#0759b6 !important; }
-.pf-theme-active :is([class*="text-purple-50"],[class*="text-purple-100"],[class*="text-violet-50"],[class*="text-violet-100"]) { color:#eaf5ff !important; }
+.pf-theme-active :is([class~="text-purple-50"],[class~="text-purple-100"],[class~="text-violet-50"],[class~="text-violet-100"]) { color:#eaf5ff !important; }
 .pf-theme-active :is([class*="bg-purple-50"],[class*="bg-violet-50"],[class*="bg-fuchsia-50"]) { background-color:#eef7ff !important; }
 .pf-theme-active :is([class*="bg-purple-100"],[class*="bg-violet-100"],[class*="bg-fuchsia-100"]) { background-color:#dceeff !important; }
 .pf-theme-active :is([class*="bg-purple-500"],[class*="bg-violet-500"],[class*="bg-fuchsia-500"]) { background-color:#1684e5 !important; }
