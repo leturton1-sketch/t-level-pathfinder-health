@@ -42,6 +42,7 @@
 .educator-stage.is-listening .educator-video-live { background:#52efff; box-shadow:0 0 0 5px rgba(82,239,255,.16),0 0 18px #52efff; }
 .educator-stage:is(.is-working,.is-voicing) .educator-video-live { background:#f4c95d; box-shadow:0 0 0 5px rgba(244,201,93,.16),0 0 18px rgba(244,201,93,.8); }
 .educator-stage.is-speaking .educator-video-live { background:#54f6a8; box-shadow:0 0 0 5px rgba(84,246,168,.18),0 0 20px #54f6a8; animation:educator-live-pulse 1.15s ease-in-out infinite; }
+.educator-stage.is-unresponsive .educator-video-live { background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.16),0 0 18px rgba(239,68,68,.84); }
 .educator-hologram-noise,.educator-hologram-slice,.educator-tattoo-lights { position:absolute; inset:0; pointer-events:none; opacity:0; }
 .educator-hologram-noise { z-index:3; mix-blend-mode:screen; background:repeating-linear-gradient(0deg,rgba(41,231,255,.14) 0 1px,transparent 1px 6px),linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent); }
 .educator-hologram-slice { z-index:4; height:13%; background:rgba(41,231,255,.18); mix-blend-mode:screen; backdrop-filter:hue-rotate(26deg) contrast(1.35); }
@@ -138,6 +139,9 @@
  .educator-stage.is-performing .tattoo-light,
  .educator-stage.is-speaking .tattoo-light,
  .educator-stage.is-speaking .educator-voice-aura,
- .educator-stage.is-speaking .educator-video-live { animation:none !important; }
+ .educator-stage.is-speaking .educator-video-live,
+ .educator-character-echo,
+ .educator-eye-lights { animation:none !important; }
+ .educator-character-echo { display:none; }
  .educator-stage.is-performing .tattoo-light { opacity:.3; }
 }
