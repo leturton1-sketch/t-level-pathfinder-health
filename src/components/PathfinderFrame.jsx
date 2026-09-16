@@ -9,11 +9,18 @@ import VoiceCommandControl from "@/components/voice/VoiceCommandControl";
 
 export default function PathfinderFrame({ children }) {
   const { pathname } = useLocation();
-  const user = getCurrentUser();
-  const [desktop, setDesktop] = useState(() => window.matchMedia("(min-width: 1440px)").matches);
-  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem("pathfinder-nav-collapsed") === "true"; } catch { return false; } });
+  const [user, setUser] = useState(null);
+  const [desktop, setDesktop] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
   const [open, setOpen] = useState(false);
-  useEffect(() => { try { localStorage.setItem("pathfinder-nav-collapsed", String(collapsed)); } catch { /* Navigation still works without storage. */ } }, [collapsed]);
+  useEffect(() => {
+    setUser(getCurrentUser());
+    setDesktop(window.matchMedia("(min-width: 1440px)").matches);
+    try { setCollapsed(localStorage.getItem("pathfinder-nav-collapsed") === "true"); } catch { /* Use expanded navigation. */ }
+    setClientReady(true);
+  }, []);
+  useEffect(() => { if (!clientReady) return; try { localStorage.setItem("pathfinder-nav-collapsed", String(collapsed)); } catch { /* Navigation still works without storage. */ } }, [collapsed, clientReady]);
   const triggerRef = useRef(null);
   const compact = !desktop || collapsed;
   useEffect(() => {
