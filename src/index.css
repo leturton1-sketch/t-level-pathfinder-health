@@ -299,7 +299,7 @@
     border: 1px solid transparent !important;
     background:
       linear-gradient(135deg, rgba(255,255,255,.94) 0%, rgba(246,244,248,.88) 48%, rgba(233,230,239,.76) 100%) padding-box,
-      linear-gradient(118deg, #e9e6ef 0%, #ffffff 46%, #dcd2ee 100%) border-box !important;
+      linear-gradient(118deg, #d8eaf8 0%, #ffffff 46%, #bed9f2 100%) border-box !important;
     background-clip: padding-box, border-box !important;
     background-origin: border-box !important;
     backdrop-filter: blur(22px) saturate(118%);
@@ -333,7 +333,7 @@
   .clinical-global-theme :where(input, textarea, select, [role="combobox"]) {
     color: #15131a !important;
     background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,238,247,.88)) !important;
-    border-color: #dcd2ee !important;
+    border-color: #bed9f2 !important;
     box-shadow:
       inset 2px 2px 5px rgba(118,90,176,.08),
       inset -2px -2px 5px rgba(255,255,255,.92),
@@ -371,7 +371,7 @@
     border: 1px solid transparent !important;
     background:
       linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,238,247,.94)) padding-box,
-      linear-gradient(118deg, #e9e6ef 0%, #ffffff 46%, #dcd2ee 100%) border-box !important;
+      linear-gradient(118deg, #d8eaf8 0%, #ffffff 46%, #bed9f2 100%) border-box !important;
     background-clip: padding-box, border-box !important;
     background-origin: border-box !important;
     box-shadow:
@@ -386,7 +386,7 @@
     border: 1px solid transparent !important;
     background:
       linear-gradient(145deg, rgba(255,255,255,.94), rgba(242,238,247,.88)) padding-box,
-      linear-gradient(118deg, #e9e6ef 0%, #ffffff 46%, #dcd2ee 100%) border-box !important;
+      linear-gradient(118deg, #d8eaf8 0%, #ffffff 46%, #bed9f2 100%) border-box !important;
     background-clip: padding-box, border-box !important;
     background-origin: border-box !important;
     box-shadow:
@@ -444,8 +444,8 @@
 
   .tlevel-3d-panel {
     position: relative;
-    border: 1px solid #e9e6ef;
-    background: linear-gradient(145deg, #fff, #f2eef7);
+    border: 1px solid #d8eaf8;
+    background: linear-gradient(145deg, #fff, #edf7ff);
     box-shadow: 0 8px 0 -4px rgba(118,90,176,.18), 0 22px 38px -22px rgba(36,27,58,.38), inset 1px 1px 1px #fff;
     transform-style: preserve-3d;
   }
