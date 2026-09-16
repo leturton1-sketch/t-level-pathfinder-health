@@ -31,6 +31,7 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
   const [introActive, setIntroActive] = useState(false);
   const [activeCue, setActiveCue] = useState("neutral");
   const [resting, setResting] = useState(true);
+  const [clientReady, setClientReady] = useState(false);
   const [distorting, setDistorting] = useState(false);
 
   const src = useMemo(() => CLIPS[activeCue] || CLIPS.neutral, [activeCue]);
@@ -58,11 +59,12 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
       setActiveCue("first_use");
       triggerDistortion();
     }
+    setClientReady(true);
     return () => window.clearTimeout(distortionTimerRef.current);
   }, []);
 
   useEffect(() => {
-    if (introActive) return;
+    if (!clientReady || introActive) return;
     const nextCue = CLIPS[cue] ? cue : "neutral";
     if (nextCue === "neutral") {
       enterRestMode();
@@ -71,7 +73,7 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
     setResting(false);
     setActiveCue(nextCue);
     triggerDistortion();
-  }, [cue, cueKey]);
+  }, [cue, cueKey, clientReady, introActive]);
 
   useEffect(() => {
     const video = videoRef.current;
