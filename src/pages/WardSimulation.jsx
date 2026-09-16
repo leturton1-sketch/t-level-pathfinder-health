@@ -17,6 +17,7 @@ import { WARD_ITEM_TYPES, generateDefaultItems } from "@/lib/wardItems";
 import { useWardNarration } from "@/hooks/useWardNarration";
 import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import { getSimulationState, startSimulation, endSimulation, setSimulationController, subscribeSimulationState } from "@/lib/simulationState";
+import { withExponentialBackoff } from "@/lib/networkRetry";
 import {
   Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
   Pencil, LayoutGrid, Settings, Camera, AlertTriangle, Power, Info,
@@ -116,7 +117,7 @@ export default function WardSimulation() {
 
   const loadScenarios = async () => {
     try {
-      const existing = await base44.entities.Scenario.list();
+      const existing = await withExponentialBackoff(() => base44.entities.Scenario.list());
       const customIds = new Set(existing.map((scenario) => scenario.name));
       setScenarios([...PREBUILT_SCENARIOS.filter((scenario) => !customIds.has(scenario.name)), ...existing]);
     } catch { setScenarios(PREBUILT_SCENARIOS); }
@@ -125,7 +126,7 @@ export default function WardSimulation() {
   const loadLayout = async () => {
     setLoading(true);
     try {
-      const existing = await base44.entities.WardLayout.filter({ suite: "ward" });
+      const existing = await withExponentialBackoff(() => base44.entities.WardLayout.filter({ suite: "ward" }));
       if (existing.length > 0 && existing[0].items) {
         try {
           setItems(normaliseWardLayout(JSON.parse(existing[0].items)));
@@ -149,9 +150,9 @@ export default function WardSimulation() {
     saveTimerRef.current = setTimeout(async () => {
       try {
         const itemsJson = JSON.stringify(itemsToSave);
-        const existing = await base44.entities.WardLayout.filter({ suite: "ward" });
+        const existing = await withExponentialBackoff(() => base44.entities.WardLayout.filter({ suite: "ward" }));
         if (existing.length > 0) {
-          await base44.entities.WardLayout.update(existing[0].id, { items: itemsJson });
+          await withExponentialBackoff(() => base44.entities.WardLayout.update(existing[0].id, { items: itemsJson }));
         } else {
           await base44.entities.WardLayout.create({ suite: "ward", items: itemsJson, layout_name: "Default" });
         }
@@ -337,8 +338,8 @@ export default function WardSimulation() {
     setSaveStatus("Saving…");
     try {
       const itemsJson = JSON.stringify(itemsToSave);
-      const existing = await base44.entities.WardLayout.filter({ suite: "ward" });
-      if (existing.length > 0) await base44.entities.WardLayout.update(existing[0].id, { items: itemsJson });
+      const existing = await withExponentialBackoff(() => base44.entities.WardLayout.filter({ suite: "ward" }));
+      if (existing.length > 0) await withExponentialBackoff(() => base44.entities.WardLayout.update(existing[0].id, { items: itemsJson }));
       else await base44.entities.WardLayout.create({ suite: "ward", items: itemsJson, layout_name: "Default" });
       setSaveStatus("Layout saved");
       announceVoiceFeedback("Ward layout saved successfully.");
