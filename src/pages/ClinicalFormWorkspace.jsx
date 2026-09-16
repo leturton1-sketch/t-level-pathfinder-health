@@ -251,7 +251,7 @@ export default function ClinicalFormWorkspace() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.13),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,117,216,0.13),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
       <header className="sticky top-0 z-20 border-b border-white/90 bg-white/85 shadow-[0_8px_24px_rgba(66,55,88,0.08)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6">
           <button onClick={() => navigate("/care-planning")} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm hover:text-tl-blue" aria-label="Back to Care Planning Suite">
@@ -344,7 +344,7 @@ export default function ClinicalFormWorkspace() {
             <button type="button" onClick={() => save(false)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-tl-blue/30 bg-white px-5 py-3.5 text-sm font-extrabold text-tl-blue transition hover:bg-tl-blue/8 disabled:opacity-50">
               <Save className="h-4 w-4" /> Save Draft
             </button>
-            <button type="button" onClick={() => save(true)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-tl-blue to-sky-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(118,90,176,0.25)] transition hover:-translate-y-0.5 disabled:opacity-50">
+            <button type="button" onClick={() => save(true)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-tl-blue to-sky-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(41,231,255,0.25)] transition hover:-translate-y-0.5 disabled:opacity-50">
               <Send className="h-4 w-4" /> {saving ? "Generating feedback…" : "Submit & Generate Feedback"}
             </button>
           </div>
