@@ -72,7 +72,6 @@ export function useVoiceSynthesis() {
 
     if (prefs.engine === "cloud") {
       try {
-        setSpeaking(true);
         const res = await base44.integrations.Core.GenerateSpeech({
           text: clean,
           voice: profile.cloudVoice,
@@ -86,7 +85,7 @@ export function useVoiceSynthesis() {
         // Fire onStart only when audio actually begins playing, so the
         // waveform animation aligns to real playback duration (not the
         // cloud-generation latency).
-        audio.onplay = () => onStart?.();
+        audio.onplay = () => { setSpeaking(true); onStart?.(); };
         audio.onended = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
         audio.onerror = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
         await audio.play();
