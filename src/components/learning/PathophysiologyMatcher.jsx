@@ -42,11 +42,11 @@ export default function PathophysiologyMatcher() {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
-          <Stethoscope className="w-5 h-5 text-violet-600" />
+        <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
+          <Stethoscope className="w-5 h-5 text-sky-600" />
         </div>
         <div className="flex-1">
-          <span className="bg-violet-50 text-violet-700 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Area 9 · Pathophysiology</span>
+          <span className="bg-sky-50 text-sky-700 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Area 9 · Pathophysiology</span>
           <h2 className="text-lg sm:text-xl font-heading font-bold text-slate-800 mt-0.5">Pathophysiology Matcher</h2>
         </div>
         <div className="text-right">

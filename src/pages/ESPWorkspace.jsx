@@ -166,7 +166,7 @@ function readEvidence(value) {
 }
 
 function Chip({ code, text, tone }) {
-  const colours = tone === "ao" ? "border-amber-300 bg-amber-50 text-amber-900" : tone === "po" ? "border-violet-300 bg-violet-50 text-violet-900" : "border-cyan-300 bg-cyan-50 text-cyan-900";
+  const colours = tone === "ao" ? "border-amber-300 bg-amber-50 text-amber-900" : tone === "po" ? "border-sky-300 bg-sky-50 text-sky-900" : "border-cyan-300 bg-cyan-50 text-cyan-900";
   return <span title={text} className={`cursor-help rounded-lg border px-2 py-1 text-[10px] font-black ${colours}`}>{code}</span>;
 }
 
@@ -180,7 +180,7 @@ function Timer({ minutes }) {
   }, [running, seconds]);
   const display = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   return <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
-    <Clock3 className="h-4 w-4 text-violet-700" /><span className="font-mono text-sm font-black text-slate-900">{display}</span>
+    <Clock3 className="h-4 w-4 text-sky-700" /><span className="font-mono text-sm font-black text-slate-900">{display}</span>
     <button onClick={() => setRunning((value) => !value)} aria-label={running ? "Pause timer" : "Start timer"} className="grid h-8 w-8 place-items-center rounded-lg bg-slate-950 text-white">{running ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}</button>
     <button onClick={() => { setRunning(false); setSeconds(minutes * 60); }} aria-label="Reset timer" className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><RotateCcw className="h-3.5 w-3.5" /></button>
   </div>;
@@ -266,10 +266,10 @@ export default function ESPWorkspace() {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_320px]">
         <section className="space-y-4">
-          {practiceStimulus && <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><div className="flex gap-3"><UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-violet-700" /><div><p className="text-xs font-black uppercase tracking-wide text-violet-900">Practice stimulus</p><p className="mt-2 whitespace-pre-line text-sm leading-6 text-violet-950">{practiceStimulus}</p></div></div></div>}
+          {practiceStimulus && <div className="rounded-2xl border border-sky-200 bg-sky-50 p-5"><div className="flex gap-3"><UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-sky-700" /><div><p className="text-xs font-black uppercase tracking-wide text-sky-900">Practice stimulus</p><p className="mt-2 whitespace-pre-line text-sm leading-6 text-sky-950">{practiceStimulus}</p></div></div></div>}
           {module.fields.map(([field, label, prompt], index) => <article key={field} className="rounded-[22px] border border-white bg-white p-5 shadow-sm">
-            <div className="mb-3 flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-violet-100 text-xs font-black text-violet-800">{index + 1}</span><div><label htmlFor={field} className="font-black text-slate-950">{label}</label><p className="mt-1 text-xs leading-5 text-slate-600">{prompt}</p></div></div>
-            <textarea id={field} value={answers[field] || ""} onChange={(event) => setAnswers((value) => ({ ...value, [field]: event.target.value }))} rows={7} className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-900 outline-none focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100" placeholder="Enter your evidence here…" />
+            <div className="mb-3 flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-sky-100 text-xs font-black text-sky-800">{index + 1}</span><div><label htmlFor={field} className="font-black text-slate-950">{label}</label><p className="mt-1 text-xs leading-5 text-slate-600">{prompt}</p></div></div>
+            <textarea id={field} value={answers[field] || ""} onChange={(event) => setAnswers((value) => ({ ...value, [field]: event.target.value }))} rows={7} className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-900 outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" placeholder="Enter your evidence here…" />
             <p className="mt-1 text-right text-[10px] font-bold text-slate-400">{(answers[field] || "").trim().split(/\s+/).filter(Boolean).length} words</p>
           </article>)}
         </section>
@@ -281,9 +281,9 @@ export default function ESPWorkspace() {
           </section>
 
           <section className="rounded-[22px] border border-white bg-white p-5 shadow-sm">
-            <div className="flex items-center gap-2"><Target className="h-5 w-5 text-violet-700" /><h2 className="font-black text-slate-950">Completion evidence</h2></div>
+            <div className="flex items-center gap-2"><Target className="h-5 w-5 text-sky-700" /><h2 className="font-black text-slate-950">Completion evidence</h2></div>
             <p className="mt-2 text-xs leading-5 text-slate-600">{completedCount}/{module.fields.length} evidence fields completed · {checks.length}/{module.checklist.length} checks confirmed.</p>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-gradient-to-r from-cyan-500 to-violet-600" style={{ width: `${Math.round(((completedCount + checks.length) / (module.fields.length + module.checklist.length)) * 100)}%` }} /></div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-gradient-to-r from-cyan-500 to-sky-600" style={{ width: `${Math.round(((completedCount + checks.length) / (module.fields.length + module.checklist.length)) * 100)}%` }} /></div>
           </section>
 
           {module.resource && <button onClick={() => navigate(module.resource[0])} className="flex min-h-12 w-full items-center justify-between rounded-2xl border border-cyan-200 bg-cyan-50 px-4 text-left text-sm font-black text-cyan-950 hover:bg-cyan-100"><span className="flex items-center gap-2"><BookOpen className="h-4 w-4" />{module.resource[1]}</span><ExternalLink className="h-4 w-4" /></button>}
@@ -292,7 +292,7 @@ export default function ESPWorkspace() {
 
       <div className="sticky bottom-4 z-30 mt-6 flex flex-wrap gap-3 rounded-2xl border border-white/90 bg-white/90 p-3 shadow-2xl backdrop-blur-xl">
         <button onClick={() => save(false)} className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800 hover:bg-slate-50"><Save className="h-4 w-4" />{saved ? "Saved to portfolio" : "Save progress"}</button>
-        <button onClick={() => save(true)} disabled={!ready} className="inline-flex min-h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40"><FileCheck2 className="h-4 w-4" />Complete section and return<ArrowRight className="h-4 w-4" /></button>
+        <button onClick={() => save(true)} disabled={!ready} className="inline-flex min-h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-40"><FileCheck2 className="h-4 w-4" />Complete section and return<ArrowRight className="h-4 w-4" /></button>
       </div>
     </div>
   </main>;

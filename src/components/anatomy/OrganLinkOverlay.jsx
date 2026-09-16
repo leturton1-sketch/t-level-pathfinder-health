@@ -36,7 +36,7 @@ export default function OrganLinkOverlay({ selectedId, onClose }) {
         </div>
         <Link
           to={`/clinical-skills-academy?pathway=${pathway}`}
-          className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-3 py-2 text-[11px] font-black text-white shadow-md transition hover:opacity-90"
+          className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 px-3 py-2 text-[11px] font-black text-white shadow-md transition hover:opacity-90"
         >
           Theory <ExternalLink className="h-3 w-3" />
         </Link>

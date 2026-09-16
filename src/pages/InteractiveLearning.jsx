@@ -25,10 +25,10 @@ const MODULE_COLORS = {
   atlas: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200", icon: "bg-rose-100" },
   ppe: { bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200", icon: "bg-amber-100" },
   hazard: { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-200", icon: "bg-orange-100" },
-  patho: { bg: "bg-violet-50", text: "text-violet-600", border: "border-violet-200", icon: "bg-violet-100" },
+  patho: { bg: "bg-sky-50", text: "text-sky-600", border: "border-sky-200", icon: "bg-sky-100" },
   sciencedeck: { bg: "bg-teal-50", text: "text-teal-600", border: "border-teal-200", icon: "bg-teal-100" },
   mockepr: { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", icon: "bg-slate-200" },
-  carepersona: { bg: "bg-fuchsia-50", text: "text-fuchsia-600", border: "border-fuchsia-200", icon: "bg-fuchsia-100" },
+  carepersona: { bg: "bg-cyan-50", text: "text-cyan-600", border: "border-cyan-200", icon: "bg-cyan-100" },
   orgchart: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200", icon: "bg-blue-100" },
   sopmaster: { bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200", icon: "bg-emerald-100" },
   publichealth: { bg: "bg-rose-50", text: "text-rose-600", border: "border-rose-200", icon: "bg-rose-100" },
@@ -128,7 +128,7 @@ export default function InteractiveLearning() {
                   <span key={code} className="text-[9px] font-semibold text-slate-600 bg-white/60 px-1.5 py-0.5 rounded">{code}</span>
                 ))}
                 {mod.poCodes.map(code => (
-                  <span key={code} className="text-[9px] font-semibold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">{code}</span>
+                  <span key={code} className="text-[9px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{code}</span>
                 ))}
               </div>
             </motion.button>

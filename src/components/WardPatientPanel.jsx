@@ -234,15 +234,15 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Debrief Rationale</p>
                   <p className="text-xs text-slate-600 leading-relaxed">{patient.debrief_rationale}</p>
                 </div>
-                <div className="rounded-xl border border-tl-purple/25 bg-tl-purple/5 p-3">
-                  <p className="text-[10px] font-bold text-tl-purple uppercase tracking-wider mb-1">Care Planning Practice</p>
+                <div className="rounded-xl border border-tl-blue/25 bg-tl-blue/5 p-3">
+                  <p className="text-[10px] font-bold text-tl-blue uppercase tracking-wider mb-1">Care Planning Practice</p>
                   <p className="mb-2.5 text-xs leading-relaxed text-slate-600">{carePlanSimulation.briefing}</p>
                   <div className="space-y-1.5">
                     {carePlanSimulation.tools.map((tool) => (
                       <button
                         key={tool.id}
                         onClick={() => onLaunchCarePlan?.(tool.id, patient)}
-                        className="flex w-full items-center justify-between rounded-lg border border-white bg-white px-3 py-2 text-left text-xs font-semibold text-slate-700 shadow-sm transition hover:border-tl-purple/30 hover:text-tl-purple"
+                        className="flex w-full items-center justify-between rounded-lg border border-white bg-white px-3 py-2 text-left text-xs font-semibold text-slate-700 shadow-sm transition hover:border-tl-blue/30 hover:text-tl-blue"
                       >
                         <span className="flex items-center gap-2"><ClipboardPenLine className="h-3.5 w-3.5" />{tool.label}</span>
                         <ChevronRight className="h-3.5 w-3.5" />
@@ -268,7 +268,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
           </button>
           <button
             onClick={() => onLaunchCarePlan?.(carePlanSimulation.tools[0].id, patient)}
-            className="py-2.5 rounded-xl bg-tl-purple text-white text-xs font-heading font-semibold hover:opacity-90 flex items-center justify-center gap-1.5"
+            className="py-2.5 rounded-xl bg-tl-blue text-white text-xs font-heading font-semibold hover:opacity-90 flex items-center justify-center gap-1.5"
           >
             <ClipboardPenLine className="w-3.5 h-3.5" /> Care Plan Practice
           </button>

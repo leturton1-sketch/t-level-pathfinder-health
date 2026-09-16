@@ -125,7 +125,7 @@ export default function AppInstallerPanel() {
 
   return (
     <section className="polished-glass-edge overflow-hidden rounded-[28px] border border-white/90 bg-white/70 shadow-[0_20px_55px_-34px_rgba(15,23,42,.65),inset_1px_1px_2px_white] backdrop-blur-2xl">
-      <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-purple-50/70 p-6">
+      <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-blue-50/70 p-6">
         <div className="flex items-start gap-3">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-700 text-white shadow-[0_9px_18px_-10px_rgba(8,145,178,.9),inset_1px_1px_1px_rgba(255,255,255,.7)]">
             <Download className="h-6 w-6" />

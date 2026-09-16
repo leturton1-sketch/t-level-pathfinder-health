@@ -131,7 +131,7 @@ function Field({ label, required = false, hint, children }) {
   );
 }
 
-const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-tl-purple focus:ring-2 focus:ring-tl-purple/15";
+const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-tl-blue focus:ring-2 focus:ring-tl-blue/15";
 
 export default function HealthHub() {
   const navigate = useNavigate();
@@ -287,7 +287,7 @@ export default function HealthHub() {
     <main className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(191,228,208,.38),transparent_30%),radial-gradient(circle_at_top_right,rgba(220,210,238,.45),transparent_30%)] text-slate-900">
       <header className="mx-auto mb-6 flex max-w-6xl flex-wrap items-center justify-between gap-4 rounded-[28px] border border-white/90 bg-white/80 p-6 shadow-xl backdrop-blur-2xl">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate("/")} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-tl-purple" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
+          <button onClick={() => navigate("/")} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-tl-blue" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
           <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-700 text-white shadow-lg"><HeartPulse className="h-7 w-7" /></span>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[.2em] text-emerald-700">Clinic recording and learning</p>
@@ -295,20 +295,20 @@ export default function HealthHub() {
             <p className="text-sm text-slate-600">Record health-hub activity and complete a person-centred Health & Wellbeing Check.</p>
           </div>
         </div>
-        <button onClick={startNew} className="inline-flex items-center gap-2 rounded-xl bg-tl-purple px-4 py-3 text-sm font-bold text-white shadow-md hover:opacity-90"><Plus className="h-4 w-4" /> New check</button>
+        <button onClick={startNew} className="inline-flex items-center gap-2 rounded-xl bg-tl-blue px-4 py-3 text-sm font-bold text-white shadow-md hover:opacity-90"><Plus className="h-4 w-4" /> New check</button>
       </header>
 
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/90 bg-white/70 p-2 shadow-sm backdrop-blur-xl" role="tablist">
-          <button onClick={() => setTab("new")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "new" ? "bg-white text-tl-purple shadow" : "text-slate-600"}`}><HeartPulse className="mr-2 inline h-4 w-4" />Health & Wellbeing Check</button>
-          <button onClick={() => setTab("records")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "records" ? "bg-white text-tl-purple shadow" : "text-slate-600"}`}><FileText className="mr-2 inline h-4 w-4" />Clinic records ({records.length})</button>
+          <button onClick={() => setTab("new")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "new" ? "bg-white text-tl-blue shadow" : "text-slate-600"}`}><HeartPulse className="mr-2 inline h-4 w-4" />Health & Wellbeing Check</button>
+          <button onClick={() => setTab("records")} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === "records" ? "bg-white text-tl-blue shadow" : "text-slate-600"}`}><FileText className="mr-2 inline h-4 w-4" />Clinic records ({records.length})</button>
         </div>
 
         {tab === "new" ? (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
             <form className="space-y-6" onSubmit={(event) => event.preventDefault()}>
               <section className="rounded-[28px] border border-white/90 bg-white/85 p-6 shadow-lg backdrop-blur-xl">
-                <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><UserRound className="h-5 w-5 text-tl-purple" />Clinic details and consent</h2>
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-black"><UserRound className="h-5 w-5 text-tl-blue" />Clinic details and consent</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Clinic or health hub" required><input className={inputClass} value={check.clinic_name} onChange={set("clinic_name")} /></Field>
                   <Field label="Check date" required><input type="date" className={inputClass} value={check.clinic_date} onChange={set("clinic_date")} /></Field>
@@ -337,7 +337,7 @@ export default function HealthHub() {
                   <Field label="Weight (kg)" required><input type="number" step="0.1" className={inputClass} value={check.weight_kg} onChange={set("weight_kg")} /></Field>
                   <Field label="Waist (cm)"><input type="number" step="0.1" className={inputClass} value={check.waist_cm} onChange={set("waist_cm")} /></Field>
                 </div>
-                <div className="mt-4 rounded-2xl bg-violet-50 p-4 text-sm"><strong>Calculated BMI:</strong> {bmi || "Enter height and weight"} <span className="text-xs text-slate-600">— one indicator only; it does not distinguish muscle from fat.</span></div>
+                <div className="mt-4 rounded-2xl bg-sky-50 p-4 text-sm"><strong>Calculated BMI:</strong> {bmi || "Enter height and weight"} <span className="text-xs text-slate-600">— one indicator only; it does not distinguish muscle from fat.</span></div>
               </section>
 
               <section className="rounded-[28px] border border-white/90 bg-white/85 p-6 shadow-lg backdrop-blur-xl">
@@ -357,8 +357,8 @@ export default function HealthHub() {
                 </div>
               </section>
 
-              {message && <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4 text-sm font-semibold text-violet-950" role="status">{message}</div>}
-              <button onClick={submitCheck} disabled={saving} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-tl-purple to-violet-700 px-6 py-4 text-sm font-black text-white shadow-lg disabled:opacity-50"><Sparkles className="h-5 w-5" />{saving ? "Saving…" : "Save check and generate formative feedback"}</button>
+              {message && <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-semibold text-sky-950" role="status">{message}</div>}
+              <button onClick={submitCheck} disabled={saving} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-tl-blue to-sky-700 px-6 py-4 text-sm font-black text-white shadow-lg disabled:opacity-50"><Sparkles className="h-5 w-5" />{saving ? "Saving…" : "Save check and generate formative feedback"}</button>
             </form>
 
             <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
@@ -378,7 +378,7 @@ export default function HealthHub() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {visibleRecords.map((record) => (
-                <button key={record.id} onClick={() => viewRecord(record)} className="rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-tl-purple/30 hover:shadow-md">
+                <button key={record.id} onClick={() => viewRecord(record)} className="rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-tl-blue/30 hover:shadow-md">
                   <div className="flex items-start justify-between gap-3"><div><p className="font-black">{record.participant_reference}</p><p className="text-xs text-slate-500">{record.clinic_name}</p></div><CheckCircle2 className="h-5 w-5 text-emerald-600" /></div>
                   <p className="mt-2 text-xs font-semibold text-slate-600">{record.clinician_name || record.recorded_by_name}{record.clinician_designation ? ` · ${record.clinician_designation}` : ""}</p>
                   <div className="mt-4 flex justify-between text-xs text-slate-600"><span>{record.clinic_date}</span><span>BP {record.systolic_bp}/{record.diastolic_bp}</span><span>BMI {record.bmi || "—"}</span></div>
@@ -392,7 +392,7 @@ export default function HealthHub() {
 
         <footer className="mt-6 rounded-2xl border border-slate-200 bg-white/75 p-4 text-xs leading-5 text-slate-600">
           Content is informed by the NHS Health Check, NHS blood-pressure testing and NHS healthy-weight guidance. Use approved local documentation and escalation policies in real clinics.
-          <span className="ml-2"><a className="font-bold text-tl-purple underline" href="https://www.nhs.uk/tests-and-treatments/nhs-health-check/" target="_blank" rel="noreferrer">NHS Health Check</a> · <a className="font-bold text-tl-purple underline" href="https://www.nhs.uk/tests-and-treatments/blood-pressure-test/" target="_blank" rel="noreferrer">Blood pressure</a> · <a className="font-bold text-tl-purple underline" href="https://www.nhs.uk/health-assessment-tools/calculate-your-body-mass-index/calculate-bmi-for-adults" target="_blank" rel="noreferrer">BMI</a></span>
+          <span className="ml-2"><a className="font-bold text-tl-blue underline" href="https://www.nhs.uk/tests-and-treatments/nhs-health-check/" target="_blank" rel="noreferrer">NHS Health Check</a> · <a className="font-bold text-tl-blue underline" href="https://www.nhs.uk/tests-and-treatments/blood-pressure-test/" target="_blank" rel="noreferrer">Blood pressure</a> · <a className="font-bold text-tl-blue underline" href="https://www.nhs.uk/health-assessment-tools/calculate-your-body-mass-index/calculate-bmi-for-adults" target="_blank" rel="noreferrer">BMI</a></span>
         </footer>
       </div>
     </main>
@@ -401,9 +401,9 @@ export default function HealthHub() {
 
 function FeedbackSheet({ feedback, reference, clinicianName, clinicianDesignation, checkDate, followUpMonths, followUpDate, onFollowUpChange, onClose, onPrint }) {
   return (
-    <section className="rounded-[28px] border border-violet-200 bg-white p-6 shadow-xl" aria-live="polite">
+    <section className="rounded-[28px] border border-sky-200 bg-white p-6 shadow-xl" aria-live="polite">
       <div className="flex items-start justify-between gap-3">
-        <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-tl-purple">Formative feedback sheet</p><h2 className="text-lg font-black">{reference || "Health & Wellbeing Check"}</h2></div>
+        <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-tl-blue">Formative feedback sheet</p><h2 className="text-lg font-black">{reference || "Health & Wellbeing Check"}</h2></div>
         <div className="flex gap-2">{onPrint && <button onClick={onPrint} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Print feedback"><Printer className="h-4 w-4" /></button>}{onClose && <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 p-2 text-slate-600" aria-label="Close feedback"><X className="h-4 w-4" /></button>}</div>
       </div>
       <dl className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs sm:grid-cols-3">
@@ -411,9 +411,9 @@ function FeedbackSheet({ feedback, reference, clinicianName, clinicianDesignatio
         <div><dt className="font-bold text-slate-500">Clinician</dt><dd className="mt-1 font-black text-slate-900">{clinicianName || "Not recorded"}</dd></div>
         <div><dt className="font-bold text-slate-500">Designation</dt><dd className="mt-1 font-black text-slate-900">{clinicianDesignation || "Not recorded"}</dd></div>
       </dl>
-      <p className="mt-4 rounded-2xl bg-violet-50 p-4 text-sm font-bold text-violet-950">{feedback.summary}</p>
+      <p className="mt-4 rounded-2xl bg-sky-50 p-4 text-sm font-bold text-sky-950">{feedback.summary}</p>
       <FeedbackList title="What was done well" icon={CheckCircle2} tone="text-emerald-700" items={feedback.strengths} />
-      <FeedbackList title="Recommendations and advice" icon={Sparkles} tone="text-violet-700" items={feedback.recommendations} />
+      <FeedbackList title="Recommendations and advice" icon={Sparkles} tone="text-sky-700" items={feedback.recommendations} />
       <FeedbackList title="Review and escalation" icon={ShieldAlert} tone="text-rose-700" items={feedback.escalation} />
       <FeedbackList title="Learner reflection prompts" icon={Save} tone="text-sky-700" items={feedback.learningPrompts} />
       <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">

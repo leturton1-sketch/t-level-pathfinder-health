@@ -6,7 +6,7 @@ export function SKBadge({ code }) {
   return (
     <span
       title={desc}
-      className="inline-flex items-center rounded-md bg-tl-purple/15 border border-tl-purple/30 px-2 py-0.5 text-xs font-semibold text-tl-purple cursor-help"
+      className="inline-flex items-center rounded-md bg-tl-blue/15 border border-tl-blue/30 px-2 py-0.5 text-xs font-semibold text-tl-blue cursor-help"
     >
       {code}
     </span>
@@ -19,7 +19,7 @@ export function POBadge({ code }) {
   return (
     <span
       title={desc}
-      className="inline-flex items-center rounded-md bg-violet-100 border border-violet-300 px-2 py-0.5 text-xs font-semibold text-violet-800 cursor-help"
+      className="inline-flex items-center rounded-md bg-sky-100 border border-sky-300 px-2 py-0.5 text-xs font-semibold text-sky-800 cursor-help"
     >
       {code}
     </span>

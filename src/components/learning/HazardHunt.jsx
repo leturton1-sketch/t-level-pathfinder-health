@@ -5,7 +5,7 @@ import { CLINICAL_HAZARDS } from "@/lib/learningData";
 
 const REG_STYLES = {
   HASAWA: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", label: "HASAWA 1974" },
-  COSHH: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", label: "COSHH 2002" },
+  COSHH: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", label: "COSHH 2002" },
   RIDDOR: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", label: "RIDDOR 2013" },
   IPC: { bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200", label: "IPC Protocol" },
 };

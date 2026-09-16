@@ -44,7 +44,7 @@ export default function Profile() {
       {/* Profile header */}
       <div className="flex items-center gap-4 mb-6">
         <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${
-          user?.role === "super_admin" ? "bg-purple-500/20 text-purple-600" :
+          user?.role === "super_admin" ? "bg-blue-500/20 text-blue-600" :
           user?.role === "admin" ? "bg-clinical-teal/20 text-clinical-teal" :
           user?.role === "tutor" ? "bg-clinical-green/20 text-clinical-green" :
           "bg-clinical-teal/20 text-clinical-teal"

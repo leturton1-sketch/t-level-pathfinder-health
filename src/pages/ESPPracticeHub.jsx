@@ -20,7 +20,7 @@ const AOS = {
 const TASKS = [
   {
     id: "task-1", number: "01", title: "Research and report", duration: "4h 30m", marks: 42,
-    icon: FileText, tone: "from-violet-600 to-fuchsia-600",
+    icon: FileText, tone: "from-sky-600 to-cyan-600",
     summary: "Interpret the brief, research reliable evidence and produce a focused professional report.",
     conditions: "Activity 1a permits supervised internet research. Activity 1b uses research notes only, with no internet or generative AI.",
     aos: ["AO1", "AO2", "AO3", "AO4", "AO5"],
@@ -72,7 +72,7 @@ function MappingChip({ code, text, kind }) {
   const classes = kind === "ao"
     ? "border-amber-300 bg-amber-50 text-amber-900"
     : kind === "po"
-      ? "border-violet-300 bg-violet-50 text-violet-900"
+      ? "border-sky-300 bg-sky-50 text-sky-900"
       : "border-cyan-300 bg-cyan-50 text-cyan-900";
   return <span title={text} className={`inline-flex cursor-help rounded-lg border px-2 py-1 text-[10px] font-black ${classes}`}>{code}</span>;
 }
@@ -110,23 +110,23 @@ export default function ESPPracticeHub() {
           <ArrowLeft className="h-4 w-4" /> Pathfinder overview
         </button>
 
-        <section className="no-command-panel overflow-hidden rounded-[30px] border border-violet-200 bg-gradient-to-br from-white via-violet-50/70 to-cyan-50/70 text-slate-950 shadow-xl">
+        <section className="no-command-panel overflow-hidden rounded-[30px] border border-sky-200 bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/70 text-slate-950 shadow-xl">
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_340px]">
             <div>
               <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-700">Pearson T Level Health · Formative practice</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Employer Set Project Practice Hub</h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">Follow one connected project journey from research to professional handover. Every section shows the assessment objectives, core skill set and performance outcomes it develops.</p>
               <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold">
-                <span className="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-900">4 linked tasks</span>
-                <span className="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-900">9h 45m total</span>
-                <span className="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-900">126 marks</span>
+                <span className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sky-900">4 linked tasks</span>
+                <span className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sky-900">9h 45m total</span>
+                <span className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sky-900">126 marks</span>
                 <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-800">Original practice — not live assessment material</span>
               </div>
             </div>
-            <div className="rounded-2xl border border-violet-200 bg-white/85 p-5 shadow-sm">
+            <div className="rounded-2xl border border-sky-200 bg-white/85 p-5 shadow-sm">
               <div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Journey progress</p><p className="mt-1 text-4xl font-black">{pct}%</p></div><p className="text-sm font-bold text-cyan-700">{complete}/{totalSections} sections</p></div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-600 transition-all" style={{ width: `${pct}%` }} /></div>
-              <button disabled={!portfolio || loading} onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-800"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-sky-600 transition-all" style={{ width: `${pct}%` }} /></div>
+              <button disabled={!portfolio || loading} onClick={resetProgress} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-sky-800"><RotateCcw className="h-3.5 w-3.5" />Reset practice progress</button>
             </div>
           </div>
         </section>
@@ -154,11 +154,11 @@ export default function ESPPracticeHub() {
           {TASKS.map((item) => {
             const Icon = item.icon;
             const done = item.sections.filter((section) => progress[`${item.id}:${section.id}`]).length;
-            return <button key={item.id} onClick={() => setActiveTask(item.id)} className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 ${activeTask === item.id ? "border-violet-400 bg-white ring-4 ring-violet-100" : "border-white bg-white/85"}`}>
+            return <button key={item.id} onClick={() => setActiveTask(item.id)} className={`rounded-2xl border p-4 text-left shadow-sm transition hover:-translate-y-0.5 ${activeTask === item.id ? "border-sky-400 bg-white ring-4 ring-sky-100" : "border-white bg-white/85"}`}>
               <div className="flex items-center justify-between"><span className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${item.tone} text-white`}><Icon className="h-5 w-5" /></span><span className="text-xs font-black text-slate-400">{item.number}</span></div>
               <h2 className="mt-3 font-black text-slate-950">{item.title}</h2>
               <p className="mt-1 text-xs font-semibold text-slate-600">{item.duration} · {item.marks} marks</p>
-              <p className="mt-3 text-[11px] font-bold text-violet-700">{done}/{item.sections.length} sections checked</p>
+              <p className="mt-3 text-[11px] font-bold text-sky-700">{done}/{item.sections.length} sections checked</p>
             </button>;
           })}
         </section>
@@ -168,7 +168,7 @@ export default function ESPPracticeHub() {
             <div className="rounded-[26px] border border-white bg-white/90 p-5 shadow-lg sm:p-6">
               <div className="flex items-start gap-4">
                 <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${task.tone} text-white`}><ActiveTaskIcon className="h-6 w-6" /></span>
-                <div><p className="text-xs font-black uppercase tracking-wider text-violet-700">Task {task.number} · {task.duration} · {task.marks} marks</p><h2 className="mt-1 text-2xl font-black text-slate-950">{task.title}</h2><p className="mt-2 text-sm leading-6 text-slate-700">{task.summary}</p></div>
+                <div><p className="text-xs font-black uppercase tracking-wider text-sky-700">Task {task.number} · {task.duration} · {task.marks} marks</p><h2 className="mt-1 text-2xl font-black text-slate-950">{task.title}</h2><p className="mt-2 text-sm leading-6 text-slate-700">{task.summary}</p></div>
               </div>
               <div className="mt-5 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4"><LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" /><div><p className="text-xs font-black uppercase tracking-wide text-amber-900">Practice conditions</p><p className="mt-1 text-xs leading-5 text-amber-900">{task.conditions}</p></div></div>
             </div>
@@ -190,7 +190,7 @@ export default function ESPPracticeHub() {
                       {section.pos.map((code) => <MappingChip key={code} code={code} text={PERFORMANCE_OUTCOMES[code]} kind="po" />)}
                     </div>
                   </div>
-                  <button disabled={!portfolio || loading} onClick={() => launchSection(section)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-violet-700 sm:w-auto">{section.action}<ArrowRight className="h-4 w-4" /></button>
+                  <button disabled={!portfolio || loading} onClick={() => launchSection(section)} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-sky-700 sm:w-auto">{section.action}<ArrowRight className="h-4 w-4" /></button>
                 </article>;
               })}
             </div>
@@ -198,7 +198,7 @@ export default function ESPPracticeHub() {
 
           <aside className="space-y-4">
             <section className="rounded-[24px] border border-white bg-white/90 p-5 shadow-md">
-              <div className="flex items-center gap-2"><Target className="h-5 w-5 text-violet-700" /><h2 className="font-black text-slate-950">Assessment objectives</h2></div>
+              <div className="flex items-center gap-2"><Target className="h-5 w-5 text-sky-700" /><h2 className="font-black text-slate-950">Assessment objectives</h2></div>
               <div className="mt-4 space-y-3">{Object.entries(AOS).map(([code, ao]) => <div key={code}><div className="flex items-center justify-between"><span className="text-xs font-black text-slate-900">{code}</span><span className="text-[10px] font-bold text-slate-500">{ao.marks} marks · {ao.pct}%</span></div><p className="mt-1 text-xs leading-5 text-slate-600">{ao.label}</p></div>)}</div>
             </section>
             <section className="rounded-[24px] border border-cyan-200 bg-cyan-50 p-5 shadow-md">

@@ -9,7 +9,7 @@ const MED_STATUS_STYLES = {
   due: { label: "Due", bg: "bg-amber-50", text: "text-amber-600", border: "border-amber-200" },
   given: { label: "Given", bg: "bg-clinical-green/10", text: "text-clinical-green", border: "border-clinical-green/30" },
   pending: { label: "Pending", bg: "bg-slate-100", text: "text-slate-500", border: "border-slate-200" },
-  prn: { label: "PRN", bg: "bg-purple-50", text: "text-purple-600", border: "border-purple-200" },
+  prn: { label: "PRN", bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200" },
 };
 
 const TABS = [

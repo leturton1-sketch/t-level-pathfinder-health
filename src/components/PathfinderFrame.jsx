@@ -30,7 +30,7 @@ export default function PathfinderFrame({ children }) {
     <header className="pf-global-header">
       <button className="pf-icon-button pf-global-menu" onClick={openMenu} aria-expanded={open} aria-label="Open navigation"><Menu size={22} /></button>
       <Link to="/" className="pf-global-brand" aria-label="Pathfinder Overview">
-        <img src="/branding/tl-purple.png" alt="" width="44" height="36" />
+        <img src="/branding/tl-blue.png" alt="" width="44" height="36" />
         <span><strong>Pathfinder</strong><small>T-Level Health · Simulation</small></span>
       </Link>
       <div className="pf-global-header-actions">

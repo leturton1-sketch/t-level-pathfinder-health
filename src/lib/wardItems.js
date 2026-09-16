@@ -51,7 +51,7 @@ export const STATUS_CONFIG = {
   green: { label: "Stable", bg: "bg-clinical-green/10", text: "text-clinical-green", border: "border-clinical-green/30", dot: "bg-clinical-green", hex: 0x4caf50 },
   amber: { label: "Requires Attention", bg: "bg-clinical-amber/10", text: "text-clinical-amber", border: "border-clinical-amber/30", dot: "bg-clinical-amber", hex: 0xff9800 },
   red: { label: "Urgent", bg: "bg-clinical-red/10", text: "text-clinical-red", border: "border-clinical-red/30", dot: "bg-clinical-red", hex: 0xf44336 },
-  purple: { label: "Isolation", bg: "bg-purple-500/10", text: "text-purple-600", border: "border-purple-500/30", dot: "bg-purple-500", hex: 0x9c27b0 },
+  purple: { label: "Isolation", bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/30", dot: "bg-blue-500", hex: 0x9c27b0 },
 };
 
 export function generateDefaultItems() {

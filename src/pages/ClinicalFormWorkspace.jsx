@@ -7,7 +7,7 @@ import { buildSimulationPrefill, loadCarePlanSimulation, localFormativeFeedback 
 import { SKBadgeGroup } from "@/components/SKBadge";
 import { ArrowLeft, Award, Calculator, CheckCircle2, ClipboardCheck, Info, Save, Send, ShieldAlert, Sparkles } from "lucide-react";
 
-const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-tl-purple/60 focus:ring-4 focus:ring-tl-purple/10";
+const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-tl-blue/60 focus:ring-4 focus:ring-tl-blue/10";
 const number = (value) => Number(value || 0);
 
 function calculate(template, values) {
@@ -83,7 +83,7 @@ function Field({ field, value, onChange }) {
               type="button"
               aria-pressed={active}
               onClick={() => onChange(active ? selected.filter((item) => item !== option) : [...selected, option])}
-              className={`rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${active ? "border-tl-purple bg-tl-purple/10 text-tl-purple ring-2 ring-tl-purple/10" : "border-slate-200 bg-white text-slate-700 hover:border-tl-purple/35"}`}
+              className={`rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition ${active ? "border-tl-blue bg-tl-blue/10 text-tl-blue ring-2 ring-tl-blue/10" : "border-slate-200 bg-white text-slate-700 hover:border-tl-blue/35"}`}
             >
               <span className="mr-2">{active ? "✓" : "○"}</span>{option}
             </button>
@@ -119,16 +119,16 @@ function FeedbackPanel({ feedback, onReturnToWard }) {
   };
 
   return (
-    <section className="mt-5 overflow-hidden rounded-[28px] border border-violet-200 bg-white/94 shadow-[0_20px_46px_rgba(66,55,88,0.14)]" aria-labelledby="feedback-heading">
-      <div className="bg-gradient-to-r from-tl-purple to-violet-600 p-5 text-white sm:p-7">
+    <section className="mt-5 overflow-hidden rounded-[28px] border border-sky-200 bg-white/94 shadow-[0_20px_46px_rgba(66,55,88,0.14)]" aria-labelledby="feedback-heading">
+      <div className="bg-gradient-to-r from-tl-blue to-sky-600 p-5 text-white sm:p-7">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-100">Instant formative feedback</p>
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-sky-100">Instant formative feedback</p>
             <h2 id="feedback-heading" className="mt-1 text-xl font-black sm:text-2xl">{feedback.band}</h2>
           </div>
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/25 bg-white/15 text-2xl font-black shadow-inner">{Math.round(feedback.overallScore)}%</div>
         </div>
-        <p className="mt-3 text-sm leading-6 text-violet-50">{feedback.summary}</p>
+        <p className="mt-3 text-sm leading-6 text-sky-50">{feedback.summary}</p>
       </div>
       <div className="space-y-6 p-5 sm:p-7">
         <div className="grid gap-3 sm:grid-cols-5">
@@ -151,7 +151,7 @@ function FeedbackPanel({ feedback, onReturnToWard }) {
         </div>
         <div>
           <h3 className="mb-2 text-sm font-black text-slate-950">Your next practice steps</h3>
-          <ol className="space-y-2">{feedback.nextSteps?.map((item, index) => <li key={item} className="flex gap-3 rounded-xl border border-violet-100 bg-violet-50/70 px-3 py-2.5 text-sm leading-5 text-slate-800"><span className="font-black text-tl-purple">{index + 1}</span>{item}</li>)}</ol>
+          <ol className="space-y-2">{feedback.nextSteps?.map((item, index) => <li key={item} className="flex gap-3 rounded-xl border border-sky-100 bg-sky-50/70 px-3 py-2.5 text-sm leading-5 text-slate-800"><span className="font-black text-tl-blue">{index + 1}</span>{item}</li>)}</ol>
         </div>
         <p className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-xs font-semibold leading-5 text-sky-950">{feedback.safetyNote}</p>
         {onReturnToWard && <button onClick={onReturnToWard} className="w-full rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800">Return to Ward Simulation</button>}
@@ -198,9 +198,9 @@ export default function ClinicalFormWorkspace() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="rounded-[24px] border border-white bg-white/90 p-8 text-center shadow-xl">
-          <ShieldAlert className="mx-auto mb-3 h-9 w-9 text-tl-purple" />
+          <ShieldAlert className="mx-auto mb-3 h-9 w-9 text-tl-blue" />
           <h1 className="text-lg font-extrabold text-slate-950">Clinical tool not found</h1>
-          <button onClick={() => navigate("/care-planning")} className="mt-4 rounded-xl bg-tl-purple px-4 py-2.5 text-sm font-bold text-white">Return to Care Planning</button>
+          <button onClick={() => navigate("/care-planning")} className="mt-4 rounded-xl bg-tl-blue px-4 py-2.5 text-sm font-bold text-white">Return to Care Planning</button>
         </div>
       </div>
     );
@@ -254,25 +254,25 @@ export default function ClinicalFormWorkspace() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.13),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
       <header className="sticky top-0 z-20 border-b border-white/90 bg-white/85 shadow-[0_8px_24px_rgba(66,55,88,0.08)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:px-6">
-          <button onClick={() => navigate("/care-planning")} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm hover:text-tl-purple" aria-label="Back to Care Planning Suite">
+          <button onClick={() => navigate("/care-planning")} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm hover:text-tl-blue" aria-label="Back to Care Planning Suite">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-tl-purple">Interactive clinical record</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-tl-blue">Interactive clinical record</p>
             <h1 className="truncate text-base font-extrabold text-slate-950 sm:text-lg">{template.title}</h1>
           </div>
           <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-extrabold text-slate-700">{completion}% complete</span>
         </div>
-        <div className="h-1 bg-slate-100"><div className="h-full bg-gradient-to-r from-tl-purple to-teal-500 transition-all duration-500" style={{ width: `${completion}%` }} /></div>
+        <div className="h-1 bg-slate-100"><div className="h-full bg-gradient-to-r from-tl-blue to-teal-500 transition-all duration-500" style={{ width: `${completion}%` }} /></div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
         {simulation?.patient && (
-          <section className="mb-5 rounded-[24px] border border-tl-purple/25 bg-gradient-to-r from-violet-50/95 to-white p-5 shadow-[0_14px_32px_rgba(66,55,88,.11)]" aria-labelledby="simulation-patient-heading">
+          <section className="mb-5 rounded-[24px] border border-tl-blue/25 bg-gradient-to-r from-sky-50/95 to-white p-5 shadow-[0_14px_32px_rgba(66,55,88,.11)]" aria-labelledby="simulation-patient-heading">
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-tl-purple text-white shadow-lg"><Sparkles className="h-5 w-5" /></div>
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-tl-blue text-white shadow-lg"><Sparkles className="h-5 w-5" /></div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-tl-purple">Ward-linked simulation · Bed {simulation.patient.bedDesignation}</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-tl-blue">Ward-linked simulation · Bed {simulation.patient.bedDesignation}</p>
                 <h2 id="simulation-patient-heading" className="mt-0.5 text-lg font-black text-slate-950">{simulation.patient.name}</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-700">{simulation.briefing}</p>
                 <p className="mt-2 text-xs font-semibold text-slate-500">Verified EHR facts have been pre-populated. You must complete the clinical assessment, judgement, actions and review.</p>
@@ -292,8 +292,8 @@ export default function ClinicalFormWorkspace() {
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             {template.pearson.map((outcome) => (
-              <div key={outcome} className="flex items-start gap-2 rounded-xl border border-tl-purple/15 bg-tl-purple/7 px-3 py-2.5 text-xs font-semibold leading-5 text-slate-800">
-                <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-tl-purple" /> {outcome}
+              <div key={outcome} className="flex items-start gap-2 rounded-xl border border-tl-blue/15 bg-tl-blue/7 px-3 py-2.5 text-xs font-semibold leading-5 text-slate-800">
+                <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-tl-blue" /> {outcome}
               </div>
             ))}
           </div>
@@ -341,10 +341,10 @@ export default function ClinicalFormWorkspace() {
             </div>
           )}
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button type="button" onClick={() => save(false)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-tl-purple/30 bg-white px-5 py-3.5 text-sm font-extrabold text-tl-purple transition hover:bg-tl-purple/8 disabled:opacity-50">
+            <button type="button" onClick={() => save(false)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-tl-blue/30 bg-white px-5 py-3.5 text-sm font-extrabold text-tl-blue transition hover:bg-tl-blue/8 disabled:opacity-50">
               <Save className="h-4 w-4" /> Save Draft
             </button>
-            <button type="button" onClick={() => save(true)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-tl-purple to-violet-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(118,90,176,0.25)] transition hover:-translate-y-0.5 disabled:opacity-50">
+            <button type="button" onClick={() => save(true)} disabled={saving} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-tl-blue to-sky-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(118,90,176,0.25)] transition hover:-translate-y-0.5 disabled:opacity-50">
               <Send className="h-4 w-4" /> {saving ? "Generating feedback…" : "Submit & Generate Feedback"}
             </button>
           </div>

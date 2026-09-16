@@ -8,7 +8,7 @@
     /* T Level brand palette */
     --tl-salmon: 19 100% 70%;      /* #FF9567 official salmon */
     --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
-    --tl-purple: 209 88% 45%;       /* Pathfinder blue #0F75D8 */
+    --tl-blue: 209 88% 45%;       /* Pathfinder blue #0F75D8 */
     --tl-navy: 257 16% 9%;          /* #15131A accessible near-black */
 
     /* Official T Levels light application theme */
@@ -802,7 +802,7 @@
 }
 
 .app-command-surface :where(button, a)[class*="bg-primary"],
-.app-command-surface :where(button, a)[class*="bg-tl-purple"] {
+.app-command-surface :where(button, a)[class*="bg-tl-blue"] {
   background: linear-gradient(145deg, #38bdf8, #2563eb) !important;
   border-color: rgba(255,255,255,.72) !important;
   color: white !important;

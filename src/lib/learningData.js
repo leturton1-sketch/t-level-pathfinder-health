@@ -80,9 +80,9 @@ export const ANATOMY_SYSTEMS = [
   {
     id: "nervous",
     name: "Nervous System",
-    color: "text-violet-600",
-    bg: "bg-violet-50",
-    border: "border-violet-200",
+    color: "text-sky-600",
+    bg: "bg-sky-50",
+    border: "border-sky-200",
     specArea: "Area 8-9",
     skCodes: ["SK2", "SK17"],
     poCodes: ["PO4", "PO8"],
@@ -555,7 +555,7 @@ export const MDT_ROLES = [
     responsibilities: ["ADL assessments (washing, dressing, cooking)", "Aids & adaptations", "Home visits", "Discharge planning"],
     referralCriteria: "Refer when patient needs support with ADLs, home assessment, or equipment for safe discharge.",
     escalation: "OT → Senior OT → OT Lead",
-    color: "bg-purple-500 text-white",
+    color: "bg-blue-500 text-white",
   },
   {
     id: "pharmacist",

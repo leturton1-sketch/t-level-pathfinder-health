@@ -37,13 +37,13 @@ export default function CarePlanPersona() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="bg-violet-700 rounded-2xl p-4 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center">
+      <div className="bg-sky-700 rounded-2xl p-4 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center">
           <Clipboard className="w-5 h-5 text-white" />
         </div>
         <div>
           <h2 className="font-heading font-bold text-white text-lg">Care Plan Persona Builder</h2>
-          <p className="text-xs text-violet-100">Build person-centred care plans using the nursing process and SMART goal framework for diverse patient personas.</p>
+          <p className="text-xs text-sky-100">Build person-centred care plans using the nursing process and SMART goal framework for diverse patient personas.</p>
         </div>
       </div>
 
@@ -51,10 +51,10 @@ export default function CarePlanPersona() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         {CARE_PERSONAS.map(p => (
           <button key={p.id} onClick={() => handleSelectPersona(p.id)}
-            className={`text-left rounded-xl border p-3 transition-all ${selectedId === p.id ? "border-violet-500 bg-violet-50" : "border-slate-200 bg-white hover:bg-slate-50"}`}>
+            className={`text-left rounded-xl border p-3 transition-all ${selectedId === p.id ? "border-sky-500 bg-sky-50" : "border-slate-200 bg-white hover:bg-slate-50"}`}>
             <div className="flex items-center gap-2 mb-1">
-              <User className="w-4 h-4 text-violet-500" />
-              <span className="text-[10px] font-bold text-violet-600 uppercase tracking-wide">Persona</span>
+              <User className="w-4 h-4 text-sky-500" />
+              <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wide">Persona</span>
             </div>
             <p className="font-heading font-bold text-xs text-slate-800 leading-tight">{p.name}</p>
           </button>
@@ -66,33 +66,33 @@ export default function CarePlanPersona() {
         <div className="space-y-3">
           <div className="bg-white rounded-2xl border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <User className="w-4 h-4 text-violet-500" />
+              <User className="w-4 h-4 text-sky-500" />
               <h3 className="font-heading font-bold text-sm text-slate-800">{persona.name}</h3>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-[10px] font-semibold text-violet-600 uppercase tracking-wide mb-1">Clinical Scenario</p>
+                <p className="text-[10px] font-semibold text-sky-600 uppercase tracking-wide mb-1">Clinical Scenario</p>
                 <p className="text-xs text-slate-600 leading-relaxed">{persona.scenario}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-violet-600 uppercase tracking-wide mb-1">Background</p>
+                <p className="text-[10px] font-semibold text-sky-600 uppercase tracking-wide mb-1">Background</p>
                 <p className="text-xs text-slate-600 leading-relaxed">{persona.background}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-violet-600 uppercase tracking-wide mb-1">Person-Centred Notes</p>
+                <p className="text-[10px] font-semibold text-sky-600 uppercase tracking-wide mb-1">Person-Centred Notes</p>
                 <p className="text-xs text-slate-600 leading-relaxed">{persona.culturalNotes}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-violet-600 uppercase tracking-wide mb-1">Identified Needs</p>
+                <p className="text-[10px] font-semibold text-sky-600 uppercase tracking-wide mb-1">Identified Needs</p>
                 <div className="flex flex-wrap gap-1.5">
                   {persona.needs.map(n => (
-                    <span key={n} className="text-[11px] bg-violet-50 text-violet-700 border border-violet-200 px-2 py-1 rounded-md">{n}</span>
+                    <span key={n} className="text-[11px] bg-sky-50 text-sky-700 border border-sky-200 px-2 py-1 rounded-md">{n}</span>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-violet-600 uppercase tracking-wide mb-1">Nursing Diagnosis</p>
-                <p className="text-xs text-slate-600 leading-relaxed italic border-l-2 border-violet-300 pl-2">{persona.nursingDiagnosis}</p>
+                <p className="text-[10px] font-semibold text-sky-600 uppercase tracking-wide mb-1">Nursing Diagnosis</p>
+                <p className="text-xs text-slate-600 leading-relaxed italic border-l-2 border-sky-300 pl-2">{persona.nursingDiagnosis}</p>
               </div>
             </div>
           </div>

@@ -5,7 +5,7 @@
  */
 const LOGOS = {
   purple: "/branding/tlevel-purple.png",
-  tlPurple: "/branding/tl-purple.png",
+  tlPurple: "/branding/tl-blue.png",
   tlRed: "/branding/tl-red.png",
   tlSalmon: "/branding/tl-salmon.png",
   white: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/4852697b2_TLevel-Logo-White.png",

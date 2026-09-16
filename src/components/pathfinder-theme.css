@@ -1,15 +1,15 @@
 /* Official supplied T-Level palette with static neon edges and reflective depth. */
 body.pf-theme-active {
-  --tl-purple: 209 88% 45%;
+  --tl-blue: 209 88% 45%;
   --tl-red: 9.863 97.356% 55.49%;
   --tl-salmon: 18.158 100% 70.196%;
-  --primary: var(--tl-purple); --ring: var(--tl-purple);
-  --clinical-teal: var(--tl-purple);
+  --primary: var(--tl-blue); --ring: var(--tl-blue);
+  --clinical-teal: var(--tl-blue);
   --foreground: 222 47% 11%; --muted-foreground: 215 19% 35%;
   --background: 210 40% 98%; --card: 0 0% 100%; --popover: 0 0% 100%;
   --card-foreground: 222 47% 11%; --popover-foreground: 222 47% 11%;
   --border: 209 42% 86%; --input: 209 46% 76%;
-  --pf-purple: #0f75d8; --pf-red: #fc4421; --pf-salmon: #ff9567;
+  --pf-blue: #0f75d8; --pf-red: #fc4421; --pf-salmon: #ff9567;
   --pf-ink: #0f172a; --pf-muted: #475569; --pf-line: #bed9f2;
   --font-heading: 'Inter', 'Segoe UI', sans-serif;
   --font-display: 'Inter', 'Segoe UI', sans-serif;
@@ -19,13 +19,13 @@ body.pf-theme-active {
   line-height: 1.55;
   background: #f8fafc; background-attachment: scroll; color: var(--pf-ink);
 }
-.pf-app-root { min-height: 100dvh; border-inline: 3px solid var(--pf-purple); }
+.pf-app-root { min-height: 100dvh; border-inline: 3px solid var(--pf-blue); }
 .pf-app-frame { --pf-nav-space: 248px; min-height: 100dvh; }
 .pf-app-compact { --pf-nav-space: 88px; }
 .pf-global-header {
   position: sticky; top: 0; z-index: 50; min-height: 76px; display: flex; align-items: center;
   justify-content: space-between; gap: 16px; padding: 12px 24px; background: #fff;
-  border-bottom: 2px solid var(--pf-purple); box-shadow: 0 3px 10px #0f75d822;
+  border-bottom: 2px solid var(--pf-blue); box-shadow: 0 3px 10px #0f75d822;
 }
 .pf-global-header::after { content: ""; position: absolute; height: 2px; bottom: -2px; right: 0; width: 28%; background: var(--pf-red); }
 .pf-global-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--pf-ink); min-height: 44px; }
@@ -33,36 +33,36 @@ body.pf-theme-active {
 .pf-global-brand strong { display: block; font-size: 20px; line-height: 1.15; font-weight: 800; }
 .pf-global-brand small { display: block; font-size: 12px; color: var(--pf-muted); margin-top: 4px; }
 .pf-global-header-actions { display: flex; align-items: center; gap: 24px; }
-.pf-global-header-actions .pf-icon-button { color: var(--pf-purple); }
-.pf-voice-control[aria-pressed="true"] { background: var(--pf-purple); color: #fff; border-color: var(--pf-purple); }
+.pf-global-header-actions .pf-icon-button { color: var(--pf-blue); }
+.pf-voice-control[aria-pressed="true"] { background: var(--pf-blue); color: #fff; border-color: var(--pf-blue); }
 .pf-global-workspace { display: grid; grid-template-columns: 224px minmax(0,1fr); gap: 20px; padding: 20px 20px 20px 12px; }
 .pf-app-compact .pf-global-workspace { grid-template-columns: 64px minmax(0,1fr); }
 .pf-global-nav { position: sticky; top: 96px; height: calc(100dvh - 112px); display: flex; flex-direction: column; min-height: 0; transform: translateZ(0); }
 .pf-global-nav .pf-navigation { max-height: none; flex: 1; min-height: 0; overflow-y: auto; }
 .pf-global-nav-footer { flex-shrink: 0; padding-top: 12px; background: #f8fafc; }
-.pf-module { min-width: 0; border: 1px solid var(--pf-purple); border-radius: 16px; box-shadow: var(--pf-frame-glow); background: #fff; }
+.pf-module { min-width: 0; border: 1px solid var(--pf-blue); border-radius: 16px; box-shadow: var(--pf-frame-glow); background: #fff; }
 .pf-module > :first-child { border-radius: 16px; min-height: calc(100dvh - 118px); }
 .pf-module > .clinical-page-shell { background: #f8fafc !important; }
 .pf-global-menu { display: none; }
-.pf-skip-link { position: fixed; top: -100px; left: 20px; z-index: 120; background: white; padding: 12px; color: #523779; border: 3px solid var(--pf-purple); }
+.pf-skip-link { position: fixed; top: -100px; left: 20px; z-index: 120; background: white; padding: 12px; color: #523779; border: 3px solid var(--pf-blue); }
 .pf-skip-link:focus { top: 8px; }
 .pf-theme-active :is(.pf-dashboard,.pf-drawer) { --pf-border: var(--pf-line); }
-.pf-theme-active .pf-header { padding: 12px 16px; background: #fff; border: 1px solid var(--pf-purple); border-bottom: 3px solid var(--pf-purple); border-radius: 14px; box-shadow: var(--pf-frame-glow); }
-.pf-theme-active .pf-brand-icon { background: #eaf5ff; color: var(--pf-purple); }
+.pf-theme-active .pf-header { padding: 12px 16px; background: #fff; border: 1px solid var(--pf-blue); border-bottom: 3px solid var(--pf-blue); border-radius: 14px; box-shadow: var(--pf-frame-glow); }
+.pf-theme-active .pf-brand-icon { background: #eaf5ff; color: var(--pf-blue); }
 .pf-theme-active :is(.pf-eyebrow,.pf-nav-link svg) { color: #0759b6; }
-.pf-theme-active .pf-nav-link[aria-current="page"] { background: #e6f3ff; color: #06488f; box-shadow: inset 3px 0 var(--pf-purple); }
-.pf-theme-active :is(.pf-map-stage,.pf-team-rail) { border-color: var(--pf-purple); box-shadow: var(--pf-frame-glow); }
-.pf-theme-active .pf-metric { border-top: 3px solid var(--pf-purple); }
+.pf-theme-active .pf-nav-link[aria-current="page"] { background: #e6f3ff; color: #06488f; box-shadow: inset 3px 0 var(--pf-blue); }
+.pf-theme-active :is(.pf-map-stage,.pf-team-rail) { border-color: var(--pf-blue); box-shadow: var(--pf-frame-glow); }
+.pf-theme-active .pf-metric { border-top: 3px solid var(--pf-blue); }
 .pf-theme-active .pf-metric:nth-child(2) { border-top-color: var(--pf-salmon); }
-.pf-theme-active .pf-metric:nth-child(3) { border-top-color: var(--pf-purple); }
+.pf-theme-active .pf-metric:nth-child(3) { border-top-color: var(--pf-blue); }
 .pf-theme-active .pf-metric:nth-child(4) { border-top-color: var(--pf-red); }
-.pf-theme-active .pf-primary-button { background: var(--pf-purple); color: white; border: 1px solid var(--pf-purple); }
+.pf-theme-active .pf-primary-button { background: var(--pf-blue); color: white; border: 1px solid var(--pf-blue); }
 .pf-theme-active .pf-primary-button:hover { background: #0759b6; }
 .pf-theme-active .pf-badge { color: #06488f; background: #e6f3ff; }
 .pf-theme-active .pf-count { color: #06488f; }
-.pf-theme-active .pf-drawer { border-top: 3px solid var(--pf-purple); }
+.pf-theme-active .pf-drawer { border-top: 3px solid var(--pf-blue); }
 .pf-theme-active :is(button,a,input,textarea,select,[role="button"],[role="tab"]):focus-visible {
-  outline: 3px solid var(--pf-purple) !important; outline-offset: 3px; box-shadow: 0 0 0 5px #0f75d818;
+  outline: 3px solid var(--pf-blue) !important; outline-offset: 3px; box-shadow: 0 0 0 5px #0f75d818;
 }
 /* All routes and portal controls share readable type and touch sizing. */
 .pf-theme-active :is(button,[role="button"],[role="tab"],[role="combobox"],select) { min-height: 44px; }
@@ -70,7 +70,7 @@ body.pf-theme-active {
 .pf-theme-active :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea) { min-height: 44px; }
 .pf-theme-active :is([class*="text-[9px]"],[class*="text-[10px]"],[class*="text-[11px]"]) { font-size: 12px; }
 .pf-theme-active :is(.text-muted-foreground,.text-slate-500,.text-gray-500) { color: #475569; }
-.pf-theme-active :is(input,textarea,select) { accent-color: var(--pf-purple); }
+.pf-theme-active :is(input,textarea,select) { accent-color: var(--pf-blue); }
 .pf-theme-active :is([role="tablist"],.clinical-inline-cluster) { flex-wrap: wrap; }
 .pf-theme-active [role="tab"] { white-space: normal; }
 /* Opaque reflective surfaces keep text clear without costly backdrop blur. */
@@ -91,7 +91,7 @@ body.pf-theme-active {
 .pf-theme-active :is(.shadow-xl,.shadow-2xl,[class*="shadow-["]) { box-shadow: 0 2px 8px #0f172a18; }
 .pf-theme-active :is(button,a)[class*="bg-primary"],
 .pf-theme-active :is(button,a)[class*="bg-clinical-teal"] {
-  background: var(--pf-purple) !important; color: #fff !important; border-color: var(--pf-purple);
+  background: var(--pf-blue) !important; color: #fff !important; border-color: var(--pf-blue);
 }
 .pf-theme-active :is(button,a)[class*="bg-tl-salmon"] { color: #15131a; }
 .pf-theme-active :is(.pf-module .polished-glass-edge,.pf-module .tlevel-3d-panel):hover { transform: none; filter: none; }
@@ -100,7 +100,7 @@ body.pf-theme-active {
 /* Right-side detail panels remain within their viewport on smaller devices. */
 .pf-module > .h-screen { height: calc(100dvh - 118px); min-height: 420px; }
 .pf-module :is(.fixed.right-0,.fixed.inset-y-0) { max-width: 100vw; }
-.pf-voice-composer { left: calc(var(--pf-nav-space) + 10px) !important; right: 24px !important; background: #fff !important; border-top: 2px solid var(--pf-purple); }
+.pf-voice-composer { left: calc(var(--pf-nav-space) + 10px) !important; right: 24px !important; background: #fff !important; border-top: 2px solid var(--pf-blue); }
 .pf-module table { background: #fff; }
 .pf-module thead { background: #eaf5ff; color: #334155; }
 .pf-module [class*="overflow-x-auto"] { overscroll-behavior-x: contain; }
@@ -108,9 +108,9 @@ body.pf-theme-active {
 .pf-voice-page { background: #f8fafc !important; color: #0f172a !important; }
 .pf-voice-page :is([class*="bg-[#1d162b]"],[class*="bg-[#15101f]"]) { background: #fff !important; border-color: var(--pf-line) !important; color: #0f172a; }
 .pf-voice-page :is(.text-slate-100,.text-slate-300,.text-slate-400) { color: #475569; }
-.pf-voice-page :is(.text-cyan-300,.text-violet-300,.text-violet-400,.text-emerald-300) { color: #0759b6; }
+.pf-voice-page :is(.text-cyan-300,.text-sky-300,.text-sky-400,.text-emerald-300) { color: #0759b6; }
 .pf-voice-page .prose-invert { --tw-prose-body: #0f172a; --tw-prose-headings: #0f172a; --tw-prose-bold: #0f172a; --tw-prose-links: #0759b6; --tw-prose-code: #0f172a; color: #0f172a; }
-.pf-voice-page [class*="bg-[#3a0ca3]"] { background: var(--pf-purple); }
+.pf-voice-page [class*="bg-[#3a0ca3]"] { background: var(--pf-blue); }
 .pf-voice-page [class*="bg-[#0f0b18]/"] { background: #fff !important; }
 /* Hierarchy comes from bevelled edges, reflected light and static brand glow. */
 .pf-theme-active :is(h1,h2,h3,.pf-global-brand strong) {
@@ -190,29 +190,29 @@ body.pf-theme-active {
 /* Global legacy-accent bridge: every historic purple/violet/fuchsia utility
    resolves to the Pathfinder login palette without changing clinical status colours. */
 .pf-theme-active :is(
-  [class*="text-purple-500"],[class*="text-purple-600"],[class*="text-purple-700"],[class*="text-purple-800"],[class*="text-purple-900"],
-  [class*="text-violet-500"],[class*="text-violet-600"],[class*="text-violet-700"],[class*="text-violet-800"],[class*="text-violet-900"],
-  [class*="text-fuchsia-500"],[class*="text-fuchsia-600"],[class*="text-fuchsia-700"]
+  [class*="text-blue-500"],[class*="text-blue-600"],[class*="text-blue-700"],[class*="text-blue-800"],[class*="text-blue-900"],
+  [class*="text-sky-500"],[class*="text-sky-600"],[class*="text-sky-700"],[class*="text-sky-800"],[class*="text-sky-900"],
+  [class*="text-cyan-500"],[class*="text-cyan-600"],[class*="text-cyan-700"]
 ) { color:#0759b6 !important; }
-.pf-theme-active :is([class~="text-purple-50"],[class~="text-purple-100"],[class~="text-violet-50"],[class~="text-violet-100"]) { color:#eaf5ff !important; }
-.pf-theme-active :is([class*="bg-purple-50"],[class*="bg-violet-50"],[class*="bg-fuchsia-50"]) { background-color:#eef7ff !important; }
-.pf-theme-active :is([class*="bg-purple-100"],[class*="bg-violet-100"],[class*="bg-fuchsia-100"]) { background-color:#dceeff !important; }
-.pf-theme-active :is([class*="bg-purple-500"],[class*="bg-violet-500"],[class*="bg-fuchsia-500"]) { background-color:#1684e5 !important; }
-.pf-theme-active :is([class*="bg-purple-600"],[class*="bg-violet-600"],[class*="bg-fuchsia-600"]) { background-color:#0f75d8 !important; }
-.pf-theme-active :is([class*="bg-purple-700"],[class*="bg-violet-700"],[class*="bg-fuchsia-700"]) { background-color:#0759b6 !important; }
-.pf-theme-active :is([class*="border-purple-"],[class*="border-violet-"],[class*="border-fuchsia-"]) { border-color:#8fc5ef !important; }
-.pf-theme-active :is([class*="ring-purple-"],[class*="ring-violet-"],[class*="ring-fuchsia-"]) { --tw-ring-color:rgba(15,117,216,.28) !important; }
-.pf-theme-active :is([class*="from-purple-"],[class*="from-violet-"],[class*="from-fuchsia-"]) {
+.pf-theme-active :is([class~="text-blue-50"],[class~="text-blue-100"],[class~="text-sky-50"],[class~="text-sky-100"]) { color:#eaf5ff !important; }
+.pf-theme-active :is([class*="bg-blue-50"],[class*="bg-sky-50"],[class*="bg-cyan-50"]) { background-color:#eef7ff !important; }
+.pf-theme-active :is([class*="bg-blue-100"],[class*="bg-sky-100"],[class*="bg-cyan-100"]) { background-color:#dceeff !important; }
+.pf-theme-active :is([class*="bg-blue-500"],[class*="bg-sky-500"],[class*="bg-cyan-500"]) { background-color:#1684e5 !important; }
+.pf-theme-active :is([class*="bg-blue-600"],[class*="bg-sky-600"],[class*="bg-cyan-600"]) { background-color:#0f75d8 !important; }
+.pf-theme-active :is([class*="bg-blue-700"],[class*="bg-sky-700"],[class*="bg-cyan-700"]) { background-color:#0759b6 !important; }
+.pf-theme-active :is([class*="border-blue-"],[class*="border-sky-"],[class*="border-cyan-"]) { border-color:#8fc5ef !important; }
+.pf-theme-active :is([class*="ring-blue-"],[class*="ring-sky-"],[class*="ring-cyan-"]) { --tw-ring-color:rgba(15,117,216,.28) !important; }
+.pf-theme-active :is([class*="from-blue-"],[class*="from-sky-"],[class*="from-cyan-"]) {
   --tw-gradient-from:#0f75d8 var(--tw-gradient-from-position) !important;
   --tw-gradient-to:rgb(15 117 216 / 0) var(--tw-gradient-to-position) !important;
 }
-.pf-theme-active :is([class*="via-purple-"],[class*="via-violet-"],[class*="via-fuchsia-"]) {
+.pf-theme-active :is([class*="via-blue-"],[class*="via-sky-"],[class*="via-cyan-"]) {
   --tw-gradient-to:rgb(22 132 229 / 0) var(--tw-gradient-to-position) !important;
   --tw-gradient-stops:var(--tw-gradient-from),#1684e5 var(--tw-gradient-via-position),var(--tw-gradient-to) !important;
 }
-.pf-theme-active :is([class*="to-purple-"],[class*="to-violet-"]) { --tw-gradient-to:#0759b6 var(--tw-gradient-to-position) !important; }
-.pf-theme-active [class*="to-fuchsia-"] { --tw-gradient-to:#19d9ee var(--tw-gradient-to-position) !important; }
-.pf-theme-active :is([class*="accent-purple-"],[class*="accent-violet-"],[class*="accent-fuchsia-"]) { accent-color:#0f75d8 !important; }
+.pf-theme-active :is([class*="to-blue-"],[class*="to-sky-"]) { --tw-gradient-to:#0759b6 var(--tw-gradient-to-position) !important; }
+.pf-theme-active [class*="to-cyan-"] { --tw-gradient-to:#19d9ee var(--tw-gradient-to-position) !important; }
+.pf-theme-active :is([class*="accent-blue-"],[class*="accent-sky-"],[class*="accent-cyan-"]) { accent-color:#0f75d8 !important; }
 
 /* Neon frames do not pulse or continuously repaint. */
 @media (max-width: 1439px) and (min-width: 768px) {

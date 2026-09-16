@@ -8,7 +8,7 @@ const ICONS = {
 const TONES = {
   blue: "from-sky-200 to-sky-400",
   peach: "from-orange-200 to-rose-300",
-  lavender: "from-violet-200 to-violet-300",
+  lavender: "from-sky-200 to-sky-300",
   mint: "from-emerald-200 to-teal-300",
   pink: "from-pink-200 to-rose-300",
   amber: "from-amber-200 to-orange-300",

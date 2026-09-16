@@ -13,7 +13,7 @@ export default function SKCoverageMatrix({ coveredSK = new Set(), coveredPO = ne
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs font-semibold text-foreground">Skill Codes (SK1–SK18)</p>
-          <span className="text-xs font-bold text-tl-purple">{coveredSK.size}/{skEntries.length} · {skPct}%</span>
+          <span className="text-xs font-bold text-tl-blue">{coveredSK.size}/{skEntries.length} · {skPct}%</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
           {skEntries.map(([code, desc]) => {
@@ -21,7 +21,7 @@ export default function SKCoverageMatrix({ coveredSK = new Set(), coveredPO = ne
             return (
               <div key={code} className="flex items-center gap-2 text-xs">
                 {covered ? <CheckCircle2 className="w-3.5 h-3.5 text-clinical-green shrink-0" /> : <Circle className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />}
-                <span className="font-mono font-semibold text-tl-purple w-10 shrink-0">{code}</span>
+                <span className="font-mono font-semibold text-tl-blue w-10 shrink-0">{code}</span>
                 <span className="text-muted-foreground truncate">{desc}</span>
               </div>
             );
@@ -33,7 +33,7 @@ export default function SKCoverageMatrix({ coveredSK = new Set(), coveredPO = ne
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs font-semibold text-foreground">Performance Outcomes (PO1–PO10)</p>
-          <span className="text-xs font-bold text-purple-500">{coveredPO.size}/{poEntries.length} · {poPct}%</span>
+          <span className="text-xs font-bold text-blue-500">{coveredPO.size}/{poEntries.length} · {poPct}%</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
           {poEntries.map(([code, desc]) => {
@@ -41,7 +41,7 @@ export default function SKCoverageMatrix({ coveredSK = new Set(), coveredPO = ne
             return (
               <div key={code} className="flex items-center gap-2 text-xs">
                 {covered ? <CheckCircle2 className="w-3.5 h-3.5 text-clinical-green shrink-0" /> : <Circle className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />}
-                <span className="font-mono font-semibold text-purple-500 w-10 shrink-0">{code}</span>
+                <span className="font-mono font-semibold text-blue-500 w-10 shrink-0">{code}</span>
                 <span className="text-muted-foreground truncate">{desc}</span>
               </div>
             );

@@ -12,7 +12,7 @@ export const SYSTEM_META = {
   urinary:      { name: "Urinary / Renal",  color: 0x8a5a8a, hex: "#8a5a8a", text: "text-indigo-500", bg: "bg-indigo-50", border: "border-indigo-200" },
   endocrine:    { name: "Endocrine",        color: 0xf1c75b, hex: "#f1c75b", text: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
   lymphatic:    { name: "Lymphatic / Immune", color: 0x64c7a2, hex: "#64c7a2", text: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
-  nervous:      { name: "Nervous System",   color: 0xe8a9c0, hex: "#e8a9c0", text: "text-violet-500", bg: "bg-violet-50", border: "border-violet-200" },
+  nervous:      { name: "Nervous System",   color: 0xe8a9c0, hex: "#e8a9c0", text: "text-sky-500", bg: "bg-sky-50", border: "border-sky-200" },
   reproductive: { name: "Reproductive",     color: 0xc77b8a, hex: "#c77b8a", text: "text-pink-400",   bg: "bg-pink-50",   border: "border-pink-200" },
 };
 

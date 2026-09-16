@@ -20,7 +20,7 @@ const ROLE_LABELS = {
 };
 
 const ROLE_COLORS = {
-  super_admin: "bg-purple-500/15 text-purple-600 border-purple-500/30",
+  super_admin: "bg-blue-500/15 text-blue-600 border-blue-500/30",
   admin: "bg-clinical-teal/15 text-clinical-teal border-clinical-teal/30",
   tutor: "bg-clinical-green/15 text-clinical-green border-clinical-green/30",
   student: "bg-muted text-muted-foreground border-border",
@@ -215,7 +215,7 @@ export default function UserManagement() {
               className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 animate-fade-in"
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                u.role === "super_admin" ? "bg-purple-500/20 text-purple-600" :
+                u.role === "super_admin" ? "bg-blue-500/20 text-blue-600" :
                 u.role === "admin" ? "bg-clinical-teal/20 text-clinical-teal" :
                 u.role === "tutor" ? "bg-clinical-green/20 text-clinical-green" :
                 "bg-muted text-muted-foreground"
@@ -225,7 +225,7 @@ export default function UserManagement() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm text-foreground truncate">{u.full_name}</span>
-                  {u.is_protected && <Shield className="w-3.5 h-3.5 text-purple-600 shrink-0" />}
+                  {u.is_protected && <Shield className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span>@{u.username}</span>
@@ -276,7 +276,7 @@ export default function UserManagement() {
 
       {activeTab === "voice" && (
         <section className="polished-glass-edge overflow-hidden rounded-[28px] border border-white/90 bg-white/70 shadow-[0_20px_55px_-34px_rgba(15,23,42,.65),inset_1px_1px_2px_white] backdrop-blur-2xl">
-          <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-purple-50/70 p-6">
+          <div className="border-b border-slate-200/70 bg-gradient-to-r from-cyan-50/80 via-white/70 to-blue-50/70 p-6">
             <div className="flex items-start gap-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-400 to-teal-700 text-white shadow-[0_9px_18px_-10px_rgba(8,145,178,.9),inset_1px_1px_1px_rgba(255,255,255,.7)]">
                 <Volume2 className="h-6 w-6" />

@@ -26,7 +26,7 @@ const DEFAULT_HOTSPOTS = [
     scale: 2.4,
     filters: ["reception"],
     icon: ConciergeBell,
-    colour: "from-violet-500 to-indigo-700",
+    colour: "from-sky-500 to-indigo-700",
   },
   {
     id: "animal-care",
@@ -70,7 +70,7 @@ const DEFAULT_HOTSPOTS = [
     scale: 2.35,
     filters: ["english-maths"],
     icon: Calculator,
-    colour: "from-fuchsia-500 to-purple-700",
+    colour: "from-cyan-500 to-blue-700",
   },
 ];
 
@@ -238,16 +238,16 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
         </label>
         <div className="flex items-center gap-2">
           {!editing && (
-            <button type="button" onClick={openEditor} className="no-clay flex items-center gap-1.5 rounded-lg border border-violet-200 bg-white px-2.5 py-2 text-[10px] font-bold text-violet-800 transition hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500">
+            <button type="button" onClick={openEditor} className="no-clay flex items-center gap-1.5 rounded-lg border border-sky-200 bg-white px-2.5 py-2 text-[10px] font-bold text-sky-800 transition hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-500">
               <Pencil className="h-3.5 w-3.5" /> Edit pins
             </button>
           )}
           {editing && (
-            <button type="button" onClick={savePositions} className="no-clay flex items-center gap-1.5 rounded-lg bg-violet-700 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-white">
+            <button type="button" onClick={savePositions} className="no-clay flex items-center gap-1.5 rounded-lg bg-sky-700 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-white">
               <Save className="h-3.5 w-3.5" /> Save pins
             </button>
           )}
-          <button type="button" onClick={editing ? closeEditor : resetZoom} className="no-clay flex items-center gap-1.5 rounded-lg bg-slate-900 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-white" aria-label={editing ? "Close pin editor" : "Reset campus map zoom to 100 percent"}>
+          <button type="button" onClick={editing ? closeEditor : resetZoom} className="no-clay flex items-center gap-1.5 rounded-lg bg-slate-900 px-2.5 py-2 text-[10px] font-bold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-white" aria-label={editing ? "Close pin editor" : "Reset campus map zoom to 100 percent"}>
             {editing ? <X className="h-3.5 w-3.5" /> : <RotateCcw className="h-3.5 w-3.5" />}
             {editing ? "Cancel" : "Reset 100%"}
           </button>
@@ -255,7 +255,7 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
       </div>
       <div
         ref={mapRef}
-        className={`campus-plane relative aspect-square w-full overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_26px_60px_-28px_rgba(15,23,42,.6),inset_1px_1px_2px_white,inset_0_-44px_80px_-44px_rgba(15,23,42,.38)] [transform-style:preserve-3d] ${editing ? "cursor-crosshair ring-2 ring-violet-500 ring-offset-2" : ""}`}
+        className={`campus-plane relative aspect-square w-full overflow-hidden rounded-[22px] border-2 border-white/90 bg-slate-100 shadow-[0_26px_60px_-28px_rgba(15,23,42,.6),inset_1px_1px_2px_white,inset_0_-44px_80px_-44px_rgba(15,23,42,.38)] [transform-style:preserve-3d] ${editing ? "cursor-crosshair ring-2 ring-sky-500 ring-offset-2" : ""}`}
         onPointerMove={moveDraggedPin}
         onPointerUp={() => setDraggingId(null)}
         onPointerCancel={() => setDraggingId(null)}
@@ -321,7 +321,7 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
                   style={{ transform: selected && !editing ? `scale(${1 / selected.scale})` : "scale(1)" }}
                 >
                   <span className={`campus-hotspot-pulse absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border ${isSelected || isBeingEdited ? "border-white bg-white/30" : "border-cyan-300/80 bg-cyan-300/15"}`} />
-                  <span className={`relative grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-sm transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-violet-300" : ""}`}>
+                  <span className={`relative grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-gradient-to-br ${spot.colour} text-white shadow-sm transition group-hover:scale-110 ${isBeingEdited ? "ring-2 ring-sky-300" : ""}`}>
                     <MapPin className="absolute h-2.5 w-2.5 opacity-35" />
                     <Icon className="h-4 w-4" />
                   </span>
@@ -341,7 +341,7 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
       </div>
 
         {editing ? (
-          <div className="pf-map-editor relative z-40 mt-3 rounded-2xl border border-violet-200 bg-white/94 p-3 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
+          <div className="pf-map-editor relative z-40 mt-3 rounded-2xl border border-sky-200 bg-white/94 p-3 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
             <div className="flex flex-wrap items-end gap-2">
               <label className="min-w-[170px] flex-1 text-[9px] font-black uppercase tracking-[.12em] text-[#4A5568]">
                 Pin
@@ -370,7 +370,7 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
               <button type="button" onClick={restoreDefaults} className="no-clay h-9 rounded-lg border border-slate-300 bg-white px-3 text-[10px] font-bold text-slate-700 hover:bg-slate-50">
                 Restore defaults
               </button>
-              <button type="button" onClick={savePositions} className="no-clay flex h-9 items-center gap-1.5 rounded-lg bg-violet-700 px-3 text-[10px] font-bold text-white hover:bg-violet-800">
+              <button type="button" onClick={savePositions} className="no-clay flex h-9 items-center gap-1.5 rounded-lg bg-sky-700 px-3 text-[10px] font-bold text-white hover:bg-sky-800">
                 <Save className="h-3.5 w-3.5" /> Save positions
               </button>
             </div>
@@ -381,11 +381,11 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
         ) : (
           <div className="relative z-40 mt-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-white/95 bg-white/88 px-4 py-2.5 shadow-[0_12px_30px_-18px_rgba(15,23,42,.7)] backdrop-blur-xl">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-100 text-sky-700">
                 <Building2 className="h-4 w-4" />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-[10px] font-black uppercase tracking-[.12em] text-violet-800">
+                <p className="truncate text-[10px] font-black uppercase tracking-[.12em] text-sky-800">
                   {selected ? "Destination located" : "Explore the campus"}
                 </p>
                 <p className="truncate text-xs font-black text-slate-950">

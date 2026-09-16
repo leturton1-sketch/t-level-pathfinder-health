@@ -55,7 +55,7 @@ export default function QrIdCard({ user, onClose }) {
 
         <div ref={cardRef} className="rounded-xl border border-border bg-white p-5 flex flex-col items-center gap-3">
           <TLevelLogo variant="emblem" size="sm" />
-          <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-purple-700">Industry Academy ID Card</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-blue-700">Industry Academy ID Card</p>
           {qrDataUrl ? (
             <img src={qrDataUrl} alt={`QR sign-in code for ${user.full_name}`} className="w-40 h-40" />
           ) : (

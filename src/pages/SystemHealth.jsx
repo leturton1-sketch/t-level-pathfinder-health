@@ -40,7 +40,7 @@ export default function SystemHealth() {
     ["Failed logins", failed, KeyRound, failed ? "text-amber-600" : "text-emerald-600"],
     ["Runtime errors", runtimeErrors, AlertTriangle, runtimeErrors ? "text-amber-600" : "text-emerald-600"],
     ["Inactive users", inactive, Database, inactive ? "text-amber-600" : "text-emerald-600"],
-    ["Protected accounts", protectedUsers, CheckCircle2, "text-purple-600"],
+    ["Protected accounts", protectedUsers, CheckCircle2, "text-blue-600"],
   ];
 
   return <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">

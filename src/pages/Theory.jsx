@@ -40,7 +40,7 @@ export default function Theory() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background" role="status" aria-label="Loading theory modules">
-        <div className="h-9 w-9 animate-spin rounded-full border-2 border-tl-purple/25 border-t-tl-purple" />
+        <div className="h-9 w-9 animate-spin rounded-full border-2 border-tl-blue/25 border-t-tl-blue" />
       </div>
     );
   }
@@ -50,11 +50,11 @@ export default function Theory() {
       <main className="mx-auto max-w-4xl">
         <section className="polished-glass-edge mb-6 overflow-hidden rounded-[28px] border border-white/90 bg-white/85 p-6 shadow-[0_20px_45px_rgba(66,55,88,0.13),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl sm:p-8">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-purple to-violet-500 text-white shadow-[0_10px_20px_rgba(118,90,176,0.28),inset_0_1px_0_rgba(255,255,255,0.35)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-blue to-sky-500 text-white shadow-[0_10px_20px_rgba(118,90,176,0.28),inset_0_1px_0_rgba(255,255,255,0.35)]">
               <BookOpen className="h-6 w-6" aria-hidden="true" />
             </div>
             <div>
-              <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-tl-purple">T Level Health learning</p>
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-tl-blue">T Level Health learning</p>
               <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">Theory Modules</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-700 sm:text-base">
                 Core knowledge for specification Areas 1–9, presented in clear, focused reading sessions with progress checks.
@@ -65,12 +65,12 @@ export default function Theory() {
 
         <section className="mb-7 rounded-[22px] border border-white/90 bg-white/75 p-4 shadow-[0_12px_28px_rgba(66,55,88,0.10),inset_0_1px_0_white] backdrop-blur-xl" aria-labelledby="curriculum-heading">
           <div className="mb-3 flex items-center gap-2">
-            <GraduationCap className="h-4 w-4 text-tl-purple" aria-hidden="true" />
+            <GraduationCap className="h-4 w-4 text-tl-blue" aria-hidden="true" />
             <h2 id="curriculum-heading" className="text-sm font-bold text-slate-900">Curriculum areas</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {SPEC_AREAS.map((area) => (
-              <span key={area.code} title={area.title} className="rounded-full border border-tl-purple/20 bg-tl-purple/10 px-3 py-1.5 text-xs font-bold text-tl-purple">
+              <span key={area.code} title={area.title} className="rounded-full border border-tl-blue/20 bg-tl-blue/10 px-3 py-1.5 text-xs font-bold text-tl-blue">
                 {area.code}
               </span>
             ))}
@@ -85,7 +85,7 @@ export default function Theory() {
               <button
                 key={module.id}
                 onClick={() => navigate(`/theory/${module.id}`, { state: { module } })}
-                className="group polished-glass-edge w-full animate-slide-up rounded-[24px] border border-white/90 bg-white/88 p-6 text-left shadow-[0_12px_28px_rgba(66,55,88,0.10),inset_0_1px_0_white] transition-all duration-300 hover:-translate-y-1 hover:border-tl-purple/35 hover:shadow-[0_18px_38px_rgba(83,65,120,0.16),inset_0_1px_0_white] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-purple/25"
+                className="group polished-glass-edge w-full animate-slide-up rounded-[24px] border border-white/90 bg-white/88 p-6 text-left shadow-[0_12px_28px_rgba(66,55,88,0.10),inset_0_1px_0_white] transition-all duration-300 hover:-translate-y-1 hover:border-tl-blue/35 hover:shadow-[0_18px_38px_rgba(83,65,120,0.16),inset_0_1px_0_white] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-blue/25"
                 style={{ animationDelay: `${idx * 50}ms` }}
                 aria-label={`Open ${module.title}${isComplete ? ", completed" : ""}`}
               >
@@ -97,7 +97,7 @@ export default function Theory() {
                       ) : (
                         <Circle className="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
                       )}
-                      <span className="text-xs font-bold uppercase tracking-[0.12em] text-tl-purple">
+                      <span className="text-xs font-bold uppercase tracking-[0.12em] text-tl-blue">
                         {module.volume} · {module.spec_area}
                       </span>
                       {isComplete && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">Complete</span>}
@@ -111,7 +111,7 @@ export default function Theory() {
                       <SKBadgeGroup skCodes={module.sk_codes || []} poCodes={module.performance_outcomes || []} />
                     </div>
                   </div>
-                  <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all group-hover:border-tl-purple/30 group-hover:bg-tl-purple group-hover:text-white">
+                  <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all group-hover:border-tl-blue/30 group-hover:bg-tl-blue group-hover:text-white">
                     <ChevronRight className="h-5 w-5" aria-hidden="true" />
                   </span>
                 </div>

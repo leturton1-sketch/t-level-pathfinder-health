@@ -58,9 +58,9 @@ export default function AnatomyAnimationController({ animations, setAnimations, 
     <div className={`${card} p-5`}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow"><Film className="h-4 w-4"/></span>
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow"><Film className="h-4 w-4"/></span>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[.18em] text-violet-700">Centralized animation controller</p>
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-sky-700">Centralized animation controller</p>
             <h3 className="font-black text-slate-900">System animation studio</h3>
           </div>
         </div>
@@ -74,17 +74,17 @@ export default function AnatomyAnimationController({ animations, setAnimations, 
           const isActive = active.includes(system);
           const isUploading = uploading === system;
           return (
-            <div key={system} className={`flex items-center gap-2 rounded-xl border p-2.5 transition ${isActive ? "border-violet-400 bg-violet-50/80 shadow-sm" : "border-slate-200 bg-white/70"}`}>
+            <div key={system} className={`flex items-center gap-2 rounded-xl border p-2.5 transition ${isActive ? "border-sky-400 bg-sky-50/80 shadow-sm" : "border-slate-200 bg-white/70"}`}>
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-white" style={{backgroundColor:meta.hex}}><Film className="h-3.5 w-3.5"/></span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-bold text-slate-800">{meta.name}</p>
                 <p className="truncate text-[10px] text-slate-500">{anim ? anim.name : "No animation uploaded"}</p>
               </div>
               <input ref={(el) => { fileRefs.current[system] = el; }} type="file" accept="video/mp4,video/webm" className="hidden" onChange={(e) => handleUpload(system, e.target.files?.[0])} />
-              <button onClick={() => fileRefs.current[system]?.click()} disabled={isUploading} title="Upload animation" className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 disabled:opacity-50">
+              <button onClick={() => fileRefs.current[system]?.click()} disabled={isUploading} title="Upload animation" className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-sky-300 disabled:opacity-50">
                 {isUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin"/> : <Upload className="h-3.5 w-3.5"/>}
               </button>
-              <button onClick={() => toggleActive(system)} disabled={!anim} title={isActive ? "Stop overlay" : "Play overlay"} className={`grid h-8 w-8 place-items-center rounded-lg transition disabled:opacity-30 ${isActive ? "bg-rose-600 text-white" : "bg-violet-600 text-white hover:opacity-90"}`}>
+              <button onClick={() => toggleActive(system)} disabled={!anim} title={isActive ? "Stop overlay" : "Play overlay"} className={`grid h-8 w-8 place-items-center rounded-lg transition disabled:opacity-30 ${isActive ? "bg-rose-600 text-white" : "bg-sky-600 text-white hover:opacity-90"}`}>
                 {isActive ? <Square className="h-3.5 w-3.5"/> : <Play className="h-3.5 w-3.5"/>}
               </button>
               <button onClick={() => clearAnimation(system)} disabled={!anim} title="Remove animation" className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-rose-300 hover:text-rose-600 disabled:opacity-30">

@@ -42,7 +42,7 @@ const PATHWAYS = [
     short: "Reasoning",
     description: "Connect science, patient information and professional decisions.",
     icon: Brain,
-    tone: "from-violet-400 to-fuchsia-700",
+    tone: "from-sky-400 to-cyan-700",
     modules: [
       { id: "anatomy", title: "Anatomy to Deterioration Lab", detail: "Explore body systems and connect altered physiology to clinical signs.", icon: Microscope, route: "/anatomy-physiology", duration: "45 min", spec: "Core 8–9" },
       { id: "deterioration", title: "Deteriorating Patient Challenge", detail: "Recognise changing observations, prioritise and escalate safely.", icon: Activity, route: "/ward-simulation", duration: "30 min", spec: "ANS1.1" },
@@ -99,14 +99,14 @@ export default function ClinicalSkillsAcademy() {
       <div className="relative mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
         <header className="polished-glass-edge relative mb-5 flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-[26px] border border-white/85 bg-gradient-to-br from-slate-100/88 via-slate-200/68 to-slate-300/50 px-5 py-4 shadow-[0_10px_0_-5px_rgba(100,116,139,.30),0_24px_55px_-30px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-2xl">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => navigate("/")} className="no-clay grid h-11 w-11 place-items-center rounded-2xl border border-white/90 bg-white/80 text-slate-700 shadow-md transition hover:-translate-y-0.5 hover:text-violet-700" aria-label="Return to Clinical Command Centre">
+            <button type="button" onClick={() => navigate("/")} className="no-clay grid h-11 w-11 place-items-center rounded-2xl border border-white/90 bg-white/80 text-slate-700 shadow-md transition hover:-translate-y-0.5 hover:text-sky-700" aria-label="Return to Clinical Command Centre">
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-700 text-white shadow-lg">
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-sky-400 to-cyan-700 text-white shadow-lg">
               <GraduationCap className="h-6 w-6" />
             </span>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-violet-700">Pathfinder Health · Practical learning</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.22em] text-sky-700">Pathfinder Health · Practical learning</p>
               <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Clinical Skills Academy</h1>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function ClinicalSkillsAcademy() {
 
         <section className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,.5fr)]">
           <article className="polished-glass-edge relative overflow-hidden rounded-[28px] border border-white/90 bg-gradient-to-br from-slate-100/90 via-slate-200/72 to-slate-300/55 p-6 shadow-[0_18px_45px_-28px_rgba(15,23,42,.65),inset_1px_1px_1px_white] backdrop-blur-3xl">
-            <div className="absolute right-[-35px] top-[-45px] h-48 w-48 rounded-full bg-violet-400/15 blur-2xl" />
+            <div className="absolute right-[-35px] top-[-45px] h-48 w-48 rounded-full bg-sky-400/15 blur-2xl" />
             <p className="relative text-[10px] font-black uppercase tracking-[.18em] text-cyan-700">Learn by doing</p>
             <h2 className="relative mt-2 max-w-3xl text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Practise complete patient journeys, not isolated facts.</h2>
             <p className="relative mt-3 max-w-3xl text-sm font-medium leading-6 text-[#4A5568]">
@@ -146,16 +146,16 @@ export default function ClinicalSkillsAcademy() {
         <section className="mb-5 rounded-[24px] border border-white/90 bg-white/70 p-3 shadow-[0_14px_35px_-28px_rgba(15,23,42,.65)] backdrop-blur-2xl">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2" aria-label="Filter learning pathways">
-              <button type="button" onClick={() => setActivePathway("all")} className={`no-clay rounded-xl px-3 py-2 text-[10px] font-black transition ${activePathway === "all" ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-violet-50"}`}>All pathways</button>
+              <button type="button" onClick={() => setActivePathway("all")} className={`no-clay rounded-xl px-3 py-2 text-[10px] font-black transition ${activePathway === "all" ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-sky-50"}`}>All pathways</button>
               {PATHWAYS.map((pathway) => (
-                <button key={pathway.id} type="button" onClick={() => setActivePathway(pathway.id)} className={`no-clay rounded-xl px-3 py-2 text-[10px] font-black transition ${activePathway === pathway.id ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-violet-50"}`}>
+                <button key={pathway.id} type="button" onClick={() => setActivePathway(pathway.id)} className={`no-clay rounded-xl px-3 py-2 text-[10px] font-black transition ${activePathway === pathway.id ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-sky-50"}`}>
                   {pathway.short}
                 </button>
               ))}
             </div>
             <label className="relative block min-w-[250px]">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search modules or specification…" className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-xs font-semibold text-slate-900 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-200" />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search modules or specification…" className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-xs font-semibold text-slate-900 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200" />
             </label>
           </div>
         </section>
@@ -176,16 +176,16 @@ export default function ClinicalSkillsAcademy() {
                   {pathway.modules.map((module) => {
                     const ModuleIcon = module.icon;
                     return (
-                      <button key={module.id} type="button" onClick={() => navigate(module.route)} className="no-clay group flex min-h-[190px] flex-col rounded-[22px] border border-white/95 bg-white/82 p-4 text-left shadow-[0_8px_0_-5px_rgba(100,116,139,.28),0_18px_30px_-24px_rgba(15,23,42,.68)] backdrop-blur-xl transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_0_-6px_rgba(100,116,139,.30),0_26px_38px_-22px_rgba(15,23,42,.72)] focus:outline-none focus:ring-2 focus:ring-violet-500">
+                      <button key={module.id} type="button" onClick={() => navigate(module.route)} className="no-clay group flex min-h-[190px] flex-col rounded-[22px] border border-white/95 bg-white/82 p-4 text-left shadow-[0_8px_0_-5px_rgba(100,116,139,.28),0_18px_30px_-24px_rgba(15,23,42,.68)] backdrop-blur-xl transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_0_-6px_rgba(100,116,139,.30),0_26px_38px_-22px_rgba(15,23,42,.72)] focus:outline-none focus:ring-2 focus:ring-sky-500">
                         <div className="flex items-start justify-between gap-3">
                           <span className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${pathway.tone} text-white shadow-md`}><ModuleIcon className="h-5 w-5" /></span>
-                          <span className="rounded-full bg-violet-50 px-2 py-1 text-[9px] font-black text-violet-800">{module.spec}</span>
+                          <span className="rounded-full bg-sky-50 px-2 py-1 text-[9px] font-black text-sky-800">{module.spec}</span>
                         </div>
                         <h3 className="mt-4 text-sm font-black leading-5 text-slate-900">{module.title}</h3>
                         <p className="mt-1.5 flex-1 text-[11px] font-medium leading-5 text-[#4A5568]">{module.detail}</p>
                         <div className="mt-4 flex items-center justify-between border-t border-slate-200/80 pt-3">
                           <span className="flex items-center gap-1 text-[9px] font-bold text-slate-500"><Clock3 className="h-3 w-3" /> {module.duration}</span>
-                          <span className="flex items-center gap-1 text-[10px] font-black text-violet-700">Open practice <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
+                          <span className="flex items-center gap-1 text-[10px] font-black text-sky-700">Open practice <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
                         </div>
                       </button>
                     );

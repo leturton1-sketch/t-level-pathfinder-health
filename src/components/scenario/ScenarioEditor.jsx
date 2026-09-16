@@ -229,19 +229,19 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
           </div>
 
           {draft.category === "activities_daily_living" && (
-            <div className="rounded-2xl border border-purple-200 bg-purple-50/70 p-3 space-y-3">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-3 space-y-3">
               <div>
-                <p className="text-xs font-heading font-bold text-purple-900">ADL Call-Bell Controls</p>
+                <p className="text-xs font-heading font-bold text-blue-900">ADL Call-Bell Controls</p>
                 <p className="text-[10px] text-slate-600">Configure the frequency and T Level SK15 activities available to the simulation.</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="text-[11px] font-semibold text-slate-600">Call-bell speed
-                  <select value={draft.call_bell_speed || "normal"} onChange={(e) => update({ call_bell_speed: e.target.value })} className="mt-1 w-full rounded-lg border border-purple-200 bg-white px-2 py-2 text-xs">
+                  <select value={draft.call_bell_speed || "normal"} onChange={(e) => update({ call_bell_speed: e.target.value })} className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-2 py-2 text-xs">
                     <option value="slow">Slow · 90 seconds</option><option value="normal">Normal · 60 seconds</option><option value="fast">Fast · 30 seconds</option>
                   </select>
                 </label>
                 <label className="text-[11px] font-semibold text-slate-600">Task source
-                  <select value={draft.adl_task_source || "pregenerated"} onChange={(e) => update({ adl_task_source: e.target.value })} className="mt-1 w-full rounded-lg border border-purple-200 bg-white px-2 py-2 text-xs">
+                  <select value={draft.adl_task_source || "pregenerated"} onChange={(e) => update({ adl_task_source: e.target.value })} className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-2 py-2 text-xs">
                     <option value="pregenerated">All pre-generated</option><option value="specific">Selected tasks only</option><option value="mixed">Selected first, then mixed</option>
                   </select>
                 </label>
@@ -250,7 +250,7 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   {ADL_TASKS.map((task) => (
                     <button key={task.id} type="button" onClick={() => toggleArr("adl_tasks", task.id)}
-                      className={`rounded-xl border px-2.5 py-2 text-left text-[10px] transition ${(draft.adl_tasks || []).includes(task.id) ? "border-purple-500 bg-purple-100 text-purple-900" : "border-slate-200 bg-white text-slate-600"}`}>
+                      className={`rounded-xl border px-2.5 py-2 text-left text-[10px] transition ${(draft.adl_tasks || []).includes(task.id) ? "border-blue-500 bg-blue-100 text-blue-900" : "border-slate-200 bg-white text-slate-600"}`}>
                       <span className="font-bold">{task.title}</span><span className="block opacity-70">{task.staff} learner{task.staff > 1 ? "s" : ""} required</span>
                     </button>
                   ))}
@@ -379,7 +379,7 @@ export default function ScenarioEditor({ initialScenario, onSave, onCancel, enti
               <div className="flex flex-wrap gap-1 max-h-28 overflow-y-auto scrollbar-thin">
                 {Object.keys(PERFORMANCE_OUTCOMES).map((code) => (
                   <button key={code} onClick={() => toggleArr("performance_outcomes", code)}
-                    className={`text-[10px] font-semibold rounded px-1.5 py-0.5 border transition-all ${(draft.performance_outcomes || []).includes(code) ? "bg-purple-500/15 border-purple-500/40 text-purple-600" : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"}`}>
+                    className={`text-[10px] font-semibold rounded px-1.5 py-0.5 border transition-all ${(draft.performance_outcomes || []).includes(code) ? "bg-blue-500/15 border-blue-500/40 text-blue-600" : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"}`}>
                     {code}
                   </button>
                 ))}

@@ -9,7 +9,7 @@ const SHAPES = [
   { value: "torus", label: "Torus" },
 ];
 
-const field = "w-full rounded-lg border border-slate-300 bg-white/90 px-2 py-1.5 text-xs font-semibold text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200";
+const field = "w-full rounded-lg border border-slate-300 bg-white/90 px-2 py-1.5 text-xs font-semibold text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200";
 const btn = "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-bold transition";
 
 function Slider({ label, value, min, max, step, onChange, unit = "" }) {
@@ -19,7 +19,7 @@ function Slider({ label, value, min, max, step, onChange, unit = "" }) {
         <span>{label}</span>
         <span className="font-mono text-slate-800">{Number(value).toFixed(2)}{unit}</span>
       </span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(e.target.value)} className="w-full accent-violet-600" />
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(e.target.value)} className="w-full accent-sky-600" />
     </label>
   );
 }
@@ -68,7 +68,7 @@ export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides,
   return (
     <div className="polished-glass-edge rounded-2xl border border-white/90 bg-white/90 p-4 shadow-lg backdrop-blur-xl">
       <div className="mb-3 flex items-center gap-2">
-        <SlidersHorizontal className="h-4 w-4 text-violet-600" />
+        <SlidersHorizontal className="h-4 w-4 text-sky-600" />
         <h3 className="text-sm font-black text-slate-900">Anatomy editor (admin)</h3>
         <span className="ml-auto rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-black text-rose-700">EDIT MODE</span>
       </div>
@@ -76,7 +76,7 @@ export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides,
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
         {/* Transform */}
         <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
-          <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-violet-700"><Move3D className="h-3.5 w-3.5" />Transform selected</p>
+          <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-sky-700"><Move3D className="h-3.5 w-3.5" />Transform selected</p>
           <select value={selectedId || ""} onChange={(e) => {/* selection comes from 3D click */}} disabled className={`${field} mb-2`} aria-label="Selected structure">
             <option value="">Select a structure in the model</option>
             {ANATOMY_STRUCTURES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -96,7 +96,7 @@ export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides,
             <Slider label="Y" value={rot[1]} min={-3.14} max={3.14} step={0.01} onChange={(v) => setRot(1, v)} />
             <Slider label="Z" value={rot[2]} min={-3.14} max={3.14} step={0.01} onChange={(v) => setRot(2, v)} />
           </div>
-          <button onClick={reset} disabled={!def && !ov.position} className={`${btn} mt-2 w-full justify-center border-slate-200 bg-white text-slate-700 hover:border-violet-300 disabled:opacity-40`}>
+          <button onClick={reset} disabled={!def && !ov.position} className={`${btn} mt-2 w-full justify-center border-slate-200 bg-white text-slate-700 hover:border-sky-300 disabled:opacity-40`}>
             <RotateCcw className="h-3.5 w-3.5" />Reset transform
           </button>
         </div>
@@ -108,7 +108,7 @@ export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides,
             <button onClick={toggleHidden} disabled={!selectedId} className={`${btn} w-full justify-center ${isHidden ? "border-emerald-400 bg-emerald-500 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-emerald-300"} disabled:opacity-40`}>
               {isHidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}{isHidden ? "Restore" : "Delete / hide"}
             </button>
-            <button onClick={toggleClipped} disabled={!selectedId} className={`${btn} w-full justify-center ${isClipped ? "border-violet-500 bg-violet-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-violet-300"} disabled:opacity-40`}>
+            <button onClick={toggleClipped} disabled={!selectedId} className={`${btn} w-full justify-center ${isClipped ? "border-sky-500 bg-sky-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-sky-300"} disabled:opacity-40`}>
               <Scissors className="h-3.5 w-3.5" />{isClipped ? "Uncut" : "Cut (clip)"}
             </button>
           </div>

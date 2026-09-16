@@ -15,7 +15,7 @@ const PRACTICE_DESTINATIONS = [
     label: "ESP Practice Hub",
     detail: "Complete the four linked employer-set project tasks",
     path: "/esp-practice",
-    tone: "from-violet-500 to-fuchsia-700",
+    tone: "from-sky-500 to-cyan-700",
   },
   {
     icon: BedDouble,
@@ -36,7 +36,7 @@ const PRACTICE_DESTINATIONS = [
     label: "3D Anatomy & Physiology",
     detail: "Explore interactive body systems",
     path: "/anatomy-physiology",
-    tone: "from-violet-400 to-fuchsia-700",
+    tone: "from-sky-400 to-cyan-700",
   },
 ];
 
@@ -192,7 +192,7 @@ export default function BottomNav() {
                 type="button"
                 onClick={() => setPracticeOpen(false)}
                 aria-label="Close clinical practice menu"
-                className="no-clay grid h-11 w-11 place-items-center rounded-xl border border-white bg-white/85 text-slate-700 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="no-clay grid h-11 w-11 place-items-center rounded-xl border border-white bg-white/85 text-slate-700 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -207,7 +207,7 @@ export default function BottomNav() {
                     key={item.path}
                     type="button"
                     onClick={() => navigate(item.path)}
-                    className={`no-clay group flex min-h-[64px] w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-violet-500 ${isActive ? "border-violet-300 bg-violet-50 ring-1 ring-violet-200" : "border-white/95 bg-white/85 hover:-translate-y-0.5 hover:bg-white"}`}
+                    className={`no-clay group flex min-h-[64px] w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-sky-500 ${isActive ? "border-sky-300 bg-sky-50 ring-1 ring-sky-200" : "border-white/95 bg-white/85 hover:-translate-y-0.5 hover:bg-white"}`}
                   >
                     <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${item.tone} text-white shadow-md`}>
                       <Icon className="h-5 w-5" />
@@ -257,7 +257,7 @@ export default function BottomNav() {
                 }}
                 aria-label={item.label}
                 aria-expanded={isPractice ? practiceOpen : undefined}
-                className={`relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition-all focus:outline-none focus:ring-2 focus:ring-violet-500 ${isActive ? "bg-violet-50/85 text-primary" : "text-muted-foreground hover:bg-white/60 hover:text-foreground"}`}
+                className={`relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition-all focus:outline-none focus:ring-2 focus:ring-sky-500 ${isActive ? "bg-sky-50/85 text-primary" : "text-muted-foreground hover:bg-white/60 hover:text-foreground"}`}
               >
                 <Icon className={`h-5 w-5 transition-transform ${isActive ? "scale-110" : ""}`} />
                 <span className="block text-[9px] font-heading font-bold leading-none">{item.label}</span>
