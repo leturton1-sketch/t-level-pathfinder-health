@@ -408,6 +408,35 @@
   text-align: center;
 }
 
+.login-gate-values,
+.login-gate-trust {
+  position: absolute;
+  z-index: 2;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: clamp(1.1rem, 2.5vw, 2.8rem);
+  color: #0a376f;
+  font-size: .63rem;
+  font-weight: 900;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.login-gate-values { left: clamp(1.25rem, 4vw, 5rem); }
+.login-gate-trust { left: 50%; transform: translateX(-50%); }
+
+.login-gate-values span,
+.login-gate-trust span {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  white-space: nowrap;
+}
+
+.login-gate-values svg { width: 1.5rem; height: 1.5rem; stroke-width: 1.8; }
+.login-gate-trust svg { width: 1.15rem; height: 1.15rem; stroke-width: 2; }
+
 @media (max-width: 1120px) {
   .login-gate-brand { left: 1.75rem; }
   .login-gate-promise { right: 1.75rem; }
