@@ -43,9 +43,9 @@ module.exports = {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
-        clinical: { navy: '#15131A', teal: '#765AB0', amber: '#A65A00', red: '#FC4421', green: '#277A52' },
-        tl: { salmon: '#FF9567', red: '#FC4421', purple: '#765AB0', navy: '#15131A', lavender: '#DCD2EE', mint: '#BFE4D0' },
-  			chart: { '1': 'hsl(73 100% 36%)', '2': 'hsl(142 71% 45%)', '3': 'hsl(38 92% 50%)', '4': 'hsl(280 65% 60%)', '5': 'hsl(340 75% 55%)' },
+        clinical: { navy: '#063B82', teal: '#0F75D8', cyan: '#29E7FF', amber: '#A65A00', red: '#FC4421', green: '#2BBF8A' },
+        tl: { blue: '#0F75D8', cyan: '#29E7FF', red: '#FC4421', navy: '#063B82', ice: '#D8EAF8', green: '#2BBF8A' },
+  			chart: { '1': '#0F75D8', '2': '#2BBF8A', '3': '#29E7FF', '4': '#063B82', '5': '#FC4421' },
   			sidebar: { DEFAULT: 'hsl(var(--background))', foreground: 'hsl(var(--foreground))', primary: 'hsl(var(--primary))', 'primary-foreground': 'hsl(var(--primary-foreground))', accent: 'hsl(var(--muted))', 'accent-foreground': 'hsl(var(--foreground))', border: 'hsl(var(--border))', ring: 'hsl(var(--ring))' }
   		},
   		fontFamily: {
