@@ -25,7 +25,7 @@ function Slider({ label, value, min, max, step, onChange, unit = "" }) {
 }
 
 export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides, hidden, setHidden, clipped, setClipped, custom, setCustom }) {
-  const [newCustom, setNewCustom] = useState({ name: "", shape: "sphere", radius: "0.04", x: "0", y: "1", z: "0", color: "#765AB0" });
+  const [newCustom, setNewCustom] = useState({ name: "", shape: "sphere", radius: "0.04", x: "0", y: "1", z: "0", color: "#0F75D8" });
 
   const def = ANATOMY_STRUCTURES.find((s) => s.id === selectedId);
   const ov = overrides[selectedId] || {};
@@ -60,7 +60,7 @@ export default function AnatomyAdminPanel({ selectedId, overrides, setOverrides,
       position: [parseFloat(newCustom.x) || 0, parseFloat(newCustom.y) || 1, parseFloat(newCustom.z) || 0],
       color: newCustom.color,
     }]);
-    setNewCustom({ name: "", shape: "sphere", radius: "0.04", x: "0", y: "1", z: "0", color: "#765AB0" });
+    setNewCustom({ name: "", shape: "sphere", radius: "0.04", x: "0", y: "1", z: "0", color: "#0F75D8" });
   };
 
   const removeCustom = (id) => setCustom((c) => c.filter((item) => item.id !== id));
