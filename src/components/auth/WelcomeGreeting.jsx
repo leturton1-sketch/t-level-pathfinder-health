@@ -46,8 +46,8 @@ export default function WelcomeGreeting({ user, onContinue }) {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#15131a]/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-[#765ab0]/30 bg-white shadow-xl">
-        <div className="flex flex-col items-center gap-3 border-b border-[#765ab0]/15 px-6 pb-5 pt-7 text-center">
+      <div className="w-full max-w-lg rounded-2xl border border-[#0f75d8]/30 bg-white shadow-xl">
+        <div className="flex flex-col items-center gap-3 border-b border-[#0f75d8]/15 px-6 pb-5 pt-7 text-center">
           <img src="/branding/tl-emblem.png" alt="T Level Industry Academy" className="h-16 w-16 object-contain" draggable={false} />
           <TLevelLogo variant="purple" size="sm" />
           <h1 className="mt-1 text-xl font-semibold text-[#15131a]">Welcome, {firstName}</h1>
@@ -55,8 +55,8 @@ export default function WelcomeGreeting({ user, onContinue }) {
         </div>
 
         <div className="px-6 py-5">
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[#765ab0]/20 bg-[#765ab0]/5 p-4">
-            <Sparkles size={20} className="mt-0.5 shrink-0 text-[#765ab0]" aria-hidden="true" />
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[#0f75d8]/20 bg-[#0f75d8]/5 p-4">
+            <Sparkles size={20} className="mt-0.5 shrink-0 text-[#0f75d8]" aria-hidden="true" />
             <p className="text-sm text-[#15131a]">
               I'm <strong>Pathfinder AI</strong>, your curriculum-to-industry AI tutor. {purposeText}
             </p>
@@ -65,19 +65,19 @@ export default function WelcomeGreeting({ user, onContinue }) {
           <ul className="space-y-3">
             {HELP_POINTS.map(({ icon: Icon, text }, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
-                <Icon size={18} className="mt-0.5 shrink-0 text-[#765ab0]" aria-hidden="true" />
+                <Icon size={18} className="mt-0.5 shrink-0 text-[#0f75d8]" aria-hidden="true" />
                 <span>{text}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-[#765ab0]/15 px-6 py-4">
+        <div className="flex justify-end gap-3 border-t border-[#0f75d8]/15 px-6 py-4">
           <button type="button" onClick={() => synth.speak(spokenGreeting)} className="rounded-lg px-4 py-2 text-sm font-semibold text-violet-800">Listen to welcome</button>
           <button
             type="button"
             onClick={() => { synth.stop(); onContinue?.(); }}
-            className="rounded-lg bg-[#765ab0] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#5f4890]"
+            className="rounded-lg bg-[#0f75d8] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#0759b6]"
           >
             Continue
           </button>
