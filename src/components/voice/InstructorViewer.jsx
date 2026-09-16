@@ -4,14 +4,81 @@ import * as T from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import "./InstructorViewer.css";
 
-export default function InstructorViewer({ state="idle", speaking=false, listening=false }) {
+const VIDEO_GESTURE_DURATION = { wave: 2600, thumbsUp: 2300, celebrate: 2600 };
+
+function animateInstructor(model, motion, now, delta) {
+  const rig=model?.userData?.rig; if(!rig)return;
+  let gesture=motion.gesture;
+  const elapsed=now-motion.started;
+  if(gesture==="thinking" && elapsed>1600) { motion.gesture="working"; motion.started=now; gesture="working"; }
+  if(VIDEO_GESTURE_DURATION[gesture] && elapsed>VIDEO_GESTURE_DURATION[gesture]) {
+    motion.gesture="idle"; motion.started=now; gesture="idle";
+  }
+  const t=elapsed/1000, wave=Math.sin(t*9), talk=Math.sin(t*4.6);
+  const pose={
+    leftShoulder:[0,0,0],rightShoulder:[0,0,0],leftElbow:[0,0,0],
+    rightElbow:[0,0,0],leftWrist:[0,0,0],rightWrist:[0,0,0],head:[0,0,0]
+  };
+  if(gesture==="wave") {
+    pose.leftShoulder=[-.18,0,-2.02]; pose.leftElbow=[0,0,-.32];
+    pose.leftWrist=[0,.15,wave*.34]; pose.head=[0,-.08,.035];
+  } else if(gesture==="thinking") {
+    pose.leftShoulder=[-.5,-.2,-.65]; pose.leftElbow=[0,-.2,-1.35];
+    pose.leftWrist=[-.15,.15,-.25]; pose.head=[.04,-.08,.09];
+  } else if(gesture==="working") {
+    pose.leftShoulder=[-.42,0,-.52]; pose.rightShoulder=[-.42,0,.52];
+    pose.leftElbow=[0,0,-.78]; pose.rightElbow=[0,0,.78];
+    pose.leftWrist=[0,.15,talk*.08]; pose.rightWrist=[0,-.15,-talk*.08];
+    pose.head=[0,talk*.018,0];
+  } else if(gesture==="thumbsUp") {
+    pose.leftShoulder=[-.25,0,-.72]; pose.leftElbow=[0,0,-1.42];
+    pose.leftWrist=[-1.2,.12,-.18]; pose.head=[-.035,0,-.035];
+  } else if(gesture==="celebrate") {
+    pose.leftShoulder=[-.2,0,-2.18]; pose.leftElbow=[0,0,-.5];
+    pose.leftWrist=[-.8,0,-.12]; pose.head=[-.04,0,-.055];
+  } else if(gesture==="speaking") {
+    pose.leftShoulder=[-.2,0,-.2-talk*.08]; pose.rightShoulder=[-.18,0,.18+talk*.08];
+    pose.leftElbow=[0,0,-.35]; pose.rightElbow=[0,0,.32]; pose.head=[0,talk*.025,0];
+  } else if(gesture==="listening") {
+    pose.head=[.025,-.12,.07]; pose.rightShoulder=[-.08,0,.08];
+  }
+  const alpha=1-Math.exp(-Math.min(delta,.05)*8);
+  Object.entries(pose).forEach(([name,rotation])=>{
+    const joint=rig[name]; if(!joint)return;
+    joint.rotation.x=T.MathUtils.lerp(joint.rotation.x,rotation[0],alpha);
+    joint.rotation.y=T.MathUtils.lerp(joint.rotation.y,rotation[1],alpha);
+    joint.rotation.z=T.MathUtils.lerp(joint.rotation.z,rotation[2],alpha);
+  });
+  model.position.y=T.MathUtils.lerp(model.position.y,Math.sin(now*.0017)*.005,alpha);
+}
+
+export default function InstructorViewer({ state="idle", speaking=false, listening=false, emotion="neutral", emotionKey=0 }) {
   const mount=useRef(null), api=useRef(null);
+  const motion=useRef({gesture:"wave",started:performance.now()});
   const [phase,setPhase]=useState("loading"),[retry,setRetry]=useState(0),[exporting,setExporting]=useState(false),[exportError,setExportError]=useState("");
   useEffect(()=>{
-    let renderer,controls,observer,intersection,scene,model,disposed=false,frame=0,visible=true;
+    if(!api.current)return;
+    let gesture="idle";
+    if(listening) gesture="listening";
+    else if(state==="working") gesture="thinking";
+    else if(state==="complete" || emotion==="happy") gesture="thumbsUp";
+    else if(emotion==="celebrate") gesture="celebrate";
+    else if(speaking) gesture="speaking";
+    motion.current={gesture,started:performance.now()};
+    api.current.request();
+  },[state,speaking,listening,emotion,emotionKey]);
+  useEffect(()=>{
+    let renderer,controls,observer,intersection,scene,model,disposed=false,frame=0,visible=true,lastFrame=performance.now();
     const host=mount.current;
     setPhase("loading");
-    const render=()=>{frame=0;if(!disposed && visible && !document.hidden && renderer)renderer.render(scene,camera);};
+    const render=(now=performance.now())=>{
+      frame=0;
+      if(!disposed && visible && !document.hidden && renderer) {
+        animateInstructor(model,motion.current,now,(now-lastFrame)/1000);
+        lastFrame=now; renderer.render(scene,camera);
+        frame=requestAnimationFrame(render);
+      }
+    };
     const request=()=>{if(!frame && !disposed)frame=requestAnimationFrame(render);};
     const camera=new T.PerspectiveCamera(32,1,.01,30);
     const visibility=()=>request();
@@ -36,7 +103,7 @@ export default function InstructorViewer({ state="idle", speaking=false, listeni
       controls.enablePan=false;controls.enableDamping=false;controls.minDistance=1.45;controls.maxDistance=5;
       controls.minPolarAngle=.35;controls.maxPolarAngle=Math.PI*.65;controls.addEventListener("change",request);
       const view=(angle=0)=>{camera.position.set(Math.sin(angle)*3.65,1.15,Math.cos(angle)*3.65);controls.target.set(0,.9,0);controls.update();request();};
-      api.current={view,model,zoom:(factor)=>{const direction=camera.position.clone().sub(controls.target);direction.setLength(T.MathUtils.clamp(direction.length()*factor,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(direction);controls.update();request();}};
+      api.current={view,model,request,zoom:(factor)=>{const direction=camera.position.clone().sub(controls.target);direction.setLength(T.MathUtils.clamp(direction.length()*factor,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(direction);controls.update();request();}};
       observer=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();request();});
       observer.observe(host);
       intersection=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible)request();});
