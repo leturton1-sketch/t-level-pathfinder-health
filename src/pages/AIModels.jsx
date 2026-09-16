@@ -6,7 +6,7 @@ import {
   FREE_OPENROUTER_MODELS, OPENROUTER_AUTO_FREE_MODEL, PUTER_MODELS,
 } from "@/lib/aiRouter";
 
-const PURPLE = "#765AB0";
+const PURPLE = "#0F75D8";
 
 const MODES = [
   { key: "auto", label: "Auto", detail: "Local → Puter → OpenRouter", icon: RotateCw },
@@ -163,7 +163,7 @@ export default function AIModels() {
       {/* Header */}
       <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-2xl text-white shadow-lg" style={{ background: `linear-gradient(145deg, #866BC0, #63479D)` }}>
+          <span className="grid h-11 w-11 place-items-center rounded-2xl text-white shadow-lg" style={{ background: `linear-gradient(145deg, #1684E5, #0759B6)` }}>
             <Sparkles className="h-6 w-6" />
           </span>
           <div>
@@ -191,7 +191,7 @@ export default function AIModels() {
               key={m.key}
               onClick={() => update({ mode: m.key })}
               className={`rounded-2xl border p-3 text-left transition-all ${active ? "border-transparent text-white shadow-lg" : "border-border bg-card hover:-translate-y-0.5 hover:shadow-md"}`}
-              style={active ? { background: `linear-gradient(145deg, #866BC0, #63479D)` } : {}}
+              style={active ? { background: `linear-gradient(145deg, #1684E5, #0759B6)` } : {}}
             >
               <Icon className={`mb-1.5 h-5 w-5 ${active ? "text-white" : "text-clinical-teal"}`} />
               <p className="text-sm font-heading font-bold">{m.label}</p>
@@ -366,7 +366,7 @@ export default function AIModels() {
             onClick={() => handleSend()}
             disabled={busy || !input.trim()}
             className="rounded-xl px-3 py-2 text-sm font-semibold text-white disabled:opacity-40 transition-opacity flex items-center gap-1.5"
-            style={{ background: `linear-gradient(145deg, #866BC0, #63479D)` }}
+            style={{ background: `linear-gradient(145deg, #1684E5, #0759B6)` }}
           >
             <Send className="h-4 w-4" /> Send
           </button>
