@@ -217,7 +217,7 @@ export default function VoiceAssistant() {
       </header>
       <div className="educator-workspace">
         <section className="educator-stage" aria-label="Pathfinder humanoid Clinical Educator">
-          <InstructorViewer state={status} speaking={synth.speaking} listening={listening} />
+          <InstructorViewer state={status} speaking={synth.speaking} listening={listening} emotion={emotion} emotionKey={emotionKey} />
         </section>
         <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
