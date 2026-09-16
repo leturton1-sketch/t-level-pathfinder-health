@@ -102,7 +102,7 @@ export default function WardPatientPanel({ bedDesignation, onClose, onBeginScena
             const Icon = t.icon;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-heading font-semibold uppercase tracking-wide transition-all ${tab === t.id ? "bg-white text-[#63479D] shadow-sm" : "text-[#625D69] hover:text-[#15131A] hover:bg-white/60"}`}>
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px] font-heading font-semibold uppercase tracking-wide transition-all ${tab === t.id ? "bg-white text-[#0759B6] shadow-sm" : "text-[#625D69] hover:text-[#15131A] hover:bg-white/60"}`}>
                 <Icon className="w-3.5 h-3.5" />
                 {t.label}
               </button>
