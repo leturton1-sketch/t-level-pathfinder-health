@@ -128,6 +128,31 @@ export function buildClinicalInstructor() {
   const badge=new T.MeshStandardMaterial({map:texture,roughness:.75});
   const badgeMesh=add(new T.BoxGeometry(.104,.041,.004),badge,[-.128,1.327,.133]);badgeMesh.rotation.z=.06;
   add(new T.BoxGeometry(.014,.016,.006),"metal",[-.127,1.351,.132]);
-  root.userData.description="Stylised procedural clinical instructor based on supplied four-view reference";
+  // Lightweight animation rig. Existing meshes are re-parented without changing
+  // their world position, so the character keeps the four-view silhouette while
+  // gaining shoulder, elbow and wrist articulation for conversational gestures.
+  const makeJoint = (name, pivot, objects, parent=root) => {
+    const joint = new T.Group(); joint.name=name; joint.position.set(...pivot);
+    root.add(joint); root.updateMatrixWorld(true);
+    objects.forEach(object => joint.attach(object));
+    if(parent!==root) { root.updateMatrixWorld(true); parent.attach(joint); }
+    return joint;
+  };
+  const bodyMeshes=root.children.filter(object=>object.isMesh);
+  const armMeshes=(side, maxY=1.39, minY=.7)=>bodyMeshes.filter(object=>{
+    const x=object.position.x, y=object.position.y;
+    return Math.sign(x)===side && Math.abs(x)>.18 && y>=minY && y<=maxY;
+  });
+  const leftArm=armMeshes(-1), rightArm=armMeshes(1);
+  const leftForearm=armMeshes(-1,1.18,.7), rightForearm=armMeshes(1,1.18,.7);
+  const leftHand=armMeshes(-1,.87,.69), rightHand=armMeshes(1,.87,.69);
+  const leftShoulder=makeJoint("leftShoulder",[-.218,1.305,0],leftArm);
+  const rightShoulder=makeJoint("rightShoulder",[.218,1.305,0],rightArm);
+  const leftElbow=makeJoint("leftElbow",[-.277,1.16,0],leftForearm,leftShoulder);
+  const rightElbow=makeJoint("rightElbow",[.277,1.16,0],rightForearm,rightShoulder);
+  const leftWrist=makeJoint("leftWrist",[-.303,.86,.027],leftHand,leftElbow);
+  const rightWrist=makeJoint("rightWrist",[.303,.86,.027],rightHand,rightElbow);
+  root.userData.rig={head,leftShoulder,rightShoulder,leftElbow,rightElbow,leftWrist,rightWrist};
+  root.userData.description="Animated procedural clinical instructor based on supplied four-view reference and video gesture study";
   return root;
 }
