@@ -58,6 +58,7 @@ export default function VoiceAssistant() {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const listeningRef = useRef(false);
+  const educatorCueRef = useRef("neutral");
   const requestIdRef = useRef(0);
   const endRef = useRef(null);
 
@@ -83,17 +84,23 @@ export default function VoiceAssistant() {
     recognitionRef.current?.abort();
   }, []);
 
-  const showEducatorCue = (cue) => {
+  const showEducatorCue = (cue, force = false) => {
+    if (!force && educatorCueRef.current === cue) return;
+    educatorCueRef.current = cue;
     setEducatorCue(cue);
     setEducatorCueKey((value) => value + 1);
   };
 
-  const speakCompletion = async (text) => {
+  const speakCompletion = async (text, completionCue) => {
     setStatus("complete");
-    await synth.speak(text, { onEnd: () => {
-      setStatus(listeningRef.current ? "listening" : "idle");
-      showEducatorCue("neutral");
-    } });
+    if (synth.prefs.muted) showEducatorCue(completionCue, true);
+    await synth.speak(text, {
+      onStart: () => showEducatorCue(completionCue, true),
+      onEnd: () => {
+        setStatus(listeningRef.current ? "listening" : "idle");
+        showEducatorCue("neutral");
+      },
+    });
   };
 
   const handleSend = async (overrideText, attachments = []) => {
@@ -121,13 +128,13 @@ export default function VoiceAssistant() {
 
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
       const positiveFeedback = /well done|good work|great job|excellent|correct|you got it|nice work/i.test(reply);
-      showEducatorCue(positiveFeedback ? "good_work" : "task_complete");
-      await speakCompletion(reply);
+      await speakCompletion(reply, positiveFeedback ? "good_work" : "task_complete");
     } catch {
       if (requestId !== requestIdRef.current) return;
       const failureMessage = "I wasn't able to complete that task because the clinical assistant service is unavailable. Please try again.";
       setMessages((p) => [...p, { role: "assistant", content: failureMessage }]);
       setStatus("offline");
+      showEducatorCue("neutral");
       await synth.speak(failureMessage);
       if (listeningRef.current) { try { recognitionRef.current?.start(); } catch {} }
     }
@@ -139,6 +146,7 @@ export default function VoiceAssistant() {
       try { recognitionRef.current?.stop(); } catch {}
       setListening(false);
       setStatus("idle");
+      showEducatorCue("neutral");
       return;
     }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -173,6 +181,7 @@ export default function VoiceAssistant() {
   const handleStop = () => {
     requestIdRef.current += 1;
     synth.stop();
+    showEducatorCue("neutral");
     setStatus(listeningRef.current ? "listening" : "idle");
   };
 
@@ -202,7 +211,7 @@ export default function VoiceAssistant() {
         </div>
       </header>
       <div className="educator-workspace">
-        <ClinicalEducatorVideo cue={educatorCue} cueKey={educatorCueKey} />
+        <ClinicalEducatorVideo cue={educatorCue} cueKey={educatorCueKey} speaking={synth.speaking} />
         <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
             <h2 id="educator-conversation-title">Your conversation</h2>
