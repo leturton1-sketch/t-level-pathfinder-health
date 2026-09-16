@@ -450,7 +450,9 @@
   .login-gate-brand img { height: 2.8rem; }
   .login-gate-brand span,
   .login-gate-message,
-  .login-gate-promise { display: none; }
+  .login-gate-promise,
+  .login-gate-values,
+  .login-gate-trust { display: none; }
   .login-gate-card { margin-top: 3.8rem; max-height: none; }
   .login-gate-cross { right: -7rem; top: 8%; width: 18rem; opacity: .36; }
   .login-gate-backdrop::after { height: 3rem; }
