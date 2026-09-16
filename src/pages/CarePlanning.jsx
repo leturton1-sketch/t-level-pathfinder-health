@@ -42,11 +42,11 @@ export default function CarePlanning() {
   });
 
   return (
-    <div className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.14),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
+    <div className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,117,216,0.14),transparent_32%),radial-gradient(circle_at_top_right,rgba(39,181,168,0.10),transparent_28%)]">
       <main className="mx-auto max-w-6xl">
         <section className="polished-glass-edge mb-6 overflow-hidden rounded-[30px] border border-white/90 bg-white/86 p-6 shadow-[0_22px_50px_rgba(66,55,88,0.14),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-blue to-sky-600 text-white shadow-[0_14px_28px_rgba(118,90,176,0.3),inset_0_1px_0_rgba(255,255,255,.35)]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tl-blue to-sky-600 text-white shadow-[0_14px_28px_rgba(41,231,255,0.3),inset_0_1px_0_rgba(255,255,255,.35)]">
               <BookHeart className="h-7 w-7" />
             </div>
             <div>
@@ -129,7 +129,7 @@ export default function CarePlanning() {
                   style={{ animationDelay: `${Math.min(index, 12) * 35}ms` }}
                 >
                   <div className="mb-3 flex items-start justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-white text-tl-blue shadow-[0_8px_18px_rgba(118,90,176,.16),inset_0_1px_0_white]"><Icon className="h-5 w-5" /></div>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-white text-tl-blue shadow-[0_8px_18px_rgba(41,231,255,.16),inset_0_1px_0_white]"><Icon className="h-5 w-5" /></div>
                     <ChevronRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-tl-blue" />
                   </div>
                   <h3 className="text-base font-black text-slate-950">{form.title}</h3>
