@@ -10,6 +10,7 @@ import { getRegionalVoicePrompt } from "@/lib/voicePreferences";
 import { base44 } from "@/api/base44Client";
 import AIComposer from "@/components/ai/AIComposer";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
+import ClinicalEducatorVideo from "@/components/voice/ClinicalEducatorVideo";
 
 import "@/components/ai/clinical-educator.css";
 
@@ -49,6 +50,8 @@ export default function VoiceAssistant() {
   const [status, setStatus] = useState("idle");
   const [contextEnabled, setContextEnabled] = useState(true);
   const [diagnostic, setDiagnostic] = useState(false);
+  const [educatorCue, setEducatorCue] = useState("neutral");
+  const [educatorCueKey, setEducatorCueKey] = useState(0);
   const [conversationTransparency, setConversationTransparency] = useState(loadEducatorTransparency);
   const admin = isAdmin();
 
@@ -80,9 +83,17 @@ export default function VoiceAssistant() {
     recognitionRef.current?.abort();
   }, []);
 
+  const showEducatorCue = (cue) => {
+    setEducatorCue(cue);
+    setEducatorCueKey((value) => value + 1);
+  };
+
   const speakCompletion = async (text) => {
     setStatus("complete");
-    await synth.speak(text, { onEnd: () => setStatus(listeningRef.current ? "listening" : "idle") });
+    await synth.speak(text, { onEnd: () => {
+      setStatus(listeningRef.current ? "listening" : "idle");
+      showEducatorCue("neutral");
+    } });
   };
 
   const handleSend = async (overrideText, attachments = []) => {
@@ -92,6 +103,7 @@ export default function VoiceAssistant() {
     setMessages((p) => [...p, { role: "user", content: text }]);
     setInput("");
     setStatus("working");
+    showEducatorCue("thinking");
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
       const uploaded = await Promise.all(attachments.map(async (file) => {
@@ -102,12 +114,14 @@ export default function VoiceAssistant() {
       const conversationContext = contextEnabled ? `\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}` : "\n\nThe user has disabled current conversation context.";
       const result = await invokeRoutedAssistant(
         `You are the Clinical Educator, a warm, highly knowledgeable conversational clinical tutor for T Level Health students on Pathfinder Health. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}.${conversationContext}${attachmentContext}\nuser: ${text}\nassistant:`,
-        () => {});
+        () => showEducatorCue("working"));
 
       if (requestId !== requestIdRef.current) return;
       const reply = result.content || "Sorry, I didn't catch that.";
 
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
+      const positiveFeedback = /well done|good work|great job|excellent|correct|you got it|nice work/i.test(reply);
+      showEducatorCue(positiveFeedback ? "good_work" : "task_complete");
       await speakCompletion(reply);
     } catch {
       if (requestId !== requestIdRef.current) return;
@@ -138,7 +152,7 @@ export default function VoiceAssistant() {
     r.continuous = false;
     r.interimResults = false;
     r.lang = "en-GB";
-    r.onstart = () => { setListening(true); setStatus("listening"); };
+    r.onstart = () => { setListening(true); setStatus("listening"); showEducatorCue("hello"); };
     r.onresult = (e) => handleSend(e.results[0][0].transcript);
     r.onend = () => {
       listeningRef.current = false;
@@ -188,6 +202,7 @@ export default function VoiceAssistant() {
         </div>
       </header>
       <div className="educator-workspace">
+        <ClinicalEducatorVideo cue={educatorCue} cueKey={educatorCueKey} />
         <section className="educator-conversation" style={{ opacity: 1 - conversationTransparency / 100 }} aria-labelledby="educator-conversation-title">
           <header className="educator-conversation-heading">
             <h2 id="educator-conversation-title">Your conversation</h2>
