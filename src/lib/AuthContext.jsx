@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { setPlatformUser } from '@/lib/clinicalAuth';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+import { withExponentialBackoff } from "@/lib/networkRetry";
 
 import { resetModuleSession } from "./moduleSession";
 
@@ -38,7 +39,10 @@ export const AuthProvider = ({ children }) => {
       });
       
       try {
-        const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
+        const publicSettings = await withExponentialBackoff(
+          () => appClient.get(`/prod/public-settings/by-id/${appParams.appId}`),
+          { retries: 3, baseDelayMs: 400 }
+        );
         setAppPublicSettings(publicSettings);
         
         // If we got the app public settings successfully, check if user is authenticated
@@ -96,7 +100,10 @@ export const AuthProvider = ({ children }) => {
     try {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
-      const currentUser = await base44.auth.me();
+      const currentUser = await withExponentialBackoff(
+        () => base44.auth.me(),
+        { retries: 3, baseDelayMs: 400 }
+      );
       setUser(currentUser);
       setPlatformUser(currentUser);
       setIsAuthenticated(true);
