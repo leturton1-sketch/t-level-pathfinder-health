@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import AudioVisualizer from "@/components/voice/AudioVisualizer";
 
 const INTRO_KEY = "pathfinder-clinical-educator-intro-seen-v1";
 const PLAYBACK_RATE = 0.68;
@@ -23,7 +24,7 @@ const LABELS = {
   neutral: "Clinical Educator ready",
 };
 
-export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, speaking = false }) {
+export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, speaking = false, voiceState = "idle" }) {
   const videoRef = useRef(null);
   const distortionTimerRef = useRef(null);
   const firstVisitRef = useRef(false);
@@ -35,6 +36,16 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
 
   const src = useMemo(() => CLIPS[activeCue] || CLIPS.neutral, [activeCue]);
   const performing = activeCue !== "neutral" && !resting;
+  const connectedState = speaking ? "speaking" : voiceState;
+  const stateLabel = connectedState === "speaking"
+    ? "Speaking with you"
+    : connectedState === "listening"
+      ? "Listening to your question"
+      : connectedState === "working" || connectedState === "voicing"
+        ? "Preparing your clinical learning response"
+        : resting
+          ? LABELS.neutral
+          : LABELS[activeCue];
 
   const triggerDistortion = () => {
     window.clearTimeout(distortionTimerRef.current);
@@ -92,7 +103,7 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
 
   return (
     <section
-      className={`educator-stage ${performing ? "is-performing" : "is-resting"} ${speaking ? "is-speaking" : ""} ${distorting ? "is-distorting" : ""}`}
+      className={`educator-stage ${performing ? "is-performing" : "is-resting"} is-${connectedState} ${speaking ? "is-speaking" : ""} ${distorting ? "is-distorting" : ""}`}
       aria-label="Clinical Educator"
     >
       <div className="educator-video">
@@ -120,17 +131,21 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
           <div className="educator-hologram-noise" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-a" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-b" aria-hidden="true" />
+          <div className="educator-voice-aura" aria-hidden="true" />
           <div className="educator-tattoo-lights" aria-hidden="true">
             <span className="tattoo-light tattoo-light-neck" />
             <span className="tattoo-light tattoo-light-left" />
             <span className="tattoo-light tattoo-light-right" />
           </div>
+          <div className="educator-voice-visualizer">
+            <AudioVisualizer state={connectedState} bars={18} />
+          </div>
         </div>
         <div className="educator-video-status" role="status" aria-live="polite">
           <span className="educator-video-live" aria-hidden="true" />
           <div>
-            <strong>Clinical Educator</strong>
-            <p>{resting ? LABELS.neutral : LABELS[activeCue]}</p>
+            <strong>Clinical Educator <span className="educator-voice-linked">Voice linked</span></strong>
+            <p>{stateLabel}</p>
           </div>
         </div>
       </div>
