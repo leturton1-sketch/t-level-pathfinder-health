@@ -187,6 +187,33 @@ body.pf-theme-active {
     background:#fff !important; box-shadow:none !important;
   }
 }
+/* Global legacy-accent bridge: every historic purple/violet/fuchsia utility
+   resolves to the Pathfinder login palette without changing clinical status colours. */
+.pf-theme-active :is(
+  [class*="text-purple-500"],[class*="text-purple-600"],[class*="text-purple-700"],[class*="text-purple-800"],[class*="text-purple-900"],
+  [class*="text-violet-500"],[class*="text-violet-600"],[class*="text-violet-700"],[class*="text-violet-800"],[class*="text-violet-900"],
+  [class*="text-fuchsia-500"],[class*="text-fuchsia-600"],[class*="text-fuchsia-700"]
+) { color:#0759b6 !important; }
+.pf-theme-active :is([class*="text-purple-50"],[class*="text-purple-100"],[class*="text-violet-50"],[class*="text-violet-100"]) { color:#eaf5ff !important; }
+.pf-theme-active :is([class*="bg-purple-50"],[class*="bg-violet-50"],[class*="bg-fuchsia-50"]) { background-color:#eef7ff !important; }
+.pf-theme-active :is([class*="bg-purple-100"],[class*="bg-violet-100"],[class*="bg-fuchsia-100"]) { background-color:#dceeff !important; }
+.pf-theme-active :is([class*="bg-purple-500"],[class*="bg-violet-500"],[class*="bg-fuchsia-500"]) { background-color:#1684e5 !important; }
+.pf-theme-active :is([class*="bg-purple-600"],[class*="bg-violet-600"],[class*="bg-fuchsia-600"]) { background-color:#0f75d8 !important; }
+.pf-theme-active :is([class*="bg-purple-700"],[class*="bg-violet-700"],[class*="bg-fuchsia-700"]) { background-color:#0759b6 !important; }
+.pf-theme-active :is([class*="border-purple-"],[class*="border-violet-"],[class*="border-fuchsia-"]) { border-color:#8fc5ef !important; }
+.pf-theme-active :is([class*="ring-purple-"],[class*="ring-violet-"],[class*="ring-fuchsia-"]) { --tw-ring-color:rgba(15,117,216,.28) !important; }
+.pf-theme-active :is([class*="from-purple-"],[class*="from-violet-"],[class*="from-fuchsia-"]) {
+  --tw-gradient-from:#0f75d8 var(--tw-gradient-from-position) !important;
+  --tw-gradient-to:rgb(15 117 216 / 0) var(--tw-gradient-to-position) !important;
+}
+.pf-theme-active :is([class*="via-purple-"],[class*="via-violet-"],[class*="via-fuchsia-"]) {
+  --tw-gradient-to:rgb(22 132 229 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops:var(--tw-gradient-from),#1684e5 var(--tw-gradient-via-position),var(--tw-gradient-to) !important;
+}
+.pf-theme-active :is([class*="to-purple-"],[class*="to-violet-"]) { --tw-gradient-to:#0759b6 var(--tw-gradient-to-position) !important; }
+.pf-theme-active [class*="to-fuchsia-"] { --tw-gradient-to:#19d9ee var(--tw-gradient-to-position) !important; }
+.pf-theme-active :is([class*="accent-purple-"],[class*="accent-violet-"],[class*="accent-fuchsia-"]) { accent-color:#0f75d8 !important; }
+
 /* Neon frames do not pulse or continuously repaint. */
 @media (max-width: 1439px) and (min-width: 768px) {
   .pf-app-frame { --pf-nav-space: 88px; }
