@@ -93,7 +93,7 @@ export default function ClinicalSkillsAcademy() {
   const moduleCount = PATHWAYS.reduce((total, pathway) => total + pathway.modules.length, 0);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_14%_8%,rgba(255,255,255,.98),transparent_29%),radial-gradient(circle_at_85%_18%,rgba(220,210,238,.58),transparent_32%),linear-gradient(145deg,#faf9fb_0%,#f2eef7_48%,#f8f6fa_100%)] pb-16 text-[#15131A]">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_14%_8%,rgba(255,255,255,.98),transparent_29%),radial-gradient(circle_at_85%_18%,rgba(190,225,255,.58),transparent_32%),linear-gradient(145deg,#fbfdff_0%,#edf7ff_48%,#f7fbff_100%)] pb-16 text-[#15131A]">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.38)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.38)_1px,transparent_1px)] [background-size:42px_42px]" />
 
       <div className="relative mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
