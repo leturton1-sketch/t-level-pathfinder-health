@@ -89,7 +89,7 @@ export default function TheoryDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,0.12),transparent_34%),radial-gradient(circle_at_85%_15%,rgba(255,147,105,0.09),transparent_28%)]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,117,216,0.12),transparent_34%),radial-gradient(circle_at_85%_15%,rgba(255,147,105,0.09),transparent_28%)]">
       <header className="sticky top-0 z-20 border-b border-white/90 bg-white/85 shadow-[0_8px_24px_rgba(66,55,88,0.08)] backdrop-blur-2xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:px-6">
           <button
@@ -211,7 +211,7 @@ export default function TheoryDetail() {
           )}
           <button
             onClick={handleComplete}
-            className="flex-1 rounded-xl bg-gradient-to-r from-tl-blue to-sky-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(118,90,176,0.25)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(118,90,176,0.32)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-blue/25"
+            className="flex-1 rounded-xl bg-gradient-to-r from-tl-blue to-sky-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(41,231,255,0.25)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(41,231,255,0.32)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tl-blue/25"
           >
             <span className="flex items-center justify-center gap-2">Mark Complete <ChevronRight className="h-4 w-4" aria-hidden="true" /></span>
           </button>
