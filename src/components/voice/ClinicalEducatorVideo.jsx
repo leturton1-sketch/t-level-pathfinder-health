@@ -27,12 +27,10 @@ const LABELS = {
 export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, speaking = false }) {
   const videoRef = useRef(null);
   const distortionTimerRef = useRef(null);
-  const firstVisitRef = useRef(
-    typeof window !== "undefined" && window.localStorage.getItem(INTRO_KEY) !== "true"
-  );
-  const [introActive, setIntroActive] = useState(firstVisitRef.current);
-  const [activeCue, setActiveCue] = useState(firstVisitRef.current ? "first_use" : "neutral");
-  const [resting, setResting] = useState(!firstVisitRef.current);
+  const firstVisitRef = useRef(false);
+  const [introActive, setIntroActive] = useState(false);
+  const [activeCue, setActiveCue] = useState("neutral");
+  const [resting, setResting] = useState(true);
   const [distorting, setDistorting] = useState(false);
 
   const src = useMemo(() => CLIPS[activeCue] || CLIPS.neutral, [activeCue]);
@@ -51,8 +49,15 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
   };
 
   useEffect(() => {
-    if (introActive) window.localStorage.setItem(INTRO_KEY, "true");
-    triggerDistortion();
+    const firstVisit = window.localStorage.getItem(INTRO_KEY) !== "true";
+    firstVisitRef.current = firstVisit;
+    if (firstVisit) {
+      window.localStorage.setItem(INTRO_KEY, "true");
+      setIntroActive(true);
+      setResting(false);
+      setActiveCue("first_use");
+      triggerDistortion();
+    }
     return () => window.clearTimeout(distortionTimerRef.current);
   }, []);
 
