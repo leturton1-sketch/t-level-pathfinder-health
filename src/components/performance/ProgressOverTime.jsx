@@ -5,7 +5,7 @@ import {
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { TrendingUp, Activity } from "lucide-react";
 
-const TEAL = "#765AB0";
+const TEAL = "#0F75D8";
 const GREEN = "#277A52";
 const AMBER = "#A65A00";
 
