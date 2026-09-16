@@ -1,4 +1,5 @@
 import { base44 } from "@/api/base44Client";
+import { isTransientNetworkError, withExponentialBackoff } from "@/lib/networkRetry";
 
 // Diagnostic mode — collects runtime errors from the live app, asks the AI for
 // a structured report, and applies a small set of safe runtime workarounds.
@@ -67,15 +68,32 @@ export function installErrorCollector() {
 
   const origFetch = window.fetch.bind(window);
   window.fetch = async (input, init) => {
+    const method = String(init?.method || input?.method || "GET").toUpperCase();
+    const retryableMethod = ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "DELETE"].includes(method);
+    const url = typeof input === "string" ? input : input?.url || "unknown";
     try {
-      const res = await origFetch(input, init);
-      if (!res.ok) {
-        const url = typeof input === "string" ? input : input?.url || "unknown";
-        push({ type: "fetch_failed", message: `HTTP ${res.status} ${res.statusText || ""}`.trim(), source: String(url).slice(0, 200) });
-      }
-      return res;
+      return await withExponentialBackoff(async () => {
+        const response = await origFetch(input, init);
+        if (retryableMethod && [408, 425, 429, 500, 502, 503, 504].includes(response.status)) {
+          const transient = new Error(`HTTP ${response.status} ${response.statusText || ""}`.trim());
+          transient.status = response.status;
+          transient.response = response;
+          throw transient;
+        }
+        if (!response.ok) {
+          push({ type: "fetch_failed", message: `HTTP ${response.status} ${response.statusText || ""}`.trim(), source: String(url).slice(0, 200) });
+        }
+        return response;
+      }, {
+        retries: retryableMethod ? 3 : 0,
+        baseDelayMs: 350,
+        shouldRetry: isTransientNetworkError,
+      });
     } catch (err) {
-      const url = typeof input === "string" ? input : input?.url || "unknown";
+      if (err?.response instanceof Response) {
+        push({ type: "fetch_failed", message: err.message, source: String(url).slice(0, 200) });
+        return err.response;
+      }
       push({ type: "fetch_failed", message: err?.message || "Network error", source: String(url).slice(0, 200) });
       throw err;
     }
