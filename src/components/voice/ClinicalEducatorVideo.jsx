@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const INTRO_KEY = "pathfinder-clinical-educator-intro-seen-v1";
-const REST_FRAME_SECONDS = 0.62;
 const PLAYBACK_RATE = 0.68;
 
 const CLIPS = {
@@ -81,13 +80,8 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
 
     const preparePlayback = () => {
       video.playbackRate = PLAYBACK_RATE;
-      if (activeCue === "neutral" || resting) {
-        video.currentTime = Math.min(REST_FRAME_SECONDS, Math.max(0, (video.duration || 1) - 0.05));
-        video.pause();
-      } else {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      }
+      video.currentTime = 0;
+      video.play().catch(() => {});
     };
 
     if (video.readyState >= 1) preparePlayback();
@@ -103,17 +97,26 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
     >
       <div className="educator-video">
         <div className="educator-video-viewport">
-          <video
-            ref={videoRef}
-            key={src}
-            src={src}
-            autoPlay={performing}
-            muted
-            playsInline
-            preload="auto"
-            onEnded={enterRestMode}
-            aria-label={LABELS[activeCue]}
-          />
+          {resting ? (
+            <img
+              className="educator-resting-portrait"
+              src="/pathfinder-educator/clinical-educator-resting.jpg"
+              alt="Clinical Educator standing ready with both arms resting naturally"
+              draggable={false}
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              key={src}
+              src={src}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onEnded={enterRestMode}
+              aria-label={LABELS[activeCue]}
+            />
+          )}
           <div className="educator-hologram-noise" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-a" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-b" aria-hidden="true" />
