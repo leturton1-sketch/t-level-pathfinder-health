@@ -22,16 +22,13 @@ const LABELS = {
 
 export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0 }) {
   const videoRef = useRef(null);
-  const [introActive, setIntroActive] = useState(false);
-  const [activeCue, setActiveCue] = useState("neutral");
+  const [introActive, setIntroActive] = useState(() =>
+    typeof window !== "undefined" && window.localStorage.getItem(INTRO_KEY) !== "true");
+  const [activeCue, setActiveCue] = useState("first_use");
 
   useEffect(() => {
-    const firstUse = window.localStorage.getItem(INTRO_KEY) !== "true";
-    if (firstUse) {
-      window.localStorage.setItem(INTRO_KEY, "true");
-      setIntroActive(true);
-      setActiveCue("first_use");
-    }
+    if (introActive) window.localStorage.setItem(INTRO_KEY, "true");
+    else setActiveCue(CLIPS[cue] ? cue : "neutral");
   }, []);
 
   useEffect(() => {
