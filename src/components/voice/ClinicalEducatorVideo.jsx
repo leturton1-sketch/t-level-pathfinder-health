@@ -68,6 +68,7 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
             <span className="tattoo-light tattoo-light-neck" />
             <span className="tattoo-light tattoo-light-left" />
             <span className="tattoo-light tattoo-light-right" />
+            <span className="tattoo-light tattoo-light-owl" />
           </div>
           <div className="educator-voice-visualizer">
             <AudioVisualizer state={connectedState} bars={18} />
