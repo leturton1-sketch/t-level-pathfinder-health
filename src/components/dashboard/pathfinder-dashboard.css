@@ -28,7 +28,7 @@
 .pf-tone-red { color: #b91c1c; background: #fee2e2; }
 .pf-tone-green { color: #166534; background: #dcfce7; }
 .pf-tone-blue { color: #075985; background: #e0f2fe; }
-.pf-tone-violet { color: #6b21a8; background: #f3e8ff; }
+.pf-tone-sky { color: #0759b6; background: #eaf5ff; }
 .pf-workspace { display: grid; grid-template-columns: 224px minmax(0,1fr) 320px; align-items: start; gap: 18px; max-width: 1920px; margin: auto; }
 .pf-workspace-compact { grid-template-columns: 64px minmax(0,1fr) 320px; }
 .pf-nav-rail, .pf-team-rail { position: sticky; top: 16px; transform: translateZ(0); }
