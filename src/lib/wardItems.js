@@ -42,7 +42,7 @@ export const DEFAULT_PATIENTS = {
   A2: { name: "James Wilson", age: 65, pronouns: "he/him", condition: "Community-acquired pneumonia", news2: 6, status: "amber", allergies: "No known allergies", observations: { rr: 22, spo2: 93, sbp: 110, hr: 95, temp: 38.4 }, tasks: ["IV antibiotics — due 14:00", "Sputum culture", "Increase fluid intake"] },
   A3: { name: "Dorothy Clarke", age: 69, pronouns: "she/her", condition: "Post-operative — cholecystectomy (Day 1)", news2: 3, status: "green", allergies: "No known allergies", observations: { rr: 15, spo2: 98, sbp: 125, hr: 72, temp: 36.9 }, tasks: ["Pain assessment", "Wound site check", "Fluid balance"] },
   B1: { name: "Patricia Chen", age: 54, pronouns: "she/her", condition: "Diabetic ketoacidosis — insulin infusion", news2: 8, status: "red", allergies: "Latex", observations: { rr: 24, spo2: 91, sbp: 95, hr: 112, temp: 37.2 }, tasks: ["Insulin infusion review", "Blood glucose hourly", "Fluid balance chart"] },
-  B2: { name: "Robert Davies", age: 71, pronouns: "he/him", condition: "C. difficile infection — isolation precautions", news2: 4, status: "purple", allergies: "No known allergies", observations: { rr: 18, spo2: 96, sbp: 118, hr: 82, temp: 37.6 }, tasks: ["Stool chart", "Fluid balance", "Infection control precautions"] },
+  B2: { name: "Robert Davies", age: 71, pronouns: "he/him", condition: "C. difficile infection — isolation precautions", news2: 4, status: "blue", allergies: "No known allergies", observations: { rr: 18, spo2: 96, sbp: 118, hr: 82, temp: 37.6 }, tasks: ["Stool chart", "Fluid balance", "Infection control precautions"] },
   B3: { name: "Available Bed", age: null, pronouns: null, condition: "Bed available — prepared for admission", news2: 0, status: "green", allergies: null, observations: null, tasks: ["Bed made and ready", "Awaiting admission"] },
   B4: { name: "Michael Brennan", age: 62, pronouns: "he/him", condition: "Acute pancreatitis — conservative management", news2: 5, status: "amber", allergies: "Codeine", observations: { rr: 20, spo2: 95, sbp: 105, hr: 88, temp: 38.1 }, tasks: ["NBM status review", "IV fluid assessment", "Pain score"] },
 };
@@ -51,7 +51,7 @@ export const STATUS_CONFIG = {
   green: { label: "Stable", bg: "bg-clinical-green/10", text: "text-clinical-green", border: "border-clinical-green/30", dot: "bg-clinical-green", hex: 0x4caf50 },
   amber: { label: "Requires Attention", bg: "bg-clinical-amber/10", text: "text-clinical-amber", border: "border-clinical-amber/30", dot: "bg-clinical-amber", hex: 0xff9800 },
   red: { label: "Urgent", bg: "bg-clinical-red/10", text: "text-clinical-red", border: "border-clinical-red/30", dot: "bg-clinical-red", hex: 0xf44336 },
-  purple: { label: "Isolation", bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/30", dot: "bg-blue-500", hex: 0x9c27b0 },
+  blue: { label: "Isolation", bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-500/30", dot: "bg-blue-500", hex: 0x0f75d8 },
 };
 
 export function generateDefaultItems() {
