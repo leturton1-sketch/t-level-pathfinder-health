@@ -284,7 +284,7 @@ export default function HealthHub() {
   };
 
   return (
-    <main className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(191,228,208,.38),transparent_30%),radial-gradient(circle_at_top_right,rgba(220,210,238,.45),transparent_30%)] text-slate-900">
+    <main className="clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(191,228,208,.38),transparent_30%),radial-gradient(circle_at_top_right,rgba(43,191,138,.20),transparent_30%)] text-slate-900">
       <header className="mx-auto mb-6 flex max-w-6xl flex-wrap items-center justify-between gap-4 rounded-[28px] border border-white/90 bg-white/80 p-6 shadow-xl backdrop-blur-2xl">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate("/")} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-tl-blue" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
