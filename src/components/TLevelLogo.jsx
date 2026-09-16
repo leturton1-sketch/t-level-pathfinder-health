@@ -1,20 +1,16 @@
 /**
- * TLevelLogo — uses official T Level uploaded assets.
- * variant: "black" (default for light screens), "salmon", "red", "white"
- * dark: true forces white version on dark backgrounds
+ * TLevelLogo — official artwork recoloured through a single Pathfinder blue
+ * treatment so every route uses the same navy/cyan identity.
  */
+const NAVY_LOGO = "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8acde0e8c_TLevel-Logo-BlackWithStrapline.png";
+
 const LOGOS = {
-  purple: "/branding/tlevel-purple.png",
-  tlPurple: "/branding/tl-blue.png",
-  tlRed: "/branding/tl-red.png",
-  tlSalmon: "/branding/tl-salmon.png",
+  blue: NAVY_LOGO,
+  navy: NAVY_LOGO,
+  black: NAVY_LOGO,
   white: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/4852697b2_TLevel-Logo-White.png",
   whiteStrapline: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/e326bdc6f_TLevel-Logo-WhiteWithStrapline.png",
-  salmon: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8fa0bc1b2_TLevel-Logo-SalmonWithStrapline.png",
-  salmonNoStrap: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/2b3a2d224_TLevel-Logo-Strapline.png",
   red: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/2919fffdc_TLevel-Logo-RedWithStrapline.png",
-  redNoStrap: "/branding/tlevel-red.png",
-  black: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8acde0e8c_TLevel-Logo-BlackWithStrapline.png",
   emblem: "/branding/tl-emblem.png",
 };
 
@@ -26,14 +22,18 @@ const SIZE_MAP = {
   xl: "h-20",
 };
 
-export default function TLevelLogo({ size = "md", variant = "purple", dark = false, className = "" }) {
-  const src = dark ? LOGOS.white : LOGOS[variant] || LOGOS.black;
+export default function TLevelLogo({ size = "md", variant = "blue", dark = false, className = "" }) {
+  const selected = dark ? "white" : variant;
+  const src = LOGOS[selected] || LOGOS.blue;
   const h = SIZE_MAP[size] || SIZE_MAP.md;
+  const brandClass = !dark && selected !== "white" && selected !== "whiteStrapline" && selected !== "red"
+    ? "tlevel-logo--blue"
+    : "";
   return (
     <img
       src={src}
       alt="T Levels"
-      className={`${h} w-auto object-contain ${className}`}
+      className={`${h} w-auto object-contain ${brandClass} ${className}`}
       draggable={false}
     />
   );
