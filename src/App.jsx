@@ -53,8 +53,15 @@ const TalentCardPage = lazy(() => import('./pages/TalentCardPage'));
 
 const AuthenticatedApp = () => {
   const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("pathfinder-unlocked") === "1");
-  const [welcomed, setWelcomed] = useState(() => sessionStorage.getItem("pathfinder-welcomed") === "1");
+  const [unlocked, setUnlocked] = useState(false);
+  const [welcomed, setWelcomed] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
+
+  useEffect(() => {
+    setUnlocked(sessionStorage.getItem("pathfinder-unlocked") === "1");
+    setWelcomed(sessionStorage.getItem("pathfinder-welcomed") === "1");
+    setClientReady(true);
+  }, []);
 
   useEffect(() => {
     const stop = installErrorCollector();
@@ -77,6 +84,14 @@ const AuthenticatedApp = () => {
       setStartupUser(user?.id);
     }
   }, [isAuthenticated, unlocked, welcomed, isLoadingAuth, isLoadingPublicSettings, user?.id, startupUser, navigate]);
+
+  if (!clientReady) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center" aria-label="Loading Pathfinder Health">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-blue-700 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   // MCP OAuth consent renders even when signed out — the page gates on its own
   // server session (cookie + token), bypassing the app's normal auth flow.
