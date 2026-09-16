@@ -19,7 +19,11 @@
 .educator-video-status { min-height:66px; padding:12px 16px; display:flex; align-items:center; gap:12px; color:#fff; background:linear-gradient(90deg,#041b41,#063b82 68%,#0759b6); border-top:1px solid rgba(41,231,255,.55); }
 .educator-video-status strong { display:block; font-size:13px; letter-spacing:.02em; }
 .educator-video-status p { margin:2px 0 0; color:#d9faff; font-size:12px; }
-.educator-video-live { width:10px; height:10px; flex:0 0 auto; border-radius:50%; background:#2bbf8a; box-shadow:0 0 0 5px rgba(43,191,138,.16),0 0 16px rgba(41,231,255,.8); }
+.educator-voice-linked { display:inline-flex; margin-left:7px; padding:2px 6px; border:1px solid rgba(82,239,255,.42); border-radius:999px; color:#8ff7ff; font-size:9px; font-weight:750; letter-spacing:.06em; text-transform:uppercase; vertical-align:1px; }
+.educator-video-live { width:10px; height:10px; flex:0 0 auto; border-radius:50%; background:#2bbf8a; box-shadow:0 0 0 5px rgba(43,191,138,.16),0 0 16px rgba(41,231,255,.8); transition:background .3s ease,box-shadow .3s ease; }
+.educator-stage.is-listening .educator-video-live { background:#52efff; box-shadow:0 0 0 5px rgba(82,239,255,.16),0 0 18px #52efff; }
+.educator-stage:is(.is-working,.is-voicing) .educator-video-live { background:#f4c95d; box-shadow:0 0 0 5px rgba(244,201,93,.16),0 0 18px rgba(244,201,93,.8); }
+.educator-stage.is-speaking .educator-video-live { background:#54f6a8; box-shadow:0 0 0 5px rgba(84,246,168,.18),0 0 20px #54f6a8; animation:educator-live-pulse 1.15s ease-in-out infinite; }
 .educator-hologram-noise,.educator-hologram-slice,.educator-tattoo-lights { position:absolute; inset:0; pointer-events:none; opacity:0; }
 .educator-hologram-noise { z-index:3; mix-blend-mode:screen; background:repeating-linear-gradient(0deg,rgba(41,231,255,.14) 0 1px,transparent 1px 6px),linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent); }
 .educator-hologram-slice { z-index:4; height:13%; background:rgba(41,231,255,.18); mix-blend-mode:screen; backdrop-filter:hue-rotate(26deg) contrast(1.35); }
@@ -35,12 +39,22 @@
 .tattoo-light-left { width:16%; aspect-ratio:1; left:30%; top:69%; }
 .tattoo-light-right { width:16%; aspect-ratio:1; right:30%; top:69%; }
 .educator-stage.is-performing .tattoo-light { animation:educator-tattoo-charge 2.35s ease-out 1 both; }
-.educator-stage.is-speaking.is-performing .tattoo-light { filter:blur(2px) drop-shadow(0 0 10px rgba(43,255,202,.72)); }
+.educator-stage.is-speaking .tattoo-light { opacity:.58; filter:blur(2px) drop-shadow(0 0 10px rgba(43,255,202,.82)); animation:educator-tattoo-speaking 1.4s ease-in-out infinite; }
+.educator-voice-aura { position:absolute; z-index:1; left:18%; right:18%; bottom:7%; height:36%; border-radius:50%; opacity:0; pointer-events:none; background:radial-gradient(ellipse,rgba(82,239,255,.2),transparent 68%); filter:blur(18px); transition:opacity .45s ease; }
+.educator-stage:is(.is-listening,.is-working,.is-voicing,.is-speaking) .educator-voice-aura { opacity:.72; }
+.educator-stage.is-speaking .educator-voice-aura { animation:educator-aura-breathe 1.8s ease-in-out infinite; }
+.educator-voice-visualizer { position:absolute; z-index:6; left:50%; bottom:14px; width:min(62%,340px); transform:translateX(-50%); padding:5px 12px 3px; border:1px solid rgba(82,239,255,.24); border-radius:999px; background:rgba(4,27,65,.46); box-shadow:0 8px 24px rgba(4,27,65,.28); backdrop-filter:blur(8px); opacity:.54; transition:opacity .35s ease,border-color .35s ease,box-shadow .35s ease; }
+.educator-voice-visualizer > div { height:24px; }
+.educator-stage:is(.is-listening,.is-working,.is-voicing,.is-speaking) .educator-voice-visualizer { opacity:1; border-color:rgba(82,239,255,.56); }
+.educator-stage.is-speaking .educator-voice-visualizer { box-shadow:0 0 24px rgba(82,239,255,.3),0 8px 24px rgba(4,27,65,.32); }
 @keyframes educator-hologram-flicker { 0%{opacity:0;transform:translateX(0)} 18%{opacity:.8;transform:translateX(-2%)} 34%{opacity:.18;transform:translateX(1%)} 52%{opacity:.7;transform:translateX(2%)} 72%{opacity:.12} 100%{opacity:0;transform:translateX(0)} }
 @keyframes educator-slice-a { 0%,100%{opacity:0;transform:translateX(0)} 22%{opacity:.9;transform:translateX(5%)} 48%{opacity:.25;transform:translateX(-3%)} 66%{opacity:.65;transform:translateX(2%)} }
 @keyframes educator-slice-b { 0%,100%{opacity:0;transform:translateX(0)} 18%{opacity:.6;transform:translateX(-4%)} 42%{opacity:.2;transform:translateX(3%)} 70%{opacity:.72;transform:translateX(-1%)} }
 @keyframes educator-video-glitch { 0%,100%{transform:translateX(0);opacity:1} 20%{transform:translateX(3px);opacity:.86} 38%{transform:translateX(-2px);opacity:.95} 56%{transform:translateX(2px);opacity:.88} }
 @keyframes educator-tattoo-charge { 0%{opacity:0;transform:scale(.78)} 28%{opacity:.92;transform:scale(1.04)} 62%{opacity:.62;transform:scale(1)} 100%{opacity:.34;transform:scale(.98)} }
+@keyframes educator-tattoo-speaking { 0%,100%{opacity:.34;transform:scale(.98)} 50%{opacity:.76;transform:scale(1.04)} }
+@keyframes educator-aura-breathe { 0%,100%{opacity:.46;transform:scale(.96)} 50%{opacity:.86;transform:scale(1.04)} }
+@keyframes educator-live-pulse { 0%,100%{transform:scale(.92)} 50%{transform:scale(1.12)} }
 .educator-conversation { display:flex; flex-direction:column; min-width:0; height:clamp(560px,calc(100dvh - 265px),920px); background:#fff; border:1px solid #bed9f2; border-radius:16px; overflow:hidden; }
 .educator-conversation-heading { padding:18px 20px; border-bottom:1px solid #d8eaf8; flex-shrink:0; }
 .educator-conversation-heading h2 { font-size:18px; font-weight:750; margin:0 0 6px; }
@@ -86,6 +100,9 @@
 .clinical-educator :is(.ai-composer-plus,.ai-composer-control) { border-color:#bed9f2; }
 @media(prefers-reduced-motion:reduce) {
  .educator-stage.is-distorting :is(.educator-hologram-noise,.educator-hologram-slice,video),
- .educator-stage.is-performing .tattoo-light { animation:none !important; }
+ .educator-stage.is-performing .tattoo-light,
+ .educator-stage.is-speaking .tattoo-light,
+ .educator-stage.is-speaking .educator-voice-aura,
+ .educator-stage.is-speaking .educator-video-live { animation:none !important; }
  .educator-stage.is-performing .tattoo-light { opacity:.3; }
 }
