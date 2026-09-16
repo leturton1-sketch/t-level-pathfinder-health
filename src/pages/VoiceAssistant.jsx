@@ -108,11 +108,11 @@ export default function VoiceAssistant() {
     await synth.speak(text, {
       onStart: () => {
         setStatus("complete");
-        showEducatorCue(completionCue, true);
+        showEducatorCue("working", true);
       },
       onEnd: () => {
         setStatus(listeningRef.current ? "listening" : "idle");
-        showEducatorCue("neutral");
+        showEducatorCue(completionCue, true);
       },
     });
   };
