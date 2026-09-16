@@ -49,7 +49,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
       <div className="w-full max-w-lg rounded-2xl border border-[#0f75d8]/30 bg-white shadow-xl">
         <div className="flex flex-col items-center gap-3 border-b border-[#0f75d8]/15 px-6 pb-5 pt-7 text-center">
           <img src="/branding/tl-emblem.png" alt="T Level Industry Academy" className="h-16 w-16 object-contain" draggable={false} />
-          <TLevelLogo variant="purple" size="sm" />
+          <TLevelLogo variant="black" size="sm" />
           <h1 className="mt-1 text-xl font-semibold text-[#15131a]">Welcome, {firstName}</h1>
           <p className="text-sm text-slate-500">Signed in as {roleTitle}</p>
         </div>
@@ -73,7 +73,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
         </div>
 
         <div className="flex justify-end gap-3 border-t border-[#0f75d8]/15 px-6 py-4">
-          <button type="button" onClick={() => synth.speak(spokenGreeting)} className="rounded-lg px-4 py-2 text-sm font-semibold text-violet-800">Listen to welcome</button>
+          <button type="button" onClick={() => synth.speak(spokenGreeting)} className="rounded-lg px-4 py-2 text-sm font-semibold text-blue-800">Listen to welcome</button>
           <button
             type="button"
             onClick={() => { synth.stop(); onContinue?.(); }}
