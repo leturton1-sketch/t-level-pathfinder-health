@@ -49,7 +49,7 @@ export const PATHOPHYSIOLOGY_CONDITIONS = [
   {
     id: "pressure_injury", name: "Pressure injury", system: "integumentary", structureId: "skin",
     summary: "Sustained pressure and shear compromise capillary perfusion, causing local tissue ischaemia and breakdown.",
-    animation: "A pressure point changes from blanching pink to deeper red-purple tissue damage.",
+    animation: "A pressure point changes from blanching pink to deeper dusky red tissue damage.",
     signs: ["Non-blanching erythema", "Pain", "Skin warmth", "Tissue breakdown"],
     priorities: ["Relieve pressure", "Reposition safely", "Skin inspection", "Pressure-risk assessment", "Nutrition and hydration review"],
   },
