@@ -43,8 +43,9 @@ async function invokeRoutedAssistant(prompt, onStage) {
 export default function VoiceAssistant() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const user = getCurrentUser();
   const synth = useVoiceSynthesis();
+  const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("idle");
@@ -52,8 +53,8 @@ export default function VoiceAssistant() {
   const [diagnostic, setDiagnostic] = useState(false);
   const [educatorCue, setEducatorCue] = useState("neutral");
   const [educatorCueKey, setEducatorCueKey] = useState(0);
-  const [conversationTransparency, setConversationTransparency] = useState(loadEducatorTransparency);
-  const admin = isAdmin();
+  const [conversationTransparency, setConversationTransparency] = useState(10);
+  const [preferencesReady, setPreferencesReady] = useState(false);
 
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
@@ -64,15 +65,20 @@ export default function VoiceAssistant() {
 
   useEffect(() => {
     if (!isLoggedIn()) { navigate("/login"); return; }
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+    setAdmin(isAdmin());
+    setConversationTransparency(loadEducatorTransparency());
+    setPreferencesReady(true);
     setMessages([{
       role: "assistant",
-      content: `Hi ${user?.full_name?.split(" ")[0] || "there"}! I'm Pathfinder AI, your clinical learning assistant. Ask me about a clinical skill, explore the theory behind it, or practise a care scenario. Type a question or use the microphone to begin.`,
+      content: `Hi ${currentUser?.full_name?.split(" ")[0] || "there"}! I'm Pathfinder AI, your clinical learning assistant. Ask me about a clinical skill, explore the theory behind it, or practise a care scenario. Type a question or use the microphone to begin.`,
     }]);
   }, [navigate]);
 
   useEffect(() => {
-    window.localStorage.setItem(EDUCATOR_TRANSPARENCY_KEY, String(conversationTransparency));
-  }, [conversationTransparency]);
+    if (preferencesReady) window.localStorage.setItem(EDUCATOR_TRANSPARENCY_KEY, String(conversationTransparency));
+  }, [conversationTransparency, preferencesReady]);
 
   useEffect(() => {
     const conversation = endRef.current?.parentElement;
