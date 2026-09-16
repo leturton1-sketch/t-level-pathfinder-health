@@ -12,12 +12,13 @@ import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
 export function useVoiceSynthesis() {
   const [prefs, setPrefs] = useState(() => ({ ...DEFAULT_PREFS }));
   const [speaking, setSpeaking] = useState(false);
-  const [supported] = useState(() => typeof window !== "undefined" && "speechSynthesis" in window);
+  const [supported, setSupported] = useState(false);
   const [voices, setVoices] = useState([]);
   const audioRef = useRef(null);
 
   useEffect(() => {
     setPrefs(loadPrefs());
+    setSupported("speechSynthesis" in window);
   }, []);
 
   useEffect(() => {
