@@ -104,7 +104,7 @@ export default function ESPPracticeHub() {
   };
 
   return (
-    <main className="esp-surface clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(118,90,176,.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(39,181,168,.12),transparent_30%)] pb-32">
+    <main className="esp-surface clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,117,216,.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(39,181,168,.12),transparent_30%)] pb-32">
       <div className="mx-auto max-w-7xl">
         <button onClick={() => navigate("/")} className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white/70">
           <ArrowLeft className="h-4 w-4" /> Pathfinder overview
