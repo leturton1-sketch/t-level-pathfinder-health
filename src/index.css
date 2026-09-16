@@ -8,31 +8,31 @@
     /* T Level brand palette */
     --tl-salmon: 19 100% 70%;      /* #FF9567 official salmon */
     --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
-    --tl-purple: 261 36% 52%;       /* #765AB0 official purple */
+    --tl-purple: 209 88% 45%;       /* Pathfinder blue #0F75D8 */
     --tl-navy: 257 16% 9%;          /* #15131A accessible near-black */
 
     /* Official T Levels light application theme */
-    --background: 266 26% 97%;          /* #F6F4F8 */
+    --background: 207 72% 98%;          /* #F6F4F8 */
     --foreground: 257 16% 9%;           /* #15131A */
     --card: 0 0% 100%;
     --card-foreground: 257 16% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 257 16% 9%;
-    --primary: 261 42% 48%;             /* #765AB0 */
+    --primary: 209 88% 45%;             /* Pathfinder blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 266 30% 95%;           /* #F2EEF7 */
+    --secondary: 207 78% 96%;           /* ice blue */
     --secondary-foreground: 257 16% 15%;
-    --muted: 266 30% 95%;
+    --muted: 207 78% 96%;
     --muted-foreground: 266 8% 38%;     /* #625D69 */
     --accent: 19 100% 70%;              /* #FF9567 */
     --accent-foreground: 257 16% 9%;
     --destructive: 10 97% 56%;          /* #FC4421 */
     --destructive-foreground: 0 0% 100%;
-    --border: 262 20% 90%;              /* #E9E6EF */
-    --input: 262 20% 90%;
-    --ring: 261 42% 48%;
+    --border: 209 42% 86%;              /* pale blue */
+    --input: 209 42% 86%;
+    --ring: 209 88% 45%;
     --clinical-navy: 257 16% 9%;
-    --clinical-teal: 261 36% 52%;
+    --clinical-teal: 209 88% 45%;
     --clinical-amber: 33 100% 33%;
     --clinical-red: 10 97% 56%;
     --clinical-green: 151 51% 32%;
@@ -169,7 +169,7 @@
 /* ClinicalEdge global frosted clay design system */
 @layer base {
   :root {
-    --background: 266 26% 97%;
+    --background: 207 72% 98%;
     --foreground: 257 16% 9%;
     --card: 0 0% 100%;
     --card-foreground: 257 16% 9%;
@@ -179,14 +179,14 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 266 30% 95%;
     --secondary-foreground: 257 16% 15%;
-    --muted: 266 30% 95%;
+    --muted: 207 78% 96%;
     --muted-foreground: 266 8% 38%;
     --accent: 19 100% 70%;
     --accent-foreground: 257 16% 9%;
     --border: 262 20% 90%;
-    --input: 262 20% 90%;
-    --ring: 261 42% 48%;
-    --clinical-teal: 261 36% 52%;
+    --input: 209 42% 86%;
+    --ring: 209 88% 45%;
+    --clinical-teal: 209 88% 45%;
     --radius: 1rem;
   }
 
@@ -196,13 +196,13 @@
     min-height: 100vh;
     background:
       radial-gradient(circle at 12% 4%, rgba(255,255,255,.99), transparent 28rem),
-      radial-gradient(circle at 88% 12%, rgba(220,210,238,.48), transparent 32rem),
-      linear-gradient(145deg, #faf9fb 0%, #f2eef7 48%, #f8f6fa 100%);
+      radial-gradient(circle at 88% 12%, rgba(190,225,255,.48), transparent 32rem),
+      linear-gradient(145deg, #fbfdff 0%, #edf7ff 48%, #f7fbff 100%);
     background-attachment: fixed;
   }
 
   ::selection {
-    background: rgba(118,90,176,.24);
+    background: rgba(15,117,216,.22);
     color: #15131a;
   }
 }
@@ -421,20 +421,20 @@
   }
 
   .clinical-global-theme :where([class*="from-cyan-"], [class*="from-sky-"]) {
-    --tw-gradient-from: #866bc0 var(--tw-gradient-from-position) !important;
-    --tw-gradient-to: rgb(134 107 192 / 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-from: #1684e5 var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgb(22 132 229 / 0) var(--tw-gradient-to-position) !important;
   }
 
   .clinical-global-theme :where([class*="to-cyan-"], [class*="to-sky-"]) {
-    --tw-gradient-to: #63479d var(--tw-gradient-to-position) !important;
+    --tw-gradient-to: #0759b6 var(--tw-gradient-to-position) !important;
   }
 
   .clinical-global-theme :where(.text-cyan-600, .text-cyan-700, .text-sky-600, .text-sky-700) {
-    color: #63479d !important;
+    color: #0759b6 !important;
   }
 
   .clinical-global-theme :where(.bg-cyan-500, .bg-cyan-600, .bg-sky-600, .bg-sky-700) {
-    background-color: #765ab0 !important;
+    background-color: #0f75d8 !important;
   }
 
   .clinical-global-theme :where(button, a)[class*="bg-clinical-teal"],
