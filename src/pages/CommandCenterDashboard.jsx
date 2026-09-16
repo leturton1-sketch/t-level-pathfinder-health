@@ -91,7 +91,7 @@ export default function CommandCenterDashboard() {
       <Metric label="Critical alerts" value={critical.length} note="Requires clinical review" icon={AlertTriangle} tone="red" />
       <Metric label="Bed availability" value={running ? `${100 - occupancy}%` : "—"} note={running ? `${24 - patients.length} of 24 beds available` : "No simulation running"} icon={BedDouble} tone="green" />
       <Metric label="Patient vitals" value={running ? "Stable" : "No simulation running"} note={running ? "Simulated observation summary" : "Ward is empty"} icon={HeartPulse} tone="blue" />
-      <Metric label="Staff on shift" value={staffing.length} note={staffing.length > 0 ? `${staffing.length} assigned` : "None assigned"} icon={UsersRound} tone="violet" />
+      <Metric label="Staff on shift" value={staffing.length} note={staffing.length > 0 ? `${staffing.length} assigned` : "None assigned"} icon={UsersRound} tone="sky" />
     </section>
 
     <div className="pf-overview-grid">
