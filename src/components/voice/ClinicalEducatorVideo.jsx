@@ -1,18 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AudioVisualizer from "@/components/voice/AudioVisualizer";
-
-const INTRO_KEY = "pathfinder-clinical-educator-intro-seen-v1";
-const PLAYBACK_RATE = 0.68;
-
-const CLIPS = {
-  first_use: "/pathfinder-educator/first-use-welcome.mp4",
-  hello: "/pathfinder-educator/hello-wave.mp4",
-  thinking: "/pathfinder-educator/thinking.mp4",
-  working: "/pathfinder-educator/working.mp4",
-  good_work: "/pathfinder-educator/good-work.mp4",
-  task_complete: "/pathfinder-educator/task-complete.mp4",
-  neutral: "/pathfinder-educator/neutral.mp4",
-};
 
 const LABELS = {
   first_use: "Welcome to Pathfinder AI",
@@ -25,113 +12,47 @@ const LABELS = {
 };
 
 export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, speaking = false, voiceState = "idle" }) {
-  const videoRef = useRef(null);
   const distortionTimerRef = useRef(null);
-  const firstVisitRef = useRef(false);
-  const [introActive, setIntroActive] = useState(false);
-  const [activeCue, setActiveCue] = useState("neutral");
-  const [resting, setResting] = useState(true);
-  const [clientReady, setClientReady] = useState(false);
   const [distorting, setDistorting] = useState(false);
-
-  const src = useMemo(() => CLIPS[activeCue] || CLIPS.neutral, [activeCue]);
-  const performing = activeCue !== "neutral" && !resting;
   const connectedState = speaking ? "speaking" : voiceState;
+  const activeCue = LABELS[cue] ? cue : "neutral";
   const stateLabel = connectedState === "speaking"
     ? "Speaking with you"
     : connectedState === "listening"
       ? "Listening to your question"
       : connectedState === "working" || connectedState === "voicing"
         ? "Preparing your clinical learning response"
-        : resting
-          ? LABELS.neutral
-          : LABELS[activeCue];
+        : LABELS[activeCue];
 
-  const triggerDistortion = () => {
+  useEffect(() => {
+    if (activeCue === "neutral") return undefined;
     window.clearTimeout(distortionTimerRef.current);
     setDistorting(true);
-    distortionTimerRef.current = window.setTimeout(() => setDistorting(false), 820);
-  };
-
-  const enterRestMode = () => {
-    setIntroActive(false);
-    setResting(true);
-    setActiveCue("neutral");
-  };
-
-  useEffect(() => {
-    const firstVisit = window.localStorage.getItem(INTRO_KEY) !== "true";
-    firstVisitRef.current = firstVisit;
-    if (firstVisit) {
-      window.localStorage.setItem(INTRO_KEY, "true");
-      setIntroActive(true);
-      setResting(false);
-      setActiveCue("first_use");
-      triggerDistortion();
-    }
-    setClientReady(true);
+    distortionTimerRef.current = window.setTimeout(() => setDistorting(false), 760);
     return () => window.clearTimeout(distortionTimerRef.current);
-  }, []);
+  }, [activeCue, cueKey]);
 
-  useEffect(() => {
-    if (!clientReady || introActive) return;
-    const nextCue = CLIPS[cue] ? cue : "neutral";
-    if (nextCue === "neutral") {
-      enterRestMode();
-      return;
-    }
-    setResting(false);
-    setActiveCue(nextCue);
-    triggerDistortion();
-  }, [cue, cueKey, clientReady, introActive]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const preparePlayback = () => {
-      video.playbackRate = PLAYBACK_RATE;
-      video.currentTime = 0;
-      video.play().catch(() => {});
-    };
-
-    if (video.readyState >= 1) preparePlayback();
-    else video.addEventListener("loadedmetadata", preparePlayback, { once: true });
-
-    return () => video.removeEventListener("loadedmetadata", preparePlayback);
-  }, [src, activeCue, resting, cueKey]);
+  useEffect(() => () => window.clearTimeout(distortionTimerRef.current), []);
 
   return (
     <section
-      className={`educator-stage ${performing ? "is-performing" : "is-resting"} is-${connectedState} ${speaking ? "is-speaking" : ""} ${distorting ? "is-distorting" : ""}`}
+      className={`educator-stage educator-cartoon-stage is-${connectedState} cue-${activeCue} ${speaking ? "is-speaking" : ""} ${distorting ? "is-distorting" : ""}`}
       aria-label="Clinical Educator"
     >
       <div className="educator-video">
         <div className="educator-video-viewport">
-          {resting ? (
-            <img
-              className="educator-resting-portrait"
-              src="/pathfinder-educator/clinical-educator-resting.jpg"
-              alt="Clinical Educator standing ready with both arms resting naturally"
-              draggable={false}
-            />
-          ) : (
-            <video
-              ref={videoRef}
-              key={src}
-              src={src}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onEnded={enterRestMode}
-              aria-label={LABELS[activeCue]}
-            />
-          )}
+          <div className="educator-character-platform" aria-hidden="true" />
+          <img
+            key={`${activeCue}-${cueKey}`}
+            className="educator-character-model"
+            src="/pathfinder-educator/clinical-educator-cartoon.webp"
+            alt="Cartoon Clinical Educator standing ready in blue scrubs"
+            draggable={false}
+          />
+          <div className="educator-voice-aura" aria-hidden="true" />
           <div className="educator-hologram-noise" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-a" aria-hidden="true" />
           <div className="educator-hologram-slice educator-hologram-slice-b" aria-hidden="true" />
-          <div className="educator-voice-aura" aria-hidden="true" />
           <div className="educator-tattoo-lights" aria-hidden="true">
             <span className="tattoo-light tattoo-light-neck" />
             <span className="tattoo-light tattoo-light-left" />
