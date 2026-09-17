@@ -48,7 +48,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#15131a]/70 backdrop-blur-sm p-4">
       <div className="w-full max-w-lg rounded-2xl border border-[#0f75d8]/30 bg-white shadow-xl">
         <div className="flex flex-col items-center gap-3 border-b border-[#0f75d8]/15 px-6 pb-5 pt-7 text-center">
-          <img src="/branding/tlevel-industry-academy-silver.jpg" alt="T Level Industry Academy silver emblem" className="h-20 w-36 rounded-lg object-contain" draggable={false} />
+          <TLevelLogo variant="emblem" size="xl" className="h-24 w-24 drop-shadow-md" />
           <TLevelLogo variant="black" size="sm" />
           <h1 className="mt-1 text-xl font-semibold text-[#15131a]">Welcome, {firstName}</h1>
           <p className="text-sm text-slate-500">Signed in as {roleTitle}</p>
