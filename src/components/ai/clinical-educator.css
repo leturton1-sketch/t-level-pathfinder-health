@@ -96,8 +96,15 @@
 @keyframes educator-eye-action { 0%,100%{opacity:.25;filter:brightness(.7)} 35%,68%{opacity:1;filter:brightness(1.5)} }
 @keyframes educator-eye-speaking { 0%,100%{opacity:.38;transform:translateX(-50%) scaleX(.9)} 50%{opacity:1;transform:translateX(-50%) scaleX(1.08)} }
 @keyframes educator-eye-error { 0%,42%,100%{opacity:.08;filter:hue-rotate(130deg)} 46%,70%{opacity:.92;filter:hue-rotate(130deg) brightness(1.4)} }
-@keyframes educator-intermittent-echo { 0%,72%,78%,82%,100%{opacity:0;transform:translateX(0);clip-path:inset(0)} 73%{opacity:.34;transform:translateX(7px);clip-path:inset(18% 0 58% 0)} 75%{opacity:.18;transform:translateX(-5px);clip-path:inset(48% 0 30% 0)} 79%{opacity:.3;transform:translateX(4px);clip-path:inset(67% 0 12% 0)} 80%{opacity:.12;transform:translateX(-3px);clip-path:inset(8% 0 76% 0)} }
-@keyframes educator-intermittent-noise { 0%,71%,82%,100%{opacity:0} 73%,76%,79%{opacity:.42} 74%,78%,81%{opacity:.08} }
+@keyframes educator-intermittent-echo {
+  0%,72%,81%,100%{opacity:0;transform:translate3d(0,0,0) skewX(0);clip-path:inset(0);filter:hue-rotate(0) saturate(1)}
+  73%{opacity:.5;transform:translate3d(9px,-1px,0) skewX(-1deg);clip-path:inset(14% 0 61% 0);filter:hue-rotate(30deg) saturate(1.8) drop-shadow(-5px 0 2px rgba(41,231,255,.8))}
+  74%{opacity:.16;transform:translate3d(-6px,1px,0) skewX(1.4deg);clip-path:inset(43% 0 31% 0);filter:hue-rotate(-22deg) contrast(1.35) drop-shadow(5px 0 2px rgba(252,68,33,.48))}
+  76%{opacity:.42;transform:translate3d(5px,0,0) skewX(-.8deg);clip-path:inset(66% 0 11% 0);filter:hue-rotate(18deg) saturate(1.65)}
+  78%{opacity:.2;transform:translate3d(-4px,0,0) skewX(.6deg);clip-path:inset(7% 0 76% 0);filter:brightness(1.3) drop-shadow(0 0 6px rgba(41,231,255,.72))}
+  80%{opacity:.08;transform:translate3d(1px,0,0);clip-path:inset(0);filter:hue-rotate(0)}
+}
+@keyframes educator-intermittent-noise { 0%,71%,81%,100%{opacity:0} 73%,76%,79%{opacity:.58} 74%,78%,80%{opacity:.1} }
 .educator-conversation { display:flex; flex-direction:column; min-width:300px; min-height:500px; width:100%; height:clamp(560px,calc(100dvh - 265px),920px); max-width:100%; max-height:calc(100dvh - 120px); resize:both; background:#fff; border:1px solid #bed9f2; border-radius:16px; overflow:hidden; }
 .educator-conversation-heading { padding:18px 20px; border-bottom:1px solid #d8eaf8; flex-shrink:0; }
 .educator-conversation-heading h2 { font-size:18px; font-weight:750; margin:0 0 6px; }
