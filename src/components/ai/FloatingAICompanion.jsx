@@ -185,12 +185,6 @@ export default function FloatingAICompanion({
           />
         )}
       </div>
-
-      {!minimized && (
-        <div className="ai-companion-waveform" role="status" aria-label={`Clinical Educator ${state}`}>
-          <span /><span /><span /><span /><span /><span /><span /><span /><span />
-        </div>
-      )}
     </div>
   );
 }
