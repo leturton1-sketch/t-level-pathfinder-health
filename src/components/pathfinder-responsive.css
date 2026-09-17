@@ -1,6 +1,14 @@
 
 /* Final responsive hardening: keep legacy and newer modules usable at every viewport. */
-.tlevel-emblem { filter:none !important; aspect-ratio:1 / 1; object-fit:contain; background:transparent !important; }
+.tlevel-emblem {
+  filter:none;
+  aspect-ratio:1 / 1;
+  object-fit:contain;
+  background:transparent !important;
+  transform-origin:center;
+  will-change:transform,filter,clip-path;
+  animation:pf-emblem-hologram 13s steps(1,end) infinite;
+}
 .pf-global-brand-mark { width:46px !important; height:46px !important; filter:drop-shadow(0 4px 5px rgba(15,23,42,.22)) !important; }
 .pf-theme-active, .pf-app-root, .pf-app-frame { width:100%; max-width:100%; overflow-x:clip; }
 .pf-module, .pf-module > *, .pf-module main, .pf-module section { min-width:0; max-width:100%; }
