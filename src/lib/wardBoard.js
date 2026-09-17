@@ -18,7 +18,7 @@ export const INCOMING_PATIENTS = [
   { id: "keanu", name: "Keanu Reeves", age: 59, pronouns: "He/Him", nhs_number: "673 980 4421", condition: "Post-op laparoscopic appendectomy (Day 0)", allergies: "NKDA", initial_news2: 2, initial_vitals: { rr: 16, spo2: 97, supplemental_o2: false, sbp: 116, dbp: 74, hr: 82, avpu: "A", temp: 37.1 }, bed: "B4" },
 ];
 
-export const ALL_BEDS = ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"];
+export const ALL_BEDS = ["A1", "A2", "A3", "B1", "B2", "B3", "B4"];
 
 export function bedOf(p) { return p.bedDesignation || p.bed; }
 
