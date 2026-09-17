@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import * as THREE from "three";
 import "./FloatingAICompanion.css";
 
@@ -339,8 +340,7 @@ export default function FloatingAICompanion({ state = "idle", expanded = false, 
     clickTimerRef.current = window.setTimeout(() => onActivate?.(), 220);
   };
 
-  const onDoubleClick = (event) => {
-    event.preventDefault();
+  const toggleMinimized = () => {
     window.clearTimeout(clickTimerRef.current);
     const nextMinimized = !minimized;
     const docked = dockPosition(nextMinimized);
@@ -348,6 +348,11 @@ export default function FloatingAICompanion({ state = "idle", expanded = false, 
     setPosition(docked);
     localStorage.setItem(MINIMIZED_KEY, String(nextMinimized));
     localStorage.setItem(POSITION_KEY, JSON.stringify(docked));
+  };
+
+  const onDoubleClick = (event) => {
+    event.preventDefault();
+    toggleMinimized();
   };
 
   const style = position ? { left: position.x, top: position.y, right: "auto", bottom: "auto" } : undefined;
@@ -370,6 +375,16 @@ export default function FloatingAICompanion({ state = "idle", expanded = false, 
       title={`${expanded ? "Click to close" : "Click to open"} · Drag to move · Double-click to dock or restore`}
       onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onActivate?.(); }}
     >
+      <button
+        type="button"
+        className="ai-companion-size-toggle"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => { event.stopPropagation(); toggleMinimized(); }}
+        aria-label={minimized ? "Restore full Pathfinder AI view" : "Minimise Pathfinder AI"}
+        title={minimized ? "Restore full view" : "Minimise"}
+      >
+        {minimized ? <Maximize2 aria-hidden="true" /> : <Minimize2 aria-hidden="true" />}
+      </button>
       <div ref={mountRef} className="ai-companion-canvas" aria-hidden="true" />
       {!minimized && <div className="ai-status-pill" role="status"><i />{status}</div>}
     </div>
