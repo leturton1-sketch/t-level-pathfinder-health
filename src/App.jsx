@@ -50,6 +50,7 @@ const SystemHealth = lazy(() => import('./pages/SystemHealth'));
 const CurriculumReadiness = lazy(() => import('./pages/CurriculumReadiness'));
 const EmployerPortal = lazy(() => import('./pages/EmployerPortal'));
 const TalentCardPage = lazy(() => import('./pages/TalentCardPage')); 
+const AIAssistant = lazy(() => import('./components/AIAssistant'));
 
 const AuthenticatedApp = () => {
   const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
@@ -197,6 +198,8 @@ const AuthenticatedApp = () => {
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    {/* Mounted once above the route content so chat, voice and display state survive navigation. */}
+    <AIAssistant context="Pathfinder Health application" />
     </ESPCaseProvider>
     </ErrorBoundary>
     </Suspense>
