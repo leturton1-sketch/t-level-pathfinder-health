@@ -135,8 +135,6 @@ export default function FloatingAICompanion({
   const style = position
     ? { left: position.x, top: position.y, right: "auto", bottom: "auto" }
     : undefined;
-  const status = state === "idle" ? "Clinical Educator ready" : `Clinical Educator · ${state}`;
-
   return (
     <div
       ref={widgetRef}
@@ -167,7 +165,15 @@ export default function FloatingAICompanion({
           alt=""
           draggable={false}
         />
+        <img
+          className="educator-companion-echo"
+          src="/pathfinder-educator/clinical-educator-cartoon.webp"
+          alt=""
+          draggable={false}
+        />
         <span className="educator-companion-scanline" />
+        <span className="educator-companion-distortion distortion-a" />
+        <span className="educator-companion-distortion distortion-b" />
         <span className="educator-feature-light educator-eye-light educator-eye-light-left" />
         <span className="educator-feature-light educator-eye-light educator-eye-light-right" />
         <span className="educator-feature-light educator-rune-light educator-rune-light-left" />
@@ -181,8 +187,8 @@ export default function FloatingAICompanion({
       </div>
 
       {!minimized && (
-        <div className="ai-status-pill" role="status">
-          <i />{status}
+        <div className="ai-companion-waveform" role="status" aria-label={`Clinical Educator ${state}`}>
+          <span /><span /><span /><span /><span /><span /><span /><span /><span />
         </div>
       )}
     </div>
