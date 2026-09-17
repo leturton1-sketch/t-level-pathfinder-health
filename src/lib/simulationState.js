@@ -43,6 +43,14 @@ function writeSimulationState(state) {
   return state;
 }
 
+/**
+ * Reset the ward at a fresh authenticated login and explicitly return authority
+ * to the human user. The ward module remains inactive until they open it.
+ */
+export function handWardControlToUser() {
+  return writeSimulationState({ ...defaultSimulationState(), controller: "user" });
+}
+
 /** Start a simulation. controller defaults to "user"; pass "ai" when the AI tutor initiates it. */
 export function startSimulation({ controller = "user", scenarioId = null, scenarioName = null } = {}) {
   activateModule("ward");
