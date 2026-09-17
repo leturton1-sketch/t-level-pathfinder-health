@@ -65,6 +65,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
     previousTaskRef.current = task.id;
     const assigned = assignLearners(learners, task.staff);
     const call = { id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, bed, patient, task, assigned, receivedAt: Date.now() };
+    const isFirstCall = callsRef.current.length === 0;
     setCalls((current) => {
       if (current.length >= 3) return current;
       const next = [...current, call];
@@ -72,6 +73,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
       return next;
     });
     setSelectedCallId((current) => current || call.id);
+    if (isFirstCall) onActiveBedChange?.(bed);
     playUISound("task");
     synth.speak(`Nurse call bell from bed ${bed}. ${assigned.join(" and ")}, please support ${patient?.name || "the patient"} with ${task.title}. ${task.staff === 2 ? "Two learners are required." : ""}`);
   };
@@ -105,7 +107,6 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
     setFeedback(null);
     setSbar("");
     onActiveBedChange?.(remaining[0]?.bed || null);
-    playUISound("confirm");
   };
   const finish = async () => {
     clearTimeout(timerRef.current); clearInterval(timerRef.current); synth.stop(); onActiveBedChange?.(null);
@@ -156,7 +157,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
       <label className="mt-3 block text-xs font-black uppercase">SBAR handover — type or dictate</label>
       <textarea value={sbar} onChange={(e) => setSbar(e.target.value)} rows={6} placeholder="Situation… Background… Assessment… Recommendation…" className="mt-1 w-full rounded-2xl border p-3 text-sm" />
       <div className="mt-2 flex gap-2"><button onClick={toggleDictation} className={`flex items-center gap-1 rounded-xl border px-3 py-2 text-xs font-bold ${listening ? "border-red-300 bg-red-50 text-red-700" : ""}`}>{listening ? <Square className="h-3 w-3" /> : <Mic className="h-3 w-3" />}{listening ? "Stop" : "Speak SBAR"}</button><button disabled={!sbar.trim()} onClick={submitSbar} className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-blue-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-40"><Send className="h-3 w-3" />Assess SBAR</button></div>
-      {feedback && <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs"><div className="flex justify-between"><b>AI-guided SBAR feedback</b><b className="text-lg text-emerald-700">{feedback.score}%</b></div><p><b>Strengths:</b> {feedback.strengths}</p><p><b>Improve:</b> {feedback.improvements}</p><p><b>Tip:</b> {feedback.tip}</p><button onClick={completeTask} className="mt-3 flex w-full items-center justify-center gap-1 rounded-xl bg-emerald-600 py-2 font-black text-white"><CheckCircle className="h-4 w-4" />Complete task</button></div>}
+      {feedback && <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs"><div className="flex justify-between"><b>AI-guided SBAR feedback</b><b className="text-lg text-emerald-700">{feedback.score}%</b></div><p><b>Strengths:</b> {feedback.strengths}</p><p><b>Improve:</b> {feedback.improvements}</p><p><b>Tip:</b> {feedback.tip}</p><button onClick={completeTask} data-sound="confirm" className="mt-3 flex w-full items-center justify-center gap-1 rounded-xl bg-emerald-600 py-2 font-black text-white"><CheckCircle className="h-4 w-4" />Complete task</button></div>}
     </>}
   </div></div>;
 }
