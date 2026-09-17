@@ -191,6 +191,42 @@
   80%{opacity:.08;transform:translate3d(1px,0,0);clip-path:inset(0);filter:hue-rotate(0)}
 }
 @keyframes educator-widget-slice{0%,72%,81%,100%{opacity:0;transform:translateX(0)}73%{opacity:.82;transform:translateX(7%)}74%{opacity:.12;transform:translateX(-5%)}76%{opacity:.66;transform:translateX(4%)}78%{opacity:.18;transform:translateX(-2%)}80%{opacity:0;transform:translateX(0)}}
+
+/* State-driven compact effects */
+.widget-stethoscope-pulse,.widget-heartbeat,.widget-dna,.widget-complete,.widget-rest{position:absolute;z-index:6;pointer-events:none;opacity:0}
+.widget-stethoscope-pulse{left:42%;top:34%;width:12px;height:12px;border:1px solid #67e8f9;border-radius:50%}
+.widget-heartbeat{left:4%;top:38%;width:92%;height:13%}
+.widget-heartbeat polyline{fill:none;stroke:#67e8f9;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px #22d3ee);stroke-dasharray:130;stroke-dashoffset:130}
+.educator-companion.is-listening .widget-stethoscope-pulse{opacity:1;animation:widget-stethoscope-ring 1.12s ease-out infinite}
+.educator-companion.is-listening .widget-heartbeat{opacity:1}
+.educator-companion.is-listening .widget-heartbeat polyline{animation:widget-heart-line 1.12s linear infinite}
+.widget-dna{left:14%;right:5%;top:6%;height:26%;filter:drop-shadow(0 0 4px #22d3ee)}
+.widget-dna i{position:absolute;top:50%;left:calc(8% + var(--i,0) * 16%);width:2px;height:34%;background:linear-gradient(#67e8f9,#5fffb8);transform:translateY(-50%) rotate(32deg)}
+.widget-dna i:nth-child(1){--i:0;height:14%;top:34%}.widget-dna i:nth-child(2){--i:1;height:28%;top:42%}.widget-dna i:nth-child(3){--i:2;height:38%;top:50%}.widget-dna i:nth-child(4){--i:3;height:38%;top:50%}.widget-dna i:nth-child(5){--i:4;height:28%;top:58%}.widget-dna i:nth-child(6){--i:5;height:14%;top:66%}
+.widget-dna::before,.widget-dna::after{content:"";position:absolute;left:4%;right:2%;top:48%;height:2px;border-radius:50%;background:linear-gradient(90deg,#67e8f9,#5fffb8,#67e8f9);transform:rotate(12deg);box-shadow:0 0 6px #22d3ee}
+.widget-dna::after{transform:rotate(-12deg)}
+.widget-dna b{position:absolute;right:0;bottom:0;color:#c6fbff;font-size:7px;letter-spacing:.12em}
+.educator-companion.is-thinking .widget-dna{opacity:1;animation:widget-dna-float 2.8s ease-in-out infinite}
+.widget-complete{inset:0;display:grid;place-content:center;justify-items:center;color:#86efac}
+.widget-complete i{position:absolute;left:50%;top:50%;width:30px;height:30px;border:1px solid #4ade80;border-radius:50%;transform:translate(-50%,-50%)}
+.widget-complete strong{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(6,95,70,.8);border:1px solid #4ade80;font-size:18px;box-shadow:0 0 14px rgba(74,222,128,.8)}
+.widget-complete b{margin-top:5px;padding:2px 5px;border-radius:999px;background:rgba(4,27,65,.76);font-size:6px;text-transform:uppercase;letter-spacing:.06em}
+.educator-companion.is-complete .widget-complete{opacity:1;animation:widget-complete-enter 1.7s ease-out both}
+.educator-companion.is-complete .widget-complete i{animation:widget-complete-ripple 1.4s ease-out 2}
+.educator-companion.is-offline .educator-companion-visual{background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(2,6,23,.82));box-shadow:inset 0 0 0 1px rgba(100,116,139,.24)}
+.educator-companion.is-offline .educator-companion-image{filter:saturate(.38) brightness(.62)}
+.widget-rest{inset:0}
+.widget-rest i{position:absolute;width:14px;height:14px;border:1px solid rgba(125,211,252,.7);border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.5),rgba(56,189,248,.2),transparent 72%);animation:widget-rest-float 4s ease-in-out infinite}
+.widget-rest i:nth-child(1){left:12%;top:25%}.widget-rest i:nth-child(2){right:9%;top:15%;width:20px;height:20px;animation-delay:-1.3s}.widget-rest i:nth-child(3){right:22%;top:42%;width:10px;height:10px;animation-delay:-2.4s}
+.widget-rest b{position:absolute;left:7%;top:8%;color:#7dd3fc;font-size:6px;letter-spacing:.12em;text-transform:uppercase}
+.educator-companion.is-offline .widget-rest{opacity:1}
+@keyframes widget-heart-line{0%{stroke-dashoffset:130;opacity:.2}25%{opacity:1}100%{stroke-dashoffset:0;opacity:.18}}
+@keyframes widget-stethoscope-ring{0%{transform:scale(.5);opacity:1}100%{transform:scale(2.6);opacity:0}}
+@keyframes widget-dna-float{0%,100%{transform:translateY(0) rotateY(-10deg)}50%{transform:translateY(-3px) rotateY(10deg)}}
+@keyframes widget-complete-enter{0%{transform:scale(.55);opacity:0}28%{transform:scale(1.08);opacity:1}82%{opacity:1}100%{opacity:0}}
+@keyframes widget-complete-ripple{0%{transform:translate(-50%,-50%) scale(.6);opacity:1}100%{transform:translate(-50%,-50%) scale(3.6);opacity:0}}
+@keyframes widget-rest-float{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-10px);opacity:.88}}
+
 @media(max-width:640px){
   .ai-companion-container{right:10px;bottom:76px;width:92px;height:195px}
   .ai-companion-container.is-minimized{width:48px;height:101px}
@@ -200,4 +236,5 @@
   .educator-companion-scanline,.educator-companion-attention,.educator-feature-light,.educator-companion-image,.educator-companion-glow,.educator-companion-echo,.educator-companion-distortion,.ai-companion-waveform span{animation:none}
   .educator-companion-echo,.educator-companion-distortion{display:none}
   .ai-companion-waveform{backdrop-filter:none}
+  .widget-stethoscope-pulse,.widget-heartbeat polyline,.widget-dna,.widget-complete,.widget-complete i,.widget-rest i{animation:none!important}
 }
