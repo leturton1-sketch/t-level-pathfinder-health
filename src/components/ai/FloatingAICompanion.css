@@ -182,8 +182,15 @@
 @keyframes educator-widget-listening{0%,100%{transform:scale(1.012) translateY(0)}50%{transform:scale(1.024) translateY(-3px)}}
 @keyframes educator-widget-speaking{0%,100%{transform:scale(1.01) translateY(0)}30%{transform:scale(1.02) translateY(-3px)}60%{transform:scale(1.014) translateY(-1px)}}
 @keyframes educator-widget-wave{0%,100%{height:4px;opacity:.55}50%{height:14px;opacity:1}}
-@keyframes educator-widget-echo{0%,72%,79%,100%{opacity:0;transform:translateX(0);clip-path:inset(0)}73%{opacity:.38;transform:translateX(5px);clip-path:inset(16% 0 60% 0)}75%{opacity:.2;transform:translateX(-4px);clip-path:inset(46% 0 31% 0)}77%{opacity:.3;transform:translateX(3px);clip-path:inset(68% 0 10% 0)}}
-@keyframes educator-widget-slice{0%,72%,79%,100%{opacity:0;transform:translateX(0)}73%{opacity:.72;transform:translateX(5%)}75%{opacity:.2;transform:translateX(-4%)}77%{opacity:.58;transform:translateX(2%)}}
+@keyframes educator-widget-echo{
+  0%,72%,81%,100%{opacity:0;transform:translate3d(0,0,0) skewX(0);clip-path:inset(0);filter:hue-rotate(0) saturate(1)}
+  73%{opacity:.55;transform:translate3d(7px,-1px,0) skewX(-1.4deg);clip-path:inset(13% 0 61% 0);filter:hue-rotate(34deg) saturate(1.9) drop-shadow(-4px 0 1px rgba(103,232,249,.9))}
+  74%{opacity:.18;transform:translate3d(-5px,1px,0) skewX(1.6deg);clip-path:inset(42% 0 31% 0);filter:hue-rotate(-25deg) contrast(1.4) drop-shadow(4px 0 1px rgba(248,113,113,.58))}
+  76%{opacity:.46;transform:translate3d(4px,0,0) skewX(-.8deg);clip-path:inset(67% 0 10% 0);filter:hue-rotate(20deg) saturate(1.75)}
+  78%{opacity:.2;transform:translate3d(-3px,0,0);clip-path:inset(8% 0 77% 0);filter:brightness(1.35) drop-shadow(0 0 5px rgba(103,232,249,.8))}
+  80%{opacity:.08;transform:translate3d(1px,0,0);clip-path:inset(0);filter:hue-rotate(0)}
+}
+@keyframes educator-widget-slice{0%,72%,81%,100%{opacity:0;transform:translateX(0)}73%{opacity:.82;transform:translateX(7%)}74%{opacity:.12;transform:translateX(-5%)}76%{opacity:.66;transform:translateX(4%)}78%{opacity:.18;transform:translateX(-2%)}80%{opacity:0;transform:translateX(0)}}
 @media(max-width:640px){
   .ai-companion-container{right:10px;bottom:76px;width:92px;height:195px}
   .ai-companion-container.is-minimized{width:48px;height:101px}
