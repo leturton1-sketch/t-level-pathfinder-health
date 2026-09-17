@@ -49,12 +49,15 @@
 .is-minimized .educator-companion-image{transform:scale(1.015)}
 .educator-companion-glow{
   position:absolute;
-  inset:16% 8% 5%;
-  border-radius:45%;
-  background:radial-gradient(circle,rgba(34,211,238,.3),transparent 68%);
-  opacity:.25;
+  z-index:1;
+  inset:8% -8% 2%;
+  border-radius:42%;
+  background:radial-gradient(ellipse at 50% 48%,rgba(103,232,249,.36) 0,rgba(34,211,238,.18) 38%,rgba(14,165,233,.08) 58%,transparent 76%);
+  opacity:.16;
   pointer-events:none;
-  transition:opacity .25s ease,filter .25s ease;
+  filter:blur(8px);
+  transform:scale(.94);
+  transition:opacity .45s ease,filter .45s ease,transform .6s ease;
 }
 .educator-companion-scanline{
   position:absolute;
@@ -68,7 +71,9 @@
 }
 .educator-companion.is-thinking .educator-companion-glow,
 .educator-companion.is-listening .educator-companion-glow,
-.educator-companion.is-speaking .educator-companion-glow{opacity:.72;filter:drop-shadow(0 0 8px #22d3ee)}
+.educator-companion.is-speaking .educator-companion-glow{opacity:.9;filter:blur(7px) drop-shadow(0 0 10px rgba(34,211,238,.78));animation:educator-widget-aura 2.8s ease-in-out infinite}
+.educator-companion:is(.is-thinking,.is-listening,.is-speaking) .educator-companion-visual{box-shadow:0 14px 34px rgba(15,23,42,.24),0 0 18px rgba(34,211,238,.32),inset 0 0 0 1px rgba(103,232,249,.5)}
+.educator-companion:is(.is-thinking,.is-listening,.is-speaking) .educator-companion-image{animation:educator-widget-working 3.4s ease-in-out infinite}
 .educator-companion.is-thinking .educator-companion-image{filter:saturate(1.08) drop-shadow(0 0 5px rgba(34,211,238,.45))}
 .educator-companion.is-listening .educator-companion-image{filter:saturate(1.12) drop-shadow(0 0 7px rgba(34,211,238,.55))}
 .educator-companion.is-speaking .educator-companion-image{filter:saturate(1.1) drop-shadow(0 0 8px rgba(45,212,191,.56))}
@@ -121,41 +126,67 @@
 .educator-companion.is-listening .educator-rune-light{animation:educator-rune-pulse 1.8s ease-in-out infinite}
 .is-minimized .educator-eye-light{width:4px;height:2px}
 .is-minimized .educator-rune-light{width:6px;height:10px}
-.ai-status-pill{
+.educator-companion-echo{
   position:absolute;
-  bottom:4px;
+  z-index:3;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center bottom;
+  opacity:0;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  filter:hue-rotate(18deg) saturate(1.5);
+  animation:educator-widget-echo 14s steps(1,end) infinite;
+}
+.educator-companion-distortion{position:absolute;z-index:4;left:0;right:0;height:12%;opacity:0;pointer-events:none;background:rgba(103,232,249,.18);mix-blend-mode:screen;backdrop-filter:hue-rotate(28deg) contrast(1.35);animation:educator-widget-slice 14s steps(1,end) infinite}
+.educator-companion-distortion.distortion-a{top:28%}
+.educator-companion-distortion.distortion-b{top:64%;animation-delay:-.08s}
+.ai-companion-waveform{
+  position:absolute;
+  z-index:5;
   left:50%;
+  bottom:5px;
+  width:72px;
+  height:20px;
   transform:translateX(-50%);
   display:flex;
   align-items:center;
-  gap:4px;
-  max-width:96px;
-  padding:4px 7px;
-  overflow:hidden;
-  border:1px solid rgba(56,189,248,.25);
+  justify-content:center;
+  gap:3px;
+  padding:3px 7px;
+  border:1px solid rgba(103,232,249,.3);
   border-radius:999px;
-  background:rgba(15,23,42,.82);
-  color:#67e8f9;
-  box-shadow:0 8px 22px rgba(15,23,42,.24);
+  background:rgba(4,27,65,.72);
+  box-shadow:0 6px 18px rgba(4,27,65,.3),0 0 12px rgba(34,211,238,.16);
   backdrop-filter:blur(7px);
-  font-size:8px;
-  font-weight:700;
-  line-height:1;
-  white-space:nowrap;
-  text-overflow:ellipsis;
   pointer-events:none;
 }
-.ai-status-pill i{flex:0 0 auto;width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 7px #34d399}
+.ai-companion-waveform span{width:2px;height:4px;border-radius:999px;background:#67e8f9;box-shadow:0 0 5px rgba(34,211,238,.8);animation:educator-widget-wave 1.8s ease-in-out infinite;animation-play-state:paused}
+.ai-companion-waveform span:nth-child(2),.ai-companion-waveform span:nth-child(8){animation-delay:.12s}
+.ai-companion-waveform span:nth-child(3),.ai-companion-waveform span:nth-child(7){animation-delay:.24s}
+.ai-companion-waveform span:nth-child(4),.ai-companion-waveform span:nth-child(6){animation-delay:.36s}
+.ai-companion-waveform span:nth-child(5){animation-delay:.48s}
+.educator-companion:is(.is-thinking,.is-listening,.is-speaking) .ai-companion-waveform span{animation-play-state:running}
+.educator-companion.is-listening .ai-companion-waveform span{background:#f87171;box-shadow:0 0 5px rgba(248,113,113,.9)}
+.educator-companion.is-thinking .ai-companion-waveform span{background:#fbbf24;box-shadow:0 0 5px rgba(251,191,36,.82)}
 @keyframes educator-scan{0%,100%{top:14%;opacity:0}18%{opacity:.7}82%{opacity:.45}100%{top:88%;opacity:0}}
 @keyframes educator-attention{0%{opacity:0;transform:scale(.94)}18%{opacity:1;transform:scale(1)}70%{opacity:.75}100%{opacity:0}}
 @keyframes educator-eye-pulse{0%,100%{filter:brightness(.85)}50%{filter:brightness(1.45)}}
 @keyframes educator-rune-pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes educator-widget-aura{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:.96;transform:scale(1.035)}}
+@keyframes educator-widget-working{0%,100%{transform:scale(1.01) translateY(0)}50%{transform:scale(1.018) translateY(-2px)}}
+@keyframes educator-widget-wave{0%,100%{height:4px;opacity:.55}50%{height:14px;opacity:1}}
+@keyframes educator-widget-echo{0%,72%,79%,100%{opacity:0;transform:translateX(0);clip-path:inset(0)}73%{opacity:.38;transform:translateX(5px);clip-path:inset(16% 0 60% 0)}75%{opacity:.2;transform:translateX(-4px);clip-path:inset(46% 0 31% 0)}77%{opacity:.3;transform:translateX(3px);clip-path:inset(68% 0 10% 0)}}
+@keyframes educator-widget-slice{0%,72%,79%,100%{opacity:0;transform:translateX(0)}73%{opacity:.72;transform:translateX(5%)}75%{opacity:.2;transform:translateX(-4%)}77%{opacity:.58;transform:translateX(2%)}}
 @media(max-width:640px){
   .ai-companion-container{right:10px;bottom:76px;width:92px;height:195px}
   .ai-companion-container.is-minimized{width:48px;height:101px}
 }
 @media(prefers-reduced-motion:reduce){
   .ai-companion-container,.educator-companion-image,.educator-feature-light{transition:none}
-  .educator-companion-scanline,.educator-companion-attention,.educator-feature-light{animation:none}
-  .ai-status-pill{backdrop-filter:none}
+  .educator-companion-scanline,.educator-companion-attention,.educator-feature-light,.educator-companion-image,.educator-companion-glow,.educator-companion-echo,.educator-companion-distortion,.ai-companion-waveform span{animation:none}
+  .educator-companion-echo,.educator-companion-distortion{display:none}
+  .ai-companion-waveform{backdrop-filter:none}
 }
