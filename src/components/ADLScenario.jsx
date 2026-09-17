@@ -4,23 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { CALL_BELL_INTERVALS, assignLearners, chooseRandom, getAdlTaskPool } from "@/lib/adlScenario";
 import { getPatientForBed } from "@/lib/wardPatients";
-
-function playCallBell() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioContext();
-    [0, .28].forEach((delay) => {
-      const oscillator = ctx.createOscillator(); const gain = ctx.createGain();
-      oscillator.frequency.setValueAtTime(880, ctx.currentTime + delay);
-      oscillator.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + delay + .18);
-      gain.gain.setValueAtTime(.0001, ctx.currentTime + delay);
-      gain.gain.exponentialRampToValueAtTime(.28, ctx.currentTime + delay + .02);
-      gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + delay + .22);
-      oscillator.connect(gain).connect(ctx.destination); oscillator.start(ctx.currentTime + delay); oscillator.stop(ctx.currentTime + delay + .24);
-    });
-    setTimeout(() => ctx.close(), 900);
-  } catch { /* audio unavailable */ }
-}
+import { playUISound } from "@/lib/uiSound";
 
 function assessSbar(text, task) {
   const value = text.toLowerCase();
@@ -53,12 +37,16 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
   const [phase, setPhase] = useState("setup");
   const [nameInput, setNameInput] = useState("");
   const [learners, setLearners] = useState([]);
-  const [activeCall, setActiveCall] = useState(null);
+  const [calls, setCalls] = useState([]);
+  const [selectedCallId, setSelectedCallId] = useState(null);
   const [sbar, setSbar] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [completed, setCompleted] = useState([]);
   const [listening, setListening] = useState(false);
   const timerRef = useRef(null); const recognitionRef = useRef(null); const previousTaskRef = useRef(null);
+  const callsRef = useRef(calls);
+  callsRef.current = calls;
+  const activeCall = calls.find((call) => call.id === selectedCallId) || calls[0] || null;
 
   const addLearner = () => {
     const name = nameInput.trim();
@@ -67,30 +55,60 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
   };
 
   const triggerCall = () => {
+    if (callsRef.current.length >= 3) return;
     const beds = bedDesignations.filter(Boolean);
-    const bed = beds[Math.floor(Math.random() * beds.length)] || "A1";
+    const unoccupied = beds.filter((bed) => !callsRef.current.some((call) => call.bed === bed));
+    const bedPool = unoccupied.length ? unoccupied : beds;
+    const bed = bedPool[Math.floor(Math.random() * bedPool.length)] || "A1";
     const patient = getPatientForBed(bed);
     const task = chooseRandom(getAdlTaskPool(scenario), previousTaskRef.current);
     previousTaskRef.current = task.id;
     const assigned = assignLearners(learners, task.staff);
-    setActiveCall({ id: Date.now(), bed, patient, task, assigned });
-    setFeedback(null); setSbar(""); onActiveBedChange?.(bed); playCallBell();
+    const call = { id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, bed, patient, task, assigned, receivedAt: Date.now() };
+    setCalls((current) => {
+      if (current.length >= 3) return current;
+      const next = [...current, call];
+      callsRef.current = next;
+      return next;
+    });
+    setSelectedCallId((current) => current || call.id);
+    playUISound("task");
     synth.speak(`Nurse call bell from bed ${bed}. ${assigned.join(" and ")}, please support ${patient?.name || "the patient"} with ${task.title}. ${task.staff === 2 ? "Two learners are required." : ""}`);
   };
 
-  const start = () => { if (learners.length >= 2) { setPhase("running"); setTimeout(triggerCall, 700); } };
+  const selectCall = (call) => {
+    setSelectedCallId(call.id);
+    setFeedback(null);
+    setSbar("");
+    onActiveBedChange?.(call.bed);
+  };
+
+  const start = () => {
+    if (learners.length < 2) return;
+    setPhase("running");
+    timerRef.current = window.setTimeout(() => {
+      triggerCall();
+      timerRef.current = window.setInterval(triggerCall, CALL_BELL_INTERVALS[scenario.call_bell_speed] || CALL_BELL_INTERVALS.normal);
+    }, 700);
+  };
   const submitSbar = () => {
     const result = assessSbar(sbar, activeCall.task);
     setFeedback(result); synth.speak(`Feedback. ${result.strengths} ${result.tip}`);
   };
   const completeTask = () => {
+    if (!activeCall || !feedback) return;
     setCompleted((current) => [...current, { task: activeCall.task.title, bed: activeCall.bed, learners: activeCall.assigned, sbar, feedback }]);
-    setActiveCall(null); setFeedback(null); setSbar(""); onActiveBedChange?.(null);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(triggerCall, CALL_BELL_INTERVALS[scenario.call_bell_speed] || CALL_BELL_INTERVALS.normal);
+    const remaining = callsRef.current.filter((call) => call.id !== activeCall.id);
+    callsRef.current = remaining;
+    setCalls(remaining);
+    setSelectedCallId(remaining[0]?.id || null);
+    setFeedback(null);
+    setSbar("");
+    onActiveBedChange?.(remaining[0]?.bed || null);
+    playUISound("confirm");
   };
   const finish = async () => {
-    clearTimeout(timerRef.current); synth.stop(); onActiveBedChange?.(null);
+    clearTimeout(timerRef.current); clearInterval(timerRef.current); synth.stop(); onActiveBedChange?.(null);
     if (completed.length) await base44.entities.SimulationResult.create({
       student_id: "group", student_name: learners.join(", "), scenario_id: scenario.id || "adl-prebuilt", scenario_name: scenario.name,
       decisions: JSON.stringify(completed), score: Math.round(completed.reduce((sum, item) => sum + Number(item.feedback.score || 0), 0) / completed.length),
@@ -110,7 +128,7 @@ export default function ADLScenario({ scenario, bedDesignations, onActiveBedChan
     };
     recognition.onend = () => setListening(false); recognitionRef.current = recognition; recognition.start(); setListening(true);
   };
-  useEffect(() => () => { clearTimeout(timerRef.current); recognitionRef.current?.stop(); synth.stop(); onActiveBedChange?.(null); }, []);
+  useEffect(() => () => { clearTimeout(timerRef.current); clearInterval(timerRef.current); recognitionRef.current?.stop(); synth.stop(); onActiveBedChange?.(null); }, []);
 
   if (phase === "setup") return <div className="absolute inset-0 z-50 grid place-items-center bg-slate-950/30 p-4 backdrop-blur-sm">
     <div className="polished-glass-edge w-full max-w-lg rounded-[28px] border border-white/90 bg-white/95 p-5 shadow-2xl">
