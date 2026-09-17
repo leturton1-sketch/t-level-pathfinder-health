@@ -4,6 +4,7 @@ import PathfinderFrame from "./PathfinderFrame";
 import ESPCaseBanner from "./ESPCaseBanner";
 import LearningJourney from "./LearningJourney";
 import GlobalVoiceControl from "./voice/GlobalVoiceControl";
+import { installGlobalUISounds } from "@/lib/uiSound";
 import "@/components/dashboard/pathfinder-dashboard.css";
 import "@/components/pathfinder-theme.css";
 import "@/components/pathfinder-responsive.css";
@@ -12,7 +13,11 @@ export default function Layout() {
 
   useEffect(() => {
     document.body.classList.add("pf-theme-active");
-    return () => document.body.classList.remove("pf-theme-active");
+    const removeSoundProfile = installGlobalUISounds();
+    return () => {
+      document.body.classList.remove("pf-theme-active");
+      removeSoundProfile();
+    };
   }, []);
 
   return (
