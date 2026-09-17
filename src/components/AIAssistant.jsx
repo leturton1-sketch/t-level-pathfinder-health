@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, X, Mic, Volume2, VolumeX, Square, GripVertical } from "lucide-react";
+import { Bot, X, Mic, Volume2, VolumeX, Square, GripVertical, Maximize2, Minimize2 } from "lucide-react";
 import FloatingAICompanion from "@/components/ai/FloatingAICompanion";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
@@ -65,6 +65,7 @@ function loadPos() {
 export default function AIAssistant({ context = "general" }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
+  const [fullChat, setFullChat] = useState(false);
   const [state, setState] = useState("idle");
   const [attentionCue, setAttentionCue] = useState(0);
   const [attentionKind, setAttentionKind] = useState("none");
@@ -387,7 +388,7 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
       : state === "speaking" ? (cleanLast ? (cleanLast.length > 110 ? cleanLast.slice(0, 110) + "…" : cleanLast) : "Speaking…")
       : "";
   const panelClass = anchored
-    ? "fixed bottom-[210px] right-6 z-[2147483646]"
+    ? "fixed bottom-[238px] right-4 z-[2147483646]"
     : "fixed z-[2147483646]";
 
   return (
@@ -407,7 +408,7 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
-          className={`${panelClass} w-[calc(100vw-2rem)] sm:w-[345px] max-h-[54vh] flex flex-col rounded-2xl border border-clinical-teal/30 bg-white/70 backdrop-blur-xl shadow-2xl animate-slide-up overflow-hidden`}
+          className={`${panelClass} ${fullChat ? "w-[calc(100vw-2rem)] sm:w-[330px] max-h-[50vh]" : "w-[calc(100vw-2rem)] sm:w-[292px]"} flex flex-col rounded-2xl border border-clinical-teal/30 bg-white/80 backdrop-blur-xl shadow-2xl animate-slide-up overflow-hidden transition-[width,max-height] duration-300`}
         >
           {/* Header = drag handle */}
           <div
@@ -430,27 +431,28 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
               </div>
             </div>
             <div className="flex items-center gap-2" onPointerDown={(event) => event.stopPropagation()}>
-              <label className="flex items-center gap-1.5 text-[9px] font-semibold text-slate-500" title="Adjust Pathfinder Clinical AI text transparency">
-                <span className="hidden sm:inline">Transparency</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="45"
-                  step="5"
-                  value={panelTransparency}
-                  onChange={(event) => setPanelTransparency(Number(event.target.value))}
-                  aria-label="Pathfinder Clinical AI text transparency"
-                  className="w-16 accent-teal-600"
-                />
-              </label>
+              {fullChat && (
+                <label className="flex items-center gap-1 text-[9px] font-semibold text-slate-500" title="Adjust chat transparency">
+                  <span className="hidden sm:inline">Opacity</span>
+                  <input type="range" min="0" max="45" step="5" value={panelTransparency}
+                    onChange={(event) => setPanelTransparency(Number(event.target.value))}
+                    aria-label="Pathfinder chat transparency" className="w-12 accent-teal-600" />
+                </label>
+              )}
+              <button type="button" onClick={() => setFullChat((value) => !value)}
+                aria-label={fullChat ? "Use compact chat" : "Expand chat history"}
+                title={fullChat ? "Compact chat" : "Expand chat"}
+                className="p-1.5 rounded-lg hover:bg-white/50">
+                {fullChat ? <Minimize2 className="w-4 h-4 text-slate-500" /> : <Maximize2 className="w-4 h-4 text-slate-500" />}
+              </button>
               <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => setExpanded(false)} aria-label="Close Pathfinder Clinical AI chat" title="Close chat" className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
             </div>
           </div>
 
-          {diagnostic && admin ? (
+          {fullChat && (diagnostic && admin ? (
             <AIDiagnostic />
           ) : (
-          <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[180px] max-h-[36vh]">
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[120px] max-h-[30vh]">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[85%] rounded-2xl px-2.5 py-1.5 text-[13px] ${msg.role === "user" ? "bg-clinical-teal text-white rounded-br-sm" : "bg-white/70 text-slate-800 rounded-bl-sm backdrop-blur-sm"}`}>
@@ -460,9 +462,9 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
             ))}
             <div ref={messagesEndRef} />
           </div>
-          )}
+          ))}
 
-          <div className="shrink-0 border-t border-white/50 bg-slate-100/85 p-2.5">
+          <div className={`shrink-0 ${fullChat ? "border-t border-white/50 bg-slate-100/85 p-2.5" : "bg-transparent p-2"}`}>
             <AIComposer
               value={input}
               onChange={setInput}
@@ -482,13 +484,14 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
               }}
               isListening={listening}
               onVoicePress={toggleVoice}
+              compact={!fullChat}
               leadingControls={<>
                 <button onClick={toggleVoice} className={`ai-composer-plus ${listening ? "animate-pulse text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
                 <button onClick={toggleMute} className={`ai-composer-plus ${muted ? "text-red-600" : ""}`} aria-label={muted ? "Enable assistant speech" : "Mute assistant speech"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
                 <button onClick={handleStopSpeaking} disabled={state !== "speaking"} className="ai-composer-plus disabled:opacity-30" aria-label="Stop speaking"><Square className="h-3.5 w-3.5" /></button>
               </>}
             />
-            {listening ? <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">● Microphone active — listening for a command</p> : autoListen && <p className="mt-1.5 text-center text-[10px] text-emerald-700">Voice monitoring is on — the assistant will listen again at intervals</p>}
+            {listening ? <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">● Microphone active — listening</p> : fullChat && autoListen && <p className="mt-1.5 text-center text-[10px] text-emerald-700">Voice monitoring is on</p>}
           </div>
         </div>
       )}
