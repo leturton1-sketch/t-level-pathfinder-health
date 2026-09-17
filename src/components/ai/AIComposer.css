@@ -1,3 +1,8 @@
+.ai-composer-compact { @apply flex h-11 items-center gap-1.5 rounded-2xl border border-white/90 bg-slate-100/95 p-1.5 text-slate-700; box-shadow: 7px 7px 18px rgba(148,163,184,.24), -6px -6px 16px rgba(255,255,255,.92), inset 1px 1px 0 rgba(255,255,255,.9); }
+.ai-composer-compact-input { @apply min-w-0 flex-1 bg-transparent px-2 text-sm text-slate-800 outline-none placeholder:text-slate-400; }
+.ai-composer-compact-mic { @apply grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-clinical-teal text-white transition hover:scale-105; box-shadow: 3px 3px 8px rgba(15,118,110,.28); }
+.ai-composer-compact-mic.is-listening { @apply animate-pulse bg-red-500; }
+.ai-composer-compact-send { @apply grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-blue-600 text-white transition hover:scale-105 disabled:opacity-40; }
 .ai-composer-shell {
     @apply relative rounded-[22px] border border-white/90 bg-slate-100/95 p-2.5 text-slate-700;
     box-shadow: 10px 10px 24px rgba(148, 163, 184, .28), -8px -8px 20px rgba(255, 255, 255, .96), inset 1px 1px 0 rgba(255, 255, 255, .9);
