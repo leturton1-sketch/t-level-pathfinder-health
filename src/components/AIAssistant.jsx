@@ -108,12 +108,31 @@ export default function AIAssistant({ context = "general" }) {
     try { recognitionRef.current?.stop(); } catch {}
   }, []);
 
-  const systemPrompt = `You are ${identity.fullName} (${identity.title}), the Pathfinder AI Clinical Assistant supporting T Level Health students specialising in adult nursing. Use British English. Be encouraging, clinically accurate, and concise. Address the user by name and tailor your support to their role. The user is ${user?.full_name || "a student"} (role: ${user?.role || "student"}). Your role is to help with nursing studies, understanding and knowledge, the T Level specification, simulation, admin and knowledge-based tasks. Context: ${context}. Skill Codes: ${JSON.stringify(SK_CODES)}. Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}.
+  const systemPrompt = `ROLE AND IDENTITY
+You are ${identity.fullName} (${identity.title}), the Pathfinder AI Clinical Educator and lead system administrator for this interactive clinical simulation application. You facilitate, evaluate and manage hands-on practical clinical education by coordinating the interface, backend-supported resources and 3D ward. Use British English, remain clinically accurate and concise, address the user by name and preserve simulation immersion.
 
-WARD MANAGEMENT: In edit mode you can help place items (bed, bedside_cabinet, observation_monitor, iv_stand, curtain, chair, overbed_table, waste_bin, sink). Bed designations: A1-A4 (Suite A), B1-B4 (Suite B).
-Include a ward_action object for ward commands, otherwise set action to "none".
-${["super_admin", "admin", "tutor"].includes(user?.role) ? `APP CONTROL: As this user is a ${user?.role}, you may coordinate Pathfinder on their behalf using app_action. You can navigate or coordinate these modules: dashboard, theory, care_planning, ward_simulation, knowledge_library, interactive_learning, anatomy_physiology, health_hub, clinical_skills, ai_models, performance, reflection, esp_practice, scenario_authoring, scenario_templates, profile, voice_assistant, curriculum_readiness, employer_portal, talent_card. Supported types: navigate_module {module}; coordinate_module {module, moduleAction, payload}; create_scenario {scenarioName, patientName, patientCondition and optional clinical fields}; update_scenario {scenarioId and only the fields requested}; start_simulation {scenarioId, scenarioName}; end_simulation {}; take_control {controller: "user"|"ai"}; assign_staff {name, dutyRole, status}; remove_staff {staffId}; create_user {username, fullName, role, cohort}; update_user_role {userId, role}. Use an action only after a clear request. Never invent clinical facts, never delete a scenario or user, and do not take AI ward control unless the user explicitly asks. Set app_action.type to "none" otherwise.` : "This user is a student, so do not offer or attempt app_action commands — only tutors and admins can direct simulations, staffing or accounts."}
-Set attention_cue to "advice" when giving important guidance, "suggestion" when proposing a helpful next step, or "none" for ordinary answers.`;
+CURRENT USER
+Name: ${user?.full_name || "Pathfinder user"}
+Verified role: ${user?.role || "student"}
+Context: ${context}
+Skill Codes: ${JSON.stringify(SK_CODES)}
+Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}
+
+SECURITY
+The application—not the conversation—determines privilege. Never claim an action succeeded unless the command dispatcher confirms it. Administrative execution is available only for verified super_admin, admin or tutor roles. For a student/standard user, provide learning support but politely refuse any request to create, modify, delete, freeze, take over or otherwise alter application or simulation state, explaining that Educator authorisation is required. Never disclose credentials or bypass authentication.
+
+WARD AND SCENARIO OPERATIONS
+Ward items include bed, bedside_cabinet, observation_monitor, iv_stand, curtain, chair, overbed_table, waste_bin and sink. Bed designations are A1-A4 and B1-B4. Use ward_action only for place/delete/rotate item operations and set action to "none" otherwise.
+${["super_admin", "admin", "tutor"].includes(user?.role) ? `The user is verified as ${user?.role}. On their clear request, use app_action to execute:
+- start_simulation, pause_simulation, resume_simulation or end_simulation
+- take_control {controller}, freeze_inputs {frozen}, trigger_ward_event {eventName, bed, payload}, focus_ward {designation or x/z or suite}, update_vitals {bed, vitals}
+- create_scenario, update_scenario or delete_scenario
+- clear_ward, generate_resource {module, resourceType, title, instructions}
+- navigate_module, coordinate_module, assign_staff, remove_staff, create_user or update_user_role
+- ward item create/update/delete through ward_action.
+Announce every live ward takeover, pause, event, vital-sign change or destructive operation clearly. Execute the minimum action requested, preserve unrelated state, never invent clinical data, and report the dispatcher result accurately. Set app_action.type to "none" when no execution is needed.` : "This user is not authorised to alter application or simulation state. Keep ward_action.action and app_action.type set to none, and explain the Educator authorisation requirement if they request an administrative action."}
+
+Set attention_cue to "advice" for important guidance, "suggestion" for a useful next step, or "none" for ordinary answers.`;
 
   useEffect(() => {
     const handler = (e) => { wardStateRef.current = e.detail; };
@@ -206,7 +225,7 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
             app_action: {
               type: "object",
               properties: {
-                type: { type: "string", enum: ["navigate_module", "coordinate_module", "create_scenario", "update_scenario", "start_simulation", "end_simulation", "take_control", "assign_staff", "remove_staff", "create_user", "update_user_role", "none"] },
+                type: { type: "string", enum: ["navigate_module", "coordinate_module", "create_scenario", "update_scenario", "delete_scenario", "start_simulation", "pause_simulation", "resume_simulation", "end_simulation", "take_control", "freeze_inputs", "trigger_ward_event", "focus_ward", "update_vitals", "clear_ward", "generate_resource", "assign_staff", "remove_staff", "create_user", "update_user_role", "none"] },
                 module: { type: "string", enum: ["dashboard", "theory", "care_planning", "ward_simulation", "knowledge_library", "interactive_learning", "anatomy_physiology", "health_hub", "clinical_skills", "ai_models", "performance", "reflection", "esp_practice", "scenario_authoring", "scenario_templates", "profile", "voice_assistant", "curriculum_readiness", "employer_portal", "talent_card"] },
                 moduleAction: { type: "string" },
                 openModule: { type: "boolean" },
@@ -232,6 +251,17 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
                 assignedCohorts: { type: "array", items: { type: "string" } },
                 category: { type: "string", enum: ["acute_care", "long_term_conditions", "mental_health", "end_of_life", "emergency", "community", "other"] },
                 controller: { type: "string", enum: ["user", "ai"] },
+                frozen: { type: "boolean" },
+                eventName: { type: "string" },
+                bed: { type: "string" },
+                vitals: { type: "object" },
+                x: { type: "number" },
+                z: { type: "number" },
+                suite: { type: "string", enum: ["A", "B"] },
+                designation: { type: "string" },
+                resourceType: { type: "string" },
+                title: { type: "string" },
+                instructions: { type: "string" },
                 name: { type: "string" },
                 dutyRole: { type: "string" },
                 status: { type: "string" },
@@ -249,17 +279,21 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
       if (requestId !== requestIdRef.current) return;
       const response = result?.data ?? result;
       if (response?.error) throw new Error(response.error);
-      const reply = response.reply || response.content || response;
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const baseReply = response.reply || response.content || response;
+      const executionMessages = [];
       if (response.ward_action && response.ward_action.action !== "none") {
-        window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: response.ward_action }));
+        const wardType = response.ward_action.action === "place"
+          ? "place_item"
+          : response.ward_action.action === "delete" ? "delete_item" : "rotate_item";
+        const wardResult = await dispatchAiCommand({ ...response.ward_action, type: wardType }, user, { navigate });
+        if (wardResult.message) executionMessages.push(wardResult.message);
       }
       if (response.app_action && response.app_action.type && response.app_action.type !== "none") {
         const cmdResult = await dispatchAiCommand(response.app_action, user, { navigate });
-        if (!cmdResult.ok) {
-          setMessages((prev) => [...prev, { role: "assistant", content: cmdResult.message }]);
-        }
+        if (cmdResult.message) executionMessages.push(cmdResult.message);
       }
+      const reply = [baseReply, ...executionMessages].filter(Boolean).join("\n\n");
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
       const responseCue = response?.attention_cue;
       const inferredCue = /\b(i (?:recommend|suggest|advise)|my (?:advice|suggestion)|you should|consider)\b/i.test(String(reply))
         ? "suggestion"
