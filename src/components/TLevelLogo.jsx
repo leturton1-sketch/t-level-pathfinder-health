@@ -11,7 +11,7 @@ const LOGOS = {
   white: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/4852697b2_TLevel-Logo-White.png",
   whiteStrapline: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/e326bdc6f_TLevel-Logo-WhiteWithStrapline.png",
   red: "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/2919fffdc_TLevel-Logo-RedWithStrapline.png",
-  emblem: "/branding/tl-emblem.png",
+  emblem: "/branding/tlevel-industry-academy-silver.jpg",
 };
 
 const SIZE_MAP = {
