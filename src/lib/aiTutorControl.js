@@ -12,7 +12,10 @@
  */
 
 import { base44 } from "@/api/base44Client";
-import { startSimulation, endSimulation, setSimulationController, assignStaff, removeStaff } from "@/lib/simulationState";
+import {
+  getSimulationState, startSimulation, endSimulation, pauseSimulation, resumeSimulation,
+  setSimulationController, setSimulationInputFrozen, setSimulationEvent, assignStaff, removeStaff,
+} from "@/lib/simulationState";
 
 const STAFF_ROLE = ["super_admin", "admin", "tutor"];
 
@@ -46,6 +49,17 @@ function canControl(user) {
   return STAFF_ROLE.includes(user?.role);
 }
 
+function announceEducatorAction(message, level = "info") {
+  window.dispatchEvent(new CustomEvent("pathfinder:educator-announcement", {
+    detail: { message, level, source: "Pathfinder AI Clinical Educator", timestamp: Date.now() },
+  }));
+}
+
+function completed(message, { announce = true, level = "info", data } = {}) {
+  if (announce) announceEducatorAction(message, level);
+  return { ok: true, message, ...(data === undefined ? {} : { data }) };
+}
+
 /**
  * Dispatch an AI-originated command.
  * @param {{type: string, [key: string]: any}} command
@@ -55,7 +69,10 @@ function canControl(user) {
 export async function dispatchAiCommand(command, user, { navigate } = {}) {
   if (!command || command.type === "none") return { ok: true, message: "" };
   if (!canControl(user)) {
-    return { ok: false, message: "Only a tutor or admin (or the AI tutor acting on their behalf) can do that." };
+    return {
+      ok: false,
+      message: "I can help you learn, but this action changes the simulation environment and requires verified Educator or Administrator authorisation.",
+    };
   }
 
   switch (command.type) {
@@ -163,21 +180,95 @@ export async function dispatchAiCommand(command, user, { navigate } = {}) {
         action: command.type === "place_item" ? "place" : command.type === "delete_item" ? "delete" : "rotate",
         itemType: command.itemType, designation: command.designation, direction: command.direction,
       } }));
-      return { ok: true, message: "Ward layout updated." };
+      return completed("The Clinical Educator has updated the ward layout.");
 
-    case "start_simulation":
+    case "start_simulation": {
+      const label = command.scenarioName || command.scenarioId || "clinical";
       startSimulation({ controller: "ai", scenarioId: command.scenarioId, scenarioName: command.scenarioName });
       window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "start-simulation", scenarioId: command.scenarioId, scenarioName: command.scenarioName } }));
-      return { ok: true, message: `Simulation "${command.scenarioName || command.scenarioId}" started.` };
+      return completed(`The Clinical Educator has started the "${label}" simulation and now controls the ward.`);
+    }
+
+    case "pause_simulation":
+      if (!getSimulationState().running) return { ok: false, message: "There is no active simulation to pause." };
+      pauseSimulation();
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "pause-simulation" } }));
+      return completed("The Clinical Educator has paused the simulation. Student actions are temporarily held.", { level: "warning" });
+
+    case "resume_simulation":
+      if (!getSimulationState().running) return { ok: false, message: "There is no active simulation to resume." };
+      resumeSimulation();
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "resume-simulation" } }));
+      return completed("The Clinical Educator has resumed the simulation.");
 
     case "end_simulation":
       endSimulation();
       window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "end-simulation" } }));
-      return { ok: true, message: "Simulation ended." };
+      return completed("The Clinical Educator has ended the simulation and cleared the live simulation state.", { level: "warning" });
 
-    case "take_control":
-      setSimulationController(command.controller === "user" ? "user" : "ai");
-      return { ok: true, message: `Control handed to ${command.controller === "user" ? "the user" : "the AI tutor"}.` };
+    case "take_control": {
+      const controller = command.controller === "user" ? "user" : "ai";
+      setSimulationController(controller);
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "take-control", controller } }));
+      return completed(controller === "user"
+        ? "The Clinical Educator has handed ward control back to the user."
+        : "The Clinical Educator has taken control of the ward.", { level: controller === "ai" ? "warning" : "info" });
+    }
+
+    case "freeze_inputs": {
+      if (!getSimulationState().running) return { ok: false, message: "Start a simulation before freezing student controls." };
+      const frozen = command.frozen !== false;
+      setSimulationInputFrozen(frozen);
+      return completed(frozen
+        ? "The Clinical Educator has frozen student ward controls."
+        : "The Clinical Educator has restored student ward controls.", { level: frozen ? "warning" : "info" });
+    }
+
+    case "trigger_ward_event": {
+      if (!getSimulationState().running) return { ok: false, message: "Start a simulation before triggering a ward event." };
+      const eventName = String(command.eventName || "clinical event").trim();
+      setSimulationEvent({ name: eventName, bed: command.bed || null, payload: command.payload || null, triggeredAt: Date.now() });
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "trigger-event", eventName, bed: command.bed, payload: command.payload } }));
+      return completed(`Clinical Educator override: ${eventName} has been triggered${command.bed ? ` at ${command.bed}` : ""}.`, { level: "warning" });
+    }
+
+    case "focus_ward": {
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: {
+        action: "focus", designation: command.designation, x: command.x, z: command.z, suite: command.suite,
+      } }));
+      return completed("The Clinical Educator has focused the ward view on the requested clinical activity.");
+    }
+
+    case "update_vitals": {
+      if (!command.vitals || typeof command.vitals !== "object") return { ok: false, message: "Provide the vital-sign values to apply." };
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: {
+        action: "update-vitals", bed: command.bed, vitals: command.vitals,
+      } }));
+      return completed(`The Clinical Educator has updated the live observations${command.bed ? ` for ${command.bed}` : ""}.`, { level: "warning" });
+    }
+
+    case "clear_ward":
+      window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "clear-ward" } }));
+      return completed("The Clinical Educator has cleared user-generated ward items.", { level: "warning" });
+
+    case "generate_resource":
+      window.dispatchEvent(new CustomEvent("pathfinder:module-command", { detail: {
+        module: command.module || "interactive_learning",
+        action: "generate-resource",
+        payload: { resourceType: command.resourceType, title: command.title, instructions: command.instructions },
+        source: "clinical-educator",
+      } }));
+      return completed(`The Clinical Educator has generated the requested ${command.resourceType || "learning resource"}.`);
+
+    case "delete_scenario":
+      if (!command.scenarioId) return { ok: false, message: "A scenario id is required before I can remove it." };
+      try {
+        await base44.entities.Scenario.delete(command.scenarioId);
+        window.dispatchEvent(new CustomEvent("pathfinder:scenario-change", { detail: { action: "deleted", scenarioId: command.scenarioId } }));
+        return completed("The Clinical Educator has removed the selected scenario.", { level: "warning" });
+      } catch {
+        return { ok: false, message: "I could not remove that scenario. It may be protected or no longer available." };
+      }
 
     case "assign_staff":
       if (!command.name || !command.dutyRole) return { ok: false, message: "A name and duty role are needed to assign staff." };
