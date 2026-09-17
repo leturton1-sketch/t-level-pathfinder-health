@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import AudioVisualizer from "@/components/voice/AudioVisualizer";
 
 const LABELS = {
   first_use: "Welcome to Pathfinder AI",
@@ -124,9 +123,6 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
           <button type="button" className="educator-turn-reset" onClick={() => setRotation(0)}>
             <span aria-hidden="true">↻</span> Drag to rotate · {Math.round(rotation)}°
           </button>
-          <div className="educator-voice-visualizer">
-            <AudioVisualizer state={connectedState} bars={18} />
-          </div>
         </div>
         <div className="educator-video-status" role="status" aria-live="polite">
           <span className="educator-video-live" aria-hidden="true" />
