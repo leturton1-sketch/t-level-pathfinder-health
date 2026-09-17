@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import "./FloatingAICompanion.css";
 
 const POSITION_KEY = "pathfinder-clinical-ai-companion-position";
@@ -35,11 +36,14 @@ export default function FloatingAICompanion({
   attentionKind = "none",
   onActivate,
 }) {
+  const { pathname } = useLocation();
   const widgetRef = useRef(null);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
   const clickTimerRef = useRef(null);
-  const positionRef = useRef(loadPosition());
+  const savedPositionRef = useRef(loadPosition());
+  const customPositionRef = useRef(Boolean(savedPositionRef.current));
+  const positionRef = useRef(savedPositionRef.current);
   const [position, setPositionState] = useState(positionRef.current);
   const [minimized, setMinimized] = useState(loadMinimized);
 
@@ -49,6 +53,10 @@ export default function FloatingAICompanion({
   };
 
   useEffect(() => () => window.clearTimeout(clickTimerRef.current), []);
+
+  useEffect(() => {
+    if (!customPositionRef.current) setPosition(dockPosition(minimized));
+  }, [pathname, minimized]);
 
   useEffect(() => {
     const clamp = () => {
@@ -109,6 +117,7 @@ export default function FloatingAICompanion({
     dragRef.current = null;
     if (movedRef.current) {
       const snapped = snapToNearbyEdge(positionRef.current || dockPosition(minimized));
+      customPositionRef.current = true;
       setPosition(snapped);
       localStorage.setItem(POSITION_KEY, JSON.stringify(snapped));
       return;
@@ -120,11 +129,13 @@ export default function FloatingAICompanion({
   const toggleMinimized = () => {
     window.clearTimeout(clickTimerRef.current);
     const nextMinimized = !minimized;
-    const docked = dockPosition(nextMinimized);
+    const nextPosition = customPositionRef.current
+      ? snapToNearbyEdge(positionRef.current || dockPosition(nextMinimized))
+      : dockPosition(nextMinimized);
     setMinimized(nextMinimized);
-    setPosition(docked);
+    setPosition(nextPosition);
     localStorage.setItem(MINIMIZED_KEY, String(nextMinimized));
-    localStorage.setItem(POSITION_KEY, JSON.stringify(docked));
+    if (customPositionRef.current) localStorage.setItem(POSITION_KEY, JSON.stringify(nextPosition));
   };
 
   const onDoubleClick = (event) => {
