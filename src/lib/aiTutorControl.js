@@ -251,14 +251,31 @@ export async function dispatchAiCommand(command, user, { navigate } = {}) {
       window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: { action: "clear-ward" } }));
       return completed("The Clinical Educator has cleared user-generated ward items.", { level: "warning" });
 
-    case "generate_resource":
-      window.dispatchEvent(new CustomEvent("pathfinder:module-command", { detail: {
-        module: command.module || "interactive_learning",
-        action: "generate-resource",
-        payload: { resourceType: command.resourceType, title: command.title, instructions: command.instructions },
-        source: "clinical-educator",
-      } }));
-      return completed(`The Clinical Educator has generated the requested ${command.resourceType || "learning resource"}.`);
+    case "generate_resource": {
+      if (!command.title || !command.instructions) {
+        return { ok: false, message: "A title and clear content instructions are required to generate a learning resource." };
+      }
+      try {
+        const resource = await base44.entities.KnowledgeArticle.create({
+          title: command.title.trim(),
+          category: "specification",
+          content: command.instructions,
+          sk_codes: Array.isArray(command.skCodes) ? command.skCodes : [],
+          performance_outcomes: Array.isArray(command.performanceOutcomes) ? command.performanceOutcomes : [],
+          references: [],
+          source: "Pathfinder AI Clinical Educator",
+        });
+        window.dispatchEvent(new CustomEvent("pathfinder:module-command", { detail: {
+          module: command.module || "knowledge_library",
+          action: "resource-created",
+          payload: { resourceType: command.resourceType, resource },
+          source: "clinical-educator",
+        } }));
+        return completed(`The Clinical Educator has created "${command.title}" and saved it to the Knowledge Library.`, { data: resource });
+      } catch {
+        return { ok: false, message: "I could not save that learning resource. Please check the title and content." };
+      }
+    }
 
     case "delete_scenario":
       if (!command.scenarioId) return { ok: false, message: "A scenario id is required before I can remove it." };
