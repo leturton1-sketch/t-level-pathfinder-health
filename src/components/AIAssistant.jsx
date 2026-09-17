@@ -17,6 +17,8 @@ const AI_STATES = {
   thinking: { label: "Thinking…", color: "text-clinical-amber" },
   speaking: { label: "Speaking…", color: "text-clinical-green" },
   listening: { label: "Listening…", color: "text-clinical-teal" },
+  complete: { label: "Task complete", color: "text-emerald-600" },
+  offline: { label: "Offline · standby", color: "text-slate-500" },
 };
 
 // Module-scope Waveform avoids re-creating the component on every parent render.
@@ -86,6 +88,7 @@ export default function AIAssistant({ context = "general" }) {
   const listeningRef = useRef(false);
   const autoListenRef = useRef(autoListen);
   const listenTimerRef = useRef(null);
+  const completionTimerRef = useRef(null);
   const assistantStateRef = useRef(state);
   const mutedRef = useRef(muted);
   const wardStateRef = useRef(null);
@@ -104,6 +107,7 @@ export default function AIAssistant({ context = "general" }) {
 
   useEffect(() => () => {
     window.clearTimeout(listenTimerRef.current);
+    window.clearTimeout(completionTimerRef.current);
     listeningRef.current = false;
     try { recognitionRef.current?.stop(); } catch {}
   }, []);
@@ -176,15 +180,24 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
     }
   };
 
+  const showCompletion = () => {
+    window.clearTimeout(completionTimerRef.current);
+    setState("complete");
+    completionTimerRef.current = window.setTimeout(
+      () => setState(listeningRef.current ? "listening" : "idle"),
+      1800,
+    );
+  };
+
   const speak = async (text) => {
-    if (mutedRef.current) { setState("idle"); return; }
+    if (mutedRef.current) { showCompletion(); return; }
     // Show "thinking" while cloud TTS is being generated; switch to "speaking"
     // only when the audio actually starts, so the waveform animation matches
     // the real playback duration.
     setState("thinking");
     await synth.speak(text, {
       onStart: () => setState("speaking"),
-      onEnd: () => setState(listeningRef.current ? "listening" : "idle"),
+      onEnd: showCompletion,
     });
   };
 
@@ -314,7 +327,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
     } catch {
       if (requestId !== requestIdRef.current) return;
       setMessages((prev) => [...prev, { role: "assistant", content: "I apologise — I'm having trouble connecting right now. Please try again." }]);
-      setState("idle");
+      setState("offline");
       if (listeningRef.current) { try { recognitionRef.current?.start(); } catch {} }
     }
   };
