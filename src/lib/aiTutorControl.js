@@ -18,6 +18,10 @@ import {
 } from "@/lib/simulationState";
 
 const STAFF_ROLE = ["super_admin", "admin", "tutor"];
+const VERIFIED_SUPER_ADMIN_EMAILS = new Set([
+  "lee.turton@academic.rnngroup.ac.uk",
+  "leturton1@gmail.com",
+]);
 
 export const AI_MODULE_ROUTES = Object.freeze({
   dashboard: "/",
@@ -49,6 +53,29 @@ function canControl(user) {
   return STAFF_ROLE.includes(user?.role);
 }
 
+async function hasVerifiedControlPrivilege(user) {
+  if (!canControl(user)) return false;
+  try {
+    const platformUser = await base44.auth.me();
+    if (!platformUser?.id) return false;
+    const platformEmail = String(platformUser.email || "").toLowerCase().trim();
+    const sessionEmail = String(user?.email || "").toLowerCase().trim();
+
+    if (user?.role === "super_admin" && VERIFIED_SUPER_ADMIN_EMAILS.has(platformEmail) && (!sessionEmail || sessionEmail === platformEmail)) {
+      return true;
+    }
+
+    const persistedUser = user?.id ? await base44.entities.AppUser.get(user.id) : null;
+    return Boolean(
+      persistedUser?.active !== false
+      && STAFF_ROLE.includes(persistedUser?.role)
+      && (!sessionEmail || !platformEmail || sessionEmail === platformEmail)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function announceEducatorAction(message, level = "info") {
   window.dispatchEvent(new CustomEvent("pathfinder:educator-announcement", {
     detail: { message, level, source: "Pathfinder AI Clinical Educator", timestamp: Date.now() },
@@ -68,7 +95,7 @@ function completed(message, { announce = true, level = "info", data } = {}) {
  */
 export async function dispatchAiCommand(command, user, { navigate } = {}) {
   if (!command || command.type === "none") return { ok: true, message: "" };
-  if (!canControl(user)) {
+  if (!(await hasVerifiedControlPrivilege(user))) {
     return {
       ok: false,
       message: "I can help you learn, but this action changes the simulation environment and requires verified Educator or Administrator authorisation.",
