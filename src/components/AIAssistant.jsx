@@ -336,25 +336,24 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
     }
   };
 
-  const toggleVoice = () => {
-    if (listeningRef.current) {
-      listeningRef.current = false;
-      recognitionRef.current?.stop();
-      setListening(false);
-      setState("idle");
-      return;
-    }
-    startRecognition();
-  };
-
   const toggleAutoListen = () => {
     const enabled = !autoListenRef.current;
     autoListenRef.current = enabled;
     setAutoListen(enabled);
     window.localStorage.setItem("clinicaledge-auto-listen", String(enabled));
     window.clearTimeout(listenTimerRef.current);
-    if (enabled) startRecognition();
-    else {
+
+    if (enabled) {
+      setState("speaking");
+      synth.speak("Voice control is on. I am your Pathfinder Clinical Educator and I am listening.", {
+        onStart: () => setState("speaking"),
+        onEnd: () => {
+          if (autoListenRef.current) startRecognition();
+          else setState("idle");
+        },
+      });
+    } else {
+      synth.stop();
       listeningRef.current = false;
       try { recognitionRef.current?.stop(); } catch {}
       setListening(false);
@@ -363,10 +362,23 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
   };
 
   useEffect(() => {
-    if (autoListen) scheduleNextListen();
-    else window.clearTimeout(listenTimerRef.current);
+    const handleVoiceToggle = () => toggleAutoListen();
+    window.addEventListener("pathfinder:ai-voice-toggle", handleVoiceToggle);
+    return () => window.removeEventListener("pathfinder:ai-voice-toggle", handleVoiceToggle);
+  });
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("pathfinder:ai-voice-state", {
+      detail: { enabled: autoListen, listening },
+    }));
+    document.body.dataset.voiceControl = autoListen ? (listening ? "listening" : "on") : "off";
+  }, [autoListen, listening]);
+
+  useEffect(() => {
+    if (autoListen && !listening && state !== "speaking" && state !== "thinking") scheduleNextListen();
+    else if (!autoListen) window.clearTimeout(listenTimerRef.current);
     return () => window.clearTimeout(listenTimerRef.current);
-  }, [autoListen]);
+  }, [autoListen, listening, state]);
 
   const toggleMute = () => {
     const newMuted = !muted;
@@ -534,19 +546,19 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
               inputMode={inputMode}
               onInputModeChange={(mode) => {
                 setInputMode(mode);
-                if (mode === "voice") toggleVoice();
-                else if (listening) toggleVoice();
+                if (mode === "voice" && !autoListenRef.current) toggleAutoListen();
+                else if (mode === "text" && autoListenRef.current) toggleAutoListen();
               }}
-              isListening={listening}
-              onVoicePress={toggleVoice}
+              isListening={listening || autoListen}
+              onVoicePress={toggleAutoListen}
               compact={!fullChat}
               leadingControls={<>
-                <button onClick={toggleVoice} className={`ai-composer-plus ${listening || autoListen ? "animate-pulse !border-red-300 !bg-red-50 !text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
+                <button onClick={toggleAutoListen} className={`ai-composer-plus ${listening || autoListen ? "animate-pulse !border-red-300 !bg-red-50 !text-red-600" : ""}`} aria-label={autoListen ? "Turn off Clinical Educator voice control" : "Turn on Clinical Educator voice control"}><Mic className="h-3.5 w-3.5" /></button>
                 <button onClick={toggleMute} className={`ai-composer-plus ${muted ? "text-red-600" : ""}`} aria-label={muted ? "Enable assistant speech" : "Mute assistant speech"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
                 <button onClick={handleStopSpeaking} disabled={state !== "speaking"} className="ai-composer-plus disabled:opacity-30" aria-label="Stop speaking"><Square className="h-3.5 w-3.5" /></button>
               </>}
             />
-            {listening ? <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">● Microphone active — listening</p> : fullChat && autoListen && <p className="mt-1.5 text-center text-[10px] text-emerald-700">Voice monitoring is on</p>}
+            {autoListen && <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">{listening ? "● Microphone active — Clinical Educator is listening" : "● Voice control active — awaiting your command"}</p>}
           </div>
         </div>
       )}
