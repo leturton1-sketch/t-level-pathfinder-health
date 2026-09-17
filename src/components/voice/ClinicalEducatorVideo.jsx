@@ -16,15 +16,14 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
   const [distorting, setDistorting] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [isTurning, setIsTurning] = useState(false);
-  const normalisedVoiceState = voiceState === "offline" ? "unresponsive" : voiceState;
-  const connectedState = speaking ? "speaking" : normalisedVoiceState;
+  const connectedState = speaking ? "speaking" : voiceState;
   const activeCue = LABELS[cue] ? cue : "neutral";
   const stateLabel = connectedState === "speaking"
     ? "Speaking with you"
     : connectedState === "listening"
       ? "Listening to your question"
-      : connectedState === "unresponsive"
-        ? "Connection interrupted — awaiting recovery"
+      : connectedState === "offline" || connectedState === "unresponsive"
+        ? "Offline — standby mode"
         : connectedState === "working" || connectedState === "voicing"
           ? "Preparing your clinical learning response"
           : LABELS[activeCue];
@@ -118,6 +117,26 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
               <span className="tattoo-light tattoo-light-left" />
               <span className="tattoo-light tattoo-light-right" />
               <span className="tattoo-light tattoo-light-owl" />
+            </div>
+            <div className="educator-state-effects" aria-hidden="true">
+              <div className="educator-heartbeat">
+                <span className="educator-stethoscope-pulse" />
+                <svg viewBox="0 0 240 44" preserveAspectRatio="none"><polyline points="0,23 48,23 58,12 68,34 79,4 92,38 104,23 240,23" /></svg>
+              </div>
+              <div className="educator-dna">
+                <span className="dna-strand dna-strand-a" />
+                <span className="dna-strand dna-strand-b" />
+                {Array.from({ length: 9 }).map((_, index) => <i key={index} style={{ "--dna-index": index }} />)}
+                <b>PROCESSING DATA</b>
+              </div>
+              <div className="educator-completion">
+                <span className="completion-ripple completion-ripple-a" />
+                <span className="completion-ripple completion-ripple-b" />
+                <strong>✓</strong><b>TASK COMPLETE</b>
+              </div>
+              <div className="educator-rest-bubbles">
+                <span /><span /><span /><b>STANDBY</b>
+              </div>
             </div>
           </div>
           <button type="button" className="educator-turn-reset" onClick={() => setRotation(0)}>
