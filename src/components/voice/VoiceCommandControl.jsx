@@ -1,17 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Mic, MicOff } from "lucide-react";
-import { useVoiceCommands } from "@/hooks/useVoiceCommands";
 
 /**
- * Global "voice control" toggle for the app header. Deliberately generic
- * (mic icon, plain "Voice control" label) rather than another Pathfinder AI
- * entry point — the two are separate features that happen to share speech
- * infrastructure.
+ * The header microphone is a remote control for the persistent Pathfinder
+ * Clinical Educator. Both controls now share one recognition session and
+ * one response path, avoiding competing microphones and duplicate notices.
  */
-export default function VoiceCommandControl({ onToggleNav }) {
-  const { supported, enabled, listening, toggle } = useVoiceCommands({ onToggleNav });
+export default function VoiceCommandControl() {
+  const [supported, setSupported] = useState(false);
+  const [enabled, setEnabled] = useState(false);
+  const [listening, setListening] = useState(false);
 
-  // Surface listening state to assistive tech without a visible layout shift.
+  useEffect(() => {
+    setSupported(Boolean(window.SpeechRecognition || window.webkitSpeechRecognition));
+    const handleState = (event) => {
+      setEnabled(Boolean(event.detail?.enabled));
+      setListening(Boolean(event.detail?.listening));
+    };
+    window.addEventListener("pathfinder:ai-voice-state", handleState);
+    return () => window.removeEventListener("pathfinder:ai-voice-state", handleState);
+  }, []);
+
   useEffect(() => {
     document.body.dataset.voiceControl = enabled ? (listening ? "listening" : "on") : "off";
   }, [enabled, listening]);
@@ -23,13 +32,13 @@ export default function VoiceCommandControl({ onToggleNav }) {
       type="button"
       className="pf-icon-button pf-voice-control"
       aria-pressed={enabled}
-      aria-label={enabled ? "Turn off voice control" : "Turn on voice control"}
-      title={enabled ? (listening ? "Voice control on – listening" : "Voice control on") : "Voice control"}
-      onClick={toggle}
+      aria-label={enabled ? "Turn off Clinical Educator voice control" : "Turn on Clinical Educator voice control"}
+      title={enabled ? (listening ? "Clinical Educator is listening" : "Clinical Educator voice control on") : "Start Clinical Educator voice control"}
+      onClick={() => window.dispatchEvent(new CustomEvent("pathfinder:ai-voice-toggle"))}
     >
       {enabled ? <Mic size={20} /> : <MicOff size={20} />}
       <span aria-live="polite" className="sr-only">
-        {enabled ? (listening ? "Voice control on, listening" : "Voice control on") : "Voice control off"}
+        {enabled ? (listening ? "Clinical Educator voice control on, listening" : "Clinical Educator voice control on") : "Clinical Educator voice control off"}
       </span>
     </button>
   );
