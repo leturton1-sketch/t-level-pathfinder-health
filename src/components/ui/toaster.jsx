@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { playUISound } from "@/lib/uiSound";
 import {
   Toast,
   ToastClose,
@@ -10,6 +12,17 @@ import {
 
 export function Toaster() {
   const { toasts, dismiss } = useToast();
+  const heardRef = useRef(new Set());
+
+  useEffect(() => {
+    const unseen = toasts.filter((item) => !heardRef.current.has(item.id));
+    unseen.forEach((item) => {
+      playUISound(item.variant === "destructive" ? "error" : item.sound || "notification");
+      heardRef.current.add(item.id);
+    });
+    const visibleIds = new Set(toasts.map((item) => item.id));
+    heardRef.current = new Set([...heardRef.current].filter((id) => visibleIds.has(id)));
+  }, [toasts]);
 
   return (
     <ToastProvider duration={5000}>
