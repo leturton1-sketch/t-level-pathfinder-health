@@ -100,15 +100,15 @@
   transition:opacity .24s ease,filter .24s ease;
 }
 .educator-eye-light{
-  top:13.5%;
-  width:7px;
-  height:4px;
+  top:12.2%;
+  width:3px;
+  height:2px;
   border-radius:50%;
-  background:#67e8f9;
-  box-shadow:0 0 4px #22d3ee,0 0 9px rgba(34,211,238,.88);
+  background:#d9fdff;
+  box-shadow:0 0 2px #fff,0 0 4px rgba(34,211,238,.82);
 }
-.educator-eye-light-left{left:44.2%}
-.educator-eye-light-right{left:55.8%}
+.educator-eye-light-left{left:47.1%}
+.educator-eye-light-right{left:52.9%}
 .educator-rune-light{
   top:60.5%;
   width:11px;
@@ -125,7 +125,7 @@
 .educator-companion.is-speaking .educator-eye-light{animation:educator-eye-pulse 1.4s ease-in-out infinite}
 .educator-companion.is-speaking .educator-rune-light,
 .educator-companion.is-listening .educator-rune-light{animation:educator-rune-pulse 1.8s ease-in-out infinite}
-.is-minimized .educator-eye-light{width:4px;height:2px}
+.is-minimized .educator-eye-light{top:12.1%;width:2px;height:1px;box-shadow:0 0 2px rgba(34,211,238,.86)}
 .is-minimized .educator-rune-light{width:6px;height:10px}
 .educator-companion-echo{
   position:absolute;
