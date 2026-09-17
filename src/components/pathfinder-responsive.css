@@ -1,0 +1,58 @@
+
+/* Final responsive hardening: keep legacy and newer modules usable at every viewport. */
+.tlevel-emblem { filter:none !important; aspect-ratio:1 / 1; object-fit:contain; background:transparent !important; }
+.pf-global-brand-mark { width:46px !important; height:46px !important; filter:drop-shadow(0 4px 5px rgba(15,23,42,.22)) !important; }
+.pf-theme-active, .pf-app-root, .pf-app-frame { width:100%; max-width:100%; overflow-x:clip; }
+.pf-module, .pf-module > *, .pf-module main, .pf-module section { min-width:0; max-width:100%; }
+.pf-module img, .pf-module video, .pf-module canvas, .pf-module svg { max-width:100%; }
+.pf-module iframe { width:100%; max-width:100%; border:0; }
+.pf-module .recharts-responsive-container { min-width:0 !important; }
+.pf-theme-active [role="dialog"]:not(.pf-drawer) { width:min(calc(100vw - 24px),48rem); max-width:calc(100vw - 24px); }
+.pf-theme-active :is(input,textarea,select,button) { max-width:100%; }
+.pf-theme-active input[type="file"] { width:100%; }
+.pf-theme-active textarea { resize:vertical; }
+.pf-theme-active :is(pre,code) { overflow-wrap:anywhere; }
+.pf-theme-active pre { max-width:100%; overflow:auto; }
+.pf-theme-active :is(.overflow-x-auto,[data-radix-scroll-area-viewport]) { scrollbar-gutter:stable; }
+.pf-global-header { padding-left:max(24px,env(safe-area-inset-left)); padding-right:max(24px,env(safe-area-inset-right)); }
+.pf-global-workspace { padding-bottom:max(20px,env(safe-area-inset-bottom)); }
+
+@media (max-width: 1023px) {
+  .pf-theme-active [role="dialog"]:not(.pf-drawer) { max-height:calc(100dvh - 16px); }
+  .pf-module :is(.clinical-page-shell,.container,[class*="max-w-"]) { max-width:100%; }
+  .pf-module :is([class*="sticky"],[class*="fixed"]) { scroll-margin-top:80px; }
+}
+
+@media (max-width: 767px) {
+  .pf-global-header { padding-left:max(10px,env(safe-area-inset-left)); padding-right:max(10px,env(safe-area-inset-right)); }
+  .pf-global-brand > img.pf-global-brand-mark { display:block; width:38px !important; height:38px !important; margin-right:8px; }
+  .pf-global-header-actions > img { display:none; }
+  .pf-global-brand small { max-width:42vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pf-module h1 { font-size:clamp(1.45rem,7vw,2rem); line-height:1.12; }
+  .pf-module h2 { font-size:clamp(1.2rem,5.5vw,1.55rem); line-height:1.2; }
+  .pf-module :is(table) { display:block; width:100%; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; }
+  .pf-module :is(th,td) { min-width:7.5rem; white-space:normal; vertical-align:top; }
+  .pf-module :is([class*="grid-cols-3"],[class*="grid-cols-4"],[class*="grid-cols-5"],[class*="grid-cols-6"]) { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .pf-theme-active [role="dialog"]:not(.pf-drawer) { width:calc(100vw - 12px); max-width:calc(100vw - 12px); margin:6px; border-radius:14px; }
+  .pf-theme-active [role="dialog"] :is(.flex.justify-end,.flex.justify-between) { flex-wrap:wrap; gap:8px; }
+  .pf-theme-active [role="dialog"] :is(button,[role="button"]) { flex-shrink:0; }
+  .pf-module :is([class*="px-8"],[class*="px-10"],[class*="px-12"]) { padding-left:16px !important; padding-right:16px !important; }
+  .pf-module :is([class*="p-8"],[class*="p-10"],[class*="p-12"]) { padding:16px !important; }
+  .pf-module :is([class*="gap-8"],[class*="gap-10"],[class*="gap-12"]) { gap:16px !important; }
+  .pf-voice-composer { padding-left:max(8px,env(safe-area-inset-left)); padding-right:max(8px,env(safe-area-inset-right)); }
+}
+
+@media (max-width: 479px) {
+  .pf-global-brand small { display:none; }
+  .pf-global-brand strong { font-size:16px; }
+  .pf-module :is([class*="grid-cols-2"],[class*="grid-cols-3"],[class*="grid-cols-4"],[class*="grid-cols-5"],[class*="grid-cols-6"]) { grid-template-columns:minmax(0,1fr) !important; }
+  .pf-module :is(button,[role="button"],a[class*="button"]) { overflow-wrap:anywhere; }
+  .pf-theme-active [role="dialog"] :is(button,[role="button"]) { width:100%; justify-content:center; }
+}
+
+@media (orientation:landscape) and (max-height:520px) {
+  .pf-global-header { min-height:56px; padding-top:4px; padding-bottom:4px; }
+  .pf-global-brand-mark { width:34px !important; height:34px !important; }
+  .pf-global-workspace { padding-top:6px; }
+  .pf-module > :first-child { min-height:calc(100dvh - 70px); }
+}
