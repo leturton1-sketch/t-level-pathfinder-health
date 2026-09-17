@@ -16,6 +16,32 @@ import { startSimulation, endSimulation, setSimulationController, assignStaff, r
 
 const STAFF_ROLE = ["super_admin", "admin", "tutor"];
 
+export const AI_MODULE_ROUTES = Object.freeze({
+  dashboard: "/",
+  theory: "/theory",
+  care_planning: "/care-planning",
+  ward_simulation: "/ward-simulation",
+  knowledge_library: "/knowledge-library",
+  interactive_learning: "/interactive-learning",
+  anatomy_physiology: "/anatomy-physiology",
+  health_hub: "/health-hub",
+  clinical_skills: "/clinical-skills-academy",
+  ai_models: "/ai-models",
+  performance: "/performance",
+  reflection: "/reflection",
+  esp_practice: "/esp-practice",
+  scenario_authoring: "/scenario-authoring",
+  scenario_templates: "/scenario-templates",
+  profile: "/profile",
+  voice_assistant: "/voice-assistant",
+  curriculum_readiness: "/curriculum-readiness",
+  employer_portal: "/employer-portal",
+  talent_card: "/talent-card",
+});
+
+const SCENARIO_DIFFICULTIES = ["guided", "intermediate", "independent"];
+const SCENARIO_CATEGORIES = ["acute_care", "long_term_conditions", "mental_health", "end_of_life", "emergency", "community", "other"];
+
 function canControl(user) {
   return STAFF_ROLE.includes(user?.role);
 }
@@ -26,13 +52,108 @@ function canControl(user) {
  * @param {{role?: string}} user - the acting user (tutor/admin), never a student.
  * @returns {{ok: boolean, message: string}}
  */
-export async function dispatchAiCommand(command, user) {
+export async function dispatchAiCommand(command, user, { navigate } = {}) {
   if (!command || command.type === "none") return { ok: true, message: "" };
   if (!canControl(user)) {
     return { ok: false, message: "Only a tutor or admin (or the AI tutor acting on their behalf) can do that." };
   }
 
   switch (command.type) {
+    case "navigate_module": {
+      const path = AI_MODULE_ROUTES[command.module];
+      if (!path) return { ok: false, message: "I could not find that Pathfinder module." };
+      navigate?.(path);
+      window.dispatchEvent(new CustomEvent("pathfinder:module-command", {
+        detail: { module: command.module, action: "open", payload: command.payload || null, source: "clinical-educator" },
+      }));
+      return { ok: true, message: `Opened ${command.module.replaceAll("_", " ")}.` };
+    }
+
+    case "coordinate_module": {
+      const path = AI_MODULE_ROUTES[command.module];
+      if (!path || !command.moduleAction) return { ok: false, message: "A valid module and action are required." };
+      if (command.openModule !== false) navigate?.(path);
+      window.dispatchEvent(new CustomEvent("pathfinder:module-command", {
+        detail: {
+          module: command.module,
+          action: command.moduleAction,
+          payload: command.payload || null,
+          source: "clinical-educator",
+          requestedBy: user?.id,
+        },
+      }));
+      return { ok: true, message: `Coordinating ${command.module.replaceAll("_", " ")}.` };
+    }
+
+    case "create_scenario": {
+      if (!command.scenarioName || !command.patientName || !command.patientCondition) {
+        return { ok: false, message: "A scenario name, patient name and patient condition are required." };
+      }
+      try {
+        const created = await base44.entities.Scenario.create({
+          name: command.scenarioName.trim(),
+          description: command.description || "",
+          difficulty: SCENARIO_DIFFICULTIES.includes(command.difficulty) ? command.difficulty : "guided",
+          estimated_duration: Number(command.estimatedDuration) || 15,
+          patient_name: command.patientName.trim(),
+          patient_age: Number(command.patientAge) || null,
+          patient_condition: command.patientCondition.trim(),
+          comorbidities: command.comorbidities || "",
+          medications: command.medications || "",
+          allergies: command.allergies || "",
+          bed_number: command.bedNumber || "",
+          initial_vitals: command.initialVitals || {},
+          initial_news2: Number(command.initialNews2) || 0,
+          decision_tree: command.decisionTree || "[]",
+          sk_codes: Array.isArray(command.skCodes) ? command.skCodes : [],
+          performance_outcomes: Array.isArray(command.performanceOutcomes) ? command.performanceOutcomes : [],
+          debrief_rationale: command.debriefRationale || "",
+          assigned_cohorts: Array.isArray(command.assignedCohorts) ? command.assignedCohorts : [],
+          is_custom: true,
+          creator_id: user?.id,
+          category: SCENARIO_CATEGORIES.includes(command.category) ? command.category : "other",
+        });
+        window.dispatchEvent(new CustomEvent("pathfinder:scenario-change", { detail: { action: "created", scenario: created } }));
+        return { ok: true, message: `Scenario "${command.scenarioName}" created.`, data: created };
+      } catch {
+        return { ok: false, message: "I could not create that scenario. Please check the required clinical details." };
+      }
+    }
+
+    case "update_scenario": {
+      if (!command.scenarioId) return { ok: false, message: "A scenario id is required before I can modify it." };
+      const allowed = {
+        name: command.scenarioName,
+        description: command.description,
+        difficulty: SCENARIO_DIFFICULTIES.includes(command.difficulty) ? command.difficulty : undefined,
+        estimated_duration: command.estimatedDuration ? Number(command.estimatedDuration) : undefined,
+        patient_name: command.patientName,
+        patient_age: command.patientAge ? Number(command.patientAge) : undefined,
+        patient_condition: command.patientCondition,
+        comorbidities: command.comorbidities,
+        medications: command.medications,
+        allergies: command.allergies,
+        bed_number: command.bedNumber,
+        initial_vitals: command.initialVitals,
+        initial_news2: command.initialNews2 === undefined ? undefined : Number(command.initialNews2),
+        decision_tree: command.decisionTree,
+        sk_codes: command.skCodes,
+        performance_outcomes: command.performanceOutcomes,
+        debrief_rationale: command.debriefRationale,
+        assigned_cohorts: command.assignedCohorts,
+        category: SCENARIO_CATEGORIES.includes(command.category) ? command.category : undefined,
+      };
+      const changes = Object.fromEntries(Object.entries(allowed).filter(([, value]) => value !== undefined));
+      if (!Object.keys(changes).length) return { ok: false, message: "Tell me which scenario details to change." };
+      try {
+        const updated = await base44.entities.Scenario.update(command.scenarioId, changes);
+        window.dispatchEvent(new CustomEvent("pathfinder:scenario-change", { detail: { action: "updated", scenario: updated } }));
+        return { ok: true, message: "Scenario updated.", data: updated };
+      } catch {
+        return { ok: false, message: "I could not update that scenario." };
+      }
+    }
+
     case "place_item":
     case "delete_item":
     case "rotate_item":
