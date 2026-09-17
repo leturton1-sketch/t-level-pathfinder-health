@@ -100,7 +100,7 @@
 .pf-dashboard .campus-hotspot-pulse { animation: none; opacity: .5; }
 .pf-dashboard .campus-hotspot-tooltip { background: #fff; color: #0f172a; box-shadow: 0 2px 8px #0f172a22; }
 .pf-dashboard .campus-map-shell [class*="backdrop-blur"] { backdrop-filter: none; -webkit-backdrop-filter: none; background-color: #fff; }
-.pf-dashboard .campus-map-shell > div:not(.pf-map-viewport) { box-shadow: none; background: #fff; border-color: var(--pf-border); }
+.pf-dashboard .campus-destination-panel { box-shadow: none; background: #fff; border-color: var(--pf-border); }
 .pf-dashboard .campus-map-shell :is(input,select,button) { min-height: 44px; }
 .pf-dashboard .campus-map-shell [class*="text-[9px]"], .pf-dashboard .campus-map-shell [class*="text-[10px]"] { font-size: 12px; }
 /* Interactive campus wayfinding */
@@ -180,7 +180,7 @@
   .pf-map-filter select { max-width: none; }
   .pf-dashboard .campus-map-controls { justify-content: flex-end; }
   .pf-dashboard .campus-map-controls > div { margin-left: auto; }
-  .pf-dashboard .campus-map-shell > div:not(.pf-map-viewport) { max-height: 32dvh; overflow-y: auto; flex-shrink: 0; margin: 0; border-radius: 0; padding: 10px 12px 78px; }
+  .pf-dashboard .campus-map-shell > .campus-destination-panel { max-height: 38dvh; overflow-y: auto; flex-shrink: 0; }
   .pf-dashboard .campus-map-shell > .pf-map-editor { padding-bottom: 12px !important; max-height: 42dvh !important; }
   .pf-dashboard:has(.pf-map-editor) .pf-team-trigger { display: none; }
   .pf-team-trigger { display: flex; right: 12px; bottom: max(12px,env(safe-area-inset-bottom)); }
