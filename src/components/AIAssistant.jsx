@@ -183,9 +183,31 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
             app_action: {
               type: "object",
               properties: {
-                type: { type: "string", enum: ["start_simulation", "end_simulation", "take_control", "assign_staff", "remove_staff", "create_user", "update_user_role", "none"] },
+                type: { type: "string", enum: ["navigate_module", "coordinate_module", "create_scenario", "update_scenario", "start_simulation", "end_simulation", "take_control", "assign_staff", "remove_staff", "create_user", "update_user_role", "none"] },
+                module: { type: "string", enum: ["dashboard", "theory", "care_planning", "ward_simulation", "knowledge_library", "interactive_learning", "anatomy_physiology", "health_hub", "clinical_skills", "ai_models", "performance", "reflection", "esp_practice", "scenario_authoring", "scenario_templates", "profile", "voice_assistant", "curriculum_readiness", "employer_portal", "talent_card"] },
+                moduleAction: { type: "string" },
+                openModule: { type: "boolean" },
+                payload: { type: "object" },
                 scenarioId: { type: "string" },
                 scenarioName: { type: "string" },
+                description: { type: "string" },
+                difficulty: { type: "string", enum: ["guided", "intermediate", "independent"] },
+                estimatedDuration: { type: "number" },
+                patientName: { type: "string" },
+                patientAge: { type: "number" },
+                patientCondition: { type: "string" },
+                comorbidities: { type: "string" },
+                medications: { type: "string" },
+                allergies: { type: "string" },
+                bedNumber: { type: "string" },
+                initialVitals: { type: "object" },
+                initialNews2: { type: "number" },
+                decisionTree: { type: "string" },
+                skCodes: { type: "array", items: { type: "string" } },
+                performanceOutcomes: { type: "array", items: { type: "string" } },
+                debriefRationale: { type: "string" },
+                assignedCohorts: { type: "array", items: { type: "string" } },
+                category: { type: "string", enum: ["acute_care", "long_term_conditions", "mental_health", "end_of_life", "emergency", "community", "other"] },
                 controller: { type: "string", enum: ["user", "ai"] },
                 name: { type: "string" },
                 dutyRole: { type: "string" },
@@ -210,7 +232,7 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
         window.dispatchEvent(new CustomEvent("ward-ai-command", { detail: response.ward_action }));
       }
       if (response.app_action && response.app_action.type && response.app_action.type !== "none") {
-        const cmdResult = await dispatchAiCommand(response.app_action, user);
+        const cmdResult = await dispatchAiCommand(response.app_action, user, { navigate });
         if (!cmdResult.ok) {
           setMessages((prev) => [...prev, { role: "assistant", content: cmdResult.message }]);
         }
