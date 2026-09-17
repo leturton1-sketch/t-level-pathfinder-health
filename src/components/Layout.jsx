@@ -6,6 +6,7 @@ import LearningJourney from "./LearningJourney";
 import GlobalVoiceControl from "./voice/GlobalVoiceControl";
 import "@/components/dashboard/pathfinder-dashboard.css";
 import "@/components/pathfinder-theme.css";
+import "@/components/pathfinder-responsive.css";
 
 export default function Layout() {
 
