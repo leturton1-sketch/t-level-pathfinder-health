@@ -1,5 +1,56 @@
 
 /* Final responsive hardening: keep legacy and newer modules usable at every viewport. */
+/* Navigation separation and neon module identity. */
+.pf-global-nav { overflow:hidden; }
+.pf-nav-expand { position:relative; z-index:3; flex:0 0 auto; margin-bottom:10px; }
+.pf-global-nav .pf-navigation { position:relative; z-index:1; padding:2px 3px 16px; scroll-padding-block:8px; overscroll-behavior:contain; }
+.pf-navigation-compact .pf-nav-group { padding:3px 0; }
+.pf-navigation-compact .pf-nav-links { gap:4px; }
+.pf-navigation-compact .pf-nav-link {
+  width:100%;
+  min-width:0;
+  min-height:48px;
+  margin:0;
+  isolation:isolate;
+  overflow:visible;
+}
+.pf-nav-link svg {
+  color:var(--pf-icon-colour,#0f75d8) !important;
+  filter:drop-shadow(0 0 4px var(--pf-icon-glow,rgba(15,117,216,.42)));
+  transition:color .18s ease,filter .18s ease,transform .18s ease;
+}
+.pf-nav-link:hover svg,.pf-nav-link[aria-current="page"] svg {
+  filter:drop-shadow(0 0 7px var(--pf-icon-glow,rgba(15,117,216,.68)));
+  transform:scale(1.08);
+}
+.pf-nav-link[data-tone="violet"]{--pf-icon-colour:#7c3aed;--pf-icon-glow:#a78bfa}
+.pf-nav-link[data-tone="rose"]{--pf-icon-colour:#e11d48;--pf-icon-glow:#fb7185}
+.pf-nav-link[data-tone="cyan"]{--pf-icon-colour:#0891b2;--pf-icon-glow:#22d3ee}
+.pf-nav-link[data-tone="pink"]{--pf-icon-colour:#db2777;--pf-icon-glow:#f472b6}
+.pf-nav-link[data-tone="amber"]{--pf-icon-colour:#d97706;--pf-icon-glow:#fbbf24}
+.pf-nav-link[data-tone="sky"]{--pf-icon-colour:#0284c7;--pf-icon-glow:#38bdf8}
+.pf-nav-link[data-tone="indigo"]{--pf-icon-colour:#4f46e5;--pf-icon-glow:#818cf8}
+.pf-nav-link[data-tone="emerald"]{--pf-icon-colour:#059669;--pf-icon-glow:#34d399}
+.pf-nav-link[data-tone="red"]{--pf-icon-colour:#dc2626;--pf-icon-glow:#f87171}
+.pf-nav-link[data-tone="purple"]{--pf-icon-colour:#9333ea;--pf-icon-glow:#c084fc}
+.pf-nav-link[data-tone="orange"]{--pf-icon-colour:#ea580c;--pf-icon-glow:#fb923c}
+.pf-nav-link[data-tone="lime"]{--pf-icon-colour:#65a30d;--pf-icon-glow:#a3e635}
+.pf-nav-link[data-tone="aqua"]{--pf-icon-colour:#0d9488;--pf-icon-glow:#2dd4bf}
+.pf-nav-link[data-tone="blue"]{--pf-icon-colour:#2563eb;--pf-icon-glow:#60a5fa}
+.pf-nav-link[data-tone="gold"]{--pf-icon-colour:#ca8a04;--pf-icon-glow:#fde047}
+.pf-nav-link[data-tone="magenta"]{--pf-icon-colour:#c026d3;--pf-icon-glow:#e879f9}
+.pf-nav-link[data-tone="green"]{--pf-icon-colour:#16a34a;--pf-icon-glow:#4ade80}
+.pf-nav-link[data-tone="teal"]{--pf-icon-colour:#0f766e;--pf-icon-glow:#5eead4}
+.pf-nav-link[data-tone="yellow"]{--pf-icon-colour:#a16207;--pf-icon-glow:#facc15}
+.pf-nav-link[data-tone="lavender"]{--pf-icon-colour:#8b5cf6;--pf-icon-glow:#c4b5fd}
+.pf-nav-link[data-tone="coral"]{--pf-icon-colour:#f43f5e;--pf-icon-glow:#fda4af}
+
+@media(max-width:767px){
+  .pf-global-header > * { min-width:0; flex-shrink:0; }
+  .pf-global-brand { flex:1 1 auto; overflow:hidden; }
+  .pf-global-header-actions { flex:0 0 auto; }
+}
+
 .tlevel-emblem { filter:none !important; aspect-ratio:1 / 1; object-fit:contain; background:transparent !important; }
 .pf-global-brand-mark { width:46px !important; height:46px !important; filter:drop-shadow(0 4px 5px rgba(15,23,42,.22)) !important; }
 .pf-theme-active, .pf-app-root, .pf-app-frame { width:100%; max-width:100%; overflow-x:clip; }
