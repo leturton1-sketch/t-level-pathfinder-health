@@ -16,6 +16,7 @@ import { getCurrentUser } from '@/lib/clinicalAuth';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 import { MODULE_RESET_EVENT, resetModuleSession } from "@/lib/moduleSession";
+import { handWardControlToUser } from "@/lib/simulationState";
 
 // Route-level code splitting: each page loads on demand, reducing the initial bundle
 const Dashboard = lazy(() => import('./pages/CommandCenterDashboard'));
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
     if (!unlocked || !welcomed || isLoadingAuth || isLoadingPublicSettings || window.location.pathname === "/oauth/consent") return;
     if (startupUser !== user?.id) {
       resetModuleSession();
+      handWardControlToUser();
       navigate("/", { replace: true });
       setStartupUser(user?.id);
     }
