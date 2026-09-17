@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Maximize2, Minimize2 } from "lucide-react";
 import "./FloatingAICompanion.css";
 
 const POSITION_KEY = "pathfinder-clinical-ai-companion-position";
@@ -160,20 +159,6 @@ export default function FloatingAICompanion({
         }
       }}
     >
-      <button
-        type="button"
-        className="ai-companion-size-toggle"
-        onPointerDown={(event) => event.stopPropagation()}
-        onClick={(event) => {
-          event.stopPropagation();
-          toggleMinimized();
-        }}
-        aria-label={minimized ? "Restore full Clinical Educator view" : "Minimise Clinical Educator"}
-        title={minimized ? "Restore full view" : "Minimise"}
-      >
-        {minimized ? <Maximize2 aria-hidden="true" /> : <Minimize2 aria-hidden="true" />}
-      </button>
-
       <div className="educator-companion-visual" aria-hidden="true">
         <span className="educator-companion-glow" />
         <img
@@ -183,6 +168,10 @@ export default function FloatingAICompanion({
           draggable={false}
         />
         <span className="educator-companion-scanline" />
+        <span className="educator-feature-light educator-eye-light educator-eye-light-left" />
+        <span className="educator-feature-light educator-eye-light educator-eye-light-right" />
+        <span className="educator-feature-light educator-rune-light educator-rune-light-left" />
+        <span className="educator-feature-light educator-rune-light educator-rune-light-right" />
         {attentionCue > 0 && (
           <span
             key={attentionCue}
