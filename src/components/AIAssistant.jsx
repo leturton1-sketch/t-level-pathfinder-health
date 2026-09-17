@@ -387,14 +387,14 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
       : state === "speaking" ? (cleanLast ? (cleanLast.length > 110 ? cleanLast.slice(0, 110) + "…" : cleanLast) : "Speaking…")
       : "";
   const panelClass = anchored
-    ? "fixed bottom-[210px] right-6 z-[10000]"
-    : "fixed z-[10000]";
+    ? "fixed bottom-[210px] right-6 z-[2147483646]"
+    : "fixed z-[2147483646]";
 
   return (
     <>
       <FloatingAICompanion state={state} expanded={expanded} attentionCue={attentionCue} attentionKind={attentionKind} onActivate={() => setExpanded((value) => !value)} />
       {bubbleText && (
-        <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[10000] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
+        <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[2147483645] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
           <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
         </div>
       )}
