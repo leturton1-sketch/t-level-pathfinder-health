@@ -23,6 +23,7 @@ export default function AIComposer({
   onVoicePress,
   placeholder = DEFAULT_PLACEHOLDER,
   hint = "Ask a question, create something, or diagnose an issue.",
+  compact = false,
 }) {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -55,6 +56,33 @@ export default function AIComposer({
     setAttachments((current) => [...current, ...files].slice(0, 5));
     event.target.value = "";
   };
+
+  if (compact) {
+    return (
+      <div className="ai-composer-compact">
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder={isListening ? "Listening…" : "Ask Pathfinder AI…"}
+          className="ai-composer-compact-input"
+          aria-label="Ask Pathfinder AI"
+        />
+        <button type="button" onClick={onVoicePress}
+          className={`ai-composer-compact-mic ${isListening ? "is-listening" : ""}`}
+          aria-label={isListening ? "Stop listening" : "Use voice control"}
+          title={isListening ? "Stop listening" : "Tap to speak"}>
+          <Mic className="h-5 w-5" />
+        </button>
+        {value.trim() && (
+          <button type="button" onClick={send} disabled={isProcessing}
+            className="ai-composer-compact-send" aria-label="Send message">
+            {isProcessing ? <Square className="h-4 w-4" /> : <ArrowUp className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
+    );
+  }
 
   const secondaryControls = (
     <>
