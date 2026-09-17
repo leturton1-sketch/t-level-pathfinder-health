@@ -189,6 +189,11 @@ export default function FloatingAICompanion({
         <span className="educator-feature-light educator-eye-light educator-eye-light-right" />
         <span className="educator-feature-light educator-rune-light educator-rune-light-left" />
         <span className="educator-feature-light educator-rune-light educator-rune-light-right" />
+        <span className="widget-stethoscope-pulse" />
+        <svg className="widget-heartbeat" viewBox="0 0 100 22" preserveAspectRatio="none"><polyline points="0,12 21,12 27,5 33,18 40,2 47,19 54,12 100,12" /></svg>
+        <span className="widget-dna"><i /><i /><i /><i /><i /><i /><b>DNA</b></span>
+        <span className="widget-complete"><i /><strong>✓</strong><b>Task complete</b></span>
+        <span className="widget-rest"><i /><i /><i /><b>Standby</b></span>
         {attentionCue > 0 && (
           <span
             key={attentionCue}
