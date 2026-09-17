@@ -103,6 +103,40 @@
 .pf-dashboard .campus-map-shell > div:not(.pf-map-viewport) { box-shadow: none; background: #fff; border-color: var(--pf-border); }
 .pf-dashboard .campus-map-shell :is(input,select,button) { min-height: 44px; }
 .pf-dashboard .campus-map-shell [class*="text-[9px]"], .pf-dashboard .campus-map-shell [class*="text-[10px]"] { font-size: 12px; }
+/* Interactive campus wayfinding */
+.campus-wayfinding-toolbar { display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,.8fr) auto; gap:8px; margin-bottom:10px; }
+.campus-layer-row,.campus-room-search,.campus-location { min-height:48px; display:flex; align-items:center; gap:6px; border:1px solid var(--pf-border); border-radius:12px; background:#fff; padding:6px; }
+.campus-layer-row { overflow-x:auto; scrollbar-width:none; }
+.campus-layer-row button,.campus-room-search button,.campus-location { min-height:36px; border-radius:9px; padding:7px 10px; font-size:12px; font-weight:750; white-space:nowrap; color:#334155; }
+.campus-layer-row button:hover,.campus-layer-row button.is-active,.campus-location.is-active { background:#0759b6; color:#fff; }
+.campus-room-search input { min-width:0; flex:1; height:36px; border:0; outline:0; background:transparent; font-size:13px; }
+.campus-room-search button { background:#0f172a; color:#fff; }
+.campus-location { justify-content:center; font-size:12px; font-weight:750; cursor:pointer; }
+.campus-interactive-map { border:1px solid var(--pf-border); border-radius:16px; touch-action:manipulation; }
+.campus-map-world { transition:transform 420ms cubic-bezier(.2,.8,.2,1); }
+.campus-route-line { animation:campus-route-flow 1.2s linear infinite; filter:drop-shadow(0 1px 2px #fff); }
+.campus-entrance-label { position:absolute; z-index:24; transform:translate(-50%,-50%); display:flex; align-items:center; gap:3px; border:2px solid #fff; border-radius:999px; background:#0f172a; color:#fff; padding:4px 7px; font-size:8px; font-weight:800; white-space:nowrap; }
+.campus-you-are-here { position:absolute; z-index:26; transform:translate(-50%,-50%); display:grid; justify-items:center; color:#0759b6; font-size:8px; }
+.campus-you-are-here span { width:16px; height:16px; border:3px solid #fff; border-radius:50%; background:#1687ff; box-shadow:0 0 0 6px #1687ff38; animation:campus-location-pulse 1.8s ease-out infinite; }
+.campus-location-message { margin:6px 2px 0; color:#475569; font-size:11px; }
+.campus-destination-panel { min-height:92px; margin-top:10px; border:1px solid var(--pf-border); border-radius:16px; background:#fff; padding:14px; }
+.campus-destination-heading { display:grid; grid-template-columns:auto 1fr auto; align-items:start; gap:11px; }
+.campus-destination-heading p { margin:0; color:#0369a1; font-size:10px; font-weight:850; text-transform:uppercase; letter-spacing:.12em; }
+.campus-destination-heading h3,.campus-empty-state h3 { margin:1px 0; color:#0f172a; font-size:16px; font-weight:850; }
+.campus-destination-heading span,.campus-empty-state p { color:#475569; font-size:12px; }
+.campus-destination-heading>button { min-width:44px; min-height:44px; display:grid; place-items:center; border-radius:10px; }
+.campus-destination-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.campus-destination-actions button { min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid #cbd5e1; border-radius:10px; padding:8px 12px; font-size:12px; font-weight:750; }
+.campus-destination-actions button.is-primary { margin-left:auto; border-color:#0759b6; background:#0759b6; color:#fff; }
+.campus-directory { margin-top:12px; border-radius:12px; background:#f0f9ff; padding:12px; }
+.campus-directory h4 { margin:0 0 7px; font-size:13px; font-weight:850; }
+.campus-directory ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin:0; padding:0; list-style:none; }
+.campus-directory li { display:flex; align-items:center; gap:6px; color:#334155; font-size:12px; }
+.campus-directory p { margin:8px 0 0; color:#0369a1; font-size:11px; font-weight:700; }
+.campus-empty-state { min-height:62px; display:flex; align-items:center; gap:12px; }
+@keyframes campus-route-flow { to { stroke-dashoffset:-7.2; } }
+@keyframes campus-location-pulse { 70%,100% { box-shadow:0 0 0 14px #1687ff00; } }
+
 @media (min-width: 768px) and (max-width: 1439px) {
   .pf-workspace, .pf-workspace-compact { grid-template-columns: 64px minmax(0,1fr); }
   .pf-team-rail { display: none; }
@@ -110,6 +144,16 @@
   .pf-dashboard { padding-bottom: 84px; }
 }
 @media (max-width: 767px) {
+  .campus-wayfinding-toolbar { grid-template-columns:1fr; padding:8px; margin:0; }
+  .campus-layer-row { order:2; }
+  .campus-room-search { order:1; }
+  .campus-location { order:3; }
+  .campus-interactive-map { border-radius:0; border-left:0; border-right:0; }
+  .campus-destination-panel { margin:0; border-radius:0; border-left:0; border-right:0; padding:12px 12px max(78px,env(safe-area-inset-bottom)); max-height:38dvh; overflow-y:auto; }
+  .campus-destination-actions { display:grid; grid-template-columns:1fr 1fr; }
+  .campus-destination-actions button.is-primary { grid-column:1 / -1; margin:0; }
+  .campus-directory ul { grid-template-columns:1fr; }
+  .campus-hotspot { min-width:48px!important; min-height:48px!important; }
   .pf-dashboard { padding: 0; height: 100dvh; min-height: 500px; display: flex; flex-direction: column; overflow: hidden; }
   .pf-header { width: 100%; flex-shrink: 0; padding: 10px 12px; margin: 0; gap: 10px; background: #fff; }
   .pf-mobile-menu { display: inline-flex; flex-shrink: 0; }
