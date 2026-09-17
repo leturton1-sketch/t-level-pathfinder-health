@@ -1,6 +1,6 @@
 /**
  * Celebrity Ward Patient Directory
- * Health Suite A (Beds A1–A4) and Health Suite B (Beds B1)
+ * Clinical Suite A (Beds A1–A3) and Clinical Suite B (Beds B1–B4)
  * Aligned to T Level Health (Adult Nursing) Specification
  */
 
@@ -121,8 +121,8 @@ export const WARD_PATIENTS = [
   },
   {
     id: "ozzy",
-    bedDesignation: "A4",
-    suite: "A",
+    bedDesignation: "B1",
+    suite: "B",
     name: "Ozzy Osbourne",
     age: 75,
     dob: "03/12/1948",
@@ -159,7 +159,7 @@ export const WARD_PATIENTS = [
   },
   {
     id: "ladygaga",
-    bedDesignation: "B1",
+    bedDesignation: "B2",
     suite: "B",
     name: "Lady Gaga",
     age: 38,
