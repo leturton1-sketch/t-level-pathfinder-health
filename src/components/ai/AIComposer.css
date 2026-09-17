@@ -26,5 +26,6 @@
   .ai-composer-mode-toggle { @apply inline-flex items-center gap-0.5 rounded-xl border border-white/80 bg-slate-100 p-0.5; box-shadow: inset 2px 2px 5px rgba(148,163,184,.2), inset -2px -2px 5px rgba(255,255,255,.9); }
   .ai-composer-mode-button { @apply inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-500 transition hover:text-clinical-teal; }
   .ai-composer-mode-active { @apply bg-clinical-teal text-white; box-shadow: 3px 3px 7px rgba(15,118,110,.26), -3px -3px 7px rgba(255,255,255,.5); }
+  .ai-composer-mode-voice-live { @apply animate-pulse bg-red-500 text-white; box-shadow: 0 0 0 3px rgba(239,68,68,.15), 0 0 14px rgba(239,68,68,.38); }
   .ai-composer-voice-button { @apply flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/70 py-3 text-sm font-semibold text-clinical-teal transition hover:bg-white/90; }
   .ai-composer-voice-active { @apply animate-pulse bg-red-50 text-red-600; }
