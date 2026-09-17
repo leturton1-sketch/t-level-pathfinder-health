@@ -160,7 +160,7 @@ export default function AIComposer({
             <span className="text-[10px] font-bold uppercase tracking-wide">Text</span>
           </button>
           <button type="button" onClick={() => onInputModeChange?.("voice")}
-            className={`ai-composer-mode-button ${inputMode === "voice" ? "ai-composer-mode-active" : ""}`}
+            className={`ai-composer-mode-button ${inputMode === "voice" ? (isListening ? "ai-composer-mode-voice-live" : "ai-composer-mode-active") : ""}`}
             aria-pressed={inputMode === "voice"} aria-label="Voice input">
             <Mic className="h-3 w-3" /><span className="text-[10px] font-bold uppercase tracking-wide">Voice</span>
           </button>
