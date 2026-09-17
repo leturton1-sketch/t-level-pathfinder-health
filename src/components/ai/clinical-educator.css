@@ -105,6 +105,46 @@
   80%{opacity:.08;transform:translate3d(1px,0,0);clip-path:inset(0);filter:hue-rotate(0)}
 }
 @keyframes educator-intermittent-noise { 0%,71%,81%,100%{opacity:0} 73%,76%,79%{opacity:.58} 74%,78%,80%{opacity:.1} }
+
+/* State-led educator effects: listening, processing, completion and standby. */
+.educator-state-effects,.educator-state-effects>div{position:absolute;inset:0;z-index:8;pointer-events:none}
+.educator-heartbeat,.educator-dna,.educator-completion,.educator-rest-bubbles{opacity:0;transition:opacity .35s ease}
+.educator-heartbeat svg{position:absolute;left:4%;right:4%;top:43%;width:92%;height:12%;overflow:visible}
+.educator-heartbeat polyline{fill:none;stroke:#63f5ff;stroke-width:2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px #29e7ff);stroke-dasharray:300;stroke-dashoffset:300}
+.educator-stethoscope-pulse{position:absolute;left:43.5%;top:40%;width:34px;height:34px;border:2px solid #78f8ff;border-radius:50%;box-shadow:0 0 20px #29e7ff}
+.educator-stage.is-listening .educator-heartbeat{opacity:1}
+.educator-stage.is-listening .educator-heartbeat polyline{animation:educator-heart-line 1.18s linear infinite}
+.educator-stage.is-listening .educator-stethoscope-pulse{animation:educator-stethoscope-ring 1.18s ease-out infinite}
+.educator-dna{left:20%!important;right:8%!important;bottom:auto!important;top:4%!important;height:29%!important;transform-style:preserve-3d;filter:drop-shadow(0 0 8px rgba(82,239,255,.62))}
+.dna-strand{position:absolute;left:8%;right:5%;top:42%;height:3px;border-radius:999px;background:linear-gradient(90deg,#52efff,#5fffb8,#52efff);transform-origin:center;box-shadow:0 0 12px #52efff}
+.dna-strand-a{transform:rotate(10deg) skewX(-22deg)}
+.dna-strand-b{transform:rotate(-10deg) skewX(22deg)}
+.educator-dna i{--phase:calc(var(--dna-index) * 22deg);position:absolute;left:calc(9% + var(--dna-index) * 10%);top:calc(48% + sin(var(--phase)) * 22%);width:2px;height:42%;transform:translateY(-50%) rotate(calc(var(--dna-index) * 7deg));background:linear-gradient(#52efff,#5fffb8);box-shadow:0 0 7px #52efff}
+.educator-dna b{position:absolute;right:4%;bottom:1%;color:#b9fbff;font-size:10px;letter-spacing:.18em}
+.educator-stage:is(.is-working,.is-voicing) .educator-dna,.educator-stage:is(.cue-thinking,.cue-working) .educator-dna{opacity:1;animation:educator-dna-orbit 3.4s ease-in-out infinite}
+.educator-completion{display:grid;place-content:center;justify-items:center;color:#7dffb5}
+.educator-completion strong{position:relative;z-index:2;display:grid;place-items:center;width:70px;height:70px;border-radius:50%;background:rgba(6,95,70,.76);border:2px solid #54f6a8;box-shadow:0 0 30px rgba(84,246,168,.66);font-size:42px}
+.educator-completion b{position:relative;z-index:2;margin-top:12px;padding:5px 10px;border-radius:999px;background:rgba(4,27,65,.76);font-size:12px;letter-spacing:.14em}
+.completion-ripple{position:absolute;left:50%;top:50%;width:80px;height:80px;border:2px solid #54f6a8;border-radius:50%;transform:translate(-50%,-50%)}
+.educator-stage:is(.cue-good_work,.cue-task_complete) .educator-completion{opacity:1;animation:educator-completion-enter 1.7s ease-out both}
+.educator-stage:is(.cue-good_work,.cue-task_complete) .completion-ripple{animation:educator-completion-ripple 1.5s ease-out 2}
+.educator-stage:is(.cue-good_work,.cue-task_complete) .completion-ripple-b{animation-delay:.35s}
+.educator-stage:is(.is-offline,.is-unresponsive) .educator-video-viewport{background:radial-gradient(circle at 50% 38%,#0b315f,#031329 72%);filter:saturate(.62) brightness(.72)}
+.educator-stage:is(.is-offline,.is-unresponsive) .educator-character-model{filter:saturate(.4) brightness(.7) contrast(1.04) drop-shadow(0 18px 22px rgba(1,12,32,.36))}
+.educator-stage:is(.is-offline,.is-unresponsive) .educator-rest-bubbles{opacity:1}
+.educator-rest-bubbles span{position:absolute;width:38px;height:38px;border:1px solid rgba(143,247,255,.72);border-radius:50%;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.55),rgba(82,239,255,.18) 34%,rgba(15,117,216,.08) 64%,transparent 70%);box-shadow:inset 0 0 14px rgba(82,239,255,.28),0 0 12px rgba(82,239,255,.18);animation:educator-rest-float 4.5s ease-in-out infinite}
+.educator-rest-bubbles span:nth-child(1){left:18%;top:32%;width:28px;height:28px}
+.educator-rest-bubbles span:nth-child(2){right:15%;top:17%;animation-delay:-1.4s}
+.educator-rest-bubbles span:nth-child(3){right:28%;top:42%;width:22px;height:22px;animation-delay:-2.7s}
+.educator-rest-bubbles b{position:absolute;left:7%;top:14%;color:#8fcff5;font-size:11px;letter-spacing:.18em}
+.educator-stage:is(.is-offline,.is-unresponsive) .educator-video-live{background:#64748b;box-shadow:0 0 0 5px rgba(100,116,139,.15)}
+@keyframes educator-heart-line{0%{stroke-dashoffset:300;opacity:.2}22%{opacity:1}78%,100%{stroke-dashoffset:0;opacity:.18}}
+@keyframes educator-stethoscope-ring{0%{transform:scale(.55);opacity:1}75%,100%{transform:scale(2.25);opacity:0}}
+@keyframes educator-dna-orbit{0%,100%{transform:translateY(0) rotateY(-12deg)}50%{transform:translateY(-5px) rotateY(12deg)}}
+@keyframes educator-completion-enter{0%{transform:scale(.6);opacity:0}28%{transform:scale(1.08);opacity:1}48%,86%{transform:scale(1);opacity:1}100%{opacity:0}}
+@keyframes educator-completion-ripple{0%{transform:translate(-50%,-50%) scale(.6);opacity:.9}100%{transform:translate(-50%,-50%) scale(4);opacity:0}}
+@keyframes educator-rest-float{0%,100%{transform:translateY(0) scale(.94);opacity:.42}50%{transform:translateY(-18px) scale(1.06);opacity:.9}}
+
 .educator-conversation { display:flex; flex-direction:column; min-width:300px; min-height:500px; width:100%; height:clamp(560px,calc(100dvh - 265px),920px); max-width:100%; max-height:calc(100dvh - 120px); resize:both; background:#fff; border:1px solid #bed9f2; border-radius:16px; overflow:hidden; }
 .educator-conversation-heading { padding:18px 20px; border-bottom:1px solid #d8eaf8; flex-shrink:0; }
 .educator-conversation-heading h2 { font-size:18px; font-weight:750; margin:0 0 6px; }
@@ -160,4 +200,5 @@
  .educator-character-echo { display:none; }
  .educator-character-turntable { transition:none; }
  .educator-stage.is-performing .tattoo-light { opacity:.3; }
+ .educator-heartbeat polyline,.educator-stethoscope-pulse,.educator-dna,.educator-completion,.completion-ripple,.educator-rest-bubbles span { animation:none !important; }
 }
