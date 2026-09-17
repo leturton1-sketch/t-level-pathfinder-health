@@ -45,14 +45,13 @@
     --font-display: 'Russo One', Arial, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-    /* Strict 8pt spatial grid (4px half-step for compact controls).
-       Every container padding, margin and gap resolves to a multiple of 4px/8px. */
+    /* Strict 8pt spatial grid. All shared layout rhythm resolves to 8px increments. */
     --space-0: 0;
-    --space-1: 0.25rem;   /* 4px  */
+    --space-1: 0.5rem;    /* 8px  */
     --space-2: 0.5rem;    /* 8px  */
-    --space-3: 0.75rem;   /* 12px */
+    --space-3: 1rem;      /* 16px */
     --space-4: 1rem;      /* 16px */
-    --space-5: 1.25rem;   /* 20px */
+    --space-5: 1.5rem;    /* 24px */
     --space-6: 1.5rem;    /* 24px */
     --space-8: 2rem;      /* 32px */
     --space-10: 2.5rem;   /* 40px */
@@ -66,7 +65,7 @@
     --page-block-start: var(--space-6);  /* 24px page top */
     --page-block-end: var(--space-20);  /* 80px page bottom */
     --section-rhythm: var(--space-6);    /* 24px between sections */
-    --component-rhythm: var(--space-5); /* 20px between components */
+    --component-rhythm: var(--space-5); /* 24px between components */
     --element-rhythm: var(--space-2);     /* 8px between elements */
     --content-max: 80rem;
     --content-max-standard: 64rem;
