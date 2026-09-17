@@ -26,7 +26,7 @@
 .educator-cartoon-stage.cue-working .educator-character-model { animation:educator-cue-speak 1.2s ease-out 1; }
 .educator-cartoon-stage:is(.cue-good_work,.cue-task_complete) .educator-character-model { animation:educator-cue-complete 1.25s ease-out 1; }
 .educator-cartoon-stage.is-speaking .educator-character-model { filter:saturate(1.08) contrast(1.04) drop-shadow(0 18px 24px rgba(1,12,32,.28)) drop-shadow(0 0 13px rgba(82,239,255,.22)); }
-.educator-cartoon-stage.is-unresponsive .educator-character-model { filter:saturate(.48) brightness(.72) contrast(1.12) drop-shadow(0 18px 22px rgba(1,12,32,.32)); animation:educator-cue-unresponsive 2.4s ease-out 1; }
+.educator-cartoon-stage:is(.is-unresponsive,.is-offline) .educator-character-model { filter:saturate(.48) brightness(.72) contrast(1.12) drop-shadow(0 18px 22px rgba(1,12,32,.32)); animation:educator-cue-unresponsive 2.4s ease-out 1; }
 .educator-character-echo { position:absolute; z-index:5; inset:0; display:block; width:100%; height:100%; object-fit:contain; object-position:center bottom; opacity:0; pointer-events:none; mix-blend-mode:screen; filter:hue-rotate(18deg) saturate(1.5); animation:educator-intermittent-echo 12.5s steps(1,end) infinite; }
 .educator-eye-lights { position:absolute; z-index:7; top:11.5%; left:50%; width:54px; height:12px; transform:translateX(-50%); pointer-events:none; opacity:0; }
 .educator-eye-lights span { position:absolute; top:2px; width:10px; height:6px; border-radius:50%; background:#9dfbff; box-shadow:0 0 5px #fff,0 0 12px #52efff,0 0 22px #0f75d8; }
@@ -34,7 +34,7 @@
 .educator-eye-lights span:last-child { right:5px; }
 .educator-cartoon-stage:is(.cue-first_use,.cue-hello,.cue-thinking,.cue-working,.cue-good_work,.cue-task_complete) .educator-eye-lights { opacity:1; animation:educator-eye-action 1.15s steps(2,end) 2; }
 .educator-cartoon-stage:is(.is-speaking,.is-working,.is-voicing) .educator-eye-lights { opacity:1; animation:educator-eye-speaking 1.35s ease-in-out infinite; }
-.educator-cartoon-stage.is-unresponsive .educator-eye-lights { opacity:.8; animation:educator-eye-error 1.8s steps(2,end) infinite; }
+.educator-cartoon-stage:is(.is-unresponsive,.is-offline) .educator-eye-lights { opacity:.8; animation:educator-eye-error 1.8s steps(2,end) infinite; }
 .educator-cartoon-stage .educator-hologram-noise { animation:educator-intermittent-noise 12.5s steps(2,end) infinite; }
 .educator-video :is(video,.educator-resting-portrait) { display:block; width:100%; height:100%; min-height:0; object-fit:contain; object-position:center; background:transparent; filter:saturate(.96) contrast(1.03); transition:filter .8s ease, opacity .35s ease; }
 .educator-resting-portrait { user-select:none; }
@@ -69,7 +69,7 @@
 .educator-stage.is-speaking .tattoo-light { opacity:.58; filter:blur(2px) drop-shadow(0 0 10px rgba(43,255,202,.82)); animation:educator-tattoo-speaking 1.4s ease-in-out infinite; }
 .educator-cartoon-stage:is(.cue-first_use,.cue-hello,.cue-thinking,.cue-working,.cue-good_work,.cue-task_complete) .tattoo-light { animation:educator-tattoo-action 1.25s ease-in-out 2; }
 .educator-cartoon-stage:is(.is-working,.is-voicing) .tattoo-light { animation:educator-tattoo-speaking 1.55s ease-in-out infinite; }
-.educator-cartoon-stage.is-unresponsive .tattoo-light { opacity:.24; background:radial-gradient(circle,rgba(255,180,180,.84),rgba(239,68,68,.46) 30%,transparent 70%); animation:educator-tattoo-error 1.8s steps(2,end) infinite; }
+.educator-cartoon-stage:is(.is-unresponsive,.is-offline) .tattoo-light { opacity:.24; background:radial-gradient(circle,rgba(255,180,180,.84),rgba(239,68,68,.46) 30%,transparent 70%); animation:educator-tattoo-error 1.8s steps(2,end) infinite; }
 .educator-voice-aura { position:absolute; z-index:1; left:12%; right:12%; top:8%; bottom:5%; height:auto; border-radius:42%; opacity:0; pointer-events:none; background:radial-gradient(ellipse at 50% 48%,rgba(157,251,255,.3) 0,rgba(82,239,255,.19) 35%,rgba(15,117,216,.09) 58%,transparent 76%); filter:blur(18px); transform:scale(.94); transition:opacity .55s ease,transform .6s ease,filter .55s ease; }
 .educator-stage:is(.is-listening,.is-working,.is-voicing,.is-speaking) .educator-voice-aura { opacity:.9; filter:blur(16px) drop-shadow(0 0 22px rgba(82,239,255,.34)); animation:educator-aura-breathe 2.8s ease-in-out infinite; }
 .educator-cartoon-stage:is(.is-working,.is-voicing,.is-speaking):not(.is-distorting) .educator-character-model { animation:educator-full-working 3.6s ease-in-out infinite; }
@@ -119,7 +119,8 @@
 .dna-strand{position:absolute;left:8%;right:5%;top:42%;height:3px;border-radius:999px;background:linear-gradient(90deg,#52efff,#5fffb8,#52efff);transform-origin:center;box-shadow:0 0 12px #52efff}
 .dna-strand-a{transform:rotate(10deg) skewX(-22deg)}
 .dna-strand-b{transform:rotate(-10deg) skewX(22deg)}
-.educator-dna i{--phase:calc(var(--dna-index) * 22deg);position:absolute;left:calc(9% + var(--dna-index) * 10%);top:calc(48% + sin(var(--phase)) * 22%);width:2px;height:42%;transform:translateY(-50%) rotate(calc(var(--dna-index) * 7deg));background:linear-gradient(#52efff,#5fffb8);box-shadow:0 0 7px #52efff}
+.educator-dna i{position:absolute;left:calc(9% + var(--dna-index) * 10%);top:50%;width:2px;height:42%;transform:translateY(-50%) rotate(calc(var(--dna-index) * 7deg));background:linear-gradient(#52efff,#5fffb8);box-shadow:0 0 7px #52efff}
+.educator-dna i:nth-of-type(1),.educator-dna i:nth-of-type(9){top:38%;height:20%}.educator-dna i:nth-of-type(2),.educator-dna i:nth-of-type(8){top:43%;height:30%}.educator-dna i:nth-of-type(3),.educator-dna i:nth-of-type(7){top:48%;height:39%}.educator-dna i:nth-of-type(4),.educator-dna i:nth-of-type(6){top:53%;height:46%}.educator-dna i:nth-of-type(5){top:56%;height:50%}
 .educator-dna b{position:absolute;right:4%;bottom:1%;color:#b9fbff;font-size:10px;letter-spacing:.18em}
 .educator-stage:is(.is-working,.is-voicing) .educator-dna,.educator-stage:is(.cue-thinking,.cue-working) .educator-dna{opacity:1;animation:educator-dna-orbit 3.4s ease-in-out infinite}
 .educator-completion{display:grid;place-content:center;justify-items:center;color:#7dffb5}
