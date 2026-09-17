@@ -1,14 +1,7 @@
 import { Sparkles, GraduationCap, ClipboardCheck, MessageSquareText } from "lucide-react";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import TLevelLogo from "@/components/TLevelLogo";
-
-const ROLE_TITLES = {
-  student: "Student",
-  tutor: "Tutor",
-  admin: "Institution Administrator",
-  super_admin: "Administrator",
-  guest: "Learner",
-};
+import { getUserRecognition } from "@/lib/aiAssistantIdentity";
 
 const HELP_POINTS = [
   {
@@ -33,15 +26,15 @@ const HELP_POINTS = [
  */
 export default function WelcomeGreeting({ user, onContinue }) {
   const synth = useVoiceSynthesis();
-  const firstName = user?.full_name?.split(" ")[0] || "there";
-  const roleTitle = ROLE_TITLES[user?.role] || "Learner";
+  const recognition = getUserRecognition(user);
+  const { firstName, roleTitle } = recognition;
   const isStaff = user?.role === "tutor" || user?.role === "admin" || user?.role === "super_admin";
 
   const purposeText = isStaff
     ? "Pathfinder Health is where students learn clinical theory, practise it in a ward simulation, and build evidence for their T Level. You can review progress, feedback and readiness from My progress."
     : "Pathfinder Health is where you learn clinical theory, practise it in a ward simulation, complete care plans, reflect, and get feedback — all building towards your T Level.";
 
-  const spokenGreeting = `Welcome, ${firstName}. I'm Pathfinder AI, your curriculum-to-industry AI tutor. ${purposeText}`;
+  const spokenGreeting = `${recognition.greeting} ${purposeText}`;
 
 
   return (
@@ -58,7 +51,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
           <div className="mb-4 flex items-start gap-3 rounded-xl border border-[#0f75d8]/20 bg-[#0f75d8]/5 p-4">
             <Sparkles size={20} className="mt-0.5 shrink-0 text-[#0f75d8]" aria-hidden="true" />
             <p className="text-sm text-[#15131a]">
-              I'm <strong>Pathfinder AI</strong>, your curriculum-to-industry AI tutor. {purposeText}
+              <strong>Pathfinder AI:</strong> {recognition.greeting}
             </p>
           </div>
 
