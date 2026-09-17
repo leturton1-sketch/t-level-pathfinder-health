@@ -29,10 +29,10 @@ export default function ClinicalEducatorVideo({ cue = "neutral", cueKey = 0, spe
           : LABELS[activeCue];
 
   useEffect(() => {
-    if (activeCue === "neutral") return undefined;
+    if (!["thinking", "working"].includes(activeCue)) return undefined;
     window.clearTimeout(distortionTimerRef.current);
     setDistorting(true);
-    distortionTimerRef.current = window.setTimeout(() => setDistorting(false), 760);
+    distortionTimerRef.current = window.setTimeout(() => setDistorting(false), 1200);
     return () => window.clearTimeout(distortionTimerRef.current);
   }, [activeCue, cueKey]);
 
