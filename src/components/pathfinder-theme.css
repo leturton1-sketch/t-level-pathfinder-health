@@ -42,13 +42,13 @@ body.pf-theme-active {
 .pf-global-nav .pf-navigation { max-height: none; flex: 1; min-height: 0; overflow-y: auto; }
 .pf-global-nav-footer { flex-shrink: 0; padding-top: var(--pf-space-2); background: #f8fafc; }
 .pf-module { min-width: 0; border: 1px solid var(--pf-neon); border-radius: 16px; box-shadow: var(--pf-frame-glow); background: #fff; }
-.pf-module > :first-child { border-radius: 16px; min-height: calc(100dvh - 118px); }
+.pf-module > :first-child { border-radius: 16px; min-height: calc(100dvh - 128px); }
 .pf-module > .clinical-page-shell { background: #f8fafc !important; }
 .pf-global-menu { display: none; }
 .pf-skip-link { position: fixed; top: -104px; left: var(--pf-space-3); z-index: 120; background: white; padding: var(--pf-space-2); color: #523779; border: 3px solid var(--pf-blue); }
 .pf-skip-link:focus { top: 8px; }
 .pf-theme-active :is(.pf-dashboard,.pf-drawer) { --pf-border: var(--pf-line); }
-.pf-theme-active .pf-header { padding: 12px 16px; background: #fff; border: 1px solid var(--pf-blue); border-bottom: 3px solid var(--pf-blue); border-radius: 14px; box-shadow: var(--pf-frame-glow); }
+.pf-theme-active .pf-header { padding: var(--pf-space-2); background: #fff; border: 1px solid var(--pf-blue); border-bottom: 3px solid var(--pf-blue); border-radius: 16px; box-shadow: var(--pf-frame-glow); }
 .pf-theme-active .pf-brand-icon { background: #eaf5ff; color: var(--pf-blue); }
 .pf-theme-active :is(.pf-eyebrow,.pf-nav-link svg) { color: #0759b6; }
 .pf-theme-active .pf-nav-link[aria-current="page"] { background: #e6f3ff; color: #06488f; box-shadow: inset 3px 0 var(--pf-blue); }
@@ -99,7 +99,7 @@ body.pf-theme-active {
 .pf-theme-active [role="dialog"] { max-height: calc(100dvh - 24px); overflow-y: auto; }
 .pf-theme-active .pf-drawer[role="dialog"] { max-height: 100dvh; overflow: hidden; }
 /* Right-side detail panels remain within their viewport on smaller devices. */
-.pf-module > .h-screen { height: calc(100dvh - 118px); min-height: 420px; }
+.pf-module > .h-screen { height: calc(100dvh - 128px); min-height: 424px; }
 .pf-module :is(.fixed.right-0,.fixed.inset-y-0) { max-width: 100vw; }
 .pf-voice-composer { left: calc(var(--pf-nav-space) + var(--pf-space-2)) !important; right: var(--pf-space-3) !important; background: #fff !important; border-top: 2px solid var(--pf-blue); }
 .pf-module table { background: #fff; }
@@ -221,22 +221,22 @@ body.pf-theme-active {
 @media (max-width: 767px) {
   .pf-app-root { border-inline-width: 2px; }
   .pf-app-frame { --pf-nav-space: 0px; }
-  .pf-global-header { min-height: 68px; padding: 8px 10px; gap: 10px; }
+  .pf-global-header { min-height: 72px; padding: var(--pf-space-1) var(--pf-space-2); gap: var(--pf-space-1); }
   .pf-global-menu { display: inline-flex; flex-shrink: 0; }
   .pf-global-brand { margin-right: auto; gap: 0; }
   .pf-global-brand > img, .pf-global-header-actions > img { display: none; }
   .pf-global-brand strong { font-size: 18px; }
   .pf-global-brand small { font-size: 11px; }
   .pf-global-header-actions { gap: 0; }
-  .pf-global-workspace { display: block; padding: 8px 4px; }
+  .pf-global-workspace { display: block; padding: var(--pf-space-1); }
   .pf-global-nav { display: none; }
-  .pf-module { border-radius: 12px; }
-  .pf-module > :first-child { border-radius: 12px; }
-  .pf-module > .h-screen { height: calc(100dvh - 90px); }
-  .pf-voice-composer { left: 2px !important; right: 2px !important; padding-bottom: env(safe-area-inset-bottom); }
-  .pf-theme-active .pf-header { border-radius: 0; border-inline: 0; padding: 8px 10px; }
+  .pf-module { border-radius: 16px; }
+  .pf-module > :first-child { border-radius: 16px; }
+  .pf-module > .h-screen { height: calc(100dvh - 96px); }
+  .pf-voice-composer { left: var(--pf-space-1) !important; right: var(--pf-space-1) !important; padding-bottom: env(safe-area-inset-bottom); }
+  .pf-theme-active .pf-header { border-radius: 0; border-inline: 0; padding: var(--pf-space-1) var(--pf-space-2); }
   .pf-theme-active .pf-dashboard { min-height: 500px; }
-  .pf-module .clinical-page-shell { padding-inline: 12px; }
+  .pf-module .clinical-page-shell { padding-inline: var(--pf-space-2); }
 }
 @media (prefers-reduced-motion: reduce) {
   .pf-theme-active *, .pf-theme-active *::before, .pf-theme-active *::after {
@@ -250,10 +250,10 @@ body.pf-theme-active {
   .pf-module,.pf-app-root { border: 0; box-shadow: none; }
 }
 
-.pf-module > .pf-ward-page { min-height:calc(100dvh - 118px); }
-.pf-ward-viewport { flex:0 0 auto; height:calc(100dvh - 118px); min-height:600px; }
+.pf-module > .pf-ward-page { min-height:calc(100dvh - 128px); }
+.pf-ward-viewport { flex:0 0 auto; height:calc(100dvh - 128px); min-height:600px; }
 .pf-ward-page canvas { touch-action:none; }
 @media(max-width:767px) {
-  .pf-module > .pf-ward-page { min-height:calc(100dvh - 80px); }
-  .pf-ward-viewport { height:calc(100dvh - 80px); min-height:640px; }
+  .pf-module > .pf-ward-page { min-height:calc(100dvh - 96px); }
+  .pf-ward-viewport { height:calc(100dvh - 96px); min-height:640px; }
 }
