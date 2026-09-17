@@ -84,28 +84,43 @@
   animation:educator-attention 1.8s ease-out both;
 }
 .educator-companion-attention.is-advice{border-color:rgba(248,113,113,.88)}
-.ai-companion-size-toggle{
+.educator-feature-light{
   position:absolute;
-  top:5px;
-  right:5px;
-  z-index:3;
-  display:grid;
-  place-items:center;
-  width:25px;
-  height:25px;
-  border:1px solid rgba(103,232,249,.35);
-  border-radius:999px;
-  background:rgba(15,23,42,.84);
-  color:#67e8f9;
-  box-shadow:0 6px 18px rgba(15,23,42,.24);
-  backdrop-filter:blur(8px);
-  cursor:pointer;
-  transition:transform .18s ease,background .18s ease,color .18s ease;
+  z-index:2;
+  display:block;
+  pointer-events:none;
+  opacity:0;
+  transform:translate(-50%,-50%);
+  transition:opacity .24s ease,filter .24s ease;
 }
-.ai-companion-size-toggle:hover{transform:scale(1.08);background:rgba(8,47,73,.94);color:#fff}
-.ai-companion-size-toggle:focus-visible{outline:2px solid #22d3ee;outline-offset:2px}
-.ai-companion-size-toggle svg{width:13px;height:13px}
-.ai-companion-container.is-minimized .ai-companion-size-toggle{top:-5px;right:-5px;width:22px;height:22px}
+.educator-eye-light{
+  top:13.5%;
+  width:7px;
+  height:4px;
+  border-radius:50%;
+  background:#67e8f9;
+  box-shadow:0 0 4px #22d3ee,0 0 9px rgba(34,211,238,.88);
+}
+.educator-eye-light-left{left:44.2%}
+.educator-eye-light-right{left:55.8%}
+.educator-rune-light{
+  top:60.5%;
+  width:11px;
+  height:18px;
+  border-radius:45%;
+  background:radial-gradient(ellipse,rgba(103,232,249,.78) 0,rgba(34,211,238,.34) 42%,transparent 76%);
+  filter:drop-shadow(0 0 3px #22d3ee);
+}
+.educator-rune-light-left{left:11.5%;transform:translate(-50%,-50%) rotate(-8deg)}
+.educator-rune-light-right{left:88.5%;transform:translate(-50%,-50%) rotate(8deg)}
+.educator-companion.is-thinking .educator-feature-light,
+.educator-companion.is-listening .educator-feature-light,
+.educator-companion.is-speaking .educator-feature-light{opacity:.92}
+.educator-companion.is-speaking .educator-eye-light{animation:educator-eye-pulse 1.4s ease-in-out infinite}
+.educator-companion.is-speaking .educator-rune-light,
+.educator-companion.is-listening .educator-rune-light{animation:educator-rune-pulse 1.8s ease-in-out infinite}
+.is-minimized .educator-eye-light{width:4px;height:2px}
+.is-minimized .educator-rune-light{width:6px;height:10px}
 .ai-status-pill{
   position:absolute;
   bottom:4px;
@@ -133,12 +148,14 @@
 .ai-status-pill i{flex:0 0 auto;width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 7px #34d399}
 @keyframes educator-scan{0%,100%{top:14%;opacity:0}18%{opacity:.7}82%{opacity:.45}100%{top:88%;opacity:0}}
 @keyframes educator-attention{0%{opacity:0;transform:scale(.94)}18%{opacity:1;transform:scale(1)}70%{opacity:.75}100%{opacity:0}}
+@keyframes educator-eye-pulse{0%,100%{filter:brightness(.85)}50%{filter:brightness(1.45)}}
+@keyframes educator-rune-pulse{0%,100%{opacity:.55}50%{opacity:1}}
 @media(max-width:640px){
   .ai-companion-container{right:10px;bottom:76px;width:92px;height:195px}
   .ai-companion-container.is-minimized{width:48px;height:101px}
 }
 @media(prefers-reduced-motion:reduce){
-  .ai-companion-container,.educator-companion-image,.ai-companion-size-toggle{transition:none}
-  .educator-companion-scanline,.educator-companion-attention{animation:none}
+  .ai-companion-container,.educator-companion-image,.educator-feature-light{transition:none}
+  .educator-companion-scanline,.educator-companion-attention,.educator-feature-light{animation:none}
   .ai-status-pill{backdrop-filter:none}
 }
