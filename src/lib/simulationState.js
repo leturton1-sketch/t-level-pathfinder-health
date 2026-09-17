@@ -22,6 +22,9 @@ function defaultSimulationState() {
     scenarioId: null,
     scenarioName: null,
     startedAt: null,
+    paused: false,
+    inputsFrozen: false,
+    activeEvent: null,
   };
 }
 
@@ -67,6 +70,30 @@ export function setSimulationController(controller) {
   const current = getSimulationState();
   if (!current.running) return current;
   return writeSimulationState({ ...current, controller });
+}
+
+export function pauseSimulation() {
+  const current = getSimulationState();
+  if (!current.running) return current;
+  return writeSimulationState({ ...current, paused: true });
+}
+
+export function resumeSimulation() {
+  const current = getSimulationState();
+  if (!current.running) return current;
+  return writeSimulationState({ ...current, paused: false });
+}
+
+export function setSimulationInputFrozen(inputsFrozen) {
+  const current = getSimulationState();
+  if (!current.running) return current;
+  return writeSimulationState({ ...current, inputsFrozen: Boolean(inputsFrozen) });
+}
+
+export function setSimulationEvent(activeEvent) {
+  const current = getSimulationState();
+  if (!current.running) return current;
+  return writeSimulationState({ ...current, activeEvent: activeEvent || null });
 }
 
 export function subscribeSimulationState(callback) {
