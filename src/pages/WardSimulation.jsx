@@ -26,6 +26,16 @@ import {
 
 const DIFFICULTY_LABELS = { guided: "Guided", intermediate: "Intermediate", independent: "Independent" };
 
+function normaliseBedDesignations(layout) {
+  const suiteA = layout.filter((item) => item.type === "bed" && Number(item.x) < -15).sort((a, b) => a.z - b.z || a.x - b.x).slice(0, 3);
+  const suiteB = layout.filter((item) => item.type === "bed" && Number(item.x) >= -15 && Number(item.x) < 15).sort((a, b) => a.z - b.z || a.x - b.x).slice(0, 4);
+  const designations = new Map([
+    ...suiteA.map((item, index) => [item.id, `A${index + 1}`]),
+    ...suiteB.map((item, index) => [item.id, `B${index + 1}`]),
+  ]);
+  return layout.map((item) => item.type === "bed" ? { ...item, designation: designations.get(item.id) || null } : item);
+}
+
 function normaliseWardLayout(rawLayout) {
   if (!Array.isArray(rawLayout) || rawLayout.length === 0) return generateDefaultItems();
   const validItems = rawLayout.filter((item) =>
@@ -35,7 +45,7 @@ function normaliseWardLayout(rawLayout) {
     Number.isFinite(Number(item.x)) &&
     Number.isFinite(Number(item.z))
   ).map((item) => ({ ...item, x: Number(item.x), z: Number(item.z) }));
-  return validItems.length > 0 ? consolidateTeachingTables(validItems) : generateDefaultItems();
+  return validItems.length > 0 ? normaliseBedDesignations(consolidateTeachingTables(validItems)) : generateDefaultItems();
 }
 
 function readLocalWardLayout() {
@@ -273,9 +283,17 @@ export default function WardSimulation() {
 
   // --- Item handlers ---
   const handleItemPlace = (type, x, z, rotationY) => {
-    const suitePrefix = x >= 0 ? "B" : "A";
-    const bedCount = items.filter(i => i.type === "bed" && (suitePrefix === "B" ? i.x >= 0 : i.x < 0)).length;
-    const designation = type === "bed" ? `${suitePrefix}${bedCount + 1}` : null;
+    const suitePrefix = x < -15 ? "A" : "B";
+    const suiteBeds = items.filter((item) => item.type === "bed" && (suitePrefix === "A" ? item.x < -15 : item.x >= -15 && item.x < 15));
+    const maximumBeds = suitePrefix === "A" ? 3 : 4;
+    if (type === "bed" && suiteBeds.length >= maximumBeds) {
+      setSaveStatus(`Clinical Suite ${suitePrefix} is limited to ${maximumBeds} beds.`);
+      return;
+    }
+    const used = new Set(suiteBeds.map((item) => item.designation));
+    const designation = type === "bed"
+      ? Array.from({ length: maximumBeds }, (_, index) => `${suitePrefix}${index + 1}`).find((value) => !used.has(value))
+      : null;
     const newItem = { id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, type, x, z, rotationY: rotationY ?? 0, designation };
     modifyItems([...items, newItem]);
     setSelectedItemId(newItem.id);
@@ -303,7 +321,16 @@ export default function WardSimulation() {
   const handleDuplicate = () => {
     const item = items.find(i => i.id === selectedItemId);
     if (!item) return;
-    const newItem = { ...item, id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, x: item.x + 2, z: item.z + 2, designation: item.type === "bed" ? `${suite === "B" ? "B" : "A"}${items.filter(i => i.type === "bed").length + 1}` : null };
+    const targetSuite = item.x < -15 ? "A" : "B";
+    const suiteBeds = items.filter((entry) => entry.type === "bed" && (targetSuite === "A" ? entry.x < -15 : entry.x >= -15 && entry.x < 15));
+    const limit = targetSuite === "A" ? 3 : 4;
+    if (item.type === "bed" && suiteBeds.length >= limit) {
+      setSaveStatus(`Clinical Suite ${targetSuite} is limited to ${limit} beds.`);
+      return;
+    }
+    const used = new Set(suiteBeds.map((entry) => entry.designation));
+    const nextDesignation = item.type === "bed" ? Array.from({ length: limit }, (_, index) => `${targetSuite}${index + 1}`).find((value) => !used.has(value)) : null;
+    const newItem = { ...item, id: `item_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, x: item.x + 2, z: item.z + 2, designation: nextDesignation };
     modifyItems([...items, newItem]);
     setSelectedItemId(newItem.id);
   };
