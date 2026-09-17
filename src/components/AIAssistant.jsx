@@ -132,6 +132,29 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
 
   useEffect(() => { messagesEndRef?.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, state]);
 
+  const playVoiceControlAlert = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const audioContext = new AudioContext();
+      const gain = audioContext.createGain();
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(740, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(1040, audioContext.currentTime + 0.16);
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.3);
+      oscillator.addEventListener("ended", () => audioContext.close());
+    } catch {
+      // Voice control still works when a browser blocks non-essential alert audio.
+    }
+  };
+
   const speak = async (text) => {
     if (mutedRef.current) { setState("idle"); return; }
     // Show "thinking" while cloud TTS is being generated; switch to "speaking"
@@ -290,6 +313,7 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
       listeningRef.current = true;
       setListening(true);
       setState("listening");
+      playVoiceControlAlert();
     };
     recognition.onresult = (event) => {
       const result = event.results[event.results.length - 1];
@@ -401,7 +425,16 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
 
   const anchored = pos.x < 0 || pos.y < 0;
   const textOpacity = 1 - panelTransparency / 100;
-  const panelStyle = { opacity: textOpacity, ...(anchored ? {} : { left: pos.x, top: pos.y }) };
+  const panelStyle = {
+    opacity: textOpacity,
+    resize: "both",
+    overflow: "auto",
+    minWidth: fullChat ? 292 : 260,
+    minHeight: fullChat ? 330 : 132,
+    maxWidth: "calc(100vw - 16px)",
+    maxHeight: "calc(100vh - 16px)",
+    ...(anchored ? {} : { left: pos.x, top: pos.y }),
+  };
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const cleanLast = lastAssistant ? lastAssistant.content.replace(/[*#`]/g, "").replace(/\s+/g, " ").trim() : "";
   const bubbleText =
@@ -508,7 +541,7 @@ Set attention_cue to "advice" when giving important guidance, "suggestion" when 
               onVoicePress={toggleVoice}
               compact={!fullChat}
               leadingControls={<>
-                <button onClick={toggleVoice} className={`ai-composer-plus ${listening ? "animate-pulse text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
+                <button onClick={toggleVoice} className={`ai-composer-plus ${listening || autoListen ? "animate-pulse !border-red-300 !bg-red-50 !text-red-600" : ""}`} aria-label={listening ? "Stop listening" : "Start voice input"}><Mic className="h-3.5 w-3.5" /></button>
                 <button onClick={toggleMute} className={`ai-composer-plus ${muted ? "text-red-600" : ""}`} aria-label={muted ? "Enable assistant speech" : "Mute assistant speech"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
                 <button onClick={handleStopSpeaking} disabled={state !== "speaking"} className="ai-composer-plus disabled:opacity-30" aria-label="Stop speaking"><Square className="h-3.5 w-3.5" /></button>
               </>}
