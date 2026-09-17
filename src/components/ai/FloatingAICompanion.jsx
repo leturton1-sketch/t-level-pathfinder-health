@@ -74,8 +74,8 @@ export default function FloatingAICompanion({
     return () => window.removeEventListener("resize", clamp);
   }, [minimized]);
 
-  const snapToNearbyEdge = (point) => {
-    const size = minimized ? MINI_SIZE : FULL_SIZE;
+  const snapToNearbyEdge = (point, minimizedState = minimized) => {
+    const size = minimizedState ? MINI_SIZE : FULL_SIZE;
     const maxX = Math.max(MARGIN, window.innerWidth - size.width - MARGIN);
     const maxY = Math.max(MARGIN, window.innerHeight - size.height - MARGIN);
     const edges = [
@@ -130,7 +130,7 @@ export default function FloatingAICompanion({
     window.clearTimeout(clickTimerRef.current);
     const nextMinimized = !minimized;
     const nextPosition = customPositionRef.current
-      ? snapToNearbyEdge(positionRef.current || dockPosition(nextMinimized))
+      ? snapToNearbyEdge(positionRef.current || dockPosition(nextMinimized), nextMinimized)
       : dockPosition(nextMinimized);
     setMinimized(nextMinimized);
     setPosition(nextPosition);
