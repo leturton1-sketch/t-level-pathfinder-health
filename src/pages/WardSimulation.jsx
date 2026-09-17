@@ -200,7 +200,7 @@ export default function WardSimulation() {
     const handler = (e) => {
       const { action, itemType, designation, direction } = e.detail;
       switch (action) {
-        case "place": if (editMode && itemType) handleItemPlace(itemType, 0, 0); break;
+        case "place": if (itemType) handleItemPlace(itemType, Number(e.detail.x) || 0, Number(e.detail.z) || 0); break;
         case "delete": {
           if (!designation) break;
           const target = items.find((i) => i.designation === designation);
@@ -213,13 +213,34 @@ export default function WardSimulation() {
           break;
         }
         case "start-simulation": if (!simState.running) handleBeginTask(); break;
-        case "end-simulation": if (simState.running) handleEndSimulationRequest(); break;
+        case "end-simulation": if (simState.running) exitScenario(); break;
         case "take-control": setSimulationController(e.detail.controller === "user" ? "user" : "ai"); break;
+        case "trigger-event":
+          if (e.detail.bed) setActiveCallBed(e.detail.bed);
+          break;
+        case "focus": {
+          const target = designation ? items.find((item) => item.designation === designation) : null;
+          const x = Number.isFinite(Number(e.detail.x)) ? Number(e.detail.x) : target?.x;
+          const z = Number.isFinite(Number(e.detail.z)) ? Number(e.detail.z) : target?.z;
+          if (Number.isFinite(x) && Number.isFinite(z)) setCameraCommand({ type: "focus", target: { x, z }, nonce: Date.now() });
+          else if (e.detail.suite === "A" || e.detail.suite === "B") {
+            setSuite(e.detail.suite);
+            setCameraCommand({ type: "suite", target: { x: e.detail.suite === "A" ? -18 : 18, z: 8 }, nonce: Date.now() });
+          }
+          break;
+        }
+        case "update-vitals":
+          setVitals((current) => ({ ...(current || activeScenario?.initial_vitals || {}), ...(e.detail.vitals || {}) }));
+          break;
+        case "clear-ward":
+          modifyItems(generateDefaultItems());
+          setSelectedItemId(null);
+          break;
       }
     };
     window.addEventListener("ward-ai-command", handler);
     return () => window.removeEventListener("ward-ai-command", handler);
-  }, [editMode, items, selectedItemId, simState.running]);
+  }, [editMode, items, selectedItemId, simState.running, activeScenario]);
 
   // --- History management ---
   const modifyItems = (newItems) => {
@@ -658,6 +679,15 @@ export default function WardSimulation() {
 
       {/* 3D Ward */}
       <div className="pf-ward-viewport relative">
+        {(simState.paused || simState.inputsFrozen) && (
+          <div className="absolute inset-0 z-[65] grid place-items-center bg-slate-950/35" role="status" aria-live="assertive">
+            <div className="mx-4 max-w-md rounded-2xl border border-cyan-300 bg-slate-950/95 px-6 py-5 text-center text-white shadow-2xl">
+              <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300">Clinical Educator Override</p>
+              <h2 className="mt-2 text-lg font-black">{simState.paused ? "Simulation paused" : "Student controls temporarily frozen"}</h2>
+              <p className="mt-2 text-sm text-slate-300">Please await the Clinical Educator’s next instruction.</p>
+            </div>
+          </div>
+        )}
         <Ward3D
           items={items}
           editMode={editMode}
