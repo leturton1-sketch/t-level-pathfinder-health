@@ -45,12 +45,27 @@ async function grantUser(base44, u, method) {
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 
+// Resolve the requesting IP for brute-force lockout. The value MUST NOT be
+// attacker-controllable or the per-IP lockout can be bypassed by sending a
+// fresh spoofed header on each request. Prefer headers the edge proxy
+// overwrites (CF-Connecting-IP on Cloudflare, x-real-ip from upstream), and
+// only fall back to x-forwarded-for — taking the LAST entry (set by the
+// closest trusted proxy) rather than the first client-supplied value, which
+// a client can forge.
 function clientIp(req) {
   const headers = req.headers;
   const get = (k) => (headers?.get ? headers.get(k) : headers?.[k]);
+  const clean = (v) => String(v || "").replace(/[\r\n\s]/g, "").trim();
+  const cf = get("cf-connecting-ip");
+  if (cf && clean(cf)) return clean(cf);
+  const real = get("x-real-ip");
+  if (real && clean(real)) return clean(real);
   const fwd = get("x-forwarded-for");
-  if (fwd) return String(fwd).split(",")[0].trim();
-  return get("x-real-ip") || "unknown";
+  if (fwd) {
+    const parts = String(fwd).split(",").map((s) => clean(s)).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
+  return "unknown";
 }
 
 async function checkLockout(base44, username, ip) {

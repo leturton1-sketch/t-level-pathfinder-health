@@ -10,6 +10,13 @@ function toBase64Url(str) {
   return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+// Strip CR/LF (and stray control chars) from values placed into MIME headers
+// (Subject, To, From). User-controlled record fields such as student_name can
+// otherwise inject additional headers / a new message body via CRLF.
+function sanitizeHeader(value) {
+  return String(value || "").replace(/[\r\n\t]/g, " ").replace(/\u0000/g, "").trim();
+}
+
 function buildMime(subject, body) {
   return [
     `To: ${RECIPIENT_EMAIL}`,
@@ -84,11 +91,14 @@ export default async function(req) {
     let subject, bodyText;
     if (entity_name === "CarePlanSubmission") {
       const rec = await base44.asServiceRole.entities.CarePlanSubmission.get(record_id);
-      subject = `New care plan submission — ${rec.student_name || "Student"}`;
+      const studentName = sanitizeHeader(rec.student_name) || "Student";
+      subject = `New care plan submission — ${studentName}`;
       bodyText = carePlanBody(rec);
     } else if (entity_name === "SimulationResult") {
       const rec = await base44.asServiceRole.entities.SimulationResult.get(record_id);
-      subject = `Simulation score — ${rec.student_name || "Student"} — ${rec.scenario_name || "Scenario"}`;
+      const studentName = sanitizeHeader(rec.student_name) || "Student";
+      const scenarioName = sanitizeHeader(rec.scenario_name) || "Scenario";
+      subject = `Simulation score — ${studentName} — ${scenarioName}`;
       bodyText = simulationBody(rec);
     } else {
       return Response.json({ error: "Unknown entity_name" }, { status: 400 });
