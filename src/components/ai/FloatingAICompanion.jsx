@@ -113,7 +113,7 @@ export default function FloatingAICompanion({
       <footer className="pf-ai-footer">
         <div className="pf-ai-composer">{footer}</div>
         <button type="button" className="pf-ai-ask" onClick={() => {
-          root.current?.querySelector("textarea, input:not([type=file])")?.focus();
+          root.current?.querySelector("textarea, input:not([type=file]), .ai-composer-voice-button")?.focus();
         }}>Ask Pathfinder AI</button>
       </footer>
     </motion.aside>
