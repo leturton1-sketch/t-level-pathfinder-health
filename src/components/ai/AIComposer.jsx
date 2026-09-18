@@ -35,7 +35,7 @@ export default function AIComposer({
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 52), 144)}px`;
-  }, [value]);
+  }, [value, compact]);
 
   const send = () => {
     if (!value.trim() || isProcessing) return;
@@ -74,9 +74,9 @@ export default function AIComposer({
           title={isListening ? "Stop listening" : "Tap to speak"}>
           <Mic className="h-5 w-5" />
         </button>
-        {value.trim() && (
-          <button type="button" onClick={send} disabled={isProcessing}
-            className="ai-composer-compact-send" aria-label="Send message">
+        {(value.trim() || isProcessing) && (
+          <button type="button" onClick={isProcessing ? onStop : send}
+            className="ai-composer-compact-send" aria-label={isProcessing ? "Stop processing" : "Send message"}>
             {isProcessing ? <Square className="h-4 w-4" /> : <ArrowUp className="h-4 w-4" />}
           </button>
         )}
