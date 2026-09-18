@@ -105,7 +105,9 @@ export default function FloatingAICompanion({
         <span className="pf-ai-status" role="status" aria-live="polite">{statusLabel}</span>
       </motion.div>
       <div className="pf-ai-conversation">
-        <div id="pf-ai-history" className="pf-ai-history" hidden={!expanded}>{children}</div>
+        <motion.div id="pf-ai-history" className="pf-ai-history" inert={!expanded ? "" : undefined} aria-hidden={!expanded}
+          initial={false} animate={{ opacity: expanded ? 1 : 0, clipPath: expanded ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" }}
+          transition={reduced ? { duration: 0 } : { duration: 0.28 }} style={{ pointerEvents: expanded ? "auto" : "none" }}>{children}</motion.div>
         {!expanded && <p className="pf-ai-preview">{String(preview).replace(/[*#`]/g, "")}</p>}
       </div>
       <footer className="pf-ai-footer">
