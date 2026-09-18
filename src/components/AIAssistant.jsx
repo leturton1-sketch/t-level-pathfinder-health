@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mic, Volume2, VolumeX, Square } from "lucide-react";
+import { Bot, X, Mic, Volume2, VolumeX, Square, GripVertical, Maximize2, Minimize2 } from "lucide-react";
 import FloatingAICompanion from "@/components/ai/FloatingAICompanion";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
@@ -21,9 +21,53 @@ const AI_STATES = {
   offline: { label: "Offline · standby", color: "text-slate-500" },
 };
 
+// Module-scope Waveform avoids re-creating the component on every parent render.
+// `red` forces a red palette; `reactive` speeds up the bars while thinking/speaking.
+function Waveform({ state: currentState, monitoring = false, red = false, reactive = false }) {
+  const colour = red
+    ? "bg-red-500"
+    : currentState === "listening" ? "bg-red-500" : currentState === "thinking" ? "bg-amber-500" : currentState === "speaking" ? "bg-clinical-green" : "bg-clinical-teal";
+  const active = reactive && (currentState === "thinking" || currentState === "speaking" || currentState === "listening");
+  return (
+    <div className="flex h-5 items-center gap-0.5" aria-label={currentState === "listening" ? "Microphone listening waveform" : monitoring ? "Voice monitoring enabled" : "Assistant idle"}>
+      {Array.from({ length: 9 }).map((_, i) => (
+        <span key={i} className={`w-0.5 rounded-full ${colour} waveform-bar`}
+          style={{
+            height: `${active ? 55 + ((i * 41) % 45) : 35 + ((i * 37) % 65)}%`,
+            animationDelay: `${i * 0.07}s`,
+            animationDuration: `${active ? 0.32 + (i % 4) * 0.06 : 0.55 + (i % 4) * 0.12}s`,
+            opacity: active ? 1 : 0.6,
+          }} />
+      ))}
+    </div>
+  );
+}
+
+const POS_KEY = "pathfinder-ai-panel-position";
+const TRANSPARENCY_KEY = "pathfinder-ai-panel-transparency";
+const DEFAULT_POS = { x: -1, y: -1 }; // -1 = use default anchor (beside the toggle)
+
+function loadTransparency() {
+  if (typeof window === "undefined") return 15;
+  const raw = window.localStorage.getItem(TRANSPARENCY_KEY);
+  if (raw === null) return 15;
+  const saved = Number(raw);
+  return Number.isFinite(saved) ? Math.min(45, Math.max(0, saved)) : 15;
+}
+
+function loadPos() {
+  try {
+    const raw = window.localStorage.getItem(POS_KEY);
+    if (!raw) return DEFAULT_POS;
+    const p = JSON.parse(raw);
+    return (p && typeof p.x === "number" && typeof p.y === "number") ? p : DEFAULT_POS;
+  } catch { return DEFAULT_POS; }
+}
+
 export default function AIAssistant({ context = "general" }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
+  const [fullChat, setFullChat] = useState(false);
   const [state, setState] = useState("idle");
   const [attentionCue, setAttentionCue] = useState(0);
   const [attentionKind, setAttentionKind] = useState("none");
@@ -35,7 +79,8 @@ export default function AIAssistant({ context = "general" }) {
   const [listening, setListening] = useState(false);
   const [inputMode, setInputMode] = useState("text");
   const [autoListen, setAutoListen] = useState(false);
-  const [processingIntensity, setProcessingIntensity] = useState(0.25);
+  const [pos, setPos] = useState(loadPos);
+  const [panelTransparency, setPanelTransparency] = useState(loadTransparency);
   const synth = useVoiceSynthesis();
   const muted = synth.prefs.muted;
   const messagesEndRef = useRef(null);
@@ -50,11 +95,15 @@ export default function AIAssistant({ context = "general" }) {
   const requestIdRef = useRef(0);
   const user = getCurrentUser();
   const identity = getAssistantIdentity(synth.prefs, user);
-
+  const panelRef = useRef(null);
+  const dragRef = useRef({ active: false, dx: 0, dy: 0, moved: false });
 
   useEffect(() => { mutedRef.current = muted; }, [muted]);
   useEffect(() => { autoListenRef.current = autoListen; }, [autoListen]);
   useEffect(() => { assistantStateRef.current = state; }, [state]);
+  useEffect(() => {
+    window.localStorage.setItem(TRANSPARENCY_KEY, String(panelTransparency));
+  }, [panelTransparency]);
 
   useEffect(() => () => {
     window.clearTimeout(listenTimerRef.current);
@@ -158,9 +207,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
     const requestId = ++requestIdRef.current;
     const userMsg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    // Bounded visual estimate from request size; not a claim about model reasoning.
-    setProcessingIntensity(Math.min(1, 0.25 + text.length / 1800 + attachments.length * 0.15));
+    if (!overrideText) setInput("");
     setState("thinking");
     if (listeningRef.current && recognitionRef.current) { try { recognitionRef.current.stop(); } catch {} }
 
@@ -400,20 +447,140 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
     if (listeningRef.current) setState("listening"); else setState("idle");
   };
 
+  // --- Dragging (pointer events, persisted) ---
+  const onPointerDown = (e) => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const rect = panel.getBoundingClientRect();
+    dragRef.current = { active: true, dx: e.clientX - rect.left, dy: e.clientY - rect.top, moved: false };
+    panel.setPointerCapture?.(e.pointerId);
+    e.preventDefault();
+  };
 
+  const onPointerMove = (e) => {
+    if (!dragRef.current.active) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    let x = e.clientX - dragRef.current.dx;
+    let y = e.clientY - dragRef.current.dy;
+    const w = panel.offsetWidth;
+    const h = panel.offsetHeight;
+    x = Math.max(8, Math.min(x, window.innerWidth - w - 8));
+    y = Math.max(8, Math.min(y, window.innerHeight - h - 8));
+    dragRef.current.moved = true;
+    setPos({ x, y });
+  };
+
+  const endDrag = (e) => {
+    if (!dragRef.current.active) return;
+    dragRef.current.active = false;
+    try { panelRef.current?.releasePointerCapture?.(e?.pointerId); } catch {}
+    const { x, y } = pos;
+    if (x >= 0 && y >= 0) window.localStorage.setItem(POS_KEY, JSON.stringify({ x, y }));
+  };
+
+  const resetPos = useCallback(() => {
+    setPos(DEFAULT_POS);
+    window.localStorage.removeItem(POS_KEY);
+  }, []);
+
+  const anchored = pos.x < 0 || pos.y < 0;
+  const textOpacity = 1 - panelTransparency / 100;
+  const panelStyle = {
+    opacity: textOpacity,
+    resize: "both",
+    overflow: "auto",
+    minWidth: fullChat ? 292 : 260,
+    minHeight: fullChat ? 330 : 132,
+    maxWidth: "calc(100vw - 16px)",
+    maxHeight: "calc(100vh - 16px)",
+    ...(anchored ? {} : { left: pos.x, top: pos.y }),
+  };
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const cleanLast = lastAssistant ? lastAssistant.content.replace(/[*#`]/g, "").replace(/\s+/g, " ").trim() : "";
+  const bubbleText =
+    state === "thinking" ? "Thinking…"
+      : state === "listening" ? "Listening…"
+      : state === "speaking" ? (cleanLast ? (cleanLast.length > 110 ? cleanLast.slice(0, 110) + "…" : cleanLast) : "Speaking…")
+      : "";
+  const panelClass = anchored
+    ? "fixed bottom-[238px] right-4 z-[2147483646]"
+    : "fixed z-[2147483646]";
+
   return (
-    <FloatingAICompanion
-      state={state}
-      statusLabel={AI_STATES[state].label}
-      expanded={expanded}
-      onActivate={() => setExpanded((value) => !value)}
-      identity={identity}
-      intensity={processingIntensity}
-      attentionCue={attentionCue}
-      attentionKind={attentionKind}
-      preview={lastAssistant?.content || "Your Clinical Educator, wherever you are."}
-      footer={<>
+    <>
+      <FloatingAICompanion state={state} expanded={expanded} attentionCue={attentionCue} attentionKind={attentionKind} onActivate={() => setExpanded((value) => !value)} />
+      {bubbleText && (
+        <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[2147483645] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
+          <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
+        </div>
+      )}
+
+      {/* Expanded panel — translucent, 10% smaller, draggable */}
+      {expanded && (
+        <div
+          ref={panelRef}
+          style={panelStyle}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          className={`${panelClass} ${fullChat ? "w-[calc(100vw-2rem)] sm:w-[330px] max-h-[50vh]" : "w-[calc(100vw-2rem)] sm:w-[292px]"} flex flex-col rounded-2xl border border-clinical-teal/30 bg-white/80 backdrop-blur-xl shadow-2xl animate-slide-up overflow-hidden transition-[width,max-height] duration-300`}
+        >
+          {/* Header = drag handle */}
+          <div
+            onPointerDown={onPointerDown}
+            onDoubleClick={resetPos}
+            className="flex cursor-grab active:cursor-grabbing items-center justify-between px-2.5 py-2 border-b border-white/40 bg-white/40 touch-none"
+          >
+            <div className="flex items-center gap-1.5">
+              <GripVertical className="w-3.5 h-3.5 text-slate-400" />
+              <div className="w-7 h-7 rounded-full bg-clinical-teal/20 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-clinical-teal" />
+              </div>
+              <div>
+                <div className="text-[13px] font-heading font-bold text-slate-800 leading-tight">{identity.fullName}</div>
+                <div className="text-[9px] font-semibold leading-tight text-slate-400">{identity.title}</div>
+                <div className={`text-[11px] ${AI_STATES[state].color} flex items-center gap-1`}>
+                  <Waveform state={state} monitoring={autoListen} /> {AI_STATES[state].label}
+                  {muted && <span className="text-clinical-red">(muted)</span>}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2" onPointerDown={(event) => event.stopPropagation()}>
+              {fullChat && (
+                <label className="flex items-center gap-1 text-[9px] font-semibold text-slate-500" title="Adjust chat transparency">
+                  <span className="hidden sm:inline">Opacity</span>
+                  <input type="range" min="0" max="45" step="5" value={panelTransparency}
+                    onChange={(event) => setPanelTransparency(Number(event.target.value))}
+                    aria-label="Pathfinder chat transparency" className="w-12 accent-teal-600" />
+                </label>
+              )}
+              <button type="button" onClick={() => setFullChat((value) => !value)}
+                aria-label={fullChat ? "Use compact chat" : "Expand chat history"}
+                title={fullChat ? "Compact chat" : "Expand chat"}
+                className="p-1.5 rounded-lg hover:bg-white/50">
+                {fullChat ? <Minimize2 className="w-4 h-4 text-slate-500" /> : <Maximize2 className="w-4 h-4 text-slate-500" />}
+              </button>
+              <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => setExpanded(false)} aria-label="Close Pathfinder Clinical AI chat" title="Close chat" className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
+            </div>
+          </div>
+
+          {fullChat && (diagnostic && admin ? (
+            <AIDiagnostic />
+          ) : (
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[120px] max-h-[30vh]">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-2.5 py-1.5 text-[13px] ${msg.role === "user" ? "bg-clinical-teal text-white rounded-br-sm" : "bg-white/70 text-slate-800 rounded-bl-sm backdrop-blur-sm"}`}>
+                  {msg.role === "assistant" ? <ReactMarkdown className="prose prose-sm max-w-none [&_p]:my-1 [&_strong]:text-clinical-teal">{msg.content}</ReactMarkdown> : <p>{msg.content}</p>}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          ))}
+
+          <div className={`shrink-0 ${fullChat ? "border-t border-white/50 bg-slate-100/85 p-2.5" : "bg-transparent p-2"}`}>
             <AIComposer
               value={input}
               onChange={setInput}
@@ -431,29 +598,19 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
                 if (mode === "voice" && !autoListenRef.current) toggleAutoListen();
                 else if (mode === "text" && autoListenRef.current) toggleAutoListen();
               }}
-              isListening={listening}
+              isListening={listening || autoListen}
               onVoicePress={toggleAutoListen}
-              compact={!expanded}
+              compact={!fullChat}
               leadingControls={<>
                 <button onClick={toggleAutoListen} className={`ai-composer-plus ${listening || autoListen ? "animate-pulse !border-red-300 !bg-red-50 !text-red-600" : ""}`} aria-label={autoListen ? "Turn off Clinical Educator voice control" : "Turn on Clinical Educator voice control"}><Mic className="h-3.5 w-3.5" /></button>
                 <button onClick={toggleMute} className={`ai-composer-plus ${muted ? "text-red-600" : ""}`} aria-label={muted ? "Enable assistant speech" : "Mute assistant speech"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
                 <button onClick={handleStopSpeaking} disabled={state !== "speaking"} className="ai-composer-plus disabled:opacity-30" aria-label="Stop speaking"><Square className="h-3.5 w-3.5" /></button>
               </>}
             />
-
-        {autoListen && <p className="pf-ai-mic-notice">{listening ? "Microphone active — listening" : "Voice control enabled"}</p>}
-      </>}
-    >
-      {diagnostic && admin ? <AIDiagnostic /> : (
-        <div className="pf-ai-messages">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`pf-ai-message is-${msg.role}`}>
-              {msg.role === "assistant" ? <ReactMarkdown>{msg.content}</ReactMarkdown> : <p>{msg.content}</p>}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
+            {autoListen && <p className="mt-1.5 text-center text-[10px] font-bold text-red-600">{listening ? "● Microphone active — Clinical Educator is listening" : "● Voice control active — awaiting your command"}</p>}
+          </div>
         </div>
       )}
-    </FloatingAICompanion>
+    </>
   );
 }
