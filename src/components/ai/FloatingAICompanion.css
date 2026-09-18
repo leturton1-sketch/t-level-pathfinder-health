@@ -22,8 +22,8 @@
 .pf-ai-viewport.is-thinking .pf-ai-body-ripple{animation:pf-ai-ripple var(--pf-ripple-duration) ease-in-out infinite;filter:brightness(calc(1 + var(--pf-intensity)))}
 .pf-ai-viewport.is-offline .pf-ai-avatar{filter:grayscale(.8);animation:none}
 .pf-ai-attention{background:radial-gradient(ellipse,var(--pf-secondary),transparent 70%);animation:pf-ai-advice 2s ease-out both}
-.pf-ai-conversation{flex:1;min-height:0;overflow:hidden}
-.pf-ai-history{height:100%;overflow:auto;overscroll-behavior:contain;padding:8px 14px}
+.pf-ai-conversation{position:relative;flex:1;min-height:0;overflow:hidden}
+.pf-ai-history{position:absolute;inset:0;height:100%;overflow:auto;overscroll-behavior:contain;padding:8px 14px}
 .pf-ai-history[hidden]{display:none}
 .pf-ai-preview{font-size:11px;line-height:1.5;color:#47626c;margin:4px 14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pf-ai-message{max-width:92%;margin:0 0 12px;padding:10px 12px;background:#eaf3f4;border-radius:16px;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
