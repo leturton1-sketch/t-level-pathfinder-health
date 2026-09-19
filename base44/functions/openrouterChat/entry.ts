@@ -30,12 +30,14 @@ export default async function(req) {
 
     if (!res.ok) {
       const text = await res.text();
-      return Response.json({ error: `OpenRouter error (${res.status}): ${text.slice(0, 400)}` }, { status: 502 });
+      console.error('openrouterChat upstream error', res.status, text.slice(0, 400));
+      return Response.json({ error: 'The AI service is unavailable. Please try again later.' }, { status: 502 });
     }
     const data = await res.json();
     const content = data?.choices?.[0]?.message?.content || '';
     return Response.json({ content, model: data?.model || model, provider: 'openrouter' });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('openrouterChat failure', error);
+    return Response.json({ error: 'An unexpected error occurred while contacting the AI service.' }, { status: 500 });
   }
 }

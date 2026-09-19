@@ -151,6 +151,16 @@ export default async function(req) {
     const normalizedUsername = String(username || "").trim().toLowerCase();
     const ip = clientIp(req);
 
+    // Require a username for PIN-based sign-in. Without it the function would
+    // compare the supplied PIN against every active account, letting an
+    // attacker blindly brute-force 4–6 digit PINs and harvest the single
+    // matching user's profile. The QR token paths above already return before
+    // reaching here, so only legacy bare-PIN and direct no-username PIN calls
+    // are affected.
+    if (!normalizedUsername) {
+      return Response.json({ granted: false, reason: "Username is required for PIN sign-in." }, { status: 400, headers: { "Cache-Control": "no-store" } });
+    }
+
     // Enforce brute-force lockout before doing any PIN comparison.
     if (await checkLockout(base44, normalizedUsername, ip)) {
       return Response.json(
