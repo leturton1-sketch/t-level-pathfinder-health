@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
+import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { Send, Settings2, Cpu, Wifi, Cloud, HardDrive, Sparkles, RotateCw, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import {
   loadPrefs, savePrefs, routeChat, probeProvider, fetchFreeOpenRouterModels,
@@ -328,7 +329,7 @@ export default function AIModels() {
                   </div>
                 )}
                 {m.role === "assistant"
-                  ? <ReactMarkdown className="prose prose-sm max-w-none [&_p]:my-0.5">{m.content}</ReactMarkdown>
+                  ? <ReactMarkdown urlTransform={safeUrlTransform} className="prose prose-sm max-w-none [&_p]:my-0.5">{m.content}</ReactMarkdown>
                   : <p className="text-sm whitespace-pre-wrap">{m.content}</p>}
               </div>
             </div>

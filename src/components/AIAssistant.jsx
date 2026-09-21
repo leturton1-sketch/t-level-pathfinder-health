@@ -10,6 +10,7 @@ import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import AIComposer from "@/components/ai/AIComposer";
 import ReactMarkdown from "react-markdown";
+import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { dispatchAiCommand } from "@/lib/aiTutorControl";
 
 const AI_STATES = {
@@ -572,7 +573,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[85%] rounded-2xl px-2.5 py-1.5 text-[13px] ${msg.role === "user" ? "bg-clinical-teal text-white rounded-br-sm" : "bg-white/70 text-slate-800 rounded-bl-sm backdrop-blur-sm"}`}>
-                  {msg.role === "assistant" ? <ReactMarkdown className="prose prose-sm max-w-none [&_p]:my-1 [&_strong]:text-clinical-teal">{msg.content}</ReactMarkdown> : <p>{msg.content}</p>}
+                  {msg.role === "assistant" ? <ReactMarkdown urlTransform={safeUrlTransform} className="prose prose-sm max-w-none [&_p]:my-1 [&_strong]:text-clinical-teal">{msg.content}</ReactMarkdown> : <p>{msg.content}</p>}
                 </div>
               </div>
             ))}

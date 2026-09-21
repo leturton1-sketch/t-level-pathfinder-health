@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { Mic, Square, Volume2, VolumeX, Settings2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { isLoggedIn, getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
@@ -238,7 +239,7 @@ export default function VoiceAssistant() {
               {messages.map((message, index) => (
                 <article key={index} className={`educator-message ${message.role === "user" ? "educator-message-user" : ""}`}>
                   <p className="educator-speaker">{message.role === "user" ? "You" : "Clinical Educator"}</p>
-                  <ReactMarkdown className="prose prose-sm max-w-none">{message.content}</ReactMarkdown>
+                  <ReactMarkdown urlTransform={safeUrlTransform} className="prose prose-sm max-w-none">{message.content}</ReactMarkdown>
                 </article>
               ))}
               <div ref={endRef} />

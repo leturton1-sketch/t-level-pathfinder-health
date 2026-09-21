@@ -5,6 +5,7 @@ import { isLoggedIn } from "@/lib/clinicalAuth";
 import { KNOWLEDGE_ARTICLES } from "@/lib/specData";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import ReactMarkdown from "react-markdown";
+import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { Library, Search, BookMarked, ChevronRight, ArrowLeft, ExternalLink } from "lucide-react";
 
 const CATEGORIES = [
@@ -78,6 +79,7 @@ export default function KnowledgeLibrary() {
           </div>
           <div className="prose prose-sm max-w-none mb-6">
             <ReactMarkdown
+              urlTransform={safeUrlTransform}
               components={{
                 h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-foreground mt-5 mb-2" {...props} />,
                 h3: ({ node, ...props }) => <h3 className="text-base font-bold text-clinical-teal mt-4 mb-1.5" {...props} />,
