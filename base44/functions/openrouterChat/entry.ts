@@ -29,10 +29,21 @@ export default async function(req) {
     const user = await authenticatedUser(base44, body?.pathfinder_session_token);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const messages = Array.isArray(body?.messages) && body.messages.length
+    const rawMessages = Array.isArray(body?.messages) && body.messages.length
       ? body.messages
       : [{ role: 'user', content: String(body?.prompt || '') }];
-    const model = body?.model || 'openrouter/free';
+    const messages = rawMessages.slice(-30).map((message) => ({
+      role: ["user", "assistant", "system"].includes(message?.role) ? message.role : "user",
+      content: String(message?.content || "").slice(0, 8000),
+    }));
+    const inputSize = messages.reduce((total, message) => total + message.content.length, 0);
+    if (!inputSize) return Response.json({ error: 'A prompt or messages array is required.' }, { status: 400 });
+    if (inputSize > 30000) return Response.json({ error: 'The request is too large.' }, { status: 413 });
+
+    const requestedModel = String(body?.model || 'openrouter/free');
+    const model = requestedModel === 'openrouter/free' || requestedModel.endsWith(':free')
+      ? requestedModel.slice(0, 160)
+      : 'openrouter/free';
 
     const apiKey = secrets.get('OPENROUTER_API_KEY');
     if (!apiKey) return Response.json({ error: 'OpenRouter API key not configured on the server.' }, { status: 500 });
