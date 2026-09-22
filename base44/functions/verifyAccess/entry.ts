@@ -1,10 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 
-// Public identification verifier. Cross-references a PIN (optionally with a
-// username) or a QR token against the AppUser management list using the
-// service role, so it works before the user has a platform session.
-// QR tokens are either a unique ID-card token (qr_token, preferred) or the
-// legacy "username:pin"/bare-pin encoding.
+// Public identification verifier. Cross-references a username and PIN or a
+// secure, revocable QR credential against the AppUser management list using
+// the service role, so it works before the user has a platform session.
 async function sha256(value) {
   const bytes = new TextEncoder().encode(String(value));
   const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -123,7 +121,7 @@ async function checkLockout(base44, username, ip) {
 }
 
 // Personal QR credentials are random, hashed at rest and revocable.
-// Legacy username:PIN codes remain supported for existing cards.
+// Legacy username:PIN and bare-PIN QR codes are rejected.
 export default async function(req) {
   if (req.method !== "POST") {
     return Response.json({ granted: false, reason: "Method not allowed." }, { status: 405 });
