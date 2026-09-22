@@ -12,6 +12,7 @@ async function handler(path, client) {
 function fixture(role = "admin") {
   const users = [{ id: "learner1", username: "learner", full_name: "Test Learner", role: "student", active: true, pin: "1234" }];
   const records = [];
+  const sessions = [];
   const matches = (row, query) => Object.entries(query).every(([key,value]) => row[key] === value);
   const client = { auth: { me: async () => role ? { role } : null }, asServiceRole: { entities: {
     AppUser: { filter: async query => users.filter(row => matches(row,query)), update: async (id, patch) => Object.assign(users.find(row => row.id === id), patch) },
@@ -20,9 +21,13 @@ function fixture(role = "admin") {
       create: async value => { const row = { ...value, id: "credential" + (records.length + 1) }; records.push(row); return row; },
       update: async (id, patch) => Object.assign(records.find(row => row.id === id), patch)
     },
+    AppSession: {
+      filter: async query => sessions.filter(row => matches(row,query)),
+      create: async value => { const row = { ...value, id: "session" + (sessions.length + 1) }; sessions.push(row); return row; }
+    },
     AuthAudit: { create: async () => ({}) }
   } } };
-  return { client, users, records };
+  return { client, users, records, sessions };
 }
 const request = payload => new Request("https://example.test", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
 test("QR credentials round-trip, expire, revoke and reject tampering", async () => {
@@ -72,6 +77,6 @@ test("QR cannot authenticate disabled or newly privileged accounts; PIN still wo
   assert.equal(pin.granted,true);
   assert.equal("pin" in pin.user,false);
   const legacy=await (await verify(request({qr:"learner:1234"}))).json();
-  assert.equal(legacy.granted,true);
+  assert.equal(legacy.granted,false);
   assert.equal((await (await verify(request({qr:"pfqr:v1:broken"}))).json()).granted,false);
 });
