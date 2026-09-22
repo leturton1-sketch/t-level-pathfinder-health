@@ -81,6 +81,14 @@ test("QR cannot authenticate disabled or newly privileged accounts; PIN still wo
   assert.equal("pin" in pin.user,false);
   const legacy=await (await verify(request({qr:"learner:1234"}))).json();
   assert.equal(legacy.granted,false);
+
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("1234"));
+  const storedHash = `sha256:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("")}`;
+  f.users[0].pin = storedHash;
+  const replay = await verify(request({ username: "learner", pin: storedHash }));
+  assert.equal(replay.status, 400);
+  assert.equal((await replay.json()).granted, false);
+  assert.equal((await (await verify(request({ username: "learner", pin: "1234" }))).json()).granted, true);
   assert.equal((await (await verify(request({qr:"pfqr:v1:broken"}))).json()).granted,false);
   assert.equal((await (await verify(request({qr:`pfqr:v1:not-a-base44-id:${"0".repeat(64)}`}))).json()).granted,false);
 });
