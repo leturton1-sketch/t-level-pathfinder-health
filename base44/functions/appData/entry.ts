@@ -15,7 +15,7 @@ const POLICIES = {
   CarePlanSubmission: { owner: "student_id", read: "owner", write: "owner" },
   ESPPortfolio: { owner: "student_id", read: "owner", write: "owner" },
   TalentCard: { owner: "student_id", read: "owner", write: "owner" },
-  LearnerReadiness: { owner: "student_id", read: "owner", write: "owner" },
+  LearnerReadiness: { owner: "student_id", read: "owner", write: "staff" },
   HealthHubRecord: { owner: "recorded_by_id", read: "owner", write: "owner" },
   PlacementMatch: { owner: "student_id", read: "owner", write: "staff" },
   AppUser: { read: "special", write: "special" },
@@ -26,6 +26,39 @@ const APP_USER_FIELDS = new Set([
   "username", "pin", "role", "title", "full_name", "institution", "cohort",
   "first_login", "active", "ai_voice", "ai_persona", "is_protected",
 ]);
+
+// Record ownership does not grant permission to edit assessment outcomes.
+// These fields are controlled by tutors/admins even when the learner owns the
+// surrounding record. Simulation results are immutable after creation: they
+// are a snapshot of one completed practice attempt, not an editable grade.
+const STUDENT_PROTECTED_FIELDS = {
+  SimulationResult: new Set([
+    "student_name", "scenario_id", "scenario_name", "decisions", "score",
+    "max_score", "decision_path", "completed", "sk_codes", "performance_outcomes",
+  ]),
+  CarePlanSubmission: new Set(["tutor_feedback", "tutor_id", "reviewed_at"]),
+  ESPPortfolio: new Set(["tutor_role_play_feedback", "tutor_feedback"]),
+  TalentCard: new Set([
+    "attendance_pct", "professionalism_score", "placement_hours",
+    "employer_feedback", "verified", "updated_by",
+  ]),
+};
+
+function constrainStudentWrite(entityName, operation, data) {
+  const protectedFields = STUDENT_PROTECTED_FIELDS[entityName];
+  if (!protectedFields) return data;
+
+  const safe = { ...data };
+  // SimulationResult grading fields are accepted only on initial creation as
+  // immutable formative telemetry. Subsequent learner edits are prohibited.
+  if (!(entityName === "SimulationResult" && operation === "create")) {
+    for (const field of protectedFields) delete safe[field];
+  }
+
+  if (entityName === "CarePlanSubmission" && safe.status === "reviewed") delete safe.status;
+  if (entityName === "ESPPortfolio" && safe.status === "reviewed") delete safe.status;
+  return safe;
+}
 
 function json(body, status = 200) {
   return Response.json(body, {
@@ -291,7 +324,10 @@ export default async function(req) {
 
     if (operation === "create") {
       let data = cleanData(args.data);
-      if (policy.owner && !isStaff(user)) data = { ...data, [policy.owner]: user.id };
+      if (policy.owner && !isStaff(user)) {
+        data = constrainStudentWrite(entityName, "create", data);
+        data = { ...data, [policy.owner]: user.id };
+      }
       return json(stripSensitive(entityName, await entity.create(data)), 201);
     }
 
@@ -305,6 +341,10 @@ export default async function(req) {
       let data = cleanData(args.data);
       if (policy.owner && !isStaff(user)) {
         delete data[policy.owner];
+        data = constrainStudentWrite(entityName, "update", data);
+        if (!Object.keys(data).length) {
+          return json({ error: "Assessment and tutor-controlled fields cannot be changed by learners." }, 403);
+        }
       }
       return json(stripSensitive(entityName, await entity.update(existing.id, data)));
     }
