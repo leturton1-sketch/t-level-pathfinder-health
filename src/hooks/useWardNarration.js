@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { getVoiceProfile, loadPrefs, prepareSpeechText } from "@/lib/voicePreferences";
+import { loadPrefs, prepareSpeechText } from "@/lib/voicePreferences";
 
 /**
  * useWardNarration — reliable clinical narration during ward simulation.
