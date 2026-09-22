@@ -54,7 +54,7 @@ const TalentCardPage = lazy(() => import('./pages/TalentCardPage'));
 const AIAssistant = lazy(() => import('./components/AIAssistant'));
 
 const AuthenticatedApp = () => {
-  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, checkUserAuth, checkAppState } = useAuth();
   const appUser = getCurrentUser();
   const hasAppSession = isLoggedIn();
   const activeUser = appUser || user;
@@ -119,9 +119,15 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // PIN/QR identification gate — shown on first run over a blurred overview
+  // PIN/QR identification gate. Do not mount protected routes until the
+  // server-issued Pathfinder session has been verified by the app shell.
   if (!unlocked) {
-    return <LoginGate onUnlock={() => { sessionStorage.setItem("pathfinder-unlocked", "1"); setUnlocked(true); }} />;
+    return <LoginGate onUnlock={async () => {
+      const accepted = await checkUserAuth();
+      if (!accepted) return;
+      sessionStorage.setItem("pathfinder-unlocked", "1");
+      setUnlocked(true);
+    }} />;
   }
 
   // Personalised welcome — shown once per session right after sign-in
@@ -143,22 +149,32 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
+  // Handle startup failures without leaving users on a blank screen.
   if (authError && !hasAppSession) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    }
-    if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-50 p-6">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-lg">
+          <h1 className="text-lg font-bold text-slate-900">Pathfinder could not start</h1>
+          <p className="mt-2 text-sm text-slate-600">{authError.message || 'Please check your connection and try again.'}</p>
+          <button type="button" onClick={checkAppState} className="mt-4 rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white">Try again</button>
+        </div>
+      </div>
+    );
   }
 
-  // A verified Pathfinder PIN/QR session is sufficient for this public app.
-  // Native Base44 authentication remains supported for the owner/admin account.
-  if (authChecked && !hasAccess && !authError) {
-    navigateToLogin();
-    return null;
+  // Invalid or expired sessions return to the Pathfinder login instead of
+  // repeatedly redirecting to a second authentication system.
+  if (authChecked && !hasAccess) {
+    sessionStorage.removeItem("pathfinder-unlocked");
+    sessionStorage.removeItem("pathfinder-welcomed");
+    return <LoginGate onUnlock={async () => {
+      const accepted = await checkUserAuth();
+      if (!accepted) return;
+      sessionStorage.setItem("pathfinder-unlocked", "1");
+      setUnlocked(true);
+      setWelcomed(false);
+    }} />;
   }
 
   if (!hasAccess || !startupUser || startupUser !== activeUser?.id) return null;
