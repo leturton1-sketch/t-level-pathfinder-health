@@ -54,8 +54,17 @@ async function fixture(role = "student") {
     AppSession: entityStore([{ id: "session-1", app_user_id: userId, token_hash: await sha256(token), revoked: false, expires_at: new Date(Date.now() + 60000).toISOString() }]),
     AppUser: users,
     SimulationResult: entityStore([
-      { id: "result-1", student_id: "student-1", score: 90 },
-      { id: "result-2", student_id: "student-2", score: 70 },
+      { id: "result-1", student_id: "student-1", score: 90, max_score: 100, completed: true },
+      { id: "result-2", student_id: "student-2", score: 70, max_score: 100, completed: true },
+    ]),
+    CarePlanSubmission: entityStore([
+      { id: "plan-1", student_id: "student-1", content: "old", status: "submitted", tutor_feedback: "Tutor only" },
+    ]),
+    ESPPortfolio: entityStore([
+      { id: "portfolio-1", student_id: "student-1", research_notes: "old", status: "submitted", tutor_feedback: "Tutor only" },
+    ]),
+    LearnerReadiness: entityStore([
+      { id: "readiness-1", student_id: "student-1", overall_score: 80 },
     ]),
     TheoryModule: entityStore([{ id: "theory-1", title: "Safeguarding" }]),
     Scenario: entityStore([{ id: "scenario-1", name: "Ward round" }]),
@@ -95,6 +104,39 @@ test("students only read and write records scoped to their server identity", asy
 
   const forbidden = await handler(request({ session_token: token, entity_name: "AppUser", operation: "list", args: {} }));
   assert.equal(forbidden.status, 403);
+});
+
+test("learners cannot alter tutor feedback, grading fields or readiness scores", async () => {
+  const { handler, token, stores } = await fixture("student");
+
+  const gradeAttempt = await handler(request({
+    session_token: token,
+    entity_name: "SimulationResult",
+    operation: "update",
+    args: { id: "result-1", data: { score: 100, max_score: 100, completed: true } },
+  }));
+  assert.equal(gradeAttempt.status, 403);
+  assert.equal(stores.SimulationResult.rows[0].score, 90);
+
+  const planUpdate = await handler(request({
+    session_token: token,
+    entity_name: "CarePlanSubmission",
+    operation: "update",
+    args: { id: "plan-1", data: { content: "learner revision", tutor_feedback: "self graded", status: "reviewed" } },
+  }));
+  assert.equal(planUpdate.status, 200);
+  assert.equal(stores.CarePlanSubmission.rows[0].content, "learner revision");
+  assert.equal(stores.CarePlanSubmission.rows[0].tutor_feedback, "Tutor only");
+  assert.equal(stores.CarePlanSubmission.rows[0].status, "submitted");
+
+  const readinessAttempt = await handler(request({
+    session_token: token,
+    entity_name: "LearnerReadiness",
+    operation: "update",
+    args: { id: "readiness-1", data: { overall_score: 100 } },
+  }));
+  assert.equal(readinessAttempt.status, 403);
+  assert.equal(stores.LearnerReadiness.rows[0].overall_score, 80);
 });
 
 test("authenticated users read shared learning content but students cannot modify it", async () => {
