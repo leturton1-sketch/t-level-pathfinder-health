@@ -133,7 +133,7 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
 
     if (typeof qr === "string" && qr.startsWith("pfqr:")) {
-      const match = /^pfqr:v1:([a-zA-Z0-9_-]{1,128}):([a-f0-9]{64})$/.exec(qr.trim());
+      const match = /^pfqr:v1:([a-f0-9]{24}):([a-f0-9]{64})$/.exec(qr.trim());
       const rejected = () => Response.json({ granted: false, reason: "This QR code is invalid, expired or revoked. Use PIN sign-in or request a replacement." });
       if (!match) return rejected();
       const base44 = createClientFromRequest(req);
