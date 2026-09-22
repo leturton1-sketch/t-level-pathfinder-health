@@ -1,6 +1,37 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { secrets } from 'base44:runtime';
 
+const OPENROUTER_MODEL = 'openrouter/free';
+const AI_WINDOW_MS = 60 * 60 * 1000;
+const STUDENT_REQUESTS_PER_HOUR = 20;
+const STAFF_REQUESTS_PER_HOUR = 60;
+const STAFF_ROLES = new Set(['tutor', 'admin', 'super_admin']);
+
+async function reserveAiUsage(base44, user, provider, inputChars) {
+  const limit = STAFF_ROLES.has(user?.role) ? STAFF_REQUESTS_PER_HOUR : STUDENT_REQUESTS_PER_HOUR;
+  const rows = await base44.asServiceRole.entities.AIUsage.filter(
+    { app_user_id: user.id }, '-requested_at', limit + 25,
+  );
+  const since = Date.now() - AI_WINDOW_MS;
+  const recent = (rows || []).filter((row) => {
+    const time = Date.parse(row.requested_at);
+    return Number.isFinite(time) && time > since;
+  });
+  if (recent.length >= limit) return null;
+  return base44.asServiceRole.entities.AIUsage.create({
+    app_user_id: user.id,
+    provider,
+    requested_at: new Date().toISOString(),
+    input_chars: inputChars,
+    status: 'started',
+  });
+}
+
+async function finishAiUsage(base44, usage, status) {
+  if (!usage?.id) return;
+  try { await base44.asServiceRole.entities.AIUsage.update(usage.id, { status }); } catch {}
+}
+
 async function sha256(value) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value)));
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -23,6 +54,10 @@ async function authenticatedUser(base44, sessionToken) {
 
 export default async function(req) {
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed.' }, { status: 405 });
+  const contentLength = Number(req.headers.get('content-length') || 0);
+  if (Number.isFinite(contentLength) && contentLength > 100000) {
+    return Response.json({ error: 'The request is too large.' }, { status: 413 });
+  }
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
@@ -40,13 +75,23 @@ export default async function(req) {
     if (!inputSize) return Response.json({ error: 'A prompt or messages array is required.' }, { status: 400 });
     if (inputSize > 30000) return Response.json({ error: 'The request is too large.' }, { status: 413 });
 
-    const requestedModel = String(body?.model || 'openrouter/free');
-    const model = requestedModel === 'openrouter/free' || requestedModel.endsWith(':free')
-      ? requestedModel.slice(0, 160)
-      : 'openrouter/free';
-
+    // The server selects a free model; callers cannot choose a chargeable model.
+    const model = OPENROUTER_MODEL;
     const apiKey = secrets.get('OPENROUTER_API_KEY');
     if (!apiKey) return Response.json({ error: 'OpenRouter API key not configured on the server.' }, { status: 500 });
+
+    let usage;
+    try {
+      usage = await reserveAiUsage(base44, user, 'openrouter', inputSize);
+    } catch {
+      return Response.json({ error: 'AI usage protection is temporarily unavailable.' }, { status: 503 });
+    }
+    if (!usage) {
+      return Response.json(
+        { error: 'AI request limit reached. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600', 'Cache-Control': 'no-store' } },
+      );
+    }
 
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -56,15 +101,17 @@ export default async function(req) {
         'HTTP-Referer': 'https://pathfinder.base44.app',
         'X-Title': 'Pathfinder T-Level Simulation',
       },
-      body: JSON.stringify({ model, messages }),
+      body: JSON.stringify({ model, messages, max_tokens: 1200 }),
     });
 
     if (!res.ok) {
+      await finishAiUsage(base44, usage, 'failed');
       const text = await res.text();
       console.error('openrouterChat upstream error', res.status, text.slice(0, 400));
       return Response.json({ error: 'The AI service is unavailable. Please try again later.' }, { status: 502 });
     }
     const data = await res.json();
+    await finishAiUsage(base44, usage, 'succeeded');
     const content = data?.choices?.[0]?.message?.content || '';
     return Response.json({ content, model: data?.model || model, provider: 'openrouter' });
   } catch (error) {
