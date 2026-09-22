@@ -3,6 +3,26 @@ import { secrets } from 'base44:runtime';
 
 const DEFAULT_MODEL = 'gpt-5.4-mini';
 
+async function sha256(value) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value)));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function authenticatedUser(base44, sessionToken) {
+  try {
+    const platformUser = await base44.auth.me();
+    if (platformUser) return platformUser;
+  } catch {}
+
+  if (typeof sessionToken !== "string" || !/^[a-f0-9]{64}$/.test(sessionToken)) return null;
+  const tokenHash = await sha256(sessionToken);
+  const sessions = await base44.asServiceRole.entities.AppSession.filter({ token_hash: tokenHash, revoked: false }, "-expires_at", 3);
+  const session = (sessions || []).find((item) => Number.isFinite(Date.parse(item.expires_at)) && Date.parse(item.expires_at) > Date.now());
+  if (!session) return null;
+  const users = await base44.asServiceRole.entities.AppUser.filter({ id: session.app_user_id, active: true });
+  return users?.[0] || null;
+}
+
 function extractOutputText(data) {
   if (typeof data?.output_text === 'string') return data.output_text;
   return (data?.output || [])
@@ -13,13 +33,13 @@ function extractOutputText(data) {
 }
 
 export default async function(req) {
+  if (req.method !== 'POST') return Response.json({ error: 'Method not allowed.' }, { status: 405 });
   try {
     const base44 = createClientFromRequest(req);
-    let user;
-    try { user = await base44.auth.me(); } catch {}
+    const body = await req.json().catch(() => ({}));
+    const user = await authenticatedUser(base44, body?.pathfinder_session_token);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json().catch(() => ({}));
     const input = Array.isArray(body?.messages) && body.messages.length
       ? body.messages
       : String(body?.prompt || '');
