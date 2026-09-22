@@ -1,7 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
-const RECIPIENT_EMAIL = "lee.turton@academic.rnngroup.ac.uk";
-
 async function sha256(value) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value)));
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -37,9 +35,9 @@ function sanitizeHeader(value) {
   return String(value || "").replace(/[\r\n\t]/g, " ").replace(/\u0000/g, "").trim();
 }
 
-function buildMime(subject, body) {
+function buildMime(recipient, subject, body) {
   return [
-    `To: ${RECIPIENT_EMAIL}`,
+    `To: ${recipient}`,
     `From: ClinicalEdge Notifications <me>`,
     `Subject: ${subject}`,
     `MIME-Version: 1.0`,
@@ -144,15 +142,26 @@ export default async function(req) {
     }
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("gmail");
-    const raw = toBase64Url(buildMime(subject, bodyText));
+    const profileResponse = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/profile", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!profileResponse.ok) {
+      return Response.json({ error: "Unable to resolve the notification mailbox." }, { status: 502 });
+    }
+    const profile = await profileResponse.json();
+    const recipient = sanitizeHeader(profile?.emailAddress);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
+      return Response.json({ error: "The connected Gmail account has no valid notification address." }, { status: 502 });
+    }
+
+    const raw = toBase64Url(buildMime(recipient, subject, bodyText));
     const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({ raw }),
     });
     if (!res.ok) {
-      const errText = await res.text();
-      return Response.json({ error: `Gmail send failed: ${res.status} ${errText}` }, { status: 502 });
+      return Response.json({ error: `Gmail send failed with status ${res.status}.` }, { status: 502 });
     }
     const data = await res.json();
     return Response.json({ ok: true, messageId: data.id });
