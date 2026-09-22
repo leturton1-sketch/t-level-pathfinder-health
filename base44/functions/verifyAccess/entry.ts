@@ -203,7 +203,7 @@ export default async function(req) {
 
     const matches = (candidates || []).filter((candidate) => {
       const storedPin = String(candidate.pin || "").trim();
-      return storedPin === suppliedPin || storedPin === hashedPin;
+      return /^sha256:[a-f0-9]{64}$/.test(storedPin) && storedPin === hashedPin;
     });
 
     if (matches.length === 0) {
@@ -225,12 +225,6 @@ export default async function(req) {
     }
 
     const u = matches[0];
-
-    // Transparently migrate legacy plaintext PINs after a successful login.
-    if (String(u.pin || "").trim() === suppliedPin && !String(u.pin || "").startsWith("sha256:")) {
-      try { await base44.asServiceRole.entities.AppUser.update(u.id, { pin: hashedPin }); } catch {}
-    }
-
     return grantUser(base44, u, qr ? "qr" : "pin");
   } catch (error) {
     return Response.json({ granted: false, reason: "Verification failed. Please try again." }, { status: 500 });
