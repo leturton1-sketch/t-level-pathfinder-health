@@ -12,7 +12,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import LoginGate from './components/auth/LoginGate';
 import WelcomeGreeting from './components/auth/WelcomeGreeting';
-import { getCurrentUser } from '@/lib/clinicalAuth';
+import { getCurrentUser, isLoggedIn } from '@/lib/clinicalAuth';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
 import { MODULE_RESET_EVENT, resetModuleSession } from "@/lib/moduleSession";
@@ -55,6 +55,10 @@ const AIAssistant = lazy(() => import('./components/AIAssistant'));
 
 const AuthenticatedApp = () => {
   const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, authChecked, navigateToLogin } = useAuth();
+  const appUser = getCurrentUser();
+  const hasAppSession = isLoggedIn();
+  const activeUser = appUser || user;
+  const hasAccess = hasAppSession || isAuthenticated;
   const [unlocked, setUnlocked] = useState(false);
   const [welcomed, setWelcomed] = useState(false);
   const [clientReady, setClientReady] = useState(false);
@@ -78,15 +82,15 @@ const AuthenticatedApp = () => {
     return () => window.removeEventListener(MODULE_RESET_EVENT, reset);
   }, []);
   useEffect(() => {
-    if (!isAuthenticated) { setStartupUser(null); return; }
-    if (!unlocked || !welcomed || isLoadingAuth || isLoadingPublicSettings || window.location.pathname === "/oauth/consent") return;
-    if (startupUser !== user?.id) {
+    if (!hasAccess) { setStartupUser(null); return; }
+    if (!unlocked || !welcomed || isLoadingPublicSettings || window.location.pathname === "/oauth/consent") return;
+    if (startupUser !== activeUser?.id) {
       resetModuleSession();
       handWardControlToUser();
       navigate("/", { replace: true });
-      setStartupUser(user?.id);
+      setStartupUser(activeUser?.id);
     }
-  }, [isAuthenticated, unlocked, welcomed, isLoadingAuth, isLoadingPublicSettings, user?.id, startupUser, navigate]);
+  }, [hasAccess, unlocked, welcomed, isLoadingPublicSettings, activeUser?.id, startupUser, navigate]);
 
   if (!clientReady) {
     return (
@@ -119,14 +123,14 @@ const AuthenticatedApp = () => {
   if (!welcomed) {
     return (
       <WelcomeGreeting
-        user={getCurrentUser()}
+        user={activeUser}
         onContinue={() => { sessionStorage.setItem("pathfinder-welcomed", "1"); setWelcomed(true); }}
       />
     );
   }
 
   // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  if (isLoadingPublicSettings || (isLoadingAuth && !hasAppSession)) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
@@ -135,24 +139,24 @@ const AuthenticatedApp = () => {
   }
 
   // Handle authentication errors
-  if (authError) {
+  if (authError && !hasAppSession) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
+    }
+    if (authError.type === 'auth_required') {
       navigateToLogin();
       return null;
     }
   }
 
-  // No custom login remains — send unauthenticated users to the platform sign-in
-  if (authChecked && !isAuthenticated && !authError) {
+  // A verified Pathfinder PIN/QR session is sufficient for this public app.
+  // Native Base44 authentication remains supported for the owner/admin account.
+  if (authChecked && !hasAccess && !authError) {
     navigateToLogin();
     return null;
   }
 
-  // Mount routes only after verified authentication and the neutral landing transition.
-  if (!isAuthenticated || !startupUser || startupUser !== user?.id) return null;
+  if (!hasAccess || !startupUser || startupUser !== activeUser?.id) return null;
 
   // Render the main app
   return (
