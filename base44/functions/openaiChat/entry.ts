@@ -2,6 +2,35 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { secrets } from 'base44:runtime';
 
 const DEFAULT_MODEL = 'gpt-5.4-mini';
+const AI_WINDOW_MS = 60 * 60 * 1000;
+const STUDENT_REQUESTS_PER_HOUR = 20;
+const STAFF_REQUESTS_PER_HOUR = 60;
+const STAFF_ROLES = new Set(['tutor', 'admin', 'super_admin']);
+
+async function reserveAiUsage(base44, user, provider, inputChars) {
+  const limit = STAFF_ROLES.has(user?.role) ? STAFF_REQUESTS_PER_HOUR : STUDENT_REQUESTS_PER_HOUR;
+  const rows = await base44.asServiceRole.entities.AIUsage.filter(
+    { app_user_id: user.id }, '-requested_at', limit + 25,
+  );
+  const since = Date.now() - AI_WINDOW_MS;
+  const recent = (rows || []).filter((row) => {
+    const time = Date.parse(row.requested_at);
+    return Number.isFinite(time) && time > since;
+  });
+  if (recent.length >= limit) return null;
+  return base44.asServiceRole.entities.AIUsage.create({
+    app_user_id: user.id,
+    provider,
+    requested_at: new Date().toISOString(),
+    input_chars: inputChars,
+    status: 'started',
+  });
+}
+
+async function finishAiUsage(base44, usage, status) {
+  if (!usage?.id) return;
+  try { await base44.asServiceRole.entities.AIUsage.update(usage.id, { status }); } catch {}
+}
 
 async function sha256(value) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value)));
@@ -34,6 +63,10 @@ function extractOutputText(data) {
 
 export default async function(req) {
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed.' }, { status: 405 });
+  const contentLength = Number(req.headers.get('content-length') || 0);
+  if (Number.isFinite(contentLength) && contentLength > 100000) {
+    return Response.json({ error: 'The request is too large.' }, { status: 413 });
+  }
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
@@ -65,10 +98,24 @@ export default async function(req) {
       return Response.json({ error: 'OpenAI API key not configured on the server.' }, { status: 500 });
     }
 
+    let usage;
+    try {
+      usage = await reserveAiUsage(base44, user, 'openai', inputSize);
+    } catch {
+      return Response.json({ error: 'AI usage protection is temporarily unavailable.' }, { status: 503 });
+    }
+    if (!usage) {
+      return Response.json(
+        { error: 'AI request limit reached. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600', 'Cache-Control': 'no-store' } },
+      );
+    }
+
     const requestBody = {
       model: DEFAULT_MODEL,
       input,
       store: false,
+      max_output_tokens: 1200,
     };
 
     if (body?.response_json_schema) {
@@ -95,6 +142,7 @@ export default async function(req) {
     });
 
     if (!res.ok) {
+      await finishAiUsage(base44, usage, 'failed');
       return Response.json(
         { error: `OpenAI request failed (${res.status}).` },
         { status: 502 },
@@ -102,6 +150,7 @@ export default async function(req) {
     }
 
     const data = await res.json();
+    await finishAiUsage(base44, usage, 'succeeded');
     const content = extractOutputText(data);
     if (!content.trim()) {
       return Response.json({ error: 'OpenAI returned an empty response.' }, { status: 502 });
