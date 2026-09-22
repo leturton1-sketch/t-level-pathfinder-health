@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
 import { getVoiceProfile, loadPrefs, prepareSpeechText } from "@/lib/voicePreferences";
 
 /**
  * useWardNarration — reliable clinical narration during ward simulation.
- * Prefers Base44 GenerateSpeech (neural, no key needed) for natural voice,
- * falls back to Web Speech API. Includes the Chrome "paused" bug fix.
+ * Uses the device Web Speech API so narration cannot consume cloud credits.
+ * Includes the Chrome "paused" bug fix.
  */
 export function useWardNarration() {
   const [speaking, setSpeaking] = useState(false);
@@ -53,31 +52,7 @@ export function useWardNarration() {
 
     const prefs = loadPrefs();
 
-    // Cloud neural voice path (preferred when chosen in Voice Settings)
-    if (prefs?.engine === "cloud") {
-      const cloudVoice = getVoiceProfile(prefs.profileId).cloudVoice;
-      try {
-        setSpeaking(true);
-        const res = await base44.integrations.Core.GenerateSpeech({
-          text: clean,
-          voice: cloudVoice,
-          language_code: "en",
-        });
-        const url = res?.url;
-        if (!url) throw new Error("no url");
-        const audio = new Audio(url);
-        audioRef.current = audio;
-        audio.volume = prefs.volume ?? 1;
-        audio.onended = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
-        audio.onerror = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
-        await audio.play();
-        return;
-      } catch {
-        // fall back to browser TTS
-      }
-    }
-
-    // Browser Web Speech API fallback
+    // Browser Web Speech API keeps narration local and avoids billable cloud calls.
     if (!supported) { setSpeaking(false); onEnd?.(); return; }
     const u = new SpeechSynthesisUtterance(clean);
     u.rate = prefs?.rate ?? 0.95;
