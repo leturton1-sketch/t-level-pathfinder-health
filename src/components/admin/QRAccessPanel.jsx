@@ -30,7 +30,7 @@ export default function QRAccessPanel({ users }) {
   };
   return <section className="rounded-2xl border border-border bg-card p-5">
     <h2 className="text-xl font-bold">Personal QR login codes</h2>
-    <p className="mt-2 text-sm text-muted-foreground">Generate a login card for an active learner or lecturer. A Base44 administrator session is required. Protected and administrator accounts continue to use PIN sign-in.</p>
+    <p className="mt-2 text-sm text-muted-foreground">Generate a login card for an active learner or lecturer. A Pathfinder administrator session is required. Protected and administrator accounts continue to use PIN sign-in.</p>
     <label className="mt-5 block font-semibold" htmlFor="qr-account">Account</label>
     <select id="qr-account" className="mt-2 w-full rounded-lg border border-border bg-background p-3" disabled={busy} value={selected} onChange={e => { setSelected(e.target.value); setCard(null); setMessage(""); }}>
       <option value="">Choose an account</option>
