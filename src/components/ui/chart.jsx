@@ -56,25 +56,27 @@ const ChartStyle = ({
     return null
   }
 
-  return (
-    (<style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+  const safeName = (value) => /^[a-zA-Z0-9_-]+$/.test(String(value))
+  const safeColor = (value) => {
+    const color = String(value || "").trim()
+    return color && !/[;{}<>]/.test(color) && !/url\s*\(/i.test(color) ? color : null
+  }
+  const safeId = safeName(id) ? id : "chart"
+  const css = Object.entries(THEMES)
+    .map(([theme, prefix]) => `
+${prefix} [data-chart=${safeId}] {
 ${colorConfig
 .map(([key, itemConfig]) => {
-const color =
-  itemConfig.theme?.[theme] ||
-  itemConfig.color
-return color ? `  --color-${key}: ${color};` : null
+  const color = safeColor(itemConfig.theme?.[theme] || itemConfig.color)
+  return color && safeName(key) ? `  --color-${key}: ${color};` : null
 })
+.filter(Boolean)
 .join("\n")}
 }
 `)
-          .join("\n"),
-      }} />)
-  );
+    .join("\n")
+
+  return <style>{css}</style>;
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip
