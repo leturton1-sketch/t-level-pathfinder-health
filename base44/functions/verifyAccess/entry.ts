@@ -161,6 +161,14 @@ export default async function(req) {
     }
 
     const suppliedPin = String(pin).trim();
+    // Accept only the human PIN format. A stored sha256: value must never be
+    // accepted as a credential, otherwise a leaked hash could be replayed.
+    if (!/^\d{4,6}$/.test(suppliedPin)) {
+      return Response.json(
+        { granted: false, reason: "Enter a valid 4 to 6 digit PIN." },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
+      );
+    }
     const normalizedUsername = String(username || "").trim().toLowerCase();
     const ip = clientIp(req);
 
@@ -182,8 +190,9 @@ export default async function(req) {
       );
     }
 
-    // Fetch candidate active accounts first, then verify the supplied PIN in code.
-    // This supports both legacy plaintext PINs and newer SHA-256 encoded PINs.
+    // Fetch the named active account, then compare either its legacy numeric
+    // PIN or the hash of the supplied numeric PIN. Hash strings are rejected
+    // above and can never be replayed directly.
     const query = { active: true };
     if (normalizedUsername) query.username = normalizedUsername;
     const candidates = await base44.asServiceRole.entities.AppUser.filter(query);
