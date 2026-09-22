@@ -1,4 +1,9 @@
 import { base44 } from "@/api/base44Client";
+import {
+  clearPathfinderSessionToken,
+  getPathfinderSessionToken,
+  setPathfinderSessionToken,
+} from "@/lib/authSession";
 
 import { resetModuleSession } from "./moduleSession";
 
@@ -27,9 +32,14 @@ function persist(user) {
   } catch {}
 }
 
-export function setAppUser(appUser, method = "pin") {
+export function setAppUser(appUser, method = "pin", sessionToken = null) {
   resetModuleSession();
-  if (!appUser) { persist(null); return; }
+  if (!appUser) {
+    clearPathfinderSessionToken();
+    persist(null);
+    return;
+  }
+  if (sessionToken) setPathfinderSessionToken(sessionToken);
   const next = {
     id: appUser.id,
     username: String(appUser.username || "").toLowerCase().trim(),
@@ -95,7 +105,11 @@ export function setPlatformUser(platformUser) {
 
 export function getCurrentUser() { return cachedUser; }
 export function getPlatformUser() { return cachedPlatformUser; }
-export function isLoggedIn() { return cachedUser !== null && cachedUser.active !== false; }
+export function isLoggedIn() {
+  if (!cachedUser || cachedUser.active === false) return false;
+  if (cachedUser.auth_method === "platform") return !!cachedPlatformUser;
+  return !!getPathfinderSessionToken();
+}
 export function isSuperAdmin() { return cachedUser?.role === "super_admin"; }
 export function isAdmin() { return ["super_admin", "admin"].includes(cachedUser?.role); }
 export function canManageUsers() { return ["super_admin", "admin", "tutor"].includes(cachedUser?.role); }
@@ -103,9 +117,15 @@ export function canManageUsers() { return ["super_admin", "admin", "tutor"].incl
 export function logout() {
   resetModuleSession();
   try { sessionStorage.removeItem("pathfinder-welcomed"); } catch {}
-  persist(null);
   try { sessionStorage.removeItem("pathfinder-unlocked"); } catch {}
-  base44.auth.logout(window.location.origin + "/");
+  clearPathfinderSessionToken();
+  persist(null);
+
+  if (cachedPlatformUser) {
+    base44.auth.logout(window.location.origin + "/");
+  } else if (typeof window !== "undefined") {
+    window.location.assign("/");
+  }
   return true;
 }
 
