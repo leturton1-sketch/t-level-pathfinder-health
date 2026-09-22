@@ -40,12 +40,24 @@ export default async function(req) {
     const user = await authenticatedUser(base44, body?.pathfinder_session_token);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const input = Array.isArray(body?.messages) && body.messages.length
-      ? body.messages
-      : String(body?.prompt || '');
+    let input;
+    if (Array.isArray(body?.messages) && body.messages.length) {
+      input = body.messages.slice(-30).map((message) => ({
+        role: ["user", "assistant", "system", "developer"].includes(message?.role) ? message.role : "user",
+        content: String(message?.content || "").slice(0, 8000),
+      }));
+    } else {
+      input = String(body?.prompt || '').slice(0, 30000);
+    }
 
-    if ((typeof input === 'string' && !input.trim()) || (Array.isArray(input) && !input.length)) {
+    const inputSize = typeof input === "string"
+      ? input.length
+      : input.reduce((total, message) => total + message.content.length, 0);
+    if (!inputSize) {
       return Response.json({ error: 'A prompt or messages array is required.' }, { status: 400 });
+    }
+    if (inputSize > 30000) {
+      return Response.json({ error: 'The request is too large.' }, { status: 413 });
     }
 
     const apiKey = secrets.get('OPENAI_API_KEY');
@@ -54,12 +66,15 @@ export default async function(req) {
     }
 
     const requestBody = {
-      model: body?.model || DEFAULT_MODEL,
+      model: DEFAULT_MODEL,
       input,
       store: false,
     };
 
     if (body?.response_json_schema) {
+      if (JSON.stringify(body.response_json_schema).length > 20000) {
+        return Response.json({ error: 'The response schema is too large.' }, { status: 413 });
+      }
       requestBody.text = {
         format: {
           type: 'json_schema',
