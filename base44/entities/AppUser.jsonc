@@ -71,11 +71,6 @@
       "type": "boolean",
       "default": false,
       "description": "System Architect account cannot be deleted"
-    },
-    "qr_token": {
-      "type": "string",
-      "title": "QR Login Token",
-      "description": "Unique random token embedded in the user's Industry Academy ID card QR code, used to sign in without a username/PIN"
     }
   },
   "required": [
