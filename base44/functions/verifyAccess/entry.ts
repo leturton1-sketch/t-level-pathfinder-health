@@ -5,10 +5,38 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 // service role, so it works before the user has a platform session.
 // QR tokens are either a unique ID-card token (qr_token, preferred) or the
 // legacy "username:pin"/bare-pin encoding.
+async function sha256(value) {
+  const bytes = new TextEncoder().encode(String(value));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function issueSession(base44, userId, method) {
+  const token = Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
+    b.toString(16).padStart(2, "0")
+  ).join("");
+  const tokenHash = await sha256(token);
+  const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
+  await base44.asServiceRole.entities.AppSession.create({
+    app_user_id: userId,
+    token_hash: tokenHash,
+    expires_at: expiresAt,
+    revoked: false,
+    auth_method: method,
+  });
+  return { token, expiresAt };
+}
+
 async function grantUser(base44, u, method) {
   if (u.active === false) {
-    return Response.json({ granted: false, reason: "This account is inactive. Contact your administrator." });
+    return Response.json(
+      { granted: false, reason: "This account is inactive. Contact your administrator." },
+      { headers: { "Cache-Control": "no-store" } },
+    );
   }
+
+  const session = await issueSession(base44, u.id, method);
+
   try {
     await base44.asServiceRole.entities.AuthAudit.create({
       app_user_id: u.id,
@@ -20,8 +48,11 @@ async function grantUser(base44, u, method) {
       occurred_at: new Date().toISOString(),
     });
   } catch {}
+
   return Response.json({
     granted: true,
+    session_token: session.token,
+    session_expires_at: session.expiresAt,
     user: {
       id: u.id,
       username: u.username,
@@ -30,11 +61,12 @@ async function grantUser(base44, u, method) {
       title: u.title || null,
       cohort: u.cohort || null,
       institution: u.institution || null,
+      first_login: !!u.first_login,
       ai_voice: u.ai_voice || "honey",
       ai_persona: u.ai_persona || "female",
       is_protected: !!u.is_protected,
     },
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }
 
 // Brute-force protection: after MAX_ATTEMPTS failed PIN attempts within
@@ -93,6 +125,9 @@ async function checkLockout(base44, username, ip) {
 // Personal QR credentials are random, hashed at rest and revocable.
 // Legacy username:PIN codes remain supported for existing cards.
 export default async function(req) {
+  if (req.method !== "POST") {
+    return Response.json({ granted: false, reason: "Method not allowed." }, { status: 405 });
+  }
   try {
     const body = await req.json().catch(() => ({}));
     let { username, pin, qr } = body || {};
@@ -113,34 +148,14 @@ export default async function(req) {
       const users = await base44.asServiceRole.entities.AppUser.filter({ id: record.app_user_id, active: true });
       const u = users?.[0];
       if (!u || u.active === false || u.is_protected || ["admin", "super_admin"].includes(u.role)) return rejected();
-      try {
-        await base44.asServiceRole.entities.AuthAudit.create({ app_user_id: u.id, username: u.username, event: "qr_login", method: "qr", success: true, detail: "Personal QR credential accepted.", occurred_at: new Date().toISOString() });
-      } catch {}
-      return Response.json({ granted: true, user: {
-        id: u.id, username: u.username, full_name: u.full_name, role: u.role,
-        title: u.title || null, cohort: u.cohort || null, institution: u.institution || null,
-        first_login: !!u.first_login, ai_voice: u.ai_voice || "honey", ai_persona: u.ai_persona || "female", is_protected: false
-      } }, { headers: { "Cache-Control": "no-store" } });
+      return grantUser(base44, u, "qr");
     }
 
     if (qr) {
-      const decoded = String(qr).trim();
-      // ID-card QR codes carry a long random token minted for the user (see
-      // qr_token on AppUser) rather than their PIN, so a card keeps working
-      // even after the user changes their PIN. Try that lookup first.
-      if (decoded.length >= 16) {
-        const byToken = await base44.asServiceRole.entities.AppUser.filter({ qr_token: decoded, active: true });
-        if (byToken && byToken.length === 1) {
-          return grantUser(base44, byToken[0], "qr");
-        }
-      }
-      if (decoded.includes(":")) {
-        const [u, p] = decoded.split(":");
-        username = (u || "").trim().toLowerCase();
-        pin = (p || "").trim();
-      } else {
-        pin = decoded;
-      }
+      return Response.json(
+        { granted: false, reason: "This legacy QR code is no longer supported. Ask an administrator to issue a secure replacement." },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
+      );
     }
 
     if (!pin) {
