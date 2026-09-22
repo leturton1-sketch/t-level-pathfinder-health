@@ -1,0 +1,61 @@
+{
+  "name": "AIUsage",
+  "type": "object",
+  "properties": {
+    "app_user_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "openai",
+        "openrouter"
+      ]
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "input_chars": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "started",
+        "succeeded",
+        "failed"
+      ],
+      "default": "started"
+    }
+  },
+  "required": [
+    "app_user_id",
+    "provider",
+    "requested_at",
+    "input_chars",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
