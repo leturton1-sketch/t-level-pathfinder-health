@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
+import { getCurrentUser, isLoggedIn } from "@/lib/clinicalAuth";
 import { createPortfolioForCase, getESPCase } from "@/lib/espCaseData";
 
 import { getModuleGeneration } from "./moduleSession";
@@ -13,7 +13,8 @@ export const DEFAULT_ESP_CASE = createPortfolioForCase(getESPCase("practice-amir
 
 
 export function ESPCaseProvider({ children }) {
-  const { user, isAuthenticated } = useAuth();
+  const user = getCurrentUser();
+  const isAuthenticated = isLoggedIn();
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(false);
 
