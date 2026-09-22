@@ -125,7 +125,7 @@ export async function runDiagnostic() {
     .join("\n");
 
   try {
-    const res = await base44.integrations.Core.InvokeLLM({
+    const response = await base44.functions.invoke("openaiChat", {
       prompt: `You are a diagnostic AI for the Pathfinder T-Level Simulation web app (React + Vite single-page app, Base44 backend). Analyse the following runtime errors captured during the session and produce a structured diagnostic report. For each distinct issue, give a short title, a severity (low/medium/high), the number of occurrences, a likely_cause, a recommended_fix aimed at a developer applying it in the builder (the running app CANNOT rewrite its source at runtime), and a workaround_action limited EXACTLY to one of ${JSON.stringify(SAFE_ACTIONS)} — use "dismiss" when no safe runtime workaround exists. Set can_auto_fix true only when workaround_action is "reload". Aggregate duplicate errors. Be concise and British English.`,
       response_json_schema: {
         type: "object",
@@ -150,6 +150,8 @@ export async function runDiagnostic() {
         },
       },
     });
+    const res = response?.data ?? response;
+    if (res?.error) throw new Error(res.error);
     return { ...res, rawCount: raw.length };
   } catch (err) {
     return {
