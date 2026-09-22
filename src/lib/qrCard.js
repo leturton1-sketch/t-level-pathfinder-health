@@ -1,27 +1,24 @@
 import { base44 } from "@/api/base44Client";
 
+async function issueSecureQr(appUser) {
+  if (!appUser?.id) throw new Error("Choose an account first.");
+  const response = await base44.functions.invoke("manageQrAccess", {
+    app_user_id: appUser.id,
+    action: "issue",
+  });
+  const data = response?.data ?? response;
+  if (!data?.qr) throw new Error("The server did not return a QR credential.");
+  return data.qr;
+}
+
 /**
- * Industry Academy ID card QR tokens.
- * Each card carries a long random token stored on AppUser.qr_token — never
- * the user's PIN — so the card keeps working even if the PIN is changed,
- * and a lost/reissued card can be revoked independently of sign-in.
+ * Secure QR credentials are random, hashed at rest, expire after 90 days and
+ * revoke any previously issued credential for the same account.
  */
-function randomToken() {
-  const bytes = crypto.getRandomValues(new Uint8Array(24));
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+export function ensureQrToken(appUser) {
+  return issueSecureQr(appUser);
 }
 
-/** Returns the user's existing QR token, minting and persisting one if absent. */
-export async function ensureQrToken(appUser) {
-  if (appUser?.qr_token) return appUser.qr_token;
-  const token = randomToken();
-  await base44.entities.AppUser.update(appUser.id, { qr_token: token });
-  return token;
-}
-
-/** Issues a brand-new token, invalidating any previously printed card. */
-export async function reissueQrToken(appUser) {
-  const token = randomToken();
-  await base44.entities.AppUser.update(appUser.id, { qr_token: token });
-  return token;
+export function reissueQrToken(appUser) {
+  return issueSecureQr(appUser);
 }
