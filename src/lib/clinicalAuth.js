@@ -8,11 +8,6 @@ import {
 import { resetModuleSession } from "./moduleSession";
 
 const APP_SESSION_KEY = "pathfinder-app-user-v2";
-const SUPER_ADMIN_EMAILS = new Set([
-  "lee.turton@academic.rnngroup.ac.uk",
-  "leturton1@gmail.com",
-]);
-
 let cachedUser = null;
 let cachedPlatformUser = null;
 
@@ -78,11 +73,11 @@ export function setPlatformUser(platformUser) {
   }
 
   const email = (platformUser.email || "").toLowerCase().trim();
-  const role = SUPER_ADMIN_EMAILS.has(email)
-    ? "super_admin"
-    : ["admin", "super_admin"].includes(platformUser.role)
-      ? platformUser.role
-      : "student";
+  // Platform identities never gain privileges from an email address. Roles
+  // must come from the authenticated platform account or the secured AppUser record.
+  const role = ["admin", "super_admin"].includes(platformUser.role)
+    ? platformUser.role
+    : "student";
 
   persist({
     id: platformUser.id,
