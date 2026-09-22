@@ -18,7 +18,7 @@ function fixture(role = "admin") {
     AppUser: { filter: async query => users.filter(row => matches(row,query)), update: async (id, patch) => Object.assign(users.find(row => row.id === id), patch) },
     QRAccessCredential: {
       filter: async query => records.filter(row => matches(row,query)),
-      create: async value => { const row = { ...value, id: "credential" + (records.length + 1) }; records.push(row); return row; },
+      create: async value => { const row = { ...value, id: String(records.length + 1).padStart(24, "0") }; records.push(row); return row; },
       update: async (id, patch) => Object.assign(records.find(row => row.id === id), patch)
     },
     AppSession: {
@@ -35,7 +35,7 @@ test("QR credentials round-trip, expire, revoke and reject tampering", async () 
   const issue=await handler("base44/functions/manageQrAccess/entry.ts", f.client);
   const verify=await handler("base44/functions/verifyAccess/entry.ts", f.client);
   const issued=await (await issue(request({app_user_id:"learner1",action:"issue"}))).json();
-  assert.match(issued.qr,/^pfqr:v1:credential1:[a-f0-9]{64}$/);
+  assert.match(issued.qr,/^pfqr:v1:[a-f0-9]{24}:[a-f0-9]{64}$/);
   assert.equal(f.records[0].token_hash.includes(issued.qr.split(":")[3]), false);
   const verified = await (await verify(request({qr:issued.qr}))).json();
   assert.equal(verified.granted,true);
@@ -82,4 +82,5 @@ test("QR cannot authenticate disabled or newly privileged accounts; PIN still wo
   const legacy=await (await verify(request({qr:"learner:1234"}))).json();
   assert.equal(legacy.granted,false);
   assert.equal((await (await verify(request({qr:"pfqr:v1:broken"}))).json()).granted,false);
+  assert.equal((await (await verify(request({qr:`pfqr:v1:not-a-base44-id:${"0".repeat(64)}`}))).json()).granted,false);
 });
