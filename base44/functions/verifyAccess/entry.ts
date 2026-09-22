@@ -211,6 +211,6 @@ export default async function(req) {
 
     return grantUser(base44, u, qr ? "qr" : "pin");
   } catch (error) {
-    return Response.json({ granted: false, reason: error.message || "Verification failed." }, { status: 500 });
+    return Response.json({ granted: false, reason: "Verification failed. Please try again." }, { status: 500 });
   }
 }
