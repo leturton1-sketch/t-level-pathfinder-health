@@ -1,11 +1,33 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+
+async function sha256(value) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value)));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function authenticatedUser(base44, sessionToken) {
+  try {
+    const platformUser = await base44.auth.me();
+    if (platformUser) return platformUser;
+  } catch {}
+
+  if (typeof sessionToken !== "string" || !/^[a-f0-9]{64}$/.test(sessionToken)) return null;
+  const tokenHash = await sha256(sessionToken);
+  const sessions = await base44.asServiceRole.entities.AppSession.filter({ token_hash: tokenHash, revoked: false }, "-expires_at", 3);
+  const session = (sessions || []).find((item) => Number.isFinite(Date.parse(item.expires_at)) && Date.parse(item.expires_at) > Date.now());
+  if (!session) return null;
+  const users = await base44.asServiceRole.entities.AppUser.filter({ id: session.app_user_id, active: true });
+  return users?.[0] || null;
+}
+
 export default async function(req) {
   if (req.method !== "POST") return Response.json({ error: "Method not allowed." }, { status: 405 });
   try {
     const base44 = createClientFromRequest(req);
-    const caller = await base44.auth.me().catch(() => null);
-    if (!caller || caller.role !== "admin") return Response.json({ error: "A Base44 administrator account is required to manage login QR codes." }, { status: 403 });
-    const { app_user_id, action } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const caller = await authenticatedUser(base44, body?.pathfinder_session_token);
+    if (!caller || !["admin", "super_admin"].includes(caller.role)) return Response.json({ error: "An administrator account is required to manage login QR codes." }, { status: 403 });
+    const { app_user_id, action } = body;
     if (typeof app_user_id !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(app_user_id) || !["issue", "revoke"].includes(action)) {
       return Response.json({ error: "Choose an account and a valid action." }, { status: 400 });
     }
