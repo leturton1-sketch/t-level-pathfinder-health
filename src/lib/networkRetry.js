@@ -26,6 +26,18 @@ function retryAfterMs(error) {
 
 const wait = (ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 
+export function withTimeout(promise, timeoutMs = 10000, message = "The request timed out.") {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = globalThis.setTimeout(() => {
+      const error = new Error(message);
+      error.code = "ETIMEDOUT";
+      reject(error);
+    }, timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => globalThis.clearTimeout(timer));
+}
+
 export async function withExponentialBackoff(
   operation,
   { retries = 3, baseDelayMs = 350, maxDelayMs = 3000, shouldRetry = isTransientNetworkError } = {}
