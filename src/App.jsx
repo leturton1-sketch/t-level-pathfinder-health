@@ -64,8 +64,13 @@ const AuthenticatedApp = () => {
   const [clientReady, setClientReady] = useState(false);
 
   useEffect(() => {
-    setUnlocked(sessionStorage.getItem("pathfinder-unlocked") === "1");
-    setWelcomed(sessionStorage.getItem("pathfinder-welcomed") === "1");
+    const sessionAvailable = isLoggedIn();
+    setUnlocked(sessionAvailable && sessionStorage.getItem("pathfinder-unlocked") === "1");
+    setWelcomed(sessionAvailable && sessionStorage.getItem("pathfinder-welcomed") === "1");
+    if (!sessionAvailable) {
+      sessionStorage.removeItem("pathfinder-unlocked");
+      sessionStorage.removeItem("pathfinder-welcomed");
+    }
     setClientReady(true);
   }, []);
 
