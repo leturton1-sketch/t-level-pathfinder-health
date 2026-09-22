@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
 import { DEFAULT_PREFS, VOICE_PROFILES, loadPrefs, savePrefs, applyProfile, prepareSpeechText } from "@/lib/voicePreferences";
 import { ukVoiceService } from "@/utils/ukVoiceSynthesizer";
 
 /**
  * useVoiceSynthesis — speech synthesis hook.
- * Engine "cloud" uses Base44 GenerateSpeech (neural voices, no API key).
- * Engine "browser" uses the Web Speech API with the chosen system voice.
- * Cloud failures fall back to browser TTS automatically.
+ * Uses the device Web Speech API for every voice profile so speech cannot
+ * consume cloud credits or be triggered anonymously.
  */
 export function useVoiceSynthesis() {
   const [prefs, setPrefs] = useState(() => ({ ...DEFAULT_PREFS }));
@@ -75,30 +73,6 @@ export function useVoiceSynthesis() {
 
     const profile = VOICE_PROFILES.find((p) => p.id === prefs.profileId) || VOICE_PROFILES[0];
 
-    if (prefs.engine === "cloud") {
-      try {
-        const res = await base44.integrations.Core.GenerateSpeech({
-          text: clean,
-          voice: profile.cloudVoice,
-          language_code: "en",
-        });
-        const url = res?.url;
-        if (!url) throw new Error("no audio url");
-        const audio = new Audio(url);
-        audioRef.current = audio;
-        audio.volume = prefs.volume;
-        // Fire onStart only when audio actually begins playing, so the
-        // waveform animation aligns to real playback duration (not the
-        // cloud-generation latency).
-        audio.onplay = () => { setSpeaking(true); onStart?.(); };
-        audio.onended = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
-        audio.onerror = () => { audioRef.current = null; setSpeaking(false); onEnd?.(); };
-        await audio.play();
-        return;
-      } catch {
-        // fall back to browser TTS
-      }
-    }
     speakBrowser(clean, prefs, profile, onStart, onEnd);
   }, [prefs, stop, speakBrowser]);
 
