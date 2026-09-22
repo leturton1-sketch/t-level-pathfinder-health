@@ -31,8 +31,8 @@ export default function LoginGate({ onUnlock }) {
 
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
-  const grant = (user, method = "pin") => {
-    setAppUser(user, method);
+  const grant = (user, method = "pin", sessionToken = null) => {
+    setAppUser(user, method, sessionToken);
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
     // The richer personalised welcome (spoken + visual) is shown next, by WelcomeGreeting.
     onUnlock?.();
@@ -52,7 +52,7 @@ export default function LoginGate({ onUnlock }) {
       const data = res?.data ?? res;
       if (!mountedRef.current) return;
       setScanMessage(data?.granted ? "Access granted." : data?.reason || "Code not recognised. Try again or use PIN sign-in.");
-      if (data?.granted) grant(data.user, payload?.qr ? "qr" : "pin");
+      if (data?.granted) grant(data.user, payload?.qr ? "qr" : "pin", data.session_token);
       else deny(data?.reason);
     } catch (e) {
       if (mountedRef.current) deny(e?.response?.data?.reason || "Unable to verify. Please try again.");
