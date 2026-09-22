@@ -164,6 +164,10 @@ function isStaff(user) {
   return STAFF_ROLES.has(user?.role);
 }
 
+function isAdmin(user) {
+  return ADMIN_ROLES.has(user?.role);
+}
+
 function mayWrite(policy, user) {
   if (policy.write === "staff") return isStaff(user);
   if (policy.write === "owner") return true;
@@ -303,7 +307,11 @@ export default async function(req) {
 
     if (operation === "list" || operation === "filter") {
       let query = operation === "filter" ? cleanQuery(args.query) : {};
-      if (policy.owner && !isStaff(user)) query = { ...query, [policy.owner]: user.id };
+      // Owner-based entities align with their RLS: only admins bypass the
+      // owner filter. Tutors are filtered to records they own (e.g. the
+      // HealthHubRecord clinic checks they recorded), matching the RLS which
+      // grants broad read only to admins.
+      if (policy.owner && !isAdmin(user)) query = { ...query, [policy.owner]: user.id };
       const rows = await entity.filter(
         query,
         safeSort(args.sort),
@@ -316,7 +324,7 @@ export default async function(req) {
     if (operation === "get") {
       const row = await entity.get(String(args.id || "")).catch(() => null);
       if (!row) return json({ error: "Record not found." }, 404);
-      if (policy.owner && !isStaff(user) && !owns(policy, user, row)) {
+      if (policy.owner && !isAdmin(user) && !owns(policy, user, row)) {
         return json({ error: "Not authorised." }, 403);
       }
       return json(stripSensitive(entityName, row));
