@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { setPlatformUser } from '@/lib/clinicalAuth';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
-import { withExponentialBackoff } from "@/lib/networkRetry";
+import { withExponentialBackoff, withTimeout } from "@/lib/networkRetry";
 
 import { resetModuleSession } from "./moduleSession";
 
@@ -39,9 +39,13 @@ export const AuthProvider = ({ children }) => {
       });
       
       try {
-        const publicSettings = await withExponentialBackoff(
-          () => appClient.get(`/prod/public-settings/by-id/${appParams.appId}`),
-          { retries: 3, baseDelayMs: 400 }
+        const publicSettings = await withTimeout(
+          withExponentialBackoff(
+            () => appClient.get(`/prod/public-settings/by-id/${appParams.appId}`),
+            { retries: 2, baseDelayMs: 400 }
+          ),
+          10000,
+          "Pathfinder could not reach the app service in time."
         );
         setAppPublicSettings(publicSettings);
         
@@ -84,6 +88,7 @@ export const AuthProvider = ({ children }) => {
         }
         setIsLoadingPublicSettings(false);
         setIsLoadingAuth(false);
+        setAuthChecked(true);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -93,6 +98,7 @@ export const AuthProvider = ({ children }) => {
       });
       setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
+      setAuthChecked(true);
     }
   };
 
@@ -100,9 +106,13 @@ export const AuthProvider = ({ children }) => {
     try {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
-      const currentUser = await withExponentialBackoff(
-        () => base44.auth.me(),
-        { retries: 3, baseDelayMs: 400 }
+      const currentUser = await withTimeout(
+        withExponentialBackoff(
+          () => base44.auth.me(),
+          { retries: 2, baseDelayMs: 400 }
+        ),
+        10000,
+        "Pathfinder could not verify the platform session in time."
       );
       setUser(currentUser);
       setPlatformUser(currentUser);
