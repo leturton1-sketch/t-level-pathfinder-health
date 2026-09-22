@@ -6,6 +6,7 @@ import { THEORY_MODULES } from "@/lib/specData";
 import { getKnowledgeChecks } from "@/lib/theoryContent";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import ReactMarkdown from "react-markdown";
+import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { ArrowLeft, Clock, CheckCircle, BookMarked, ChevronRight, AlertCircle, Target } from "lucide-react";
 
 export default function TheoryDetail() {
@@ -120,6 +121,7 @@ export default function TheoryDetail() {
 
         <article className="polished-glass-edge mb-6 rounded-[28px] border border-white/90 bg-white/92 p-6 shadow-[0_20px_46px_rgba(66,55,88,0.13),inset_0_1px_0_white] backdrop-blur-xl sm:p-8">
           <ReactMarkdown
+            urlTransform={safeUrlTransform}
             components={{
               h1: ({ node, ...props }) => <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl" {...props} />,
               h2: ({ node, ...props }) => <h2 className="mb-3 mt-8 border-b border-tl-blue/15 pb-2 text-xl font-extrabold tracking-tight text-slate-950 first:mt-0 sm:text-2xl" {...props} />,
