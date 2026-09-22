@@ -1,6 +1,9 @@
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
-import { getPathfinderSessionToken } from '@/lib/authSession';
+import {
+  clearPathfinderSessionToken,
+  getPathfinderSessionToken,
+} from '@/lib/authSession';
 
 const { appId, token, functionsVersion, appBaseUrl } = appParams;
 
@@ -13,18 +16,35 @@ const sdkClient = createClient({
   appBaseUrl
 });
 
+function handleExpiredSession(error) {
+  const status = Number(error?.status ?? error?.response?.status);
+  if (status !== 401 || !getPathfinderSessionToken()) return;
+  clearPathfinderSessionToken();
+  try {
+    sessionStorage.removeItem('pathfinder-unlocked');
+    sessionStorage.removeItem('pathfinder-welcomed');
+    sessionStorage.removeItem('pathfinder-app-user-v2');
+  } catch {}
+  if (typeof window !== 'undefined') window.location.assign('/');
+}
+
 async function invokeEntity(entityName, operation, args = {}) {
   const sessionToken = getPathfinderSessionToken();
   if (!sessionToken) {
     return sdkClient.entities[entityName][operation](...args.fallbackArgs);
   }
-  const response = await sdkClient.functions.invoke('appData', {
-    session_token: sessionToken,
-    entity_name: entityName,
-    operation,
-    args: args.payload || {},
-  });
-  return response?.data ?? response;
+  try {
+    const response = await sdkClient.functions.invoke('appData', {
+      session_token: sessionToken,
+      entity_name: entityName,
+      operation,
+      args: args.payload || {},
+    });
+    return response?.data ?? response;
+  } catch (error) {
+    handleExpiredSession(error);
+    throw error;
+  }
 }
 
 const entityClients = new Map();
@@ -67,12 +87,17 @@ const sessionEntities = new Proxy({}, {
 const sessionFunctions = new Proxy(sdkClient.functions, {
   get(target, property, receiver) {
     if (property !== 'invoke') return Reflect.get(target, property, receiver);
-    return (name, data = {}) => {
+    return async (name, data = {}) => {
       const sessionToken = getPathfinderSessionToken();
       const payload = sessionToken && data && typeof data === 'object' && !Array.isArray(data)
         ? { ...data, pathfinder_session_token: sessionToken }
         : data;
-      return target.invoke(name, payload);
+      try {
+        return await target.invoke(name, payload);
+      } catch (error) {
+        handleExpiredSession(error);
+        throw error;
+      }
     };
   },
 });
