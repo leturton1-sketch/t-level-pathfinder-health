@@ -80,7 +80,7 @@ export default function QrIdCard({ user, onClose }) {
             <RefreshCcw className="w-4 h-4" /> Reissue
           </button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">Scan this code on the sign-in screen to log in instantly — no username or PIN needed. The card is stored against this account and can be reprinted at any time.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Scan this code on the sign-in screen to log in instantly — no username or PIN needed. Generating a new card revokes the previous code; save or print it before closing.</p>
       </div>
     </div>
   );
