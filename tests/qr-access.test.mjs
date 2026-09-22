@@ -37,7 +37,10 @@ test("QR credentials round-trip, expire, revoke and reject tampering", async () 
   const issued=await (await issue(request({app_user_id:"learner1",action:"issue"}))).json();
   assert.match(issued.qr,/^pfqr:v1:credential1:[a-f0-9]{64}$/);
   assert.equal(f.records[0].token_hash.includes(issued.qr.split(":")[3]), false);
-  assert.equal((await (await verify(request({qr:issued.qr}))).json()).granted,true);
+  const verified = await (await verify(request({qr:issued.qr}))).json();
+  assert.equal(verified.granted,true);
+  assert.match(verified.session_token, /^[a-f0-9]{64}$/);
+  assert.equal(f.sessions[0].token_hash.includes(verified.session_token), false);
   const png=PNG.sync.read(await QRCode.toBuffer(issued.qr,{width:640,margin:4}));
   const decoded=jsQR(new Uint8ClampedArray(png.data),png.width,png.height);
   assert.equal(decoded.data,issued.qr);
