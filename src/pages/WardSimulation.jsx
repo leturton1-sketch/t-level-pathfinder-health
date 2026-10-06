@@ -8,6 +8,7 @@ import NEWS2Badge from "@/components/NEWS2Badge";
 import Ward3D from "@/components/Ward3D";
 import ADLScenario from "@/components/ADLScenario";
 import ScenarioDecisionPanel from "@/components/ScenarioDecisionPanel";
+import ScenarioDebrief from "@/components/ScenarioDebrief";
 import { buildPatientDecisionTree } from "@/lib/scenarioDecisionTrees";
 import WardEditPanel from "@/components/WardEditPanel";
 import WardPropertiesPanel from "@/components/WardPropertiesPanel";
@@ -21,7 +22,7 @@ import { announceVoiceFeedback } from "@/utils/ukVoiceSynthesizer";
 import { getSimulationState, startSimulation, endSimulation, setSimulationController, subscribeSimulationState } from "@/lib/simulationState";
 import { withExponentialBackoff } from "@/lib/networkRetry";
 import {
-  Stethoscope, Clock, ChevronRight, User, Heart, AlertCircle, CheckCircle, X,
+  Stethoscope, Clock, ChevronRight, User, Heart, X,
   Pencil, LayoutGrid, Settings, Camera, AlertTriangle, Power, Info,
   Sun, Moon,
 } from "lucide-react";
@@ -539,44 +540,15 @@ export default function WardSimulation() {
 
   // --- Debrief screen ---
   if (showDebrief && activeScenario) {
-    const pct = Math.round((score / (scenarioMaxScore || score || 1)) * 100);
     return (
-      <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">
-        <div className="text-center mb-6">
-          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${pct >= 70 ? "bg-clinical-green/20" : "bg-clinical-amber/20"}`}>
-            {pct >= 70 ? <CheckCircle className="w-8 h-8 text-clinical-green" /> : <AlertCircle className="w-8 h-8 text-clinical-amber" />}
-          </div>
-          <h1 className="text-xl font-heading font-bold text-foreground">Scenario Complete</h1>
-          <p className="text-sm text-muted-foreground">{activeScenario.name}</p>
-          <div className="text-3xl font-heading font-bold text-clinical-teal mt-2">{pct}%</div>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 mb-4 shadow-sm">
-          <h2 className="text-sm font-heading font-bold text-foreground mb-2">Clinical Debrief</h2>
-          <p className="text-sm text-muted-foreground">{activeScenario.debrief_rationale}</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 mb-4 shadow-sm">
-          <h2 className="text-sm font-heading font-bold text-foreground mb-3">Decision Pathway</h2>
-          <div className="space-y-2">
-            {decisions.map((d, i) => (
-              <div key={i} className={`rounded-lg p-3 text-xs ${d.correct ? "bg-clinical-green/5 border border-clinical-green/20" : "bg-clinical-red/5 border border-clinical-red/20"}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  {d.correct ? <CheckCircle className="w-3.5 h-3.5 text-clinical-green" /> : <X className="w-3.5 h-3.5 text-clinical-red" />}
-                  <span className="font-semibold text-foreground">Step {i + 1}: {d.choice}</span>
-                </div>
-                <p className="text-muted-foreground">{d.feedback}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="mb-4"><SKBadgeGroup skCodes={activeScenario.sk_codes} poCodes={activeScenario.performance_outcomes} /></div>
-        <div className="pf-progress-links" aria-label="Continue your learning">
-          <button className="pf-secondary-button" onClick={() => navigate("/care-planning")}>Continue to care planning</button>
-          <button className="pf-secondary-button" onClick={() => navigate("/reflection")}>Reflect on your decisions</button>
-          <button className="pf-secondary-button" onClick={() => navigate("/performance")}>View progress and feedback</button>
-        </div>
-        <button onClick={() => { setShowDebrief(false); exitScenario(); }}
-          className="w-full py-3 rounded-lg bg-clinical-teal text-white font-heading font-semibold text-sm hover:opacity-90">Back to Ward</button>
-      </div>
+      <ScenarioDebrief
+        scenario={activeScenario}
+        decisions={decisions}
+        score={score}
+        maxScore={scenarioMaxScore || score || 1}
+        onNavigate={navigate}
+        onExit={() => { setShowDebrief(false); exitScenario(); }}
+      />
     );
   }
 
