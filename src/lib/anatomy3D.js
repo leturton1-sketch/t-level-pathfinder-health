@@ -48,74 +48,31 @@ export const BODY_SHELLS = {
 
 // Segmented anatomical structures. `genders`: 'both' | 'male' | 'female'.
 const STRUCTURE_BLUEPRINTS = [
-  // ── SKELETAL ──
-  { id: "skull", name: "Skull / Cranium", system: "skeletal", genders: "both", shape: { type: "sphere", radius: 0.095 }, position: [0, 1.64, 0], scale: [1, 0.95, 1.05],
-    function: "Protects the brain and forms the structure of the face. Comprises 22 bones divided into cranial and facial bones.",
-    clinicalNote: "Head injury assessment checks for racoon eyes, Battle's sign, and CSF leakage indicating basal skull fracture. Apply cervical collar if suspected." },
-  { id: "spine_bone", name: "Vertebral Column", system: "skeletal", genders: "both", shape: { type: "cylinder", radiusTop: 0.028, radiusBottom: 0.032, height: 0.6, radialSegments: 16 }, position: [0, 1.24, -0.075],
-    function: "33 vertebrae protecting the spinal cord, providing structural support and flexible movement. Cervical, thoracic, lumbar, sacral, coccygeal regions.",
-    clinicalNote: "Suspected spinal injury → immediate immobilisation, log-roll, and maintain neutral alignment. Check for sensory/motor deficits below injury level." },
-  { id: "ribcage", name: "Rib Cage", system: "skeletal", genders: "both",
-    parts: [
-      { shape: { type: "torus", radius: 0.14, tube: 0.012, arc: Math.PI*0.78, radialSegments: 8, tubularSegments: 20 }, position: [0, 1.2, -0.02], rotation: [Math.PI/2, 0, -Math.PI/2 + 0.1] },
-      { shape: { type: "torus", radius: 0.145, tube: 0.012, arc: Math.PI*0.78, radialSegments: 8, tubularSegments: 20 }, position: [0, 1.27, -0.02], rotation: [Math.PI/2, 0, -Math.PI/2 + 0.1] },
-      { shape: { type: "torus", radius: 0.15, tube: 0.012, arc: Math.PI*0.78, radialSegments: 8, tubularSegments: 20 }, position: [0, 1.34, -0.02], rotation: [Math.PI/2, 0, -Math.PI/2 + 0.1] },
-      { shape: { type: "torus", radius: 0.15, tube: 0.012, arc: Math.PI*0.78, radialSegments: 8, tubularSegments: 20 }, position: [0, 1.41, -0.02], rotation: [Math.PI/2, 0, -Math.PI/2 + 0.1] },
-      { shape: { type: "torus", radius: 0.14, tube: 0.012, arc: Math.PI*0.78, radialSegments: 8, tubularSegments: 20 }, position: [0, 1.47, -0.02], rotation: [Math.PI/2, 0, -Math.PI/2 + 0.1] },
-    ],
-    function: "12 pairs of ribs forming a protective cage around the heart and lungs, expanding during respiration.",
-    clinicalNote: "Flail chest (≥3 ribs fractured in ≥2 places) causes paradoxical movement — life-threatening. Monitor for pneumothorax and provide adequate analgesia." },
-  { id: "pelvis", name: "Pelvis", system: "skeletal", genders: "both", shape: { type: "torus", radius: 0.1, tube: 0.035, radialSegments: 12, tubularSegments: 28 }, position: [0, 0.9, -0.01], rotation: [Math.PI/2, 0, 0],
-    function: "Bowl-shaped bone transferring weight from spine to lower limbs, protecting pelvic organs. Sexually dimorphic (wider in females).",
-    clinicalNote: "Pelvic fractures can cause life-threatening haemorrhage. Apply a pelvic binder and monitor for retroperitoneal bleeding and bladder injury." },
-  { id: "femurs", name: "Major Limb Bones", system: "skeletal", genders: "both",
-    parts: [
-      { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [0.06, 0.62, 0] },
-      { shape: { type: "capsule", radius: 0.026, length: 0.4 }, position: [-0.06, 0.62, 0] },
-    ],
-    function: "The longest and strongest bones in the body, supporting the body's weight and enabling locomotion.",
-    clinicalNote: "Femoral shaft fractures can cause 1–1.5L blood loss. Assess for hypovolaemic shock, immobilise with traction, and monitor neurovascular status distally." },
-
-  // ── CARDIOVASCULAR ──
-  { id: "heart", name: "The Heart", system: "cardiovascular", genders: "both",
-    shape: { type: "lathe", segments: 32, points: [[0,0],[0.02,0.005],[0.035,0.02],[0.045,0.04],[0.05,0.065],[0.048,0.09],[0.04,0.11],[0.025,0.125],[0.01,0.13],[0,0.128]] },
-    position: [-0.028, 1.255, 0.045], rotation: [0, 0, -0.15],
-    function: "Four-chambered muscular pump. The right side pumps deoxygenated blood to the lungs; the muscular left side pumps oxygenated blood to the systemic circulation.",
-    clinicalNote: "Assess via radial/apical pulses, BP, capillary refill, and ECG. Left-sided failure → pulmonary congestion; right-sided failure → peripheral oedema." },
-  { id: "coronary_vessels", name: "Coronary Circulation", system: "cardiovascular", genders: "both", color: 0xd9485f,
-    parts: [
-      { shape: { type: "tube", radius: 0.0035, points: [[-0.015,1.35,0.075],[-0.05,1.31,0.088],[-0.055,1.25,0.075],[-0.035,1.21,0.06]] } },
-      { shape: { type: "tube", radius: 0.003, points: [[-0.015,1.35,0.072],[0.012,1.31,0.084],[0.018,1.25,0.072],[0.0,1.22,0.06]] } },
-    ],
-    function: "The right and left coronary arteries supply oxygenated blood to the myocardium.",
-    clinicalNote: "Coronary occlusion causes myocardial ischaemia and infarction. Assess chest pain promptly and obtain a 12-lead ECG." },
-  { id: "aorta", name: "Aorta", system: "cardiovascular", genders: "both", color: 0xb42335,
-    shape: { type: "tube", radius: 0.016, points: [[-0.02,1.2,0.02],[-0.02,1.33,0.02],[-0.005,1.42,0.0],[0.015,1.43,-0.01],[0.03,1.4,0.0],[0.03,1.2,0.0],[0.03,1.0,0.0]] },
-    function: "The largest artery, conducting high-pressure oxygenated blood from the left ventricle to the systemic circulation. Its elastic walls absorb systolic recoil.",
-    clinicalNote: "Aortic compliance diminishes with age/atherosclerosis → isolated systolic hypertension. Aortic aneurysm rupture is rapidly fatal — monitor back pain and pulse disparity." },
-  { id: "vena_cava", name: "Vena Cava", system: "cardiovascular", genders: "both", color: 0x244b7a,
-    shape: { type: "tube", radius: 0.02, points: [[0.025,1.42,-0.035],[0.025,1.24,-0.04],[0.025,1.0,-0.045],[0.01,0.88,-0.02]] },
-    function: "The body's largest veins — superior and inferior vena cava — returning deoxygenated blood to the right atrium.",
-    clinicalNote: "Central venous pressure reflects intravascular volume status. Distended neck veins (JVP) suggest right heart failure or tamponade." },
-  { id: "arterial_tree", name: "Systemic Arterial Branches", system: "cardiovascular", genders: "both", color: 0xc62f3f,
-    parts: [
-      { shape: { type: "tube", radius: 0.008, points: [[0,1.42,0],[0.12,1.45,0],[0.18,1.32,0],[0.23,1.12,0]] } },
-      { shape: { type: "tube", radius: 0.008, points: [[0,1.42,0],[-0.12,1.45,0],[-0.18,1.32,0],[-0.23,1.12,0]] } },
-      { shape: { type: "tube", radius: 0.009, points: [[0.03,1.0,0],[0.08,0.82,0],[0.09,0.56,0],[0.08,0.18,0]] } },
-      { shape: { type: "tube", radius: 0.009, points: [[0.03,1.0,0],[-0.08,0.82,0],[-0.09,0.56,0],[-0.08,0.18,0]] } },
-      { shape: { type: "tube", radius: 0.005, points: [[0.01,1.42,0],[0.02,1.52,0],[0.01,1.6,0]] } }
-    ],
-    function: "Elastic and muscular arteries branch repeatedly to distribute oxygenated blood to tissues under pressure.",
-    clinicalNote: "Assess pulse presence, symmetry, volume, capillary refill and distal perfusion." },
-  { id: "venous_tree", name: "Systemic Venous Branches", system: "cardiovascular", genders: "both", color: 0x244b7a,
-    parts: [
-      { shape: { type: "tube", radius: 0.007, points: [[0.22,1.11,0.025],[0.17,1.31,0.025],[0.08,1.42,0.025],[0.03,1.38,0.025]] } },
-      { shape: { type: "tube", radius: 0.007, points: [[-0.22,1.11,0.025],[-0.17,1.31,0.025],[-0.08,1.42,0.025],[0.03,1.38,0.025]] } },
-      { shape: { type: "tube", radius: 0.008, points: [[0.08,0.18,0.025],[0.09,0.55,0.025],[0.06,0.84,0.025],[0.01,0.92,0.025]] } },
-      { shape: { type: "tube", radius: 0.008, points: [[-0.08,0.18,0.025],[-0.09,0.55,0.025],[-0.06,0.84,0.025],[0.01,0.92,0.025]] } }
-    ],
-    function: "Low-pressure veins return deoxygenated blood to the heart and contain valves that support one-way flow.",
-    clinicalNote: "Observe for venous congestion, oedema, varicosities and signs of deep-vein thrombosis." },
+  // ── INTEGUMENTARY SYSTEM ──
+  { id: "epidermis", name: "Epidermis", system: "integumentary", genders: "both", color: 0xf2b8a0,
+    function: "Avascular stratified squamous epithelium forming the outermost protective layer. Keratinocytes mature outward from the basal layer; melanocytes deposit pigment for UV protection.",
+    clinicalNote: "Inspect colour, integrity and moisture. Non-blanching erythema, blistering or abrasions indicate epidermal injury; track depth using the pressure ulcer grading tool." },
+  { id: "dermis", name: "Dermis", system: "integumentary", genders: "both", color: 0xe8a08a,
+    function: "Tough connective-tissue layer carrying blood vessels, nerve endings, hair follicles and glands. The papillary (superficial) and reticular (deep) regions give skin strength and elasticity.",
+    clinicalNote: "Assess temperature, turgor and sensation. Reduced turgor suggests dehydration; loss of sensation over a pressure area demands offloading and pressure-relieving equipment." },
+  { id: "hypodermis", name: "Hypodermis (Subcutis)", system: "integumentary", genders: "both", color: 0xf3c89a,
+    function: "Subcutaneous fat and loose connective tissue anchoring skin to underlying fascia. It insulates, stores energy and cushions against mechanical stress.",
+    clinicalNote: "Subcutaneous injections (insulin, LMWH) target this layer. Cachexia or a thin subcutis increases pressure injury risk over bony prominences." },
+  { id: "hair", name: "Hair & Follicles", system: "integumentary", genders: "both", color: 0x6b4a2a,
+    function: "Keratin filaments growing from follicles in the dermis, providing protection, warmth and sensory function. Distribution varies with sex and genetics.",
+    clinicalNote: "Note hair loss, thinning or excess growth as markers of nutrition, endocrine change or chemotherapy. Avoid shaving before surgery where local policy permits." },
+  { id: "nails", name: "Nails", system: "integumentary", genders: "both", color: 0xf3d9c8,
+    function: "Keratin plates protecting the distal digits and aiding fine grasp and peripheral circulation assessment.",
+    clinicalNote: "Inspect nail beds for colour, capillary refill and clubbing. Splinter haemorrhages, koilonychia or cyanosis signal systemic or vascular disease." },
+  { id: "sweat_glands", name: "Sweat Glands", system: "integumentary", genders: "both", color: 0x9fd6e8,
+    function: "Eccrine glands cool the body through thermoregulatory sweating across most of the skin; apocrine glands open into hair follicles in the axillae and groin.",
+    clinicalNote: "Assess diaphoresis, dry skin and heat tolerance. Profuse sweating accompanies hypoglycaemia, sepsis, myocardial ischaemia and pain; dry skin suggests dehydration or hypothermia." },
+  { id: "sebaceous_glands", name: "Sebaceous Glands", system: "integumentary", genders: "both", color: 0xf0d090,
+    function: "Oil-producing glands opening into hair follicles that secrete sebum to lubricate skin and hair and support the acid mantle.",
+    clinicalNote: "Excess sebum contributes to acne; reduced sebum causes dry, fragile skin in older adults. Gentle skin care and emollients protect the barrier." },
+  { id: "sensory_receptors", name: "Sensory Receptors", system: "integumentary", genders: "both", color: 0xc9a0d6,
+    function: "Meissner corpuscles detect light touch in the papillary dermis; Pacinian corpuscles sense deep pressure and vibration in the subcutis; free nerve endings signal pain and temperature.",
+    clinicalNote: "Test sensation and proprioception in diabetes and neurological conditions. Loss of protective sensation over the foot drives foot-care education and pressure offloading." },
 
   // ── RESPIRATORY ──
   { id: "trachea", name: "Trachea", system: "respiratory", genders: "both", shape: { type: "cylinder", radiusTop: 0.018, radiusBottom: 0.018, height: 0.12, radialSegments: 16 }, position: [0, 1.5, 0.03],
@@ -182,26 +139,6 @@ const STRUCTURE_BLUEPRINTS = [
     function: "Distensible muscular sac lined with transitional epithelium, storing urine prior to micturition.",
     clinicalNote: "Urinary retention is common post-op — assess with bladder scanner. Palpate for a distended bladder; monitor output." },
 
-  // ── NERVOUS ──
-  { id: "brain", name: "The Brain", system: "nervous", genders: "both", shape: { type: "sphere", radius: 0.085, scale: [1,0.88,1.1] }, position: [0, 1.64, 0.01],
-    function: "Central organ of the nervous system. Cerebrum (cognition), cerebellum (coordination), brainstem (autonomic vital functions).",
-    clinicalNote: "Assess with AVPU/GCS, pupil size & reactivity. Hypoglycaemia mimics stroke — always check blood glucose." },
-  { id: "cerebellum", name: "Cerebellum", system: "nervous", genders: "both", shape: { type: "sphere", radius: 0.04 }, position: [0, 1.58, -0.03],
-    function: "Coordinates balance, posture, and fine motor control, comparing intended movement with actual performance.",
-    clinicalNote: "Cerebellar lesions cause ataxia, intention tremor, and dysmetria. Perform finger-nose and heel-shin tests." },
-  { id: "spinal_cord", name: "Spinal Cord", system: "nervous", genders: "both", shape: { type: "cylinder", radiusTop: 0.012, radiusBottom: 0.01, height: 0.6, radialSegments: 12 }, position: [0, 1.24, -0.072],
-    function: "Bundle of nerve fibres transmitting signals between brain and peripheral nervous system, protected by the vertebral column.",
-    clinicalNote: "Spinal cord injury → immediate immobilisation and log-roll. Monitor for autonomic dysreflexia in injuries above T6." },
-  { id: "peripheral_nerves", name: "Major Peripheral Nerves", system: "nervous", genders: "both", color: 0xf3c969,
-    parts: [
-      { shape: { type: "tube", radius: 0.004, points: [[0,1.47,-0.06],[0.08,1.40,-0.035],[0.145,1.30,-0.015],[0.18,1.12,0]] } },
-      { shape: { type: "tube", radius: 0.004, points: [[0,1.47,-0.06],[-0.08,1.40,-0.035],[-0.145,1.30,-0.015],[-0.18,1.12,0]] } },
-      { shape: { type: "tube", radius: 0.0045, points: [[0,1.05,-0.065],[0.055,0.88,-0.03],[0.065,0.66,0],[0.065,0.30,0]] } },
-      { shape: { type: "tube", radius: 0.0045, points: [[0,1.05,-0.065],[-0.055,0.88,-0.03],[-0.065,0.66,0],[-0.065,0.30,0]] } },
-    ],
-    function: "Paired cranial, spinal and peripheral nerve pathways carry sensory input and motor commands between the central nervous system and the limbs.",
-    clinicalNote: "Assess sensation, power, reflexes and symmetry. A new focal deficit requires urgent neurological escalation." },
-
   // ── REPRODUCTIVE (gender-specific) ──
   { id: "prostate", name: "Prostate Gland", system: "reproductive", genders: "male", shape: { type: "sphere", radius: 0.025, scale: [1,0.8,1] }, position: [0, 0.815, 0.025],
     function: "Walnut-sized gland surrounding the urethra, producing fluid that nourishes and transports sperm.",
@@ -243,16 +180,6 @@ const STRUCTURE_BLUEPRINTS = [
   { id: "skin", name: "Skin", system: "integumentary", genders: "both", shape: { type: "sphere", radius: 0.13, scale: [1.55,3.3,0.9] }, position: [0,1.18,0],
     function: "The body's largest organ: a protective barrier supporting sensation, thermoregulation, vitamin D synthesis and fluid balance.",
     clinicalNote: "Inspect colour, temperature, moisture, integrity and pressure areas. Non-blanching erythema indicates pressure damage." },
-  { id: "major_muscles", name: "Major Torso & Leg Muscle Groups", system: "muscular", genders: "both",
-    parts: [
-      { shape: { type: "sphere", radius: 0.075, scale: [1.15,0.62,0.42] }, position: [0.075,1.36,0.055] },
-      { shape: { type: "sphere", radius: 0.075, scale: [1.15,0.62,0.42] }, position: [-0.075,1.36,0.055] },
-      { shape: { type: "capsule", radius: 0.048, length: 0.24 }, position: [0,1.135,0.045] },
-      { shape: { type: "capsule", radius: 0.052, length: 0.59 }, position: [0.075,0.52,0] },
-      { shape: { type: "capsule", radius: 0.052, length: 0.59 }, position: [-0.075,0.52,0] }
-    ],
-    function: "Skeletal muscles generate movement, stabilise joints, maintain posture and produce heat through contraction.",
-    clinicalNote: "Assess strength, tone, range of movement and pain. Immobility rapidly causes deconditioning and venous stasis." },
   { id: "thyroid", name: "Thyroid Gland", system: "endocrine", genders: "both", shape: { type: "torus", radius: 0.025, tube: 0.009 }, position: [0,1.5,0.035],
     function: "Produces thyroid hormones that regulate metabolic rate, growth and heat production.",
     clinicalNote: "Observe for altered heart rate, weight, temperature tolerance and neck swelling." },
@@ -288,37 +215,86 @@ const STRUCTURE_BLUEPRINTS = [
 // Coordinates use anatomical position: patient-left = -X, superior = +Y,
 // anterior = +Z. The right kidney sits lower than the left because of the liver.
 const ANATOMICAL_ATLAS = {
-  skull: { position: [0, 1.64, 0], scale: [0.9, 0.9, 0.94] },
-  spine_bone: { position: [0, 1.235, -0.06] },
-  ribcage: { parts: [
-    { shape: { type: "torus", radius: 0.125, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.20, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
-    { shape: { type: "torus", radius: 0.138, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.26, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
-    { shape: { type: "torus", radius: 0.148, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.32, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
-    { shape: { type: "torus", radius: 0.15, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.38, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
-    { shape: { type: "torus", radius: 0.142, tube: 0.009, arc: Math.PI * 0.82, radialSegments: 8, tubularSegments: 24 }, position: [0, 1.44, -0.018], rotation: [Math.PI / 2, 0, -Math.PI / 2 + 0.08] },
+  // ── INTEGUMENTARY ── thin surface-conforming layers and appendages, kept
+  // within the body envelope by keepGroupInsideBodyEnvelope.
+  epidermis: { parts: [
+    { shape: { type: "sphere", radius: 0.06 }, position: [0, 1.34, 0.108], scale: [1.7, 1.1, 0.16] },
+    { shape: { type: "sphere", radius: 0.06 }, position: [0, 1.02, 0.10], scale: [1.6, 0.9, 0.16] },
+    { shape: { type: "sphere", radius: 0.06 }, position: [0, 1.2, -0.078], scale: [1.6, 1.3, 0.16] },
+    { shape: { type: "sphere", radius: 0.05 }, position: [0, 1.7, 0.0], scale: [1.4, 0.45, 1.05] },
+    { shape: { type: "sphere", radius: 0.035 }, position: [0.21, 1.05, 0.02], scale: [1.0, 1.6, 0.28], rotation: [0, 0, -0.16] },
+    { shape: { type: "sphere", radius: 0.035 }, position: [-0.21, 1.05, 0.02], scale: [1.0, 1.6, 0.28], rotation: [0, 0, 0.16] },
+    { shape: { type: "sphere", radius: 0.04 }, position: [0.07, 0.5, 0.04], scale: [0.9, 1.5, 0.28] },
+    { shape: { type: "sphere", radius: 0.04 }, position: [-0.07, 0.5, 0.04], scale: [0.9, 1.5, 0.28] },
   ] },
-  pelvis: { shape: { type: "torus", radius: 0.058, tube: 0.026, radialSegments: 12, tubularSegments: 28 }, position: [0, 0.895, -0.015], rotation: [Math.PI / 2, 0, 0] },
-  femurs: { parts: [
-    // Femora and tibiae/fibulae follow the centres of the two leg shells.
-    { shape: { type: "capsule", radius: 0.023, length: 0.34 }, position: [-0.065, 0.66, -0.005] },
-    { shape: { type: "capsule", radius: 0.023, length: 0.34 }, position: [0.065, 0.66, -0.005] },
-    { shape: { type: "capsule", radius: 0.018, length: 0.32 }, position: [-0.065, 0.30, -0.005] },
-    { shape: { type: "capsule", radius: 0.018, length: 0.32 }, position: [0.065, 0.30, -0.005] },
-    // Humeri and forearm bones remain centred inside the angled arm shells.
-    { shape: { type: "capsule", radius: 0.015, length: 0.25 }, position: [-0.185, 1.29, -0.005], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.015, length: 0.25 }, position: [0.185, 1.29, -0.005], rotation: [0,0,0.16] },
-    { shape: { type: "capsule", radius: 0.012, length: 0.22 }, position: [-0.215, 1.05, -0.005], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.012, length: 0.22 }, position: [0.215, 1.05, -0.005], rotation: [0,0,0.16] },
+  dermis: { parts: [
+    { shape: { type: "sphere", radius: 0.058 }, position: [0, 1.34, 0.092], scale: [1.6, 1.05, 0.18] },
+    { shape: { type: "sphere", radius: 0.058 }, position: [0, 1.02, 0.086], scale: [1.5, 0.85, 0.18] },
+    { shape: { type: "sphere", radius: 0.058 }, position: [0, 1.2, -0.064], scale: [1.5, 1.25, 0.18] },
+    { shape: { type: "sphere", radius: 0.048 }, position: [0, 1.69, -0.01], scale: [1.32, 0.42, 1.0] },
+    { shape: { type: "sphere", radius: 0.033 }, position: [0.21, 1.05, 0.005], scale: [0.95, 1.55, 0.32], rotation: [0, 0, -0.16] },
+    { shape: { type: "sphere", radius: 0.033 }, position: [-0.21, 1.05, 0.005], scale: [0.95, 1.55, 0.32], rotation: [0, 0, 0.16] },
+    { shape: { type: "sphere", radius: 0.038 }, position: [0.07, 0.5, 0.025], scale: [0.85, 1.45, 0.32] },
+    { shape: { type: "sphere", radius: 0.038 }, position: [-0.07, 0.5, 0.025], scale: [0.85, 1.45, 0.32] },
   ] },
-
-  brain: { position: [0, 1.642, 0], scale: [0.92, 0.85, 0.92] },
-  cerebellum: { position: [0, 1.595, -0.035] },
-  spinal_cord: { position: [0, 1.235, -0.078] },
-  peripheral_nerves: { parts: [
-    { shape: { type: "tube", radius: 0.0035, points: [[0,1.47,-0.06],[0.075,1.40,-0.035],[0.14,1.30,-0.015],[0.18,1.12,0]] } },
-    { shape: { type: "tube", radius: 0.0035, points: [[0,1.47,-0.06],[-0.075,1.40,-0.035],[-0.14,1.30,-0.015],[-0.18,1.12,0]] } },
-    { shape: { type: "tube", radius: 0.004, points: [[0,1.05,-0.065],[0.05,0.88,-0.03],[0.062,0.66,0],[0.062,0.30,0]] } },
-    { shape: { type: "tube", radius: 0.004, points: [[0,1.05,-0.065],[-0.05,0.88,-0.03],[-0.062,0.66,0],[-0.062,0.30,0]] } },
+  hypodermis: { parts: [
+    { shape: { type: "sphere", radius: 0.054 }, position: [0, 1.34, 0.072], scale: [1.45, 0.95, 0.2] },
+    { shape: { type: "sphere", radius: 0.054 }, position: [0, 1.02, 0.068], scale: [1.35, 0.78, 0.2] },
+    { shape: { type: "sphere", radius: 0.054 }, position: [0, 1.2, -0.046], scale: [1.35, 1.15, 0.2] },
+    { shape: { type: "sphere", radius: 0.044 }, position: [0, 1.68, -0.025], scale: [1.2, 0.38, 0.9] },
+    { shape: { type: "sphere", radius: 0.03 }, position: [0.2, 1.05, -0.012], scale: [0.85, 1.45, 0.36], rotation: [0, 0, -0.16] },
+    { shape: { type: "sphere", radius: 0.03 }, position: [-0.2, 1.05, -0.012], scale: [0.85, 1.45, 0.36], rotation: [0, 0, 0.16] },
+    { shape: { type: "sphere", radius: 0.034 }, position: [0.065, 0.5, 0.005], scale: [0.75, 1.3, 0.36] },
+    { shape: { type: "sphere", radius: 0.034 }, position: [-0.065, 0.5, 0.005], scale: [0.75, 1.3, 0.36] },
+  ] },
+  hair: { parts: [
+    { shape: { type: "capsule", radius: 0.0035, length: 0.05 }, position: [0.04, 1.72, 0.05], rotation: [0.3, 0, 0.1] },
+    { shape: { type: "capsule", radius: 0.0035, length: 0.05 }, position: [-0.04, 1.72, 0.05], rotation: [0.3, 0, -0.1] },
+    { shape: { type: "capsule", radius: 0.0035, length: 0.045 }, position: [0, 1.74, 0.0], rotation: [Math.PI / 2, 0, 0] },
+    { shape: { type: "capsule", radius: 0.003, length: 0.03 }, position: [0.06, 1.68, 0.06], rotation: [0.4, 0, 0.2] },
+    { shape: { type: "capsule", radius: 0.003, length: 0.03 }, position: [-0.06, 1.68, 0.06], rotation: [0.4, 0, -0.2] },
+    { shape: { type: "capsule", radius: 0.0025, length: 0.025 }, position: [0.21, 1.0, 0.04], rotation: [0, 0, -0.16] },
+    { shape: { type: "capsule", radius: 0.0025, length: 0.025 }, position: [-0.21, 1.0, 0.04], rotation: [0, 0, 0.16] },
+  ] },
+  nails: { parts: [
+    { shape: { type: "sphere", radius: 0.012 }, position: [0.225, 0.85, 0.035], scale: [0.8, 0.5, 0.35] },
+    { shape: { type: "sphere", radius: 0.012 }, position: [-0.225, 0.85, 0.035], scale: [0.8, 0.5, 0.35] },
+    { shape: { type: "sphere", radius: 0.011 }, position: [0.075, 0.04, 0.05], scale: [0.85, 0.4, 0.4] },
+    { shape: { type: "sphere", radius: 0.011 }, position: [-0.075, 0.04, 0.05], scale: [0.85, 0.4, 0.4] },
+  ] },
+  sweat_glands: { parts: [
+    { shape: { type: "sphere", radius: 0.006 }, position: [0.22, 0.86, 0.04] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [0.2, 0.84, 0.05] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [-0.22, 0.86, 0.04] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [-0.2, 0.84, 0.05] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [0.07, 0.05, 0.06] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [0.05, 0.04, 0.07] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [-0.07, 0.05, 0.06] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [-0.05, 0.04, 0.07] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [0, 1.34, 0.12] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [0.06, 1.36, 0.115] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [-0.06, 1.36, 0.115] },
+  ] },
+  sebaceous_glands: { parts: [
+    { shape: { type: "sphere", radius: 0.005 }, position: [0.04, 1.7, 0.06] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [-0.04, 1.7, 0.06] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [0, 1.72, 0.02] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [0.05, 1.62, 0.08] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [-0.05, 1.62, 0.08] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [0.06, 1.36, 0.118] },
+    { shape: { type: "sphere", radius: 0.005 }, position: [-0.06, 1.36, 0.118] },
+    { shape: { type: "sphere", radius: 0.004 }, position: [0.2, 1.02, 0.045] },
+    { shape: { type: "sphere", radius: 0.004 }, position: [-0.2, 1.02, 0.045] },
+  ] },
+  sensory_receptors: { parts: [
+    { shape: { type: "sphere", radius: 0.007 }, position: [0.225, 0.86, 0.03] },
+    { shape: { type: "sphere", radius: 0.007 }, position: [-0.225, 0.86, 0.03] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [0.21, 0.9, 0.035] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [-0.21, 0.9, 0.035] },
+    { shape: { type: "sphere", radius: 0.007 }, position: [0.075, 0.045, 0.055] },
+    { shape: { type: "sphere", radius: 0.007 }, position: [-0.075, 0.045, 0.055] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [0.06, 1.34, 0.118] },
+    { shape: { type: "sphere", radius: 0.006 }, position: [-0.06, 1.34, 0.118] },
   ] },
 
   trachea: { position: [0, 1.485, 0.025] },
@@ -327,38 +303,6 @@ const ANATOMICAL_ATLAS = {
     { shape: { type: "sphere", radius: 0.076, scale: [0.84, 1.58, 0.92] }, position: [0.094, 1.31, 0.012] },
   ] },
   diaphragm: { position: [0, 1.145, -0.005], scale: [1.2, 0.22, 0.85] },
-
-  heart: { position: [-0.032, 1.285, 0.052], rotation: [0, 0, -0.18], scale: [0.9, 1, 0.76] },
-  coronary_vessels: { parts: [
-    { shape: { type: "tube", radius: 0.0032, points: [[-0.015,1.35,0.075],[-0.05,1.31,0.088],[-0.055,1.25,0.075],[-0.035,1.21,0.06]] } },
-    { shape: { type: "tube", radius: 0.0028, points: [[-0.015,1.35,0.072],[0.012,1.31,0.084],[0.018,1.25,0.072],[0.0,1.22,0.06]] } },
-  ] },
-  aorta: { shape: { type: "tube", radius: 0.014, points: [[-0.02,1.27,0.03],[-0.015,1.37,0.015],[0.0,1.415,-0.01],[0.02,1.405,-0.025],[0.025,1.33,-0.035],[0.025,1.16,-0.04],[0.022,0.95,-0.038]] } },
-  vena_cava: { shape: { type: "tube", radius: 0.016, points: [[0.025,1.46,-0.035],[0.025,1.30,-0.035],[0.026,1.16,-0.04],[0.022,0.95,-0.035],[0.01,0.88,-0.02]] } },
-  arterial_tree: { parts: [
-    // Subclavian/axillary arteries — to shoulder only, within deltoid/upper arm
-    { shape: { type: "tube", radius: 0.007, points: [[0,1.41,-0.01],[0.05,1.39,0],[0.09,1.35,0],[0.12,1.30,0],[0.13,1.25,0]] } },
-    { shape: { type: "tube", radius: 0.007, points: [[0,1.41,-0.01],[-0.05,1.39,0],[-0.09,1.35,0],[-0.12,1.30,0],[-0.13,1.25,0]] } },
-    // Common iliac / femoral arteries — down medial thigh, stop mid-thigh
-    { shape: { type: "tube", radius: 0.008, points: [[0.022,0.95,-0.038],[0.045,0.84,0],[0.05,0.70,0],[0.045,0.55,0],[0.04,0.5,0]] } },
-    { shape: { type: "tube", radius: 0.008, points: [[0.022,0.95,-0.038],[-0.045,0.84,0],[-0.05,0.70,0],[-0.045,0.55,0],[-0.04,0.5,0]] } },
-    // Pulmonary arteries — from pulmonary trunk into each lung hilum
-    { shape: { type: "tube", radius: 0.006, points: [[-0.005,1.29,0.045],[0.03,1.295,0.035],[0.07,1.31,0.025],[0.085,1.315,0.018]] } },
-    { shape: { type: "tube", radius: 0.006, points: [[-0.005,1.29,0.045],[-0.03,1.295,0.035],[-0.07,1.31,0.025],[-0.082,1.315,0.018]] } },
-    // Carotid arteries — neck to head
-    { shape: { type: "tube", radius: 0.0045, points: [[0,1.41,-0.01],[0,1.52,0],[0,1.58,0]] } },
-  ] },
-  venous_tree: { parts: [
-    // Subclavian/axillary veins — from shoulder to superior vena cava
-    { shape: { type: "tube", radius: 0.0065, points: [[0.13,1.25,0.02],[0.10,1.31,0.015],[0.06,1.38,-0.005],[0.025,1.4,-0.03]] } },
-    { shape: { type: "tube", radius: 0.0065, points: [[-0.13,1.25,0.02],[-0.10,1.31,0.015],[-0.06,1.38,-0.005],[0.025,1.4,-0.03]] } },
-    // Femoral veins — up medial thigh to iliac/IVC
-    { shape: { type: "tube", radius: 0.0075, points: [[0.04,0.5,0.02],[0.045,0.55,0.015],[0.05,0.70,0.01],[0.045,0.84,-0.005],[0.022,0.95,-0.035]] } },
-    { shape: { type: "tube", radius: 0.0075, points: [[-0.04,0.5,0.02],[-0.045,0.55,0.015],[-0.05,0.70,0.01],[-0.045,0.84,-0.005],[0.022,0.95,-0.035]] } },
-    // Pulmonary veins — from each lung hilum back to left atrium
-    { shape: { type: "tube", radius: 0.0055, points: [[0.085,1.315,0.018],[0.05,1.305,0.03],[0.0,1.29,0.045]] } },
-    { shape: { type: "tube", radius: 0.0055, points: [[-0.082,1.315,0.018],[-0.05,1.305,0.03],[0.0,1.29,0.045]] } },
-  ] },
 
   esophagus: { position: [0, 1.34, -0.052] },
   stomach: { position: [-0.065, 1.085, 0.015], rotation: [0, 0, 0.25] },
@@ -404,30 +348,6 @@ const ANATOMICAL_ATLAS = {
   vagina: { position: [0, 0.78, 0.015] },
 
   skin: { position: [0, 1.18, 0], scale: [1.55, 3.3, 0.9] },
-  major_muscles: { parts: [
-    // Pectoralis major — anterior chest, kept inside the torso silhouette
-    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [-0.06,1.345,0.115] },
-    { shape: { type: "sphere", radius: 0.07, scale: [1.0,0.55,0.32] }, position: [0.06,1.345,0.115] },
-    // Deltoids — shoulder contour, pulled inboard so the cap stays within the arm shell
-    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [-0.15,1.395,0.01] },
-    { shape: { type: "sphere", radius: 0.046, scale: [1.0,0.85,0.85] }, position: [0.15,1.395,0.01] },
-    // Rectus abdominis — anterior abdominal wall, tucked behind the torso surface
-    { shape: { type: "capsule", radius: 0.034, length: 0.26 }, position: [0,1.12,0.072] },
-    // External obliques — flanks, narrowed to the waist radius
-    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [-0.078,1.12,0.055] },
-    { shape: { type: "sphere", radius: 0.05, scale: [0.7,0.95,0.5] }, position: [0.078,1.12,0.055] },
-    // Quadriceps — anterior thigh, centred in the leg envelope
-    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [-0.062,0.55,0.0] },
-    { shape: { type: "capsule", radius: 0.043, length: 0.5 }, position: [0.062,0.55,0.0] },
-    // Hamstring/calf groups — centred within each leg envelope
-    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [-0.062,0.28,0.0] },
-    { shape: { type: "capsule", radius: 0.035, length: 0.28 }, position: [0.062,0.28,0.0] },
-    // Biceps and forearm flexor groups — aligned to the arm shells
-    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [-0.185,1.29,0.005], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.028, length: 0.24 }, position: [0.185,1.29,0.005], rotation: [0,0,0.16] },
-    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [-0.215,1.06,0.005], rotation: [0,0,-0.16] },
-    { shape: { type: "capsule", radius: 0.022, length: 0.20 }, position: [0.215,1.06,0.005], rotation: [0,0,0.16] },
-  ] },
 
   lymph_nodes: { parts: [
     { shape: { type: "sphere", radius: 0.012 }, position: [-0.055,1.48,0.02] },

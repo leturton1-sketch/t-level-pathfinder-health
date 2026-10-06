@@ -1,5 +1,5 @@
 export const BODY_LAYER_ORDER = [
-  "integumentary", "muscular", "skeletal", "nervous", "cardiovascular",
+  "integumentary",
   "respiratory", "digestive", "urinary", "endocrine", "lymphatic", "reproductive",
 ];
 
@@ -10,20 +10,6 @@ export const PATHOPHYSIOLOGY_CONDITIONS = [
     animation: "Bronchi narrow while the lungs pulse rapidly; cyan oxygen light falls as obstruction increases.",
     signs: ["Wheeze", "Tachypnoea", "Reduced SpO₂", "Difficulty speaking"],
     priorities: ["Sit upright", "ABCDE assessment", "Prescribed bronchodilator", "Oxygen to prescribed target", "Escalate if silent chest or exhaustion"],
-  },
-  {
-    id: "myocardial_infarction", name: "Myocardial infarction", system: "cardiovascular", structureId: "heart",
-    summary: "Coronary artery occlusion interrupts oxygen delivery to myocardium, causing ischaemia and cell death.",
-    animation: "A focal heart segment darkens while compensatory rate and contractility rise.",
-    signs: ["Central chest pressure", "Diaphoresis", "Nausea", "ECG change"],
-    priorities: ["ABCDE assessment", "12-lead ECG", "Urgent escalation", "Prescribed antiplatelet treatment", "Monitor rhythm"],
-  },
-  {
-    id: "stroke", name: "Acute stroke", system: "nervous", structureId: "brain",
-    summary: "Cerebral blood flow is interrupted by thrombus or haemorrhage, producing focal neurological deficit.",
-    animation: "One cerebral hemisphere loses perfusion and affected neural signalling fades.",
-    signs: ["Facial weakness", "Arm drift", "Speech disturbance", "Sudden onset"],
-    priorities: ["FAST assessment", "Record last known well", "Check glucose", "Urgent stroke pathway", "Keep nil by mouth until swallow screen"],
   },
   {
     id: "sepsis", name: "Sepsis", system: "lymphatic", structureId: "lymph_nodes",
@@ -78,18 +64,6 @@ export const STANDARDISED_PATIENTS = [
       { id: "cultures", label: "Prepare cultures, lactate and prescribed treatment", effect: 3, rationale: "Supports time-critical diagnosis and treatment without delaying escalation." },
       { id: "oral", label: "Offer oral fluids and wait for the next routine round", effect: -4, rationale: "Unsafe in altered consciousness and inadequate for shock." },
       { id: "output", label: "Start strict fluid balance and monitor urine output", effect: 2, rationale: "Urine output is a key marker of renal perfusion and deterioration." },
-    ],
-  },
-  {
-    id: "stroke-lee", conditionId: "stroke", name: "Lee Morgan", age: 64, pronouns: "they/them",
-    history: "Sudden right facial weakness and slurred speech 25 minutes ago.",
-    baseline: { rr: 18, spo2: 96, hr: 88, sbp: 178, temp: 36.8, avpu: "A", pain: 1 },
-    required: ["rr", "spo2", "hr", "sbp", "temp", "avpu"],
-    choices: [
-      { id: "fast", label: "Complete FAST and record last known well", effect: 4, rationale: "Supports rapid stroke identification and treatment eligibility." },
-      { id: "glucose", label: "Check capillary blood glucose", effect: 2, rationale: "Hypoglycaemia can mimic acute stroke." },
-      { id: "drink", label: "Give a drink to test swallowing", effect: -4, rationale: "Creates aspiration risk before a formal swallow screen." },
-      { id: "pathway", label: "Activate the urgent stroke pathway", effect: 4, rationale: "Time-critical imaging and specialist assessment improve outcomes." },
     ],
   },
 ];

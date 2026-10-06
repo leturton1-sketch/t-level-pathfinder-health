@@ -348,7 +348,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
         : isMuscle
           ? clinicalTextures.muscleMap
           : clinicalTextures.tissueMap;
-      const educationalOpacity = isIntegumentary ? 0.2 : isMuscle ? 0.36 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
+      const educationalOpacity = isIntegumentary ? 0.6 : isMuscle ? 0.36 : isDiaphragm ? 0.5 : isLymphatic ? 0.76 : 1;
       const mat = new THREE.MeshPhysicalMaterial({
         color: isDiaphragm ? new THREE.Color(0xd9f2f1) : color,
         metalness: 0,
@@ -396,7 +396,7 @@ export default function Anatomy3DViewer({ genitalia = "male", activeSystems, sel
       if (["brain", "heart", "lungs", "liver", "stomach", "kidneys", "bladder"].includes(s.id)) {
         alignAnatomicalGroupToBody(shellGroup, grp, s.id, { applyScale: false });
       }
-      if (["muscular", "skeletal", "nervous", "cardiovascular"].includes(s.system)) {
+      if (["integumentary", "muscular", "skeletal", "nervous", "cardiovascular"].includes(s.system)) {
         keepGroupInsideBodyEnvelope(shellGroup, grp);
       }
       grp.userData.constrainedScale = grp.scale.clone();
