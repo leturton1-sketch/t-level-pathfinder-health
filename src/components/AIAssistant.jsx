@@ -9,6 +9,7 @@ import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import AIComposer from "@/components/ai/AIComposer";
+import AISuggestions from "@/components/ai/AISuggestions";
 import ReactMarkdown from "react-markdown";
 import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { dispatchAiCommand } from "@/lib/aiTutorControl";
@@ -592,6 +593,10 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
             <div ref={messagesEndRef} />
           </div>
           ))}
+
+          {fullChat && messages.length <= 1 && (
+            <AISuggestions onPick={(text) => handleSend(text)} />
+          )}
 
           <div className={`shrink-0 ${fullChat ? "border-t border-white/50 bg-slate-100/85 p-2.5" : "bg-transparent p-2"}`}>
             <AIComposer
