@@ -2,19 +2,34 @@ import { base44 } from "@/api/base44Client";
 import { isTransientNetworkError, withExponentialBackoff } from "@/lib/networkRetry";
 
 // Diagnostic mode — collects runtime errors from the live app, asks the AI for
-// a structured report, and applies a small set of safe runtime workarounds.
-// The published app cannot rewrite its own source at runtime, so "fixes" that
-// require code edits are flagged for manual builder action; only state-level
-// recovery (reload) or acknowledgement (dismiss) is applied automatically.
+// a structured remediation report, and applies safe runtime fixes. The
+// published app cannot rewrite its own source at runtime, so every issue also
+// carries a precise `source_fix` (file / find / replace) that the builder can
+// implement for the permanent fix; the runtime remediation is applied
+// automatically wherever it is safe to do so.
 
 const MAX_ERRORS = 100;
-const SAFE_ACTIONS = ["reload", "dismiss"];
+const SAFE_ACTIONS = ["reload", "reset_session", "clear_storage", "suppress", "dismiss"];
+
+// localStorage keys holding session/cache state. "reset_session" clears these
+// and reloads to recover from corrupted local state.
+const SESSION_KEYS = [
+  "pathfinder-unlocked", "pathfinder-welcomed",
+  "anatomy_admin_overrides", "anatomy_admin_hidden", "anatomy_admin_clipped",
+  "anatomy_admin_custom", "anatomy_core_system_version", "anatomy_animations",
+  "wardLayout_ward", "clinicaledge-auto-listen",
+  "pathfinder-ai-panel-position", "pathfinder-ai-panel-transparency",
+];
 
 let errors = [];
+let suppressions = [];
+let remediationLog = [];
 let installed = false;
-let restoreFns = [];
 
 function push(entry) {
+  // Honour active suppressions so noisy non-critical errors stop flooding the
+  // report once an admin has silenced them.
+  if (suppressions.some((sig) => typeof entry.message === "string" && entry.message.includes(sig))) return;
   if (errors.length >= MAX_ERRORS) errors.shift();
   errors.push({ time: Date.now(), ...entry });
 }
@@ -29,6 +44,23 @@ export function getErrors() {
 
 export function clearErrors() {
   errors = [];
+}
+
+export function getSuppressions() {
+  return suppressions.slice();
+}
+
+export function getRemediationLog() {
+  return remediationLog.slice();
+}
+
+export function clearRemediationLog() {
+  remediationLog = [];
+}
+
+function logRemediation(title, action, result) {
+  remediationLog.push({ title, action, at: Date.now(), applied: result.applied, message: result.message });
+  if (remediationLog.length > 50) remediationLog.shift();
 }
 
 export function installErrorCollector() {
@@ -126,7 +158,20 @@ export async function runDiagnostic() {
 
   try {
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a diagnostic AI for the Pathfinder T-Level Simulation web app (React + Vite single-page app, Base44 backend). Analyse the following runtime errors captured during the session and produce a structured diagnostic report. For each distinct issue, give a short title, a severity (low/medium/high), the number of occurrences, a likely_cause, a recommended_fix aimed at a developer applying it in the builder (the running app CANNOT rewrite its source at runtime), and a workaround_action limited EXACTLY to one of ${JSON.stringify(SAFE_ACTIONS)} — use "dismiss" when no safe runtime workaround exists. Set can_auto_fix true only when workaround_action is "reload". Aggregate duplicate errors. Be concise and British English.`,
+      prompt: `You are the Pathfinder diagnostic engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Analyse the captured runtime errors and produce a structured remediation report.
+
+For EACH distinct issue provide:
+- title, severity (low/medium/high), count, likely_cause, recommended_fix.
+- remediation: a SAFE runtime action chosen from ${JSON.stringify(SAFE_ACTIONS)}.
+  • "reload" for a transient render/state glitch fixed by reloading.
+  • "reset_session" for corrupted local/session state (clears Pathfinder caches + reloads).
+  • "clear_storage" for a single bad localStorage key — supply payload.storageKey.
+  • "suppress" for a noisy non-critical recurring error — supply payload.signature (a short substring of the message).
+  • "dismiss" when no runtime fix applies.
+- can_auto_fix: true when remediation.action is not "dismiss".
+- source_fix: the PERMANENT fix the builder applies — { file, find, replace, explanation }. "file" is a real path (e.g. src/components/...). "find" is the exact existing code snippet to locate. "replace" is the corrected code. "explanation" is one sentence. If no source change is needed, use null.
+
+Be concise, British English, and aggregate duplicate errors. Prefer the most specific runtime remediation that actually resolves the symptom.`,
       response_json_schema: {
         type: "object",
         properties: {
@@ -142,8 +187,29 @@ export async function runDiagnostic() {
                 count: { type: "number" },
                 likely_cause: { type: "string" },
                 recommended_fix: { type: "string" },
-                workaround_action: { type: "string", enum: SAFE_ACTIONS },
+                remediation: {
+                  type: "object",
+                  properties: {
+                    action: { type: "string", enum: SAFE_ACTIONS },
+                    payload: {
+                      type: "object",
+                      properties: {
+                        storageKey: { type: "string" },
+                        signature: { type: "string" },
+                      },
+                    },
+                  },
+                },
                 can_auto_fix: { type: "boolean" },
+                source_fix: {
+                  type: ["object", "null"],
+                  properties: {
+                    file: { type: "string" },
+                    find: { type: "string" },
+                    replace: { type: "string" },
+                    explanation: { type: "string" },
+                  },
+                },
               },
             },
           },
@@ -165,24 +231,69 @@ export async function runDiagnostic() {
         count: 1,
         likely_cause: e.message,
         recommended_fix: "Inspect the browser console for full details and apply a fix in the builder.",
-        workaround_action: "dismiss",
+        remediation: { action: "dismiss", payload: {} },
         can_auto_fix: false,
+        source_fix: null,
       })),
     };
   }
 }
 
-export function applyWorkaround(action) {
+const ACTION_LABELS = {
+  reload: "Reload",
+  reset_session: "Reset session",
+  clear_storage: "Clear cache",
+  suppress: "Suppress",
+  dismiss: "Dismiss",
+};
+
+export function remediationLabel(action) {
+  return ACTION_LABELS[action] || action || "Dismiss";
+}
+
+export function applyRemediation(issue) {
+  const action = issue?.remediation?.action || issue?.workaround_action || "dismiss";
+  const payload = issue?.remediation?.payload || {};
+  const title = issue?.title || action;
+  let result = { applied: true, message: "" };
+
   switch (action) {
     case "reload":
+      try { window.location.reload(); result.message = "Reloading app…"; }
+      catch { result = { applied: false, message: "Could not reload the page." }; }
+      break;
+    case "reset_session":
       try {
+        SESSION_KEYS.forEach((key) => { try { localStorage.removeItem(key); } catch {} });
         window.location.reload();
-        return { applied: true, message: "Reloading app…" };
-      } catch {
-        return { applied: false, message: "Could not reload the page." };
-      }
+        result.message = "Session and cache cleared — reloading…";
+      } catch { result = { applied: false, message: "Could not reset the session." }; }
+      break;
+    case "clear_storage": {
+      const key = payload.storageKey;
+      if (!key) { result = { applied: false, message: "No storage key specified." }; break; }
+      try { localStorage.removeItem(key); result.message = `Cleared "${key}".`; }
+      catch { result = { applied: false, message: `Could not clear "${key}".` }; }
+      break;
+    }
+    case "suppress": {
+      const sig = payload.signature;
+      if (!sig) { result = { applied: false, message: "No error signature specified." }; break; }
+      if (!suppressions.includes(sig)) suppressions.push(sig);
+      errors = errors.filter((e) => !(typeof e.message === "string" && e.message.includes(sig)));
+      result.message = `Suppressing "${sig}" from future reports.`;
+      break;
+    }
     case "dismiss":
     default:
-      return { applied: true, message: "Issue noted for manual investigation." };
+      result = { applied: true, message: "Issue noted for manual investigation." };
   }
+
+  logRemediation(title, action, result);
+  return result;
+}
+
+// Backward-compatible alias for any caller still using the old action-string API.
+export function applyWorkaround(action) {
+  return applyRemediation({ remediation: { action }, workaround_action: action });
 }
