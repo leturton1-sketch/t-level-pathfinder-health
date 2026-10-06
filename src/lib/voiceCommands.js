@@ -118,3 +118,31 @@ export function listVoiceCommandExamples() {
     "\"Collapse the navigation\"",
   ];
 }
+
+/**
+ * A markdown-formatted reference of every voice command the app recognises,
+ * shown in the AI chat window when the user says "list commands" (or any help
+ * phrase). Kept in sync with UTILITY_COMMANDS and the navigation destinations.
+ */
+export function buildVoiceCommandList() {
+  return `**Voice commands — say any of these**
+
+**Navigation**
+- "Go to [destination]" — e.g. "Go to ward simulation"
+- "Open [destination]" / "Show [destination]" / "Take me to [destination]"
+- Destinations: home, ward simulation, care planning, theory, knowledge library, anatomy and physiology, ESP practice, performance, reflection, profile, AI settings
+
+**Reading & scrolling**
+- "Read this page" — read the current page aloud
+- "Stop reading" / "Stop talking" — stop speech
+- "Scroll down" / "Scroll up" — scroll the page
+- "Go back" — return to the previous page
+
+**Assistant controls**
+- "Mute the educator" / "Turn off voice"
+- "Unmute the educator" / "Turn on voice"
+- "Collapse the navigation" / "Expand the navigation"
+
+**Help**
+- "List commands" / "Help" / "What can I say" — show this list`;
+}

@@ -12,6 +12,7 @@ import AIComposer from "@/components/ai/AIComposer";
 import ReactMarkdown from "react-markdown";
 import { safeUrlTransform } from "@/lib/safeMarkdown";
 import { dispatchAiCommand } from "@/lib/aiTutorControl";
+import { matchVoiceCommand, buildVoiceCommandList } from "@/lib/voiceCommands";
 
 const AI_STATES = {
   idle: { label: "Ready", color: "text-clinical-teal" },
@@ -209,6 +210,17 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
     const userMsg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
     if (!overrideText) setInput("");
+
+    // "List commands" (and similar help phrases) shows the voice command
+    // reference directly in the chat without calling the LLM.
+    if (matchVoiceCommand(text.trim())?.type === "help") {
+      const commandList = buildVoiceCommandList();
+      setMessages((prev) => [...prev, { role: "assistant", content: commandList }]);
+      if (listeningRef.current && recognitionRef.current) { try { recognitionRef.current.stop(); } catch {} }
+      await speak(commandList.replace(/[*#`]/g, ""));
+      return;
+    }
+
     setState("thinking");
     if (listeningRef.current && recognitionRef.current) { try { recognitionRef.current.stop(); } catch {} }
 
@@ -396,7 +408,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
 
     if (enabled) {
       setState("speaking");
-      synth.speak("Voice control is on. I am your Pathfinder Clinical Educator and I am listening.", {
+      synth.speak("Voice control is on. I am your Pathfinder Clinical Educator and I am listening. You can say 'list commands' at any time to see all voice commands in this chat window.", {
         onStart: () => setState("speaking"),
         onEnd: () => {
           if (autoListenRef.current) startRecognition();
