@@ -7,6 +7,8 @@ import { SKBadgeGroup } from "@/components/SKBadge";
 import NEWS2Badge from "@/components/NEWS2Badge";
 import Ward3D from "@/components/Ward3D";
 import ADLScenario from "@/components/ADLScenario";
+import ScenarioDecisionPanel from "@/components/ScenarioDecisionPanel";
+import { buildPatientDecisionTree } from "@/lib/scenarioDecisionTrees";
 import WardEditPanel from "@/components/WardEditPanel";
 import WardPropertiesPanel from "@/components/WardPropertiesPanel";
 import PatientPanel from "@/components/PatientPanel";
@@ -104,6 +106,7 @@ export default function WardSimulation() {
   const [showScenarioList, setShowScenarioList] = useState(false);
   const [vitals, setVitals] = useState(null);
   const [decisions, setDecisions] = useState([]);
+  const [scenarioMaxScore, setScenarioMaxScore] = useState(0);
   const [showDebrief, setShowDebrief] = useState(false);
   const [adlScenario, setAdlScenario] = useState(null);
   const [activeCallBed, setActiveCallBed] = useState(null);
@@ -450,6 +453,8 @@ export default function WardSimulation() {
     setActiveScenario(scenario);
     setVitals({ ...scenario.initial_vitals });
     setDecisions([]);
+    setScenarioMaxScore(0);
+    setShowDebrief(false);
     setShowPatientPanel(false);
     setShowScenarioList(false);
     // Narrate the opening clinical prompt
@@ -485,37 +490,21 @@ export default function WardSimulation() {
       debrief_rationale: wardPatient.debrief_rationale,
       difficulty: wardPatient.initial_news2 >= 7 ? "independent" : wardPatient.initial_news2 >= 3 ? "intermediate" : "guided",
       estimated_duration: 20,
+      decision_tree: JSON.stringify(buildPatientDecisionTree(wardPatient)),
     };
     setShowPatientPanel(false);
     startScenario(scenario);
   };
 
-  const decisionSteps = activeScenario ? [
-    { prompt: `${activeScenario.patient_name} is in ${activeScenario.bed_number}. What is your first action?`,
-      options: [
-        { label: "Perform full ABCDE assessment", correct: true, feedback: "Correct — systematic assessment is always the first priority." },
-        { label: "Administer prescribed medication", correct: false, feedback: "Assess before intervening — always follow the ABCDE approach." },
-        { label: "Call the doctor immediately", correct: false, feedback: "Assess the patient first — you need information to escalate effectively." },
-      ] },
-    { prompt: `NEWS2 score is ${activeScenario.initial_news2}. What should you do?`,
-      options: [
-        { label: activeScenario.initial_news2 >= 5 ? "Escalate using SBAR" : "Continue routine monitoring", correct: true, feedback: "Correct — appropriate escalation based on NEWS2 score." },
-        { label: "Document only and continue", correct: false, feedback: "Escalation is required — documenting alone is insufficient." },
-        { label: "Reassess in 1 hour", correct: false, feedback: "Do not delay — escalate now." },
-      ] },
-    { prompt: "The patient needs ongoing care. Which intervention is appropriate?",
-      options: [
-        { label: "Implement person-centred care plan", correct: true, feedback: "Correct — care should always be person-centred and evidence-based." },
-        { label: "Apply standard care without assessment", correct: false, feedback: "All care must be individualised." },
-        { label: "Wait for doctor's orders before any action", correct: false, feedback: "Nursing care continues independently." },
-      ] },
-  ] : [];
-  const currentStep = decisions.length;
-  const handleDecision = (option, stepIdx) => {
-    setDecisions([...decisions, { step: stepIdx, choice: option.label, correct: option.correct, feedback: option.feedback }]);
-    if (option.correct && vitals) setVitals({ ...vitals, rr: Math.max(12, vitals.rr - 2), spo2: Math.min(98, vitals.spo2 + 3) });
-    narration.speak(option.feedback);
-    if (stepIdx + 1 >= decisionSteps.length) setTimeout(() => setShowDebrief(true), 1500);
+  // The branching decision tree is now played by ScenarioDecisionPanel. When
+  // the learner reaches an end node, the panel returns the full decision log
+  // and the tree size (max score), then we reveal the debrief.
+  const handleDecisionComplete = (finalDecisions, maxScore) => {
+    setDecisions(finalDecisions);
+    setScenarioMaxScore(maxScore);
+    const last = finalDecisions[finalDecisions.length - 1];
+    if (last) narration.speak(last.feedback);
+    setTimeout(() => setShowDebrief(true), 1200);
   };
   const score = decisions.filter(d => d.correct).length;
   const exitScenario = () => { setActiveScenario(null); setAdlScenario(null); setDecisions([]); setVitals(null); setShowPatientPanel(false); narration.stop(); endSimulation(); };
@@ -525,7 +514,7 @@ export default function WardSimulation() {
   useEffect(() => {
     if (showDebrief && activeScenario && !debriefSavedRef.current) {
       debriefSavedRef.current = true;
-      const maxScore = decisionSteps.length;
+      const maxScore = scenarioMaxScore || score || 1;
       const pct = Math.round((score / maxScore) * 100);
       base44.entities.SimulationResult.create({
         student_id: user?.id,
@@ -544,13 +533,13 @@ export default function WardSimulation() {
       setTimeout(() => narration.speak(`Scenario complete. You scored ${pct} percent. ${activeScenario.debrief_rationale}`), 300);
     }
     if (!showDebrief) debriefSavedRef.current = false;
-  }, [showDebrief, activeScenario, decisions, score, decisionSteps.length]);
+  }, [showDebrief, activeScenario, decisions, score, scenarioMaxScore]);
 
   const selectedItem = items.find(i => i.id === selectedItemId);
 
   // --- Debrief screen ---
   if (showDebrief && activeScenario) {
-    const pct = Math.round((score / decisionSteps.length) * 100);
+    const pct = Math.round((score / (scenarioMaxScore || score || 1)) * 100);
     return (
       <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">
         <div className="text-center mb-6">
@@ -788,6 +777,15 @@ export default function WardSimulation() {
             bedDesignations={items.filter((item) => item.type === "bed").map((item) => item.designation)}
             onActiveBedChange={setActiveCallBed}
             onClose={() => { setAdlScenario(null); setActiveCallBed(null); }}
+          />
+        )}
+
+        {activeScenario && !adlScenario && !editMode && !showDebrief && (
+          <ScenarioDecisionPanel
+            scenario={activeScenario}
+            vitals={vitals}
+            onUpdateVitals={setVitals}
+            onComplete={handleDecisionComplete}
           />
         )}
 
