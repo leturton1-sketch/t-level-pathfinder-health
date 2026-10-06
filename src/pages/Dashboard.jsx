@@ -69,10 +69,10 @@ export default function Dashboard() {
   const isAdmin = ["super_admin", "admin", "tutor"].includes(user?.role);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="bg-background pb-6">
       {/* NHS-style system header */}
       <div className="bg-gradient-to-r from-sky-600 to-sky-500 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shrink-0 shadow-inner">
               <Activity className="w-5 h-5 text-white" />
@@ -92,7 +92,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
           {/* Left: patient list */}
           <div className="lg:sticky lg:top-4 lg:self-start">
