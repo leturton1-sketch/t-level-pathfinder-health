@@ -215,12 +215,12 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
     try {
       const wardState = wardStateRef.current;
       const wardContext = contextEnabled && wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
-      const uploaded = await Promise.all(attachments.map(async (file) => {
+      const uploadedUrls = await Promise.all(attachments.map(async (file) => {
         const result = await base44.integrations.Core.UploadFile({ file });
-        return `${file.name}: ${result.file_url}`;
+        return result.file_url;
       }));
-      const attachmentContext = uploaded.length ? `\n\nATTACHMENTS:\n${uploaded.join("\n")}` : "";
-      const result = await base44.functions.invoke("openaiChat", {
+      const attachmentContext = uploadedUrls.length ? `\n\nATTACHMENTS:\n${attachments.map((f, i) => `${f.name}: ${uploadedUrls[i]}`).join("\n")}` : "";
+      const result = await base44.integrations.Core.InvokeLLM({
         prompt: `${systemPrompt}${contextEnabled ? wardContext : "\n\nThe user has disabled current-page context."}${attachmentContext}\n\nConversation:\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}\nuser: ${userMsg.content}\nassistant:`,
         response_json_schema: {
           type: "object",
@@ -291,6 +291,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
             },
           },
         },
+        ...(uploadedUrls.length ? { file_urls: uploadedUrls } : {}),
       });
       if (requestId !== requestIdRef.current) return;
       const response = result?.data ?? result;
