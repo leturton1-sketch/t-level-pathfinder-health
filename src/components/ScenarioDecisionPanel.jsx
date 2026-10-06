@@ -19,6 +19,13 @@ export default function ScenarioDecisionPanel({ scenario, vitals, onUpdateVitals
   const [feedback, setFeedback] = useState(null);
 
   const node = tree.nodes[currentNodeId];
+  // Shuffle the answer options for the current node so the correct answer
+  // lands in a different position on each attempt — the tree's branching
+  // structure keeps the clinical question sequence fixed.
+  const shuffledOptions = useMemo(
+    () => (node?.options ? [...node.options].sort(() => Math.random() - 0.5) : []),
+    [currentNodeId, tree]
+  );
   if (!node) return null;
 
   const handleChoose = (option) => {
@@ -95,7 +102,7 @@ export default function ScenarioDecisionPanel({ scenario, vitals, onUpdateVitals
 
         {/* Options */}
         <div className="mt-3 space-y-2" role="group" aria-label="Decision options">
-          {node.options.map((option, idx) => {
+          {shuffledOptions.map((option, idx) => {
             const showResult = feedback && feedback.label === option.label;
             return (
               <button

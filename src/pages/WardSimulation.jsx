@@ -110,6 +110,7 @@ export default function WardSimulation() {
   const [scenarioMaxScore, setScenarioMaxScore] = useState(0);
   const [showDebrief, setShowDebrief] = useState(false);
   const [adlScenario, setAdlScenario] = useState(null);
+  const [attemptKey, setAttemptKey] = useState(0);
   const [activeCallBed, setActiveCallBed] = useState(null);
   const [simState, setSimState] = useState(getSimulationState);
 
@@ -444,6 +445,7 @@ export default function WardSimulation() {
 
   // --- Scenario ---
   const startScenario = (scenario) => {
+    setAttemptKey((k) => k + 1);
     startSimulation({ controller: "user", scenarioId: scenario.id, scenarioName: scenario.name });
     if (scenario.category === "activities_daily_living") {
       setShowScenarioList(false);
@@ -754,6 +756,7 @@ export default function WardSimulation() {
 
         {activeScenario && !adlScenario && !editMode && !showDebrief && (
           <ScenarioDecisionPanel
+            key={attemptKey}
             scenario={activeScenario}
             vitals={vitals}
             onUpdateVitals={setVitals}
