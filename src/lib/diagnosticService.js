@@ -1,5 +1,6 @@
 import { base44 } from "@/api/base44Client";
 import { isTransientNetworkError, withExponentialBackoff } from "@/lib/networkRetry";
+import { SECURITY_ENTITIES, SECURITY_FUNCTIONS, SECURITY_RISK_AREAS, SECURITY_MANIFEST_VERSION } from "@/lib/securityManifest";
 
 // Diagnostic mode — collects runtime errors from the live app, asks the AI for
 // a structured remediation report, and applies safe runtime fixes. The
@@ -235,6 +236,121 @@ Be concise, British English, and aggregate duplicate errors. Prefer the most spe
         can_auto_fix: false,
         source_fix: null,
       })),
+    };
+  }
+}
+
+// Collect security-relevant signals from the live browser environment. These
+// are facts the running app can observe about itself; the manifest supplies
+// the structural review the browser cannot see.
+function collectSecuritySignals() {
+  const signals = {};
+  try { signals.https = window.location?.protocol === "https:"; } catch { signals.https = "unknown"; }
+  try { signals.cookieCount = document.cookie ? document.cookie.split(";").filter(Boolean).length : 0; } catch { signals.cookieCount = "unknown"; }
+  try {
+    const suspicious = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && /secret|token|api[-_]?key|password|pin/i.test(key)) suspicious.push(key);
+    }
+    signals.suspiciousLocalStorage = suspicious;
+  } catch { signals.suspiciousLocalStorage = "unknown"; }
+  try {
+    const exposed = [];
+    ["OPENAI_API_KEY", "OPENROUTER_API_KEY", "apiKey", "api_key", "secret", "token", "password"].forEach((name) => {
+      if (window[name] != null) exposed.push(name);
+    });
+    signals.exposedGlobals = exposed;
+  } catch { signals.exposedGlobals = "unknown"; }
+  return signals;
+}
+
+export async function runSecurityScan() {
+  const signals = collectSecuritySignals();
+  const manifest = {
+    version: SECURITY_MANIFEST_VERSION,
+    entities: SECURITY_ENTITIES,
+    functions: SECURITY_FUNCTIONS,
+    riskAreas: SECURITY_RISK_AREAS,
+    runtimeSignals: signals,
+  };
+
+  try {
+    const response = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are the Pathfinder security review engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Systematically review the security manifest below and triage every finding by severity.
+
+For EACH distinct security issue return:
+- title, severity (critical/high/medium/low/info), category (rls/xss/auth/secrets/validation/exposure/deprecation), affected_resource (entity or function or file name), description, recommendation.
+- remediation: a SAFE runtime action from ${JSON.stringify(SAFE_ACTIONS)} when a runtime fix applies (e.g. "clear_storage" to remove a leaked secret from localStorage, "suppress" otherwise), else "dismiss".
+- can_auto_fix: true only when a runtime action genuinely helps; most security fixes are source-level so this is usually false.
+- source_fix: the PERMANENT fix the builder applies — { file, find, replace, explanation }. "file" is a real path (e.g. base44/entities/HealthHubRecord.jsonc, base44/functions/verifyAccess/entry.ts, src/components/...). "find" is the exact existing code/config to locate. "replace" is the corrected code/config. If no source change is needed, use null.
+
+Triage rules:
+- critical: confirmed secret leakage to clients, broken auth on a sensitive function, or RLS missing on a high-sensitivity entity (HealthHubRecord, AppUser, AppSession, QRAccessCredential, CarePlanSubmission, ESPPortfolio, TalentCard).
+- high: RLS allowing cross-user reads of high-sensitivity data, or a client-side-only guard on an admin action with no server enforcement.
+- medium: public-read on sensitive-ish data, deprecated auth-bearing functions, markdown render sites without safeUrlTransform, profile_visibility not enforced.
+- low: minor hardening, error-message wording, cookie/localStorage hygiene with no secret.
+- info: intentional public-read of educational content flagged for confirmation.
+
+Be concise, British English. Do not invent issues not supported by the manifest; if the manifest is clean, return an empty issues array.
+
+MANIFEST:
+${JSON.stringify(manifest, null, 2)}`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          summary: { type: "string" },
+          overall_risk: { type: "string", enum: ["secure", "review", "at_risk"] },
+          issues: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                severity: { type: "string", enum: ["critical", "high", "medium", "low", "info"] },
+                category: { type: "string", enum: ["rls", "xss", "auth", "secrets", "validation", "exposure", "deprecation"] },
+                affected_resource: { type: "string" },
+                description: { type: "string" },
+                recommendation: { type: "string" },
+                remediation: {
+                  type: "object",
+                  properties: {
+                    action: { type: "string", enum: SAFE_ACTIONS },
+                    payload: {
+                      type: "object",
+                      properties: {
+                        storageKey: { type: "string" },
+                        signature: { type: "string" },
+                      },
+                    },
+                  },
+                },
+                can_auto_fix: { type: "boolean" },
+                source_fix: {
+                  type: ["object", "null"],
+                  properties: {
+                    file: { type: "string" },
+                    find: { type: "string" },
+                    replace: { type: "string" },
+                    explanation: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const res = response?.data ?? response;
+    if (res?.error) throw new Error(res.error);
+    return { ...res, scanType: "security", manifestVersion: SECURITY_MANIFEST_VERSION };
+  } catch (err) {
+    return {
+      summary: "Security scan could not reach the AI service. Review the manifest manually.",
+      overall_risk: "review",
+      scanType: "security",
+      error: err?.message || "AI service unavailable",
+      issues: [],
     };
   }
 }
