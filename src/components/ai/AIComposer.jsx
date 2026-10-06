@@ -151,20 +151,7 @@ export default function AIComposer({
           </button>
         )}
       </div>
-      <p className="ai-composer-hint">{hint}</p>
       <div className="ai-composer-toolbar">
-        <div className="ai-composer-mode-toggle" role="group" aria-label="Input mode">
-          <button type="button" onClick={() => onInputModeChange?.("text")}
-            className={`ai-composer-mode-button ${inputMode === "text" ? "ai-composer-mode-active" : ""}`}
-            aria-pressed={inputMode === "text"} aria-label="Text input">
-            <span className="text-[10px] font-bold uppercase tracking-wide">Text</span>
-          </button>
-          <button type="button" onClick={() => onInputModeChange?.("voice")}
-            className={`ai-composer-mode-button ${inputMode === "voice" ? (isListening ? "ai-composer-mode-voice-live" : "ai-composer-mode-active") : ""}`}
-            aria-pressed={inputMode === "voice"} aria-label="Voice input">
-            <Mic className="h-3 w-3" /><span className="text-[10px] font-bold uppercase tracking-wide">Voice</span>
-          </button>
-        </div>
         <div className="flex min-w-0 items-center gap-1.5">{leadingControls}</div>
         <div className="hidden items-center gap-1.5 sm:flex">{secondaryControls}</div>
         <div className="relative ml-auto sm:hidden">

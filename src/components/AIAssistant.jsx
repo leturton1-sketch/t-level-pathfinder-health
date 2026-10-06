@@ -490,8 +490,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
   const textOpacity = 1 - panelTransparency / 100;
   const panelStyle = {
     opacity: textOpacity,
-    resize: "both",
-    overflow: "auto",
+    overflow: "hidden",
     minWidth: fullChat ? 292 : 260,
     minHeight: fullChat ? 330 : 132,
     maxWidth: "calc(100vw - 16px)",
