@@ -24,7 +24,7 @@ body.pf-theme-active {
 .pf-app-frame { --pf-nav-space: 248px; min-height: 100dvh; }
 .pf-app-compact { --pf-nav-space: 88px; }
 .pf-global-header {
-  position: sticky; top: 0; z-index: 50; min-height: 80px; display: flex; align-items: center;
+  position: relative; z-index: 50; min-height: 80px; display: flex; align-items: center;
   justify-content: space-between; gap: var(--pf-space-2); padding: var(--pf-space-2) var(--pf-space-3); background: #fff;
   border-bottom: 2px solid var(--pf-neon); box-shadow: 0 3px 14px #29e7ff42;
 }
@@ -38,7 +38,7 @@ body.pf-theme-active {
 .pf-voice-control[aria-pressed="true"] { background: #dc2626; color: #fff; border-color: #ef4444; box-shadow: inset 0 1px #ffffff55, 0 0 0 3px #fee2e2, 0 0 18px #ef444477; }
 .pf-global-workspace { display: grid; grid-template-columns: 224px minmax(0,1fr); gap: var(--pf-space-3); padding: var(--pf-space-3) var(--pf-space-3) var(--pf-space-3) var(--pf-space-2); }
 .pf-app-compact .pf-global-workspace { grid-template-columns: 64px minmax(0,1fr); }
-.pf-global-nav { position: sticky; top: 104px; height: calc(100dvh - 128px); display: flex; flex-direction: column; min-height: 0; transform: translateZ(0); }
+.pf-global-nav { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; min-height: 0; transform: translateZ(0); }
 .pf-global-nav .pf-navigation { max-height: none; flex: 1; min-height: 0; overflow-y: auto; }
 .pf-global-nav-footer { flex-shrink: 0; padding-top: var(--pf-space-2); background: #f8fafc; }
 .pf-module { min-width: 0; border: 1px solid var(--pf-neon); border-radius: 16px; box-shadow: var(--pf-frame-glow); background: #fff; }
