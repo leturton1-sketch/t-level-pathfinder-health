@@ -93,14 +93,14 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[clamp(260px,22vw,320px)_minmax(0,1fr)] gap-4">
           {/* Left: patient list */}
-          <div className="lg:sticky lg:top-4 lg:self-start">
+          <div className="lg:sticky lg:top-4 lg:self-start min-w-0">
             <PatientList patients={patients} selectedId={selected?.id} onSelect={setSelectedId} now={now} />
           </div>
 
           {/* Right: live widget grid */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             <PatientBannerWidget patient={selected} now={now} onDischarge={handleDischarge} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NEWS2LiveWidget patient={selected} />
