@@ -8,7 +8,7 @@ import NEWS2Badge from "@/components/NEWS2Badge";
 import { SKBadgeGroup } from "@/components/SKBadge";
 import {
   Shield, Plus, Copy, Pencil, Trash2, Clock, User, Heart,
-  Lock, AlertTriangle, Stethoscope,
+  Lock, AlertTriangle, Stethoscope, Bookmark,
 } from "lucide-react";
 
 const AUTHORIZED_ROLES = ["super_admin", "admin", "tutor"];
@@ -89,6 +89,38 @@ export default function ScenarioAuthoring() {
     loadScenarios();
   };
 
+  // Promote an authored scenario into a reusable ScenarioTemplate so lecturers
+  // can build a library of custom templates from cloned and modified simulations.
+  const handleSaveAsTemplate = async (scenario) => {
+    try {
+      await base44.entities.ScenarioTemplate.create({
+        name: scenario.name,
+        description: scenario.description,
+        difficulty: scenario.difficulty,
+        estimated_duration: scenario.estimated_duration,
+        patient_name: scenario.patient_name,
+        patient_age: scenario.patient_age,
+        patient_condition: scenario.patient_condition,
+        patient_comorbidities: scenario.patient_comorbidities,
+        patient_medications: scenario.patient_medications,
+        patient_allergies: scenario.patient_allergies,
+        bed_number: scenario.bed_number,
+        initial_vitals: scenario.initial_vitals,
+        initial_news2: scenario.initial_news2,
+        decision_tree: scenario.decision_tree,
+        sk_codes: scenario.sk_codes || [],
+        performance_outcomes: scenario.performance_outcomes || [],
+        debrief_rationale: scenario.debrief_rationale,
+        assigned_cohorts: scenario.assigned_cohorts || [],
+        category: scenario.category,
+        creator_id: user?.id,
+      });
+      alert(`Saved "${scenario.name}" as a reusable template. Find it in the Templates library.`);
+    } catch {
+      alert("Could not save as template. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -130,7 +162,7 @@ export default function ScenarioAuthoring() {
           ) : (
             <div className="space-y-2.5">
               {dbScenarios.map((sc) => (
-                <ScenarioCard key={sc.id} scenario={sc} onEdit={() => handleEdit(sc)} onClone={() => handleClone(sc)} onDelete={() => setConfirmDelete(sc)} />
+                <ScenarioCard key={sc.id} scenario={sc} onEdit={() => handleEdit(sc)} onClone={() => handleClone(sc)} onSaveAsTemplate={() => handleSaveAsTemplate(sc)} onDelete={() => setConfirmDelete(sc)} />
               ))}
             </div>
           )}
@@ -182,7 +214,7 @@ export default function ScenarioAuthoring() {
   );
 }
 
-function ScenarioCard({ scenario, prebuilt, onEdit, onClone, onDelete }) {
+function ScenarioCard({ scenario, prebuilt, onEdit, onClone, onSaveAsTemplate, onDelete }) {
   return (
     <div className="rounded-xl border border-border bg-card p-3.5 shadow-sm">
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -216,6 +248,12 @@ function ScenarioCard({ scenario, prebuilt, onEdit, onClone, onDelete }) {
           <button onClick={onClone} className="flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] font-heading font-semibold text-muted-foreground hover:bg-muted">
             <Copy className="w-3 h-3" /> Clone
           </button>
+          {!prebuilt && onSaveAsTemplate && (
+            <button onClick={onSaveAsTemplate} title="Save as reusable template"
+              className="flex items-center gap-1 rounded-md border border-clinical-teal/30 bg-clinical-teal/5 px-2 py-1 text-[10px] font-heading font-semibold text-clinical-teal hover:bg-clinical-teal/10">
+              <Bookmark className="w-3 h-3" /> Template
+            </button>
+          )}
           {!prebuilt && onEdit && (
             <button onClick={onEdit} className="flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] font-heading font-semibold text-muted-foreground hover:bg-muted">
               <Pencil className="w-3 h-3" /> Edit
