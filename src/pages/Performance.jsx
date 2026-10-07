@@ -5,6 +5,7 @@ import { isLoggedIn, getCurrentUser } from "@/lib/clinicalAuth";
 import { useESPCase } from "@/lib/ESPCaseContext";
 import { SPEC_AREAS } from "@/lib/specData";
 import { THEORY_MODULES } from "@/lib/theoryContent";
+import { buildCompetencyMap } from "@/lib/competencyMap";
 import CompetencyRadar from "@/components/performance/CompetencyRadar";
 import KnowledgeCheckChart from "@/components/performance/KnowledgeCheckChart";
 import SKCoverageMatrix from "@/components/performance/SKCoverageMatrix";
@@ -19,6 +20,8 @@ export default function Performance() {
   const [loadError, setLoadError] = useState(false);
   const [results, setResults] = useState([]);
   const [submissions, setSubmissions] = useState([]);
+  const [learningProgress, setLearningProgress] = useState([]);
+  const [espPortfolios, setEspPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +32,8 @@ export default function Performance() {
   const loadData = async () => {
     try { const r = await base44.entities.SimulationResult.filter({ student_id: user?.id }); setResults(r || []); } catch { setLoadError(true); }
     try { const s = await base44.entities.CarePlanSubmission.filter({ student_id: user?.id }); setSubmissions(s || []); } catch {}
+    try { const lp = await base44.entities.LearningProgress.filter({ student_id: user?.id }); setLearningProgress(lp || []); } catch {}
+    try { const ep = await base44.entities.ESPPortfolio.filter({ student_id: user?.id }); setEspPortfolios(ep || []); } catch {}
     setLoading(false);
   };
 
@@ -45,16 +50,17 @@ export default function Performance() {
     return { ...area, title_full: mod?.title, completed, quiz, progress, label: area.code.replace("Area ", "A") };
   });
 
-  // SK / PO coverage from simulations, care plans, and completed theory modules
-  const coveredSK = new Set();
-  const coveredPO = new Set();
-  results.forEach((r) => { (r.sk_codes || []).forEach((c) => coveredSK.add(c)); (r.performance_outcomes || []).forEach((c) => coveredPO.add(c)); });
-  submissions.filter((s) => s.status === "submitted" || s.status === "reviewed").forEach((s) => {
-    (s.sk_codes || []).forEach((c) => coveredSK.add(c)); (s.performance_outcomes || []).forEach((c) => coveredPO.add(c));
+  // Unified SK / PO competency map across theory, interactive modules, simulations,
+  // care plans and ESP portfolios — one source of truth for both this page and
+  // the Curriculum Readiness view.
+  const competencyMap = buildCompetencyMap({
+    theoryProgress,
+    learningProgress,
+    simulationResults: results,
+    carePlanSubmissions: submissions,
+    espPortfolios,
   });
-  THEORY_MODULES.forEach((m) => {
-    if (theoryProgress[m.spec_area]) { (m.sk_codes || []).forEach((c) => coveredSK.add(c)); (m.performance_outcomes || []).forEach((c) => coveredPO.add(c)); }
-  });
+  const { coveredSK, coveredPO, contexts: competencyContexts } = competencyMap;
 
   // Summary stats
   const modulesComplete = areaData.filter((a) => a.completed).length;
@@ -155,7 +161,7 @@ export default function Performance() {
       <div className="rounded-xl border border-border bg-card p-4 mb-4">
         <h2 className="text-sm font-bold text-foreground mb-1">Skills encountered in practice</h2>
         <p className="text-xs text-muted-foreground mb-3">Skills and performance outcomes linked to your activities; coverage is not a competence judgement.</p>
-        <SKCoverageMatrix coveredSK={coveredSK} coveredPO={coveredPO} />
+        <SKCoverageMatrix coveredSK={coveredSK} coveredPO={coveredPO} contexts={competencyContexts} />
       </div>
 
       {/* Activity summary */}

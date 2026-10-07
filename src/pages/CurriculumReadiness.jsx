@@ -11,12 +11,14 @@ export default function CurriculumReadiness() {
   const [results, setResults] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
+  const [learningProgress, setLearningProgress] = useState([]);
 
   useEffect(() => {
     (async () => {
       try { setResults(await base44.entities.SimulationResult.filter({ student_id: user?.id }) || []); } catch {}
       try { setSubmissions(await base44.entities.CarePlanSubmission.filter({ student_id: user?.id }) || []); } catch {}
       try { setPortfolio(await base44.entities.ESPPortfolio.filter({ student_id: user?.id }) || []); } catch {}
+      try { setLearningProgress(await base44.entities.LearningProgress.filter({ student_id: user?.id }) || []); } catch {}
     })();
   }, [user?.id]);
 
@@ -29,11 +31,13 @@ export default function CurriculumReadiness() {
     const module = THEORY_MODULES.find((m) => m.spec_area === area.code);
     const skCodes = new Set(module?.sk_codes || []);
     const poCodes = new Set(module?.performance_outcomes || []);
-    const evidenceCount = results.filter((r) => (r.sk_codes || []).some((c) => skCodes.has(c)) || (r.performance_outcomes || []).some((c) => poCodes.has(c))).length +
-      submissions.filter((s) => ["submitted", "reviewed"].includes(s.status) && ((s.sk_codes || []).some((c) => skCodes.has(c)) || (s.performance_outcomes || []).some((c) => poCodes.has(c)))).length;
+    const matchesCodes = (skArr, poArr) => (skArr || []).some((c) => skCodes.has(c)) || (poArr || []).some((c) => poCodes.has(c));
+    const evidenceCount = results.filter((r) => matchesCodes(r.sk_codes, r.performance_outcomes)).length +
+      submissions.filter((s) => ["submitted", "reviewed"].includes(s.status) && matchesCodes(s.sk_codes, s.performance_outcomes)).length +
+      learningProgress.filter((r) => r.completed && matchesCodes(r.sk_codes, r.performance_outcomes)).length;
     const score = Math.min(100, Math.round((complete ? 30 : 0) + (quiz * 0.5) + Math.min(20, evidenceCount * 5)));
     return { ...area, score, quiz, complete, evidenceCount, band: readinessBand(score), title_full: module?.title };
-  }), [results, submissions]);
+  }), [results, submissions, learningProgress]);
 
   const avg = areas.length ? Math.round(areas.reduce((sum, a) => sum + a.score, 0) / areas.length) : 0;
   const espActive = portfolio.filter((p) => ["in_progress", "submitted", "reviewed"].includes(p.status)).length;

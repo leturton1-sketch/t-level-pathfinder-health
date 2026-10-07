@@ -4,6 +4,7 @@ import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskCon
 import { LEARNING_MODULES } from "@/lib/learningData";
 import { base44 } from "@/api/base44Client";
 import { getCurrentUser } from "@/lib/clinicalAuth";
+import { useESPCase } from "@/lib/ESPCaseContext";
 import InteractiveAtlas from "@/components/learning/InteractiveAtlas";
 import PPESequencer from "@/components/learning/PPESequencer";
 import HazardHunt from "@/components/learning/HazardHunt";
@@ -42,6 +43,7 @@ export default function InteractiveLearning() {
   const [completed, setCompleted] = useState([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const user = getCurrentUser();
+  const { portfolio, updatePortfolio } = useESPCase();
 
   // Load persisted module completion so progress survives navigation and
   // feeds the learner's competency record.
@@ -78,6 +80,38 @@ export default function InteractiveLearning() {
       });
     } catch {
       // Record creation is best-effort — the in-memory badge still shows.
+    }
+
+    // Link the module into the active ESP portfolio evidence chain so completed
+    // interactive activities count towards the learner's ESP evidence record.
+    if (portfolio?.id && updatePortfolio) {
+      try {
+        const skills = new Set(portfolio.skills_evidenced || []);
+        const pos = new Set(portfolio.performance_outcomes_evidenced || []);
+        (mod.skCodes || []).forEach((c) => skills.add(c));
+        (mod.poCodes || []).forEach((c) => pos.add(c));
+        let workspace = {};
+        try { workspace = JSON.parse(portfolio.workspace_evidence || "{}"); } catch {}
+        const moduleEvidence = Array.isArray(workspace.interactive_modules) ? workspace.interactive_modules : [];
+        if (!moduleEvidence.some((e) => e.module_id === mod.id)) {
+          moduleEvidence.push({
+            module_id: mod.id,
+            module_title: mod.title,
+            spec_area: mod.specArea,
+            sk_codes: mod.skCodes || [],
+            performance_outcomes: mod.poCodes || [],
+            completed_at: new Date().toISOString(),
+          });
+        }
+        workspace.interactive_modules = moduleEvidence;
+        await updatePortfolio({
+          skills_evidenced: Array.from(skills),
+          performance_outcomes_evidenced: Array.from(pos),
+          workspace_evidence: JSON.stringify(workspace),
+        });
+      } catch {
+        // Portfolio link is best-effort — the LearningProgress record stands alone.
+      }
     }
   };
 
