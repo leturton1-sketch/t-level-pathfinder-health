@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, PersonStanding, Shield, AlertTriangle, Stethoscope, FlaskConical, Award, CheckCircle2, Monitor, Clipboard, Network, ListChecks, HeartPulse, Scale } from "lucide-react";
 import { LEARNING_MODULES } from "@/lib/learningData";
+import { base44 } from "@/api/base44Client";
+import { getCurrentUser } from "@/lib/clinicalAuth";
 import InteractiveAtlas from "@/components/learning/InteractiveAtlas";
 import PPESequencer from "@/components/learning/PPESequencer";
 import HazardHunt from "@/components/learning/HazardHunt";
@@ -38,9 +40,45 @@ const MODULE_COLORS = {
 export default function InteractiveLearning() {
   const [activeModule, setActiveModule] = useState(null);
   const [completed, setCompleted] = useState([]);
+  const [loadingProgress, setLoadingProgress] = useState(true);
+  const user = getCurrentUser();
 
-  const handleComplete = (id) => {
-    if (!completed.includes(id)) setCompleted(prev => [...prev, id]);
+  // Load persisted module completion so progress survives navigation and
+  // feeds the learner's competency record.
+  const loadProgress = useCallback(async () => {
+    if (!user?.id) { setLoadingProgress(false); return; }
+    try {
+      const records = await base44.entities.LearningProgress.filter({ student_id: user.id });
+      setCompleted(records.filter((r) => r.completed).map((r) => r.module_id));
+    } catch {
+      // Progress stays in-memory only if the store is unavailable.
+    } finally {
+      setLoadingProgress(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => { loadProgress(); }, [loadProgress]);
+
+  const handleComplete = async (id) => {
+    if (completed.includes(id)) return;
+    setCompleted((prev) => [...prev, id]);
+    const mod = LEARNING_MODULES.find((m) => m.id === id);
+    if (!mod || !user?.id) return;
+    try {
+      await base44.entities.LearningProgress.create({
+        student_id: user.id,
+        student_name: user.full_name || user.username || "",
+        module_id: mod.id,
+        module_title: mod.title,
+        spec_area: mod.specArea,
+        sk_codes: mod.skCodes || [],
+        performance_outcomes: mod.poCodes || [],
+        completed: true,
+        completed_at: new Date().toISOString(),
+      });
+    } catch {
+      // Record creation is best-effort — the in-memory badge still shows.
+    }
   };
 
   const handleSelect = (id) => {
@@ -85,7 +123,7 @@ export default function InteractiveLearning() {
       <div className="bg-slate-800 rounded-2xl p-4 mb-6 flex items-center justify-between">
         <div>
           <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Modules Completed</p>
-          <p className="text-2xl font-heading font-bold text-white">{completed.length}<span className="text-slate-500 text-base">/{LEARNING_MODULES.length}</span></p>
+          <p className="text-2xl font-heading font-bold text-white">{loadingProgress ? "—" : completed.length}<span className="text-slate-500 text-base">/{LEARNING_MODULES.length}</span></p>
         </div>
         <div className="flex-1 mx-6">
           <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -96,7 +134,7 @@ export default function InteractiveLearning() {
         </div>
         <div className="text-right">
           <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Coverage</p>
-          <p className="text-sm font-bold text-clinical-teal">{Math.round((completed.length / LEARNING_MODULES.length) * 100)}%</p>
+          <p className="text-sm font-bold text-clinical-teal">{loadingProgress ? "—" : `${Math.round((completed.length / LEARNING_MODULES.length) * 100)}%`}</p>
         </div>
       </div>
 
