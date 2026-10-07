@@ -73,6 +73,13 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// Per-account random initial PIN. Replaces the former constant "0000" default
+// so newly created or reset accounts cannot be signed into with a guessable PIN.
+function generateRandomPin() {
+  const n = crypto.getRandomValues(new Uint16Array(1))[0] % 9000;
+  return String(1000 + n);
+}
+
 function isPlainObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
 }
@@ -222,8 +229,20 @@ async function appUserOperation(base44, user, operation, args) {
         : new Set(["guest", "student"]);
     if (!allowedRoles.has(data.role || "student")) return json({ error: "Role not permitted." }, 403);
     data = Object.fromEntries(Object.entries(data).filter(([key]) => APP_USER_FIELDS.has(key)));
-    data = await hashPinIfPresent({ ...data, pin: data.pin || "0000", role: data.role || "student", active: data.active !== false });
-    return json(stripSensitive("AppUser", await entity.create(data)), 201);
+    // Never persist a guessable PIN. When no PIN (or the legacy "0000") is
+    // supplied, issue a random one and flag the account for a forced change at
+    // first sign-in. The plaintext is returned once so staff can share it.
+    let initialPin = null;
+    if (!data.pin || data.pin === "0000") {
+      initialPin = generateRandomPin();
+      data.pin = initialPin;
+      if (data.first_login === undefined) data.first_login = true;
+    }
+    data = await hashPinIfPresent({ ...data, role: data.role || "student", active: data.active !== false });
+    const created = await entity.create(data);
+    const response = stripSensitive("AppUser", created);
+    if (initialPin) response.initial_pin = initialPin;
+    return json(response, 201);
   }
 
   const target = await entity.get(String(args?.id || "")).catch(() => null);
@@ -278,8 +297,22 @@ export default async function(req) {
   try {
     const body = await req.json().catch(() => ({}));
     const base44 = createClientFromRequest(req);
-    const user = await authenticate(base44, body?.session_token || body?.pathfinder_session_token);
+    const token = body?.session_token || body?.pathfinder_session_token;
+    const user = await authenticate(base44, token);
     if (!user) return json({ error: "Session expired. Sign in again." }, 401);
+
+    // Server-side logout: revoke the presented session token so a captured token
+    // cannot keep authorising requests after the user signs out.
+    if (body?.revoke_session) {
+      try {
+        const tokenHash = await sha256(String(token));
+        await base44.asServiceRole.entities.AppSession.updateMany(
+          { token_hash: tokenHash, revoked: false },
+          { $set: { revoked: true } },
+        );
+      } catch {}
+      return json({ revoked: true });
+    }
 
     const entityName = String(body?.entity_name || "");
     const operation = String(body?.operation || "");
@@ -289,6 +322,13 @@ export default async function(req) {
     if (!policy) return json({ error: "Entity is not available through this endpoint." }, 403);
     if (!["list", "filter", "get", "create", "update", "delete"].includes(operation)) {
       return json({ error: "Unsupported operation." }, 400);
+    }
+
+    // First-login users must change their temporary PIN before any app data is
+    // accessible. Self AppUser read (session verification) and self update (the
+    // PIN-change flow) remain available so the user can complete the change.
+    if (user.first_login && (entityName !== "AppUser" || !["get", "update"].includes(operation))) {
+      return json({ error: "Please change your temporary PIN to continue." }, 403);
     }
 
     if (entityName === "AppUser") {

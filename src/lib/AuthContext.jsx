@@ -93,6 +93,10 @@ export const AuthProvider = ({ children }) => {
 
   const logout = (shouldRedirect = true) => {
     resetModuleSession();
+    const token = getPathfinderSessionToken();
+    if (token) {
+      base44.functions.invoke('appData', { revoke_session: true }).catch(() => {});
+    }
     setPlatformUser(null);
     setAppUser(null);
     clearPathfinderSessionToken();

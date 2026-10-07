@@ -113,6 +113,12 @@ export function logout() {
   resetModuleSession();
   try { sessionStorage.removeItem("pathfinder-welcomed"); } catch {}
   try { sessionStorage.removeItem("pathfinder-unlocked"); } catch {}
+  // Revoke the server-issued session token before clearing local state so a
+  // captured token cannot survive sign-out.
+  const token = getPathfinderSessionToken();
+  if (token) {
+    base44.functions.invoke("appData", { revoke_session: true }).catch(() => {});
+  }
   clearPathfinderSessionToken();
   persist(null);
 
@@ -130,13 +136,21 @@ async function sha256Pin(pin) {
   return `sha256:${Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
+function generateRandomPin() {
+  const n = crypto.getRandomValues(new Uint16Array(1))[0] % 9000;
+  return String(1000 + n);
+}
+
 export async function changePin(userId, newPin) {
   if (!/^\d{4,6}$/.test(String(newPin))) throw new Error("PIN must contain 4 to 6 digits.");
   const hashed = await sha256Pin(newPin);
   await base44.entities.AppUser.update(userId, { pin: hashed, first_login: false });
+  if (cachedUser?.id === userId) persist({ ...cachedUser, first_login: false });
 }
 
 export async function resetPin(userId) {
-  const hashed = await sha256Pin("0000");
+  const plain = generateRandomPin();
+  const hashed = await sha256Pin(plain);
   await base44.entities.AppUser.update(userId, { pin: hashed, first_login: true });
+  return plain;
 }

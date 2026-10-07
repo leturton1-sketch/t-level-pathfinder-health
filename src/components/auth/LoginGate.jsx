@@ -201,7 +201,7 @@ export default function LoginGate({ onUnlock }) {
               <input
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="0000"
+                placeholder="PIN"
                 inputMode="numeric"
                 type="password"
                 autoComplete="current-password"

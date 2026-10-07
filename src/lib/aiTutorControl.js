@@ -317,9 +317,8 @@ export async function dispatchAiCommand(command, user, { navigate } = {}) {
     case "create_user":
       if (!command.username || !command.fullName) return { ok: false, message: "A username and full name are needed to create a user." };
       try {
-        await base44.entities.AppUser.create({
+        const result = await base44.entities.AppUser.create({
           username: command.username.toLowerCase().trim(),
-          pin: "0000",
           role: ["student", "tutor"].includes(command.role) ? command.role : "student",
           full_name: command.fullName,
           cohort: command.cohort || "",
@@ -329,7 +328,14 @@ export async function dispatchAiCommand(command, user, { navigate } = {}) {
           ai_persona: "female",
           is_protected: false,
         });
-        return { ok: true, message: `Account created for ${command.fullName}.` };
+        const created = result?.data ?? result;
+        const initialPin = created?.initial_pin;
+        return {
+          ok: true,
+          message: initialPin
+            ? `Account created for ${command.fullName}. Temporary PIN: ${initialPin}. Share it securely and ask them to change it at first sign-in.`
+            : `Account created for ${command.fullName}.`,
+        };
       } catch {
         return { ok: false, message: "Could not create that account — the username may already be taken." };
       }

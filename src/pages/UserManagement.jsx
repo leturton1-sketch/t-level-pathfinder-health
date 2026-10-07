@@ -69,9 +69,8 @@ export default function UserManagement() {
   const handleCreate = async () => {
     if (!newUser.username.trim() || !newUser.full_name.trim()) return;
     try {
-      await base44.entities.AppUser.create({
+      const result = await base44.entities.AppUser.create({
         username: newUser.username.toLowerCase().trim(),
-        pin: "0000",
         role: newUser.role,
         full_name: newUser.full_name,
         cohort: newUser.cohort,
@@ -81,19 +80,31 @@ export default function UserManagement() {
         ai_persona: "female",
         is_protected: false,
       });
+      const created = result?.data ?? result;
       setNewUser({ username: "", full_name: "", role: "student", cohort: "" });
       setShowCreate(false);
       loadUsers();
+      const initialPin = created?.initial_pin;
+      alert(
+        initialPin
+          ? `Account created. Temporary PIN: ${initialPin}\nShare this securely and ask the user to change it at first sign-in.`
+          : "Account created.",
+      );
     } catch (err) {
       alert("Failed to create user. The username may already exist.");
     }
   };
 
   const handleResetPin = async (targetUser) => {
-    if (!confirm(`Reset PIN for ${targetUser.full_name}? The PIN will be set to 0000.`)) return;
+    if (!confirm(`Reset PIN for ${targetUser.full_name}? A new random temporary PIN will be issued.`)) return;
     try {
-      await resetPin(targetUser.id);
+      const plain = await resetPin(targetUser.id);
       loadUsers();
+      alert(
+        plain
+          ? `PIN reset for ${targetUser.full_name}. New temporary PIN: ${plain}\nShare this securely and ask the user to change it at next sign-in.`
+          : "PIN reset.",
+      );
     } catch {
       alert("Failed to reset PIN.");
     }

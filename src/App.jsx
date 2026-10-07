@@ -12,6 +12,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import LoginGate from './components/auth/LoginGate';
 import WelcomeGreeting from './components/auth/WelcomeGreeting';
+import FirstLoginChangePin from './components/auth/FirstLoginChangePin';
 import { getCurrentUser, isLoggedIn } from '@/lib/clinicalAuth';
 import { ESPCaseProvider } from '@/lib/ESPCaseContext';
 
@@ -61,6 +62,7 @@ const AuthenticatedApp = () => {
   const hasAccess = hasAppSession || isAuthenticated;
   const [unlocked, setUnlocked] = useState(false);
   const [welcomed, setWelcomed] = useState(false);
+  const [pinChanged, setPinChanged] = useState(false);
   const [clientReady, setClientReady] = useState(false);
 
   useEffect(() => {
@@ -128,6 +130,11 @@ const AuthenticatedApp = () => {
       sessionStorage.setItem("pathfinder-unlocked", "1");
       setUnlocked(true);
     }} />;
+  }
+
+  // First-login users must set a fresh PIN before any app data is accessible.
+  if (activeUser?.first_login && !pinChanged) {
+    return <FirstLoginChangePin user={activeUser} onDone={() => setPinChanged(true)} />;
   }
 
   // Personalised welcome — shown once per session right after sign-in
