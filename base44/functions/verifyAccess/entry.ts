@@ -49,8 +49,6 @@ async function grantUser(base44, u, method) {
 
   return Response.json({
     granted: true,
-    session_token: session.token,
-    session_expires_at: session.expiresAt,
     user: {
       id: u.id,
       username: u.username,
@@ -64,7 +62,12 @@ async function grantUser(base44, u, method) {
       ai_persona: u.ai_persona || "female",
       is_protected: !!u.is_protected,
     },
-  }, { headers: { "Cache-Control": "no-store" } });
+  }, {
+    headers: {
+      "Cache-Control": "no-store",
+      "Set-Cookie": `pathfinder-session=${session.token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=43200`,
+    },
+  });
 }
 
 // Brute-force protection: after MAX_ATTEMPTS failed PIN attempts within

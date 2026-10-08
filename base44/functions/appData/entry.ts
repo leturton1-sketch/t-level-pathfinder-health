@@ -147,6 +147,15 @@ function stripSensitive(entityName, value) {
   return stripOne(value);
 }
 
+function readSessionToken(req, body) {
+  const cookieHeader = req.headers.get("Cookie") || "";
+  for (const part of cookieHeader.split(";")) {
+    const [k, ...v] = part.trim().split("=");
+    if (k === "pathfinder-session" && v.length) return v.join("=");
+  }
+  return body?.session_token || body?.pathfinder_session_token || null;
+}
+
 async function authenticate(base44, token) {
   if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) return null;
   const tokenHash = await sha256(token);
@@ -297,7 +306,7 @@ export default async function(req) {
   try {
     const body = await req.json().catch(() => ({}));
     const base44 = createClientFromRequest(req);
-    const token = body?.session_token || body?.pathfinder_session_token;
+    const token = readSessionToken(req, body);
     const user = await authenticate(base44, token);
     if (!user) return json({ error: "Session expired. Sign in again." }, 401);
 
@@ -311,7 +320,12 @@ export default async function(req) {
           { $set: { revoked: true } },
         );
       } catch {}
-      return json({ revoked: true });
+      return Response.json({ revoked: true }, {
+        headers: {
+          "Cache-Control": "no-store",
+          "Set-Cookie": "pathfinder-session=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0",
+        },
+      });
     }
 
     const entityName = String(body?.entity_name || "");

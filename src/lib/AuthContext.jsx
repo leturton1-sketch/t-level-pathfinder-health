@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { getCurrentUser, setAppUser, setPlatformUser } from '@/lib/clinicalAuth';
-import { clearPathfinderSessionToken, getPathfinderSessionToken } from '@/lib/authSession';
+import { clearSession, hasSession } from '@/lib/authSession';
 
 import { resetModuleSession } from './moduleSession';
 
@@ -21,29 +21,26 @@ export const AuthProvider = ({ children }) => {
     setIsLoadingAuth(true);
     setAuthError(null);
 
-    const sessionToken = getPathfinderSessionToken();
     const storedUser = getCurrentUser();
 
-    if (sessionToken && storedUser?.id) {
+    if (storedUser?.id && hasSession()) {
       try {
-        const response = await base44.functions.invoke('appData', {
-          session_token: sessionToken,
+        const verifiedUser = await base44.functions.invoke('appData', {
           entity_name: 'AppUser',
           operation: 'get',
           args: { id: storedUser.id },
         });
-        const verifiedUser = response?.data ?? response;
         if (!verifiedUser?.id || verifiedUser.active === false) {
           throw new Error('Pathfinder session is no longer valid.');
         }
-        setAppUser(verifiedUser, storedUser.auth_method || 'pin', sessionToken);
+        setAppUser(verifiedUser, storedUser.auth_method || 'pin');
         setUser(verifiedUser);
         setIsAuthenticated(true);
         setAuthChecked(true);
         setIsLoadingAuth(false);
         return true;
       } catch {
-        clearPathfinderSessionToken();
+        clearSession();
         setAppUser(null);
       }
     }
@@ -93,13 +90,12 @@ export const AuthProvider = ({ children }) => {
 
   const logout = (shouldRedirect = true) => {
     resetModuleSession();
-    const token = getPathfinderSessionToken();
-    if (token) {
+    if (hasSession()) {
       base44.functions.invoke('appData', { revoke_session: true }).catch(() => {});
     }
     setPlatformUser(null);
     setAppUser(null);
-    clearPathfinderSessionToken();
+    clearSession();
     for (const key of ['pathfinder-unlocked', 'pathfinder-welcomed', 'pathfinder-app-user-v2']) {
       try { sessionStorage.removeItem(key); } catch {}
     }

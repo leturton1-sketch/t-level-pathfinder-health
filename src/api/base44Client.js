@@ -1,8 +1,8 @@
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 import {
-  clearPathfinderSessionToken,
-  getPathfinderSessionToken,
+  clearSession,
+  hasSession,
 } from '@/lib/authSession';
 
 const { appId, token, functionsVersion, appBaseUrl } = appParams;
@@ -16,10 +16,35 @@ const sdkClient = createClient({
   appBaseUrl
 });
 
+// Direct fetch with credentials — bypasses the SDK's Axios client which does
+// not set withCredentials, so the HttpOnly session cookie is both sent on
+// requests and received from Set-Cookie headers.
+async function fetchFunction(name, body = {}) {
+  const headers = { "Content-Type": "application/json", "Accept": "application/json" };
+  if (appParams.token) headers["Authorization"] = `Bearer ${appParams.token}`;
+  if (typeof window !== "undefined" && window.location) headers["X-Origin-URL"] = window.location.href;
+  const res = await fetch(`/apps/${appParams.appId}/functions/${name}`, {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+    body: JSON.stringify(body),
+  });
+  let data;
+  try { data = await res.json(); } catch { data = null; }
+  if (!res.ok) {
+    const error = new Error(data?.error || data?.reason || data?.message || 'Request failed');
+    error.status = res.status;
+    error.data = data;
+    error.response = { data, status: res.status };
+    throw error;
+  }
+  return data;
+}
+
 function handleExpiredSession(error) {
   const status = Number(error?.status ?? error?.response?.status);
-  if (status !== 401 || !getPathfinderSessionToken()) return;
-  clearPathfinderSessionToken();
+  if (status !== 401 || !hasSession()) return;
+  clearSession();
   try {
     sessionStorage.removeItem('pathfinder-unlocked');
     sessionStorage.removeItem('pathfinder-welcomed');
@@ -29,18 +54,15 @@ function handleExpiredSession(error) {
 }
 
 async function invokeEntity(entityName, operation, args = {}) {
-  const sessionToken = getPathfinderSessionToken();
-  if (!sessionToken) {
+  if (!hasSession()) {
     return sdkClient.entities[entityName][operation](...args.fallbackArgs);
   }
   try {
-    const response = await sdkClient.functions.invoke('appData', {
-      session_token: sessionToken,
+    return await fetchFunction('appData', {
       entity_name: entityName,
       operation,
       args: args.payload || {},
     });
-    return response?.data ?? response;
   } catch (error) {
     handleExpiredSession(error);
     throw error;
@@ -88,12 +110,8 @@ const sessionFunctions = new Proxy(sdkClient.functions, {
   get(target, property, receiver) {
     if (property !== 'invoke') return Reflect.get(target, property, receiver);
     return async (name, data = {}) => {
-      const sessionToken = getPathfinderSessionToken();
-      const payload = sessionToken && data && typeof data === 'object' && !Array.isArray(data)
-        ? { ...data, pathfinder_session_token: sessionToken }
-        : data;
       try {
-        return await target.invoke(name, payload);
+        return await fetchFunction(name, data);
       } catch (error) {
         handleExpiredSession(error);
         throw error;
@@ -104,7 +122,7 @@ const sessionFunctions = new Proxy(sdkClient.functions, {
 
 export const base44 = new Proxy(sdkClient, {
   get(target, property, receiver) {
-    if (property === 'entities' && getPathfinderSessionToken()) return sessionEntities;
+    if (property === 'entities' && hasSession()) return sessionEntities;
     if (property === 'functions') return sessionFunctions;
     const value = Reflect.get(target, property, receiver);
     return typeof value === 'function' ? value.bind(target) : value;

@@ -1,8 +1,8 @@
 import { base44 } from "@/api/base44Client";
 import {
-  clearPathfinderSessionToken,
-  getPathfinderSessionToken,
-  setPathfinderSessionToken,
+  clearSession,
+  hasSession,
+  markSessionActive,
 } from "@/lib/authSession";
 
 import { resetModuleSession } from "./moduleSession";
@@ -27,14 +27,14 @@ function persist(user) {
   } catch {}
 }
 
-export function setAppUser(appUser, method = "pin", sessionToken = null) {
+export function setAppUser(appUser, method = "pin") {
   resetModuleSession();
   if (!appUser) {
-    clearPathfinderSessionToken();
+    clearSession();
     persist(null);
     return;
   }
-  if (sessionToken) setPathfinderSessionToken(sessionToken);
+  markSessionActive();
   const next = {
     id: appUser.id,
     username: String(appUser.username || "").toLowerCase().trim(),
@@ -103,7 +103,7 @@ export function getPlatformUser() { return cachedPlatformUser; }
 export function isLoggedIn() {
   if (!cachedUser || cachedUser.active === false) return false;
   if (cachedUser.auth_method === "platform") return !!cachedPlatformUser;
-  return !!getPathfinderSessionToken();
+  return hasSession();
 }
 export function isSuperAdmin() { return cachedUser?.role === "super_admin"; }
 export function isAdmin() { return ["super_admin", "admin"].includes(cachedUser?.role); }
@@ -113,13 +113,12 @@ export function logout() {
   resetModuleSession();
   try { sessionStorage.removeItem("pathfinder-welcomed"); } catch {}
   try { sessionStorage.removeItem("pathfinder-unlocked"); } catch {}
-  // Revoke the server-issued session token before clearing local state so a
-  // captured token cannot survive sign-out.
-  const token = getPathfinderSessionToken();
-  if (token) {
+  // Revoke the server-issued session so a captured cookie cannot survive
+  // sign-out. The server clears the HttpOnly cookie in its response.
+  if (hasSession()) {
     base44.functions.invoke("appData", { revoke_session: true }).catch(() => {});
   }
-  clearPathfinderSessionToken();
+  clearSession();
   persist(null);
 
   if (cachedPlatformUser) {

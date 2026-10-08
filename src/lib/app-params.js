@@ -1,6 +1,15 @@
 const isNode = typeof window === 'undefined';
-const windowObj = isNode ? { localStorage: new Map() } : window;
-const storage = windowObj.localStorage;
+const windowObj = isNode ? { sessionStorage: new Map() } : window;
+const storage = windowObj.sessionStorage;
+
+// One-time cleanup: remove any stale tokens left in localStorage by the
+// previous storage strategy so they cannot be harvested by an XSS attack.
+if (!isNode && windowObj.localStorage) {
+  try {
+    windowObj.localStorage.removeItem('base44_access_token');
+    windowObj.localStorage.removeItem('token');
+  } catch {}
+}
 
 const toSnakeCase = (str) => {
 	return str.replace(/([A-Z])/g, '_$1').toLowerCase();
