@@ -150,7 +150,7 @@ function CampusZoomMap({ activeZone = "all", onZoneChange }) {
     : { transformOrigin: "50% 50%", transform: "scale(1)" };
 
   return (
-    <div className="campus-map-shell relative mx-auto w-full max-w-[860px]">
+    <div className="campus-map-shell relative mx-auto w-full max-w-[301px]">
       <div className="campus-wayfinding-toolbar" aria-label="Campus map controls">
         <div className="campus-layer-row" role="group" aria-label="Map layers">
           <Layers3 className="h-4 w-4 shrink-0 text-sky-700" aria-hidden="true" />
