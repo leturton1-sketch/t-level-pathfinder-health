@@ -8,6 +8,7 @@ import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
 import { useTheoryContext, buildTheoryModuleContext } from "@/hooks/useTheoryContext";
+import { useScenarioContext, buildScenarioContext } from "@/hooks/useScenarioContext";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import AIComposer from "@/components/ai/AIComposer";
 import AISuggestions from "@/components/ai/AISuggestions";
@@ -101,6 +102,8 @@ export default function AIAssistant({ context = "general" }) {
   const identity = getAssistantIdentity(synth.prefs, user);
   const theoryModule = useTheoryContext();
   const theoryContext = buildTheoryModuleContext(theoryModule);
+  const scenarioState = useScenarioContext();
+  const scenarioContext = buildScenarioContext(scenarioState);
   const panelRef = useRef(null);
   const dragRef = useRef({ active: false, dx: 0, dy: 0, moved: false });
 
@@ -128,6 +131,7 @@ Recognised greeting profile: ${identity.key}
 Conversation focus: ${identity.focus}
 Context: ${context}
 ${theoryContext}
+${scenarioContext}
 Skill Codes: ${JSON.stringify(SK_CODES)}
 Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}
 
@@ -207,6 +211,26 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
       onEnd: showCompletion,
     });
   };
+
+  const speakRef = useRef(speak);
+  useEffect(() => { speakRef.current = speak; });
+
+  // Real-time clinical reasoning: when the student makes a scenario decision,
+  // LEE speaks the feedback and logs it in the chat so the reasoning is
+  // explained immediately, not just shown in the decision panel.
+  useEffect(() => {
+    const handler = (e) => {
+      const { decision, stepNumber } = e.detail;
+      if (!decision) return;
+      const label = decision.correct ? "Correct" : "Review needed";
+      const icon = decision.correct ? "✓" : "⚠";
+      const message = `**${icon} Clinical Decision · Step ${stepNumber}**\n\n**Q:** ${decision.prompt}\n**Your choice:** ${decision.choice}\n\n**${label}** — ${decision.feedback}`;
+      setMessages((prev) => [...prev, { role: "assistant", content: message }]);
+      speakRef.current(`${label}. ${decision.feedback}`);
+    };
+    window.addEventListener("scenario-decision", handler);
+    return () => window.removeEventListener("scenario-decision", handler);
+  }, []);
 
   const handleSend = async (overrideText, attachments = []) => {
     const text = overrideText || input;

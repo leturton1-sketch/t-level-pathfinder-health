@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CheckCircle, X, ChevronRight, Stethoscope, Activity } from "lucide-react";
 import { getDecisionTree, getDecisionTreeSize } from "@/lib/scenarioDecisionTrees";
 import NEWS2Badge from "@/components/NEWS2Badge";
@@ -17,6 +17,21 @@ export default function ScenarioDecisionPanel({ scenario, vitals, onUpdateVitals
   const [currentNodeId, setCurrentNodeId] = useState(tree.entry);
   const [decisions, setDecisions] = useState([]);
   const [feedback, setFeedback] = useState(null);
+
+  // Broadcast the initial scenario context to the AI assistant on mount.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("scenario-decision", {
+      detail: {
+        scenario,
+        vitals,
+        decision: null,
+        decisions: [],
+        stepNumber: 0,
+        maxScore,
+        currentPrompt: tree.nodes[tree.entry]?.prompt || null,
+      },
+    }));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const node = tree.nodes[currentNodeId];
   // Shuffle the answer options for the current node so the correct answer
@@ -39,13 +54,24 @@ export default function ScenarioDecisionPanel({ scenario, vitals, onUpdateVitals
     const nextDecisions = [...decisions, decision];
     setDecisions(nextDecisions);
     setFeedback(option);
+    const updatedVitals = option.correct && vitals
+      ? { ...vitals, rr: Math.max(12, (vitals.rr || 16) - 2), spo2: Math.min(98, (vitals.spo2 || 94) + 3) }
+      : vitals;
     if (option.correct && vitals && onUpdateVitals) {
-      onUpdateVitals({
-        ...vitals,
-        rr: Math.max(12, (vitals.rr || 16) - 2),
-        spo2: Math.min(98, (vitals.spo2 || 94) + 3),
-      });
+      onUpdateVitals(updatedVitals);
     }
+    const nextPrompt = option.next && tree.nodes[option.next] ? tree.nodes[option.next].prompt : null;
+    window.dispatchEvent(new CustomEvent("scenario-decision", {
+      detail: {
+        scenario,
+        vitals: updatedVitals,
+        decision,
+        decisions: nextDecisions,
+        stepNumber: nextDecisions.length,
+        maxScore,
+        currentPrompt: nextPrompt,
+      },
+    }));
     window.setTimeout(() => {
       setFeedback(null);
       if (!option.next || !tree.nodes[option.next]) {
