@@ -9,6 +9,32 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// Verify a supplied PIN against the stored hash. Supports the current
+// salted PBKDF2 format and the legacy unsalted sha256: format for accounts
+// that have not yet rotated to a new PIN.
+async function verifyPin(suppliedPin, storedPin) {
+  const stored = String(storedPin || "").trim();
+  if (stored.startsWith("pbkdf2:")) {
+    const parts = stored.split(":");
+    if (parts.length !== 4) return false;
+    const iterations = parseInt(parts[1], 10);
+    if (!Number.isFinite(iterations) || iterations < 1) return false;
+    const salt = new Uint8Array(parts[2].match(/.{2}/g).map((b) => parseInt(b, 16)));
+    const keyMaterial = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(String(suppliedPin)), { name: "PBKDF2" }, false, ["deriveBits"],
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256,
+    );
+    const actual = Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
+    return actual === parts[3];
+  }
+  if (/^sha256:[a-f0-9]{64}$/.test(stored)) {
+    return stored === `sha256:${await sha256(suppliedPin)}`;
+  }
+  return false;
+}
+
 async function issueSession(base44, userId, method) {
   const token = Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
     b.toString(16).padStart(2, "0")
@@ -119,7 +145,9 @@ async function checkLockout(base44, username, ip) {
     );
     return countRecent(ipRows) >= MAX_ATTEMPTS;
   } catch {
-    return false;
+    // Fail closed: if the audit log is unreadable, treat as locked so
+    // brute-force protection holds during outages instead of failing open.
+    return true;
   }
 }
 
@@ -200,14 +228,11 @@ export default async function(req) {
     if (normalizedUsername) query.username = normalizedUsername;
     const candidates = await base44.asServiceRole.entities.AppUser.filter(query);
 
-    const encoder = new TextEncoder();
-    const digest = await crypto.subtle.digest("SHA-256", encoder.encode(suppliedPin));
-    const hashedPin = `sha256:${Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("")}`;
-
-    const matches = (candidates || []).filter((candidate) => {
+    const matches = [];
+    for (const candidate of candidates || []) {
       const storedPin = String(candidate.pin || "").trim();
-      return /^sha256:[a-f0-9]{64}$/.test(storedPin) && storedPin === hashedPin;
-    });
+      if (await verifyPin(suppliedPin, storedPin)) matches.push(candidate);
+    }
 
     if (matches.length === 0) {
       try {

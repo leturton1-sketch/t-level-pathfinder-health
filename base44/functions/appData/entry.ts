@@ -73,6 +73,25 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+const PBKDF2_ITERATIONS = 100000;
+
+async function pbkdf2Derive(pin, saltHex, iterations) {
+  const salt = new Uint8Array(saltHex.match(/.{2}/g).map((b) => parseInt(b, 16)));
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(String(pin)), { name: "PBKDF2" }, false, ["deriveBits"],
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256,
+  );
+  return Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashPinPbkdf2(pin) {
+  const saltHex = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = await pbkdf2Derive(pin, saltHex, PBKDF2_ITERATIONS);
+  return `pbkdf2:${PBKDF2_ITERATIONS}:${saltHex}:${hashHex}`;
+}
+
 // Per-account random initial PIN. Replaces the former constant "0000" default
 // so newly created or reset accounts cannot be signed into with a guessable PIN.
 function generateRandomPin() {
@@ -197,13 +216,13 @@ function owns(policy, user, record) {
 async function hashPinIfPresent(data) {
   if (!Object.prototype.hasOwnProperty.call(data, "pin")) return data;
   const pin = String(data.pin || "");
-  if (!/^\d{4,6}$/.test(pin) && !/^sha256:[a-f0-9]{64}$/.test(pin)) {
+  // Plain PINs are hashed with a salted, iterated KDF. Legacy sha256: hashes
+  // are accepted as-is for backward compatibility with pre-existing records.
+  if (!/^\d{4,6}$/.test(pin) && !/^sha256:[a-f0-9]{64}$/.test(pin) && !/^pbkdf2:\d+:[a-f0-9]{32}:[a-f0-9]{64}$/.test(pin)) {
     throw new Error("PIN must contain 4 to 6 digits.");
   }
-  return {
-    ...data,
-    pin: pin.startsWith("sha256:") ? pin : `sha256:${await sha256(pin)}`,
-  };
+  const hashed = pin.startsWith("sha256:") || pin.startsWith("pbkdf2:") ? pin : await hashPinPbkdf2(pin);
+  return { ...data, pin: hashed };
 }
 
 async function appUserOperation(base44, user, operation, args) {
@@ -262,6 +281,14 @@ async function appUserOperation(base44, user, operation, args) {
     if (target.id === user.id && !staff) {
       const selfFields = new Set(["pin", "first_login", "ai_voice", "ai_persona"]);
       if (Object.keys(data).some((key) => !selfFields.has(key))) return json({ error: "Not authorised." }, 403);
+      // first_login is server-derived: only a new PIN clears it. Reject any
+      // attempt to set first_login without also supplying a new PIN, which
+      // would skip the forced PIN rotation.
+      if (Object.prototype.hasOwnProperty.call(data, "first_login") && !Object.prototype.hasOwnProperty.call(data, "pin")) {
+        return json({ error: "Set a new PIN to complete the first-login change." }, 403);
+      }
+      delete data.first_login;
+      if (Object.prototype.hasOwnProperty.call(data, "pin")) data.first_login = false;
     } else {
       if (!staff) return json({ error: "Not authorised." }, 403);
       if ((target.is_protected || target.role === "super_admin") && user.role !== "super_admin") {

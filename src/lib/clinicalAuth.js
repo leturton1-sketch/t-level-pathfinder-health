@@ -129,27 +129,33 @@ export function logout() {
   return true;
 }
 
-async function sha256Pin(pin) {
-  const bytes = new TextEncoder().encode(String(pin));
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return `sha256:${Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("")}`;
-}
-
 function generateRandomPin() {
   const n = crypto.getRandomValues(new Uint16Array(1))[0] % 9000;
   return String(1000 + n);
 }
 
+// PIN changes go through the appData backend function so the server hashes
+// the plain PIN with a salted KDF (PBKDF2) and server-derives first_login.
 export async function changePin(userId, newPin) {
   if (!/^\d{4,6}$/.test(String(newPin))) throw new Error("PIN must contain 4 to 6 digits.");
-  const hashed = await sha256Pin(newPin);
-  await base44.entities.AppUser.update(userId, { pin: hashed, first_login: false });
+  const res = await base44.functions.invoke("appData", {
+    entity_name: "AppUser",
+    operation: "update",
+    args: { id: userId, data: { pin: String(newPin) } },
+  });
+  const data = res?.data ?? res;
+  if (data?.error) throw new Error(data.error);
   if (cachedUser?.id === userId) persist({ ...cachedUser, first_login: false });
 }
 
 export async function resetPin(userId) {
   const plain = generateRandomPin();
-  const hashed = await sha256Pin(plain);
-  await base44.entities.AppUser.update(userId, { pin: hashed, first_login: true });
+  const res = await base44.functions.invoke("appData", {
+    entity_name: "AppUser",
+    operation: "update",
+    args: { id: userId, data: { pin: plain, first_login: true } },
+  });
+  const data = res?.data ?? res;
+  if (data?.error) throw new Error(data.error);
   return plain;
 }
