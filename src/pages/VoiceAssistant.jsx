@@ -131,8 +131,9 @@ export default function VoiceAssistant() {
     if (listeningRef.current) { try { recognitionRef.current?.stop(); } catch {} }
     try {
       const uploaded = await Promise.all(attachments.map(async (file) => {
-        const result = await base44.integrations.Core.UploadFile({ file });
-        return `${file.name}: ${result.file_url}`;
+        const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
+        const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri });
+        return `${file.name}: ${signed_url}`;
       }));
       const attachmentContext = uploaded.length ? `\n\nAttachments supplied by the user:\n${uploaded.join("\n")}` : "";
       const conversationContext = contextEnabled ? `\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}` : "\n\nThe user has disabled current conversation context.";

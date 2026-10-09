@@ -45,7 +45,7 @@ export function useVoiceSynthesis() {
     setSpeaking(false);
   }, [supported]);
 
-  const speakBrowser = useCallback((text, currentPrefs, profile, onStart, onEnd) => {
+  const speakBrowser = useCallback((text, currentPrefs, profile, onStart, onEnd, ignoreMute = false) => {
     if (!supported) { onEnd?.(); return; }
     setSpeaking(true);
     onStart?.();
@@ -56,7 +56,7 @@ export function useVoiceSynthesis() {
       voiceName: currentPrefs.systemVoiceURI || "auto",
       rate: currentPrefs.rate,
       pitch: currentPrefs.pitch,
-      volume: currentPrefs.muted ? 0 : currentPrefs.volume,
+      volume: currentPrefs.muted && !ignoreMute ? 0 : currentPrefs.volume,
       useNeuralGeminiTts: currentPrefs.engine === "cloud",
     });
     ukVoiceService.speak(text).finally(() => {
@@ -65,15 +65,15 @@ export function useVoiceSynthesis() {
     });
   }, [supported]);
 
-  const speak = useCallback(async (text, { onStart, onEnd } = {}) => {
+  const speak = useCallback(async (text, { onStart, onEnd, ignoreMute = false } = {}) => {
     const clean = prepareSpeechText(String(text || "").replace(/[*#`🔔]/g, "").slice(0, 5000));
     if (!clean) { onEnd?.(); return; }
     stop();
-    if (prefs.muted) { onEnd?.(); return; }
+    if (prefs.muted && !ignoreMute) { onEnd?.(); return; }
 
     const profile = VOICE_PROFILES.find((p) => p.id === prefs.profileId) || VOICE_PROFILES[0];
 
-    speakBrowser(clean, prefs, profile, onStart, onEnd);
+    speakBrowser(clean, prefs, profile, onStart, onEnd, ignoreMute);
   }, [prefs, stop, speakBrowser]);
 
   const testVoice = useCallback((sampleText) => {

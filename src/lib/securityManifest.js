@@ -28,7 +28,7 @@ export const SECURITY_ENTITIES = [
   { name: "LearnerReadiness", rls: "owner-based/admin", sensitivity: "medium", notes: "Readiness scores + priority gaps." },
   { name: "SimulationResult", rls: "owner-based/admin", sensitivity: "medium", notes: "Ward simulation scores + decision paths." },
   { name: "TalentCard", rls: "owner-based/admin", sensitivity: "high", notes: "Student talent profiles. profile_visibility field must be honoured before sharing with employers." },
-  { name: "CurriculumRequirement", rls: "unknown", sensitivity: "medium", notes: "RLS not verified in this manifest — review required." },
+  { name: "CurriculumRequirement", rls: "public-read/admin-write", sensitivity: "medium", notes: "Curriculum spec/performance-outcome/skill codes. Public read for all learners, admin-only writes." },
 ];
 
 export const SECURITY_FUNCTIONS = [
@@ -45,8 +45,8 @@ export const SECURITY_RISK_AREAS = [
   { area: "Markdown XSS", risk: "medium", notes: "ReactMarkdown renders AI, Knowledge and assistant content. Every render site must apply safeUrlTransform to block javascript: data: and event-handler URLs." },
   { area: "Error message leakage", risk: "low", notes: "verifyAccess must return generic messages to anonymous callers. Confirm no stack traces or user-existence hints reach the client." },
   { area: "Secret storage", risk: "low", notes: "OPENAI_API_KEY / OPENROUTER_API_KEY are server-side secrets. Confirm they are never serialised into client bundles or responses." },
-  { area: "localStorage", risk: "low", notes: "Session flags are stored in localStorage. Confirm no tokens, PINs or API keys are persisted client-side." },
-  { area: "File uploads", risk: "medium", notes: "End-user uploads should use UploadPrivateFile by default. Confirm private evidence is never exposed via a public URL." },
+  { area: "localStorage", risk: "low", notes: "Session tokens are in HttpOnly cookies; session flags in sessionStorage. localStorage holds only non-sensitive UI prefs (voice, drafts, AI mode). No tokens, PINs or API keys are persisted client-side." },
+  { area: "File uploads", risk: "low", notes: "AI chat attachments use UploadPrivateFile + CreateFileSignedUrl (time-limited access). Anatomy animation uploads use UploadPublicFile (non-sensitive admin content needing persistent display URLs). No end-user evidence is exposed via public URLs." },
   { area: "TalentCard visibility", risk: "medium", notes: "TalentCard.profile_visibility (private/placement_only/employer_match) must be enforced before employer-facing queries return records." },
 ];
 

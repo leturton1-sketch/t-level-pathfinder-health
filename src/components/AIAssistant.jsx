@@ -229,8 +229,9 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
       const wardState = wardStateRef.current;
       const wardContext = contextEnabled && wardState ? `\n\nWARD STATE:\n- Edit Mode: ${wardState.editMode}\n- Suite: ${wardState.suite}\n- Placed Items: ${JSON.stringify(wardState.placedItems)}\n- Available Types: ${JSON.stringify(wardState.availableItemTypes)}\n` : "";
       const uploadedUrls = await Promise.all(attachments.map(async (file) => {
-        const result = await base44.integrations.Core.UploadFile({ file });
-        return result.file_url;
+        const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
+        const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri });
+        return signed_url;
       }));
       const attachmentContext = uploadedUrls.length ? `\n\nATTACHMENTS:\n${attachments.map((f, i) => `${f.name}: ${uploadedUrls[i]}`).join("\n")}` : "";
       const result = await base44.integrations.Core.InvokeLLM({

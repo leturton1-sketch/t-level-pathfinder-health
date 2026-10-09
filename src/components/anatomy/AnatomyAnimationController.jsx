@@ -33,7 +33,7 @@ export default function AnatomyAnimationController({ animations, setAnimations, 
     if (!file) return;
     setUploading(system);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
       setAnimations((prev) => ({ ...prev, [system]: { url: file_url, name: file.name } }));
     } catch {
       alert("Upload failed. Please try again.");
