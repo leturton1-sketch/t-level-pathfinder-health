@@ -7,6 +7,7 @@ import { getCurrentUser, isAdmin } from "@/lib/clinicalAuth";
 import { SK_CODES, PERFORMANCE_OUTCOMES } from "@/lib/specData";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { getAssistantIdentity } from "@/lib/aiAssistantIdentity";
+import { useTheoryContext, buildTheoryModuleContext } from "@/hooks/useTheoryContext";
 import AIDiagnostic from "@/components/ai/AIDiagnostic";
 import AIComposer from "@/components/ai/AIComposer";
 import AISuggestions from "@/components/ai/AISuggestions";
@@ -98,6 +99,8 @@ export default function AIAssistant({ context = "general" }) {
   const requestIdRef = useRef(0);
   const user = getCurrentUser();
   const identity = getAssistantIdentity(synth.prefs, user);
+  const theoryModule = useTheoryContext();
+  const theoryContext = buildTheoryModuleContext(theoryModule);
   const panelRef = useRef(null);
   const dragRef = useRef({ active: false, dx: 0, dy: 0, moved: false });
 
@@ -124,6 +127,7 @@ Verified role: ${user?.role || "student"}
 Recognised greeting profile: ${identity.key}
 Conversation focus: ${identity.focus}
 Context: ${context}
+${theoryContext}
 Skill Codes: ${JSON.stringify(SK_CODES)}
 Performance Outcomes: ${JSON.stringify(PERFORMANCE_OUTCOMES)}
 
