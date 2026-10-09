@@ -20,7 +20,7 @@ const HELP_POINTS = [
 
 /**
  * WelcomeGreeting — shown once per session immediately after sign-in.
- * Greets the user by name and role, introduces ASPIRE AI, and
+ * Greets the user by name and role, introduces LEE, and
  * explains the app's purpose so new and returning users share the
  * same starting point. Speech requires the Listen action.
  */
@@ -31,8 +31,8 @@ export default function WelcomeGreeting({ user, onContinue }) {
   const isStaff = user?.role === "tutor" || user?.role === "admin" || user?.role === "super_admin";
 
   const purposeText = isStaff
-    ? "ASPIRE Health is where students learn clinical theory, practise it in a ward simulation, and build evidence for their T Level. You can review progress, feedback and readiness from My progress."
-    : "ASPIRE Health is where you learn clinical theory, practise it in a ward simulation, complete care plans, reflect, and get feedback — all building towards your T Level.";
+    ? "LEE is where students learn clinical theory, practise it in a ward simulation, and build evidence for their T Level. You can review progress, feedback and readiness from My progress."
+    : "LEE is where you learn clinical theory, practise it in a ward simulation, complete care plans, reflect, and get feedback — all building towards your T Level.";
 
   const spokenGreeting = `${recognition.greeting} ${purposeText}`;
 
@@ -51,7 +51,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
           <div className="mb-4 flex items-start gap-3 rounded-xl border border-[#0f75d8]/20 bg-[#0f75d8]/5 p-4">
             <Sparkles size={20} className="mt-0.5 shrink-0 text-[#0f75d8]" aria-hidden="true" />
             <p className="text-sm text-[#15131a]">
-              <strong>ASPIRE AI:</strong> {recognition.greeting}
+              <strong>LEE:</strong> {recognition.greeting}
             </p>
           </div>
 

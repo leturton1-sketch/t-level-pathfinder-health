@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Activity, Home, BarChart3, BedDouble, BookOpen, Brain, BriefcaseMedical, ChevronDown, ClipboardCheck, GraduationCap, HeartPulse, LibraryBig, Sparkles, UserCog, UserRound, FilePenLine, ShieldCheck, Building2 } from "lucide-react";
 import { canManageUsers, isAdmin } from "@/lib/clinicalAuth";
 export const NAVIGATION_GROUPS = [
-  { label: "Overview", items: [{ label: "ASPIRE Overview", path: "/", icon: Home, tone: "violet" }] },
+  { label: "Overview", items: [{ label: "LEE Overview", path: "/", icon: Home, tone: "violet" }] },
   { label: "Learn", items: [
     { label: "Health Hub", path: "/health-hub", icon: HeartPulse, tone: "rose" },
     { label: "Theory Modules", path: "/theory", icon: BookOpen, tone: "cyan" },
@@ -24,7 +24,7 @@ export const NAVIGATION_GROUPS = [
     { label: "My progress", path: "/performance", icon: BarChart3, tone: "lime" },
   ] },
   { label: "Support & account", items: [
-    { label: "ASPIRE AI", path: "/voice-assistant", icon: Sparkles, tone: "aqua" },
+    { label: "LEE", path: "/voice-assistant", icon: Sparkles, tone: "aqua" },
     { label: "My profile", path: "/profile", icon: UserRound, tone: "blue" },
   ] },
   { label: "Teaching team", staff: true, items: [

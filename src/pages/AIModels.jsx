@@ -166,8 +166,8 @@ export default function AIModels() {
             <Sparkles className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">ASPIRE · AI settings</p>
-            <h1 className="text-xl font-heading font-bold text-foreground">ASPIRE AI settings</h1>
+            <p className="text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">LEE · AI settings</p>
+            <h1 className="text-xl font-heading font-bold text-foreground">LEE settings</h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function AIModels() {
             <div className="flex h-full flex-col items-center justify-center text-center text-sm text-muted-foreground">
               <Sparkles className="mb-2 h-8 w-8 text-clinical-teal/60" />
               <p className="font-semibold text-foreground">Ready when you are</p>
-              <p className="text-xs">Ask anything — ASPIRE routes your prompt across {prefs.mode === "auto" ? "LocalAI, puter.js and OpenRouter" : activeMode.label}.</p>
+              <p className="text-xs">Ask anything — LEE routes your prompt across {prefs.mode === "auto" ? "LocalAI, puter.js and OpenRouter" : activeMode.label}.</p>
             </div>
           )}
           {messages.map((m, i) => (

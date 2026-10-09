@@ -8,7 +8,7 @@ const STORAGE_KEY = "pathfinder-voice-control-enabled";
 
 /**
  * Global, app-wide "voice control" listener. Separate from the one-shot
- * dictation mic on the ASPIRE AI chat page: this one listens
+ * dictation mic on the LEE chat page: this one listens
  * continuously for short command phrases ("open ward simulation", "read
  * this page", "go back"...) and turns them into navigation/utility actions
  * anywhere in the app.

@@ -158,7 +158,7 @@ export default function FloatingAICompanion({
       onDoubleClick={onDoubleClick}
       role="button"
       tabIndex={0}
-      aria-label={expanded ? "Close ASPIRE Clinical Educator" : "Open ASPIRE Clinical Educator"}
+      aria-label={expanded ? "Close LEE Clinical Educator" : "Open LEE Clinical Educator"}
       aria-expanded={expanded}
       title={`${expanded ? "Click to close" : "Click to open"} · Drag to move · Double-click to resize`}
       onKeyDown={(event) => {

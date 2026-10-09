@@ -111,7 +111,7 @@ export function listVoiceCommandExamples() {
     "\"Go to my progress\"",
     "\"Open ward simulation\"",
     "\"Show care planning\"",
-    "\"Open ASPIRE AI\"",
+    "\"Open LEE\"",
     "\"Read this page\"",
     "\"Stop reading\"",
     "\"Go back\"",

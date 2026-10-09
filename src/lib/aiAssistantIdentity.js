@@ -9,8 +9,8 @@ const ROLE_LABELS = {
 const STAFF_ROLES = new Set(["tutor", "admin", "super_admin"]);
 
 export const PATHFINDER_AI_IDENTITY = {
-  shortName: "ASPIRE AI",
-  fullName: "ASPIRE Clinical AI",
+  shortName: "LEE",
+  fullName: "LEE",
   title: "T Level Health clinical learning companion",
 };
 
@@ -83,7 +83,7 @@ export function getUserRecognition(user) {
       key: "ofsted",
       firstName,
       roleTitle: "Ofsted Inspector · Special Guest",
-      greeting: "Welcome to our clinical simulation environment. I am the ASPIRE AI Clinical Educator. Here, we bridge classroom theory and real-world practice through hands-on clinical scenarios that support workplace readiness. Please feel free to observe the live learning environment, and I can demonstrate its educational capabilities.",
+      greeting: "Welcome to our clinical simulation environment. I am the LEE Clinical Educator. Here, we bridge classroom theory and real-world practice through hands-on clinical scenarios that support workplace readiness. Please feel free to observe the live learning environment, and I can demonstrate its educational capabilities.",
       focus: "quality of education, transparent observation and workplace readiness",
     };
   }
@@ -93,7 +93,7 @@ export function getUserRecognition(user) {
     key: "standard",
     firstName,
     roleTitle,
-    greeting: `Welcome, ${firstName}. I'm the ASPIRE AI Clinical Educator. Your clinical learning environment is ready. I can help you prepare for your next task, practise a skill or explore a patient scenario.`,
+    greeting: `Welcome, ${firstName}. I'm the LEE Clinical Educator. Your clinical learning environment is ready. I can help you prepare for your next task, practise a skill or explore a patient scenario.`,
     focus: "the user's upcoming clinical learning tasks",
   };
 }

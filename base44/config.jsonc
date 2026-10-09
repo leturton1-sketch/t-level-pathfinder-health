@@ -1,5 +1,5 @@
 {
-  "name": "ASPIRE Health",
+  "name": "LEE",
   "site": {
     "installCommand": "npm install",
     "buildCommand": "npm run build",

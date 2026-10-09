@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Recolour official black artwork into the ASPIRE dark-blue brand tone. */
+/* Recolour official black artwork into the LEE dark-blue brand tone. */
 .tlevel-logo--blue { filter: invert(18%) sepia(86%) saturate(2318%) hue-rotate(204deg) brightness(82%) contrast(103%); }
 
 @layer base {
@@ -11,7 +11,7 @@
     /* T Level brand palette */
     --tl-salmon: 19 100% 70%;      /* #FF9567 official salmon */
     --tl-red: 10 97% 56%;           /* #FC4421 official red-orange */
-    --tl-blue: 209 88% 45%;       /* ASPIRE blue #0F75D8 */
+    --tl-blue: 209 88% 45%;       /* LEE blue #0F75D8 */
     --tl-navy: 214 74% 12%;          /* deep clinical navy */
 
     /* Official T Levels light application theme */
@@ -21,7 +21,7 @@
     --card-foreground: 214 74% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 214 74% 12%;
-    --primary: 209 88% 45%;             /* ASPIRE blue */
+    --primary: 209 88% 45%;             /* LEE blue */
     --primary-foreground: 0 0% 100%;
     --secondary: 207 78% 96%;           /* ice blue */
     --secondary-foreground: 214 62% 18%;
