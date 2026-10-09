@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Mic, MicOff } from "lucide-react";
 
 /**
- * The header microphone is a remote control for the persistent Pathfinder
+ * The header microphone is a remote control for the persistent ASPIRE
  * Clinical Educator. Both controls now share one recognition session and
  * one response path, avoiding competing microphones and duplicate notices.
  */

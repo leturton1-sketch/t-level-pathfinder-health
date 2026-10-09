@@ -59,7 +59,7 @@ export default async function(req) {
 
     // Keep Base44's native authentication check explicit in the request
     // handler so platform security analysis can verify this function. The
-    // signed Pathfinder session is the supported fallback for PIN users.
+    // signed ASPIRE session is the supported fallback for PIN users.
     let platformUser = null;
     try { platformUser = await base44.auth.me(); } catch {}
     const user = platformUser || await customSessionUser(base44, body?.pathfinder_session_token);
@@ -100,7 +100,7 @@ export default async function(req) {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://pathfinder.base44.app',
-        'X-Title': 'Pathfinder T-Level Simulation',
+        'X-Title': 'ASPIRE T-Level Simulation',
       },
       body: JSON.stringify({ model, messages, max_tokens: 1200 }),
     });

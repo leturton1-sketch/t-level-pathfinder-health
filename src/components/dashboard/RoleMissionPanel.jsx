@@ -38,7 +38,7 @@ const CONFIG = {
   },
   super_admin: {
     eyebrow: "System Architect command centre",
-    title: "Pathfinder Health operating system",
+    title: "ASPIRE Health operating system",
     message: "Protected system oversight across identity, curriculum, employer matching, evidence and destinations.",
     actions: [
       ["System health", "/system-health", ShieldCheck],

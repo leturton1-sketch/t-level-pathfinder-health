@@ -1,7 +1,7 @@
 /**
  * Permission-checked command dispatcher for the AI tutor.
  *
- * Gives Pathfinder AI a single, auditable entry point for acting on the ward
+ * Gives ASPIRE AI a single, auditable entry point for acting on the ward
  * and the app on behalf of a tutor — placing/removing ward items, starting or
  * ending simulations, taking control of a running simulation, assigning
  * staffing, and creating or updating (never deleting) user accounts.
@@ -52,7 +52,7 @@ function canControl(user) {
 async function hasVerifiedControlPrivilege(user) {
   if (!canControl(user) || !user?.id) return false;
   try {
-    // The entity client routes Pathfinder sessions through the server-side
+    // The entity client routes ASPIRE sessions through the server-side
     // appData policy, so the stored role is authoritative and client edits to
     // sessionStorage cannot elevate privileges.
     const persistedUser = await base44.entities.AppUser.get(user.id);
@@ -68,7 +68,7 @@ async function hasVerifiedControlPrivilege(user) {
 
 function announceEducatorAction(message, level = "info") {
   window.dispatchEvent(new CustomEvent("pathfinder:educator-announcement", {
-    detail: { message, level, source: "Pathfinder AI Clinical Educator", timestamp: Date.now() },
+    detail: { message, level, source: "ASPIRE AI Clinical Educator", timestamp: Date.now() },
   }));
 }
 
@@ -95,7 +95,7 @@ export async function dispatchAiCommand(command, user, { navigate } = {}) {
   switch (command.type) {
     case "navigate_module": {
       const path = AI_MODULE_ROUTES[command.module];
-      if (!path) return { ok: false, message: "I could not find that Pathfinder module." };
+      if (!path) return { ok: false, message: "I could not find that ASPIRE module." };
       navigate?.(path);
       window.dispatchEvent(new CustomEvent("pathfinder:module-command", {
         detail: { module: command.module, action: "open", payload: command.payload || null, source: "clinical-educator" },
@@ -280,7 +280,7 @@ export async function dispatchAiCommand(command, user, { navigate } = {}) {
           sk_codes: Array.isArray(command.skCodes) ? command.skCodes : [],
           performance_outcomes: Array.isArray(command.performanceOutcomes) ? command.performanceOutcomes : [],
           references: [],
-          source: "Pathfinder AI Clinical Educator",
+          source: "ASPIRE AI Clinical Educator",
         });
         window.dispatchEvent(new CustomEvent("pathfinder:module-command", { detail: {
           module: command.module || "knowledge_library",

@@ -20,7 +20,7 @@ export default function GlobalVoiceControl() {
       const message = event?.detail?.message;
       if (!message) return;
       toast({
-        title: event.detail?.source || "Pathfinder AI Clinical Educator",
+        title: event.detail?.source || "ASPIRE AI Clinical Educator",
         description: message,
         variant: event.detail?.level === "warning" ? "destructive" : "default",
         duration: 5000,

@@ -28,7 +28,7 @@ export default function BootAnimation({ onComplete }) {
           <>
             <div className="absolute left-0 right-0 h-32 bg-gradient-to-b from-transparent via-clinical-teal/15 to-transparent animate-scanline" />
             <div className="text-clinical-teal font-bold text-xl tracking-widest animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              PATHFINDER HEALTH
+              ASPIRE HEALTH
             </div>
             <div className="absolute bottom-12 text-slate-400 text-sm animate-fade-in" style={{ animationDelay: "0.6s" }}>
               Clinical Skills Academy (RNN Group) — Booting clinical dashboard…

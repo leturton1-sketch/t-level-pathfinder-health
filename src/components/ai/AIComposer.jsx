@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUp, ChevronDown, FileText, Mic, Paperclip, Plus, Square, Stethoscope, X } from "lucide-react";
 import "./AIComposer.css";
 
-const DEFAULT_PLACEHOLDER = "Ask Pathfinder AI…";
-const DIAGNOSTIC_PLACEHOLDER = "Describe the problem, or ask Pathfinder to run a diagnostic…";
+const DEFAULT_PLACEHOLDER = "Ask ASPIRE AI…";
+const DIAGNOSTIC_PLACEHOLDER = "Describe the problem, or ask ASPIRE to run a diagnostic…";
 
 export default function AIComposer({
   value,
@@ -64,9 +64,9 @@ export default function AIComposer({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={isListening ? "Listening…" : "Ask Pathfinder AI…"}
+          placeholder={isListening ? "Listening…" : "Ask ASPIRE AI…"}
           className="ai-composer-compact-input"
-          aria-label="Ask Pathfinder AI"
+          aria-label="Ask ASPIRE AI"
         />
         <button type="button" onClick={onVoicePress}
           className={`ai-composer-compact-mic ${isListening ? "is-listening" : ""}`}
@@ -92,7 +92,7 @@ export default function AIComposer({
       </button>
       <button type="button" onClick={() => onContextChange?.(!contextEnabled)}
         className={`ai-composer-control ${contextEnabled ? "ai-composer-control-active" : ""}`}
-        aria-pressed={contextEnabled} aria-label="Use current Pathfinder context">
+        aria-pressed={contextEnabled} aria-label="Use current ASPIRE context">
         <FileText className="h-3.5 w-3.5" /><span>Context</span>
       </button>
       {isAdmin && (
@@ -113,7 +113,7 @@ export default function AIComposer({
       {isProcessing && (
         <div className="ai-composer-progress" role="status" aria-live="polite">
           <span className="ai-composer-pulse" />
-          <span>Pathfinder is analysing…</span>
+          <span>ASPIRE is analysing…</span>
           <button type="button" onClick={onStop} className="ai-composer-stop">
             <Square className="h-3 w-3 fill-current" /> Stop
           </button>
@@ -142,7 +142,7 @@ export default function AIComposer({
         ) : (
           <textarea ref={textareaRef} rows={2} value={value} onChange={(event) => onChange(event.target.value)}
             onKeyDown={onKeyDown} placeholder={diagnosticEnabled ? DIAGNOSTIC_PLACEHOLDER : placeholder}
-            className="ai-composer-textarea" aria-label="Message Pathfinder AI" />
+            className="ai-composer-textarea" aria-label="Message ASPIRE AI" />
         )}
         {inputMode === "text" && (
           <button type="button" onClick={send} disabled={!value.trim() || isProcessing}

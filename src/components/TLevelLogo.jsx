@@ -1,5 +1,5 @@
 /**
- * TLevelLogo — official artwork recoloured through a single Pathfinder blue
+ * TLevelLogo — official artwork recoloured through a single ASPIRE blue
  * treatment so every route uses the same navy/cyan identity.
  */
 const NAVY_LOGO = "https://media.base44.com/images/public/6a4759cc86fe95039e31fd09/8acde0e8c_TLevel-Logo-BlackWithStrapline.png";

@@ -34,7 +34,7 @@ export default function FirstLoginChangePin({ user, onDone }) {
           <h1 className="text-lg font-bold text-slate-900">Change your temporary PIN</h1>
         </div>
         <p className="mb-4 text-sm text-slate-600">
-          Welcome, {user?.full_name || "Pathfinder user"}. For security, please set a new PIN before continuing.
+          Welcome, {user?.full_name || "ASPIRE user"}. For security, please set a new PIN before continuing.
           Your temporary PIN was issued by your tutor or administrator.
         </p>
         <form onSubmit={submit} className="space-y-3">

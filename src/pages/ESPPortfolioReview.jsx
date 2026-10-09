@@ -39,7 +39,7 @@ export default function ESPPortfolioReview() {
       </div>
 
       <header className="esp-dark-panel rounded-[28px] bg-slate-950 p-7 text-white shadow-xl print:rounded-none print:bg-white print:p-0 print:text-black print:shadow-none">
-        <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300 print:text-slate-600">Pathfinder Health · Original formative ESP practice</p>
+        <p className="text-xs font-black uppercase tracking-[.18em] text-cyan-300 print:text-slate-600">ASPIRE Health · Original formative ESP practice</p>
         <h1 className="mt-2 text-3xl font-black">Connected evidence portfolio</h1>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <div><p className="text-[10px] font-bold uppercase text-slate-400">Learner</p><p className="font-black">{portfolio.student_name || "Learner"}</p></div>

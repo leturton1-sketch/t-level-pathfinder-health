@@ -36,9 +36,9 @@ export default function PathfinderFrame({ children }) {
     <a href="#pf-module-content" className="pf-skip-link">Skip to page content</a>
     <header className="pf-global-header">
       <button className="pf-icon-button pf-global-menu" onClick={openMenu} aria-expanded={open} aria-label="Open navigation"><Menu size={22} /></button>
-      <Link to="/" className="pf-global-brand" aria-label="Pathfinder Overview">
+      <Link to="/" className="pf-global-brand" aria-label="ASPIRE Overview">
         <TLevelLogo variant="emblem" size="sm" className="pf-global-brand-mark" />
-        <span><strong>Pathfinder</strong><small>T-Level Health · Simulation</small></span>
+        <span><strong>ASPIRE</strong><small>T-Level Health · Simulation</small></span>
       </Link>
       <div className="pf-global-header-actions">
         <VoiceCommandControl onToggleNav={toggleNavByVoice} />
@@ -58,7 +58,7 @@ export default function PathfinderFrame({ children }) {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal><Dialog.Overlay className="pf-drawer-overlay" />
         <Dialog.Content className="pf-drawer pf-drawer-navigation" onCloseAutoFocus={event => { event.preventDefault(); triggerRef.current?.focus(); }}>
-          <div className="pf-drawer-heading"><Dialog.Title>Pathfinder navigation</Dialog.Title>
+          <div className="pf-drawer-heading"><Dialog.Title>ASPIRE navigation</Dialog.Title>
             <Dialog.Close className="pf-icon-button" aria-label="Close navigation"><X size={22} /></Dialog.Close></div>
           <Dialog.Description className="pf-drawer-description">Clinical practice, learning and account resources.</Dialog.Description>
           <div className="pf-drawer-nav"><Navigation user={user} onNavigate={() => setOpen(false)} /></div>

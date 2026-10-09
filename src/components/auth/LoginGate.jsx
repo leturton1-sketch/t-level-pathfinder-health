@@ -210,7 +210,7 @@ export default function LoginGate({ onUnlock }) {
             <button type="submit" disabled={busy || !username.trim() || !/^\d{4,6}$/.test(pin.trim())} className="login-gate-unlock">
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
-            <p className="login-gate-hint">Use your Pathfinder username and 4–6 digit PIN. Temporary PINs must be changed after first sign-in.</p>
+            <p className="login-gate-hint">Use your ASPIRE username and 4–6 digit PIN. Temporary PINs must be changed after first sign-in.</p>
           </form>
         ) : (
           <div className="login-gate-qr">
@@ -230,11 +230,11 @@ export default function LoginGate({ onUnlock }) {
             )}
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={scanFile} />
             <button type="button" className="login-gate-unlock secondary" disabled={busy || starting} onClick={() => fileRef.current?.click()}>Choose a QR image</button>
-            <p className="login-gate-hint" role="status" aria-live="polite">{scanMessage || "Point the camera at your personal Pathfinder QR code. Images are read on this device."}</p>
+            <p className="login-gate-hint" role="status" aria-live="polite">{scanMessage || "Point the camera at your personal ASPIRE QR code. Images are read on this device."}</p>
           </div>
         )}
 
-        <footer className="login-gate-footer">© {new Date().getFullYear()} Pathfinder T-Level Simulation</footer>
+        <footer className="login-gate-footer">© {new Date().getFullYear()} ASPIRE T-Level Simulation</footer>
       </div>
     </div>
   );

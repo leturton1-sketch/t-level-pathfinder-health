@@ -13,7 +13,7 @@ const HOTSPOTS = [
   {
     id: "health", label: "Health Department", short: "Health", category: "practical",
     detail: "Clinical simulation wards and T Level Health training facilities.",
-    directory: ["Clinical Suite A · Beds A1–A3", "Clinical Suite B · Beds B1–B4", "Pathfinder AI learning suite", "Clinical skills and assessment area"],
+    directory: ["Clinical Suite A · Beds A1–A3", "Clinical Suite B · Beds B1–B4", "ASPIRE AI learning suite", "Clinical skills and assessment area"],
     rooms: ["Suite A", "Suite B", "H101", "H102"], x: 62, y: 69, scale: 1.75,
     icon: HeartPulse, colour: "from-pink-500 to-rose-600", action: "/ward-simulation",
   },

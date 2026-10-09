@@ -30,7 +30,7 @@ export default function QRAccessPanel({ users }) {
   };
   return <section className="rounded-2xl border border-border bg-card p-5">
     <h2 className="text-xl font-bold">Personal QR login codes</h2>
-    <p className="mt-2 text-sm text-muted-foreground">Generate a login card for an active learner or lecturer. A Pathfinder administrator session is required. Protected and administrator accounts continue to use PIN sign-in.</p>
+    <p className="mt-2 text-sm text-muted-foreground">Generate a login card for an active learner or lecturer. A ASPIRE administrator session is required. Protected and administrator accounts continue to use PIN sign-in.</p>
     <label className="mt-5 block font-semibold" htmlFor="qr-account">Account</label>
     <select id="qr-account" className="mt-2 w-full rounded-lg border border-border bg-background p-3" disabled={busy} value={selected} onChange={e => { setSelected(e.target.value); setCard(null); setMessage(""); }}>
       <option value="">Choose an account</option>
@@ -45,11 +45,11 @@ export default function QRAccessPanel({ users }) {
     <p role="status" aria-live="polite" className="mt-3 text-sm">{message}</p>
     {card && <>
       <div className="qr-access-card mt-5 rounded-xl border border-border bg-white p-5 text-center text-slate-950">
-        <h3 className="text-lg font-bold">Pathfinder Health</h3>
+        <h3 className="text-lg font-bold">ASPIRE Health</h3>
         <p className="mt-1 font-semibold">{card.name}</p><p className="text-sm">@{card.username}</p>
         <img src={card.image} width="320" height="320" className="mx-auto max-w-full" alt={"Personal login QR code for " + card.name} />
         <p className="text-sm">Expires {new Date(card.expires).toLocaleDateString("en-GB")}</p>
-        <p className="mt-2 text-xs">Open Pathfinder → QR Scan → Start camera.</p>
+        <p className="mt-2 text-xs">Open ASPIRE → QR Scan → Start camera.</p>
       </div>
       <div className="mt-4 flex flex-wrap gap-3">
         <a className="pf-primary-button" href={card.image} download={"pathfinder-qr-" + card.username.replace(/[^a-zA-Z0-9_-]/g, "_") + ".png"}>Download QR image</a>

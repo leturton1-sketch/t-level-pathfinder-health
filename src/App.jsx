@@ -101,7 +101,7 @@ const AuthenticatedApp = () => {
 
   if (!clientReady) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" aria-label="Loading Pathfinder Health">
+      <div className="fixed inset-0 flex items-center justify-center" aria-label="Loading ASPIRE Health">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-blue-700 rounded-full animate-spin" />
       </div>
     );
@@ -122,7 +122,7 @@ const AuthenticatedApp = () => {
   }
 
   // PIN/QR identification gate. Do not mount protected routes until the
-  // server-issued Pathfinder session has been verified by the app shell.
+  // server-issued ASPIRE session has been verified by the app shell.
   if (!unlocked) {
     return <LoginGate onUnlock={async () => {
       const accepted = await checkUserAuth();
@@ -162,7 +162,7 @@ const AuthenticatedApp = () => {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-slate-50 p-6">
         <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-lg">
-          <h1 className="text-lg font-bold text-slate-900">Pathfinder could not start</h1>
+          <h1 className="text-lg font-bold text-slate-900">ASPIRE could not start</h1>
           <p className="mt-2 text-sm text-slate-600">{authError.message || 'Please check your connection and try again.'}</p>
           <button type="button" onClick={checkAppState} className="mt-4 rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white">Try again</button>
         </div>
@@ -170,7 +170,7 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Invalid or expired sessions return to the Pathfinder login instead of
+  // Invalid or expired sessions return to the ASPIRE login instead of
   // repeatedly redirecting to a second authentication system.
   if (authChecked && !hasAccess) {
     sessionStorage.removeItem("pathfinder-unlocked");
@@ -233,7 +233,7 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     {/* Mounted once above the route content so chat, voice and display state survive navigation. */}
-    <AIAssistant context="Pathfinder Health application" />
+    <AIAssistant context="ASPIRE Health application" />
     </ESPCaseProvider>
     </ErrorBoundary>
     </Suspense>

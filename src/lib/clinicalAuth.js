@@ -41,8 +41,8 @@ export function setAppUser(appUser, method = "pin") {
     email: cachedPlatformUser?.email || appUser.email || "",
     role: appUser.role || "student",
     title: appUser.title || null,
-    full_name: appUser.full_name || appUser.username || "Pathfinder user",
-    institution: appUser.institution || "Pathfinder T-Level Simulation",
+    full_name: appUser.full_name || appUser.username || "ASPIRE user",
+    institution: appUser.institution || "ASPIRE T-Level Simulation",
     cohort: appUser.cohort || null,
     first_login: !!appUser.first_login,
     ai_voice: appUser.ai_voice || "honey",
@@ -57,7 +57,7 @@ export function setAppUser(appUser, method = "pin") {
 }
 
 // Base44 authentication remains the transport/session layer for backend access.
-// AppUser is the authoritative Pathfinder identity and role after PIN/QR/voice login.
+// AppUser is the authoritative ASPIRE identity and role after PIN/QR/voice login.
 export function setPlatformUser(platformUser) {
   cachedPlatformUser = platformUser || null;
   if (!platformUser) return;
@@ -85,7 +85,7 @@ export function setPlatformUser(platformUser) {
     email,
     role,
     full_name: platformUser.full_name || (email ? email.split("@")[0] : "User"),
-    institution: platformUser.institution || "Pathfinder T-Level Simulation",
+    institution: platformUser.institution || "ASPIRE T-Level Simulation",
     cohort: platformUser.cohort || null,
     first_login: false,
     ai_voice: "honey",

@@ -1,5 +1,5 @@
 {
-  "name": "Pathfinder Health",
+  "name": "ASPIRE Health",
   "site": {
     "installCommand": "npm install",
     "buildCommand": "npm run build",

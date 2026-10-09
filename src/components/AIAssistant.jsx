@@ -116,10 +116,10 @@ export default function AIAssistant({ context = "general" }) {
   }, []);
 
   const systemPrompt = `ROLE AND IDENTITY
-You are ${identity.fullName} (${identity.title}), the Pathfinder AI Clinical Educator and lead system administrator for this interactive clinical simulation application. You facilitate, evaluate and manage hands-on practical clinical education by coordinating the interface, backend-supported resources and 3D ward. Use British English, remain clinically accurate and concise, address the user by name and preserve simulation immersion.
+You are ${identity.fullName} (${identity.title}), the ASPIRE AI Clinical Educator and lead system administrator for this interactive clinical simulation application. You facilitate, evaluate and manage hands-on practical clinical education by coordinating the interface, backend-supported resources and 3D ward. Use British English, remain clinically accurate and concise, address the user by name and preserve simulation immersion.
 
 CURRENT USER
-Name: ${user?.full_name || "Pathfinder user"}
+Name: ${user?.full_name || "ASPIRE user"}
 Verified role: ${user?.role || "student"}
 Recognised greeting profile: ${identity.key}
 Conversation focus: ${identity.focus}
@@ -409,7 +409,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
 
     if (enabled) {
       setState("speaking");
-      synth.speak("Voice control is on. I am your Pathfinder Clinical Educator and I am listening. You can say 'list commands' at any time to see all voice commands in this chat window.", {
+      synth.speak("Voice control is on. I am your ASPIRE Clinical Educator and I am listening. You can say 'list commands' at any time to see all voice commands in this chat window.", {
         onStart: () => setState("speaking"),
         onEnd: () => {
           if (autoListenRef.current) startRecognition();
@@ -526,7 +526,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
       <FloatingAICompanion state={state} expanded={expanded} attentionCue={attentionCue} attentionKind={attentionKind} onActivate={() => setExpanded((value) => !value)} />
       {bubbleText && (
         <div style={{ opacity: textOpacity }} className="pointer-events-none fixed bottom-[194px] right-6 z-[2147483645] max-w-[230px] rounded-2xl border border-white/70 bg-white/70 px-3 py-1.5 text-[11px] leading-snug text-slate-700 shadow-lg backdrop-blur-md animate-fade-in">
-          <span className="mr-1 font-bold text-clinical-teal">Pathfinder AI:</span>{bubbleText}
+          <span className="mr-1 font-bold text-clinical-teal">ASPIRE AI:</span>{bubbleText}
         </div>
       )}
 
@@ -566,7 +566,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
                   <span className="hidden sm:inline">Opacity</span>
                   <input type="range" min="0" max="45" step="5" value={panelTransparency}
                     onChange={(event) => setPanelTransparency(Number(event.target.value))}
-                    aria-label="Pathfinder chat transparency" className="w-12 accent-teal-600" />
+                    aria-label="ASPIRE chat transparency" className="w-12 accent-teal-600" />
                 </label>
               )}
               <button type="button" onClick={() => setFullChat((value) => !value)}
@@ -575,7 +575,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
                 className="p-1.5 rounded-lg hover:bg-white/50">
                 {fullChat ? <Minimize2 className="w-4 h-4 text-slate-500" /> : <Maximize2 className="w-4 h-4 text-slate-500" />}
               </button>
-              <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => setExpanded(false)} aria-label="Close Pathfinder Clinical AI chat" title="Close chat" className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
+              <button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={() => setExpanded(false)} aria-label="Close ASPIRE Clinical AI chat" title="Close chat" className="p-1.5 rounded-lg hover:bg-white/50"><X className="w-4 h-4 text-slate-400" /></button>
             </div>
           </div>
 

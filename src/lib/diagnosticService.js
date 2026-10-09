@@ -159,13 +159,13 @@ export async function runDiagnostic() {
 
   try {
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are the Pathfinder diagnostic engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Analyse the captured runtime errors and produce a structured remediation report.
+      prompt: `You are the ASPIRE diagnostic engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Analyse the captured runtime errors and produce a structured remediation report.
 
 For EACH distinct issue provide:
 - title, severity (low/medium/high), count, likely_cause, recommended_fix.
 - remediation: a SAFE runtime action chosen from ${JSON.stringify(SAFE_ACTIONS)}.
   • "reload" for a transient render/state glitch fixed by reloading.
-  • "reset_session" for corrupted local/session state (clears Pathfinder caches + reloads).
+  • "reset_session" for corrupted local/session state (clears ASPIRE caches + reloads).
   • "clear_storage" for a single bad localStorage key — supply payload.storageKey.
   • "suppress" for a noisy non-critical recurring error — supply payload.signature (a short substring of the message).
   • "dismiss" when no runtime fix applies.
@@ -277,7 +277,7 @@ export async function runSecurityScan() {
 
   try {
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are the Pathfinder security review engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Systematically review the security manifest below and triage every finding by severity.
+      prompt: `You are the ASPIRE security review engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Systematically review the security manifest below and triage every finding by severity.
 
 For EACH distinct security issue return:
 - title, severity (critical/high/medium/low/info), category (rls/xss/auth/secrets/validation/exposure/deprecation), affected_resource (entity or function or file name), description, recommendation.

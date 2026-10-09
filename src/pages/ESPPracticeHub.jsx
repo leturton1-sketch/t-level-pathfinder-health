@@ -107,7 +107,7 @@ export default function ESPPracticeHub() {
     <main className="esp-surface clinical-page-shell min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,117,216,.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(39,181,168,.12),transparent_30%)] pb-32">
       <div className="mx-auto max-w-7xl">
         <button onClick={() => navigate("/")} className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white/70">
-          <ArrowLeft className="h-4 w-4" /> Pathfinder overview
+          <ArrowLeft className="h-4 w-4" /> ASPIRE overview
         </button>
 
         <section className="no-command-panel overflow-hidden rounded-[30px] border border-sky-200 bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/70 text-slate-950 shadow-xl">
@@ -203,7 +203,7 @@ export default function ESPPracticeHub() {
             </section>
             <section className="rounded-[24px] border border-cyan-200 bg-cyan-50 p-5 shadow-md">
               <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-cyan-800" /><h2 className="font-black text-cyan-950">Assessment integrity</h2></div>
-              <p className="mt-2 text-xs leading-5 text-cyan-950">Pathfinder supports teaching and formative rehearsal. During controlled practice, follow the displayed resource rules and do not use Pathfinder AI where internet or generative AI is prohibited.</p>
+              <p className="mt-2 text-xs leading-5 text-cyan-950">ASPIRE supports teaching and formative rehearsal. During controlled practice, follow the displayed resource rules and do not use ASPIRE AI where internet or generative AI is prohibited.</p>
             </section>
             <section className="rounded-[24px] border border-white bg-white/90 p-5 shadow-md">
               <div className="flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-emerald-700" /><h2 className="font-black text-slate-950">Evidence journey</h2></div>

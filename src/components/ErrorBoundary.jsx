@@ -35,7 +35,7 @@ export default class ErrorBoundary extends React.Component {
             <h2 className="text-lg font-heading font-bold text-foreground">This screen hit an error</h2>
             <p className="mt-1 text-sm text-muted-foreground">{this.state.message}</p>
             <p className="mt-2 text-xs text-muted-foreground">
-              The Pathfinder AI assistant has logged this. Reloading usually fixes it — open the assistant&apos;s diagnostic mode for a full report.
+              The ASPIRE AI assistant has logged this. Reloading usually fixes it — open the assistant&apos;s diagnostic mode for a full report.
             </p>
             <button onClick={this.reload} className="mt-4 px-4 py-2.5 rounded-xl bg-clinical-teal text-white text-sm font-semibold">
               Reload app

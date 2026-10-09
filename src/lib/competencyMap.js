@@ -3,7 +3,7 @@ import { THEORY_MODULES } from "@/lib/theoryContent";
 import { LEARNING_MODULES } from "@/lib/learningData";
 
 /**
- * Unified SK/PO competency map across every learning context in Pathfinder.
+ * Unified SK/PO competency map across every learning context in ASPIRE.
  *
  * Aggregates skill-code and performance-outcome coverage from:
  *  - Theory modules (browser-saved completion)

@@ -131,7 +131,7 @@ export default function AppInstallerPanel() {
             <Download className="h-6 w-6" />
           </span>
           <div>
-            <h2 className="text-base font-bold text-slate-900">Install Pathfinder Health</h2>
+            <h2 className="text-base font-bold text-slate-900">Install ASPIRE Health</h2>
             <p className="mt-1 text-sm leading-5 text-slate-600">
               Install the app on any device — iOS, Android, Windows or macOS — or scan the QR code to install on another device. It installs as a lightweight web app and updates automatically.
             </p>
@@ -152,7 +152,7 @@ export default function AppInstallerPanel() {
           <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">This device · {current.label}</p>
           {installed ? (
             <div className="mt-2 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-2.5 text-sm font-semibold text-emerald-800">
-              <ShieldCheck className="h-4 w-4" /> Pathfinder Health is installed on this device
+              <ShieldCheck className="h-4 w-4" /> ASPIRE Health is installed on this device
             </div>
           ) : canInstall ? (
             <button
@@ -182,7 +182,7 @@ export default function AppInstallerPanel() {
         {/* QR + link */}
         <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
           <div className="flex justify-center rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            {qrSrc ? <img src={qrSrc} alt="QR code to install Pathfinder Health" className="h-40 w-40" /> : <p className="text-sm">Use the app link below.</p>}
+            {qrSrc ? <img src={qrSrc} alt="QR code to install ASPIRE Health" className="h-40 w-40" /> : <p className="text-sm">Use the app link below.</p>}
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Install on another device</p>

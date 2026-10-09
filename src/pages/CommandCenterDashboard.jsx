@@ -80,7 +80,7 @@ export default function CommandCenterDashboard() {
   const openDrawer = (kind, trigger) => { drawerTriggerRef.current = trigger; setDrawer(kind); };
 
   return <div className="pf-dashboard">
-    <header className="pf-overview-heading"><h1>Pathfinder Overview</h1><DashboardClock /></header>
+    <header className="pf-overview-heading"><h1>ASPIRE Overview</h1><DashboardClock /></header>
 
     <RoleMissionPanel user={user} />
 
@@ -132,4 +132,3 @@ export default function CommandCenterDashboard() {
     </Dialog.Root>
   </div>;
 }
-

@@ -619,7 +619,7 @@ export default function WardSimulation() {
             )}
             {!editMode && (
               <>
-                <button aria-label="Pathfinder Overview" onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
+                <button aria-label="ASPIRE Overview" onClick={() => navigateAway("/")} className="flex items-center gap-1.5 rounded-lg bg-card border border-border px-2.5 py-1.5 text-xs font-heading font-medium text-muted-foreground hover:bg-secondary/40">
                   <LayoutGrid className="w-3.5 h-3.5" /><span className="hidden lg:inline">Dashboard</span>
                 </button>
                 <button aria-label="Scenarios" onClick={() => setShowScenarioList(true)}
@@ -647,7 +647,7 @@ export default function WardSimulation() {
                 </button>
                 <button type="button" onClick={() => setSimulationController("ai")}
                   className={`rounded-md px-2 py-1 font-heading font-medium transition-colors ${simState.controller === "ai" ? "bg-clinical-teal text-white" : "text-muted-foreground hover:text-foreground"}`}>
-                  Pathfinder AI
+                  ASPIRE AI
                 </button>
               </div>
               <button onClick={handleEndSimulationRequest} className="flex items-center gap-1.5 rounded-lg bg-clinical-red/10 border border-clinical-red/30 px-2.5 py-1.5 text-xs font-heading font-semibold text-clinical-red hover:bg-clinical-red/20 transition-colors">

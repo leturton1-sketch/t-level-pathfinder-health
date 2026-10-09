@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
           args: { id: storedUser.id },
         });
         if (!verifiedUser?.id || verifiedUser.active === false) {
-          throw new Error('Pathfinder session is no longer valid.');
+          throw new Error('ASPIRE session is no longer valid.');
         }
         setAppUser(verifiedUser, storedUser.auth_method || 'pin');
         setUser(verifiedUser);
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
           return true;
         }
       } catch {
-        // The custom Pathfinder login remains available when a platform token
+        // The custom ASPIRE login remains available when a platform token
         // is missing, expired or not accepted by the published environment.
       }
     }
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setAuthError({
         type: 'unknown',
-        message: error?.message || 'Unable to initialise Pathfinder Health.',
+        message: error?.message || 'Unable to initialise ASPIRE Health.',
       });
     } finally {
       setIsLoadingPublicSettings(false);
