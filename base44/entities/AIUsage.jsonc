@@ -9,7 +9,8 @@
       "type": "string",
       "enum": [
         "openai",
-        "openrouter"
+        "openrouter",
+        "core_llm"
       ]
     },
     "requested_at": {
@@ -27,6 +28,10 @@
         "failed"
       ],
       "default": "started"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "Requesting IP for per-IP rate limiting"
     }
   },
   "required": [

@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
-import { authenticateUser, reserveAiUsage, finishAiUsage } from '../../shared/aiUsage.ts';
+import { authenticateUser, reserveAiUsage, finishAiUsage, clientIp, checkIpRateLimit } from '../../shared/aiUsage.ts';
 
 // Admin-only diagnostic and security scan broker. Both scan types route
 // through the Core InvokeLLM integration server-side so the client never
@@ -20,6 +20,14 @@ export default async function(req) {
       return Response.json({ error: 'Not authorized' }, { status: 403 });
     }
 
+    const ip = clientIp(req);
+    if (!(await checkIpRateLimit(base44, ip))) {
+      return Response.json(
+        { error: 'Too many AI requests from this network. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600', 'Cache-Control': 'no-store' } },
+      );
+    }
+
     const scanType = body?.scan_type === 'security' ? 'security' : 'diagnostic';
     const prompt = String(body?.prompt || '');
     if (!prompt.trim()) return Response.json({ error: 'A prompt is required.' }, { status: 400 });
@@ -27,7 +35,7 @@ export default async function(req) {
 
     let usage;
     try {
-      usage = await reserveAiUsage(base44, user, 'core_llm', prompt.length);
+      usage = await reserveAiUsage(base44, user, 'core_llm', prompt.length, ip);
     } catch {
       return Response.json({ error: 'AI usage protection is temporarily unavailable.' }, { status: 503 });
     }

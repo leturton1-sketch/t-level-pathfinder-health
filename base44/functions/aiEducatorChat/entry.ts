@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
-import { authenticateUser, reserveAiUsage, finishAiUsage } from '../../shared/aiUsage.ts';
+import { authenticateUser, reserveAiUsage, finishAiUsage, clientIp, checkIpRateLimit } from '../../shared/aiUsage.ts';
 
 // Brokers the structured Clinical Educator chat (ward/app actions, attention
 // cues) through the Core InvokeLLM integration so the client never consumes
@@ -16,13 +16,21 @@ export default async function(req) {
     const user = await authenticateUser(base44, body?.pathfinder_session_token);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const ip = clientIp(req);
+    if (!(await checkIpRateLimit(base44, ip))) {
+      return Response.json(
+        { error: 'Too many AI requests from this network. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600', 'Cache-Control': 'no-store' } },
+      );
+    }
+
     const prompt = String(body?.prompt || '');
     if (!prompt.trim()) return Response.json({ error: 'A prompt is required.' }, { status: 400 });
     if (prompt.length > 60000) return Response.json({ error: 'The request is too large.' }, { status: 413 });
 
     let usage;
     try {
-      usage = await reserveAiUsage(base44, user, 'core_llm', prompt.length);
+      usage = await reserveAiUsage(base44, user, 'core_llm', prompt.length, ip);
     } catch {
       return Response.json({ error: 'AI usage protection is temporarily unavailable.' }, { status: 503 });
     }
