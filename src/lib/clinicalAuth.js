@@ -150,8 +150,7 @@ export async function changePin(userId, newPin) {
 
 export async function resetPin(userId) {
   const plain = generateRandomPin();
-  const res = await base44.functions.invoke("appData", {
-    entity_name: "AppUser",
+  const res = await base44.functions.invoke("manageUsers", {
     operation: "update",
     args: { id: userId, data: { pin: plain, first_login: true } },
   });

@@ -1,7 +1,9 @@
 import { createClientFromRequest } from "npm:@base44/sdk";
-
-const STAFF_ROLES = new Set(["tutor", "admin", "super_admin"]);
-const ADMIN_ROLES = new Set(["admin", "super_admin"]);
+import {
+  hashPinIfPresent, isStaff, isAdmin, isPlainObject,
+  cleanQuery, cleanData, safeSort, safeNumber,
+  readSessionToken, authenticate, sha256, json,
+} from "../../shared/userAuth.ts";
 
 const POLICIES = {
   TheoryModule: { read: "all", write: "staff" },
@@ -18,14 +20,8 @@ const POLICIES = {
   LearnerReadiness: { owner: "student_id", read: "owner", write: "staff" },
   HealthHubRecord: { owner: "recorded_by_id", read: "owner", write: "owner" },
   PlacementMatch: { owner: "student_id", read: "owner", write: "staff" },
-  AppUser: { read: "special", write: "special" },
   AuthAudit: { read: "staff", write: "none" },
 };
-
-const APP_USER_FIELDS = new Set([
-  "username", "pin", "role", "title", "full_name", "institution", "cohort",
-  "first_login", "active", "ai_voice", "ai_persona", "is_protected",
-]);
 
 // Record ownership does not grant permission to edit assessment outcomes.
 // These fields are controlled by tutors/admins even when the learner owns the
@@ -60,147 +56,16 @@ function constrainStudentWrite(entityName, operation, data) {
   return safe;
 }
 
-function json(body, status = 200) {
-  return Response.json(body, {
-    status,
-    headers: { "Cache-Control": "no-store" },
-  });
-}
-
-async function sha256(value) {
-  const bytes = new TextEncoder().encode(String(value));
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-const PBKDF2_ITERATIONS = 100000;
-
-async function pbkdf2Derive(pin, saltHex, iterations) {
-  const salt = new Uint8Array(saltHex.match(/.{2}/g).map((b) => parseInt(b, 16)));
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw", new TextEncoder().encode(String(pin)), { name: "PBKDF2" }, false, ["deriveBits"],
-  );
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256,
-  );
-  return Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function hashPinPbkdf2(pin) {
-  const saltHex = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
-  const hashHex = await pbkdf2Derive(pin, saltHex, PBKDF2_ITERATIONS);
-  return `pbkdf2:${PBKDF2_ITERATIONS}:${saltHex}:${hashHex}`;
-}
-
-// Per-account random initial PIN. Replaces the former constant "0000" default
-// so newly created or reset accounts cannot be signed into with a guessable PIN.
-function generateRandomPin() {
-  const n = crypto.getRandomValues(new Uint16Array(1))[0] % 9000;
-  return String(1000 + n);
-}
-
-function isPlainObject(value) {
-  return value && typeof value === "object" && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
-}
-
-function cleanQuery(input) {
-  if (input == null) return {};
-  if (!isPlainObject(input)) throw new Error("Invalid query.");
-  const out = {};
-  for (const [key, value] of Object.entries(input)) {
-    if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(key)) throw new Error("Invalid query field.");
-    if (value !== null && !["string", "number", "boolean"].includes(typeof value)) {
-      throw new Error("Only exact-match filters are supported.");
-    }
-    out[key] = value;
-  }
-  return out;
-}
-
-function cleanValue(value, depth = 0) {
-  if (depth > 8) throw new Error("Payload is too deeply nested.");
-  if (value == null || ["string", "number", "boolean"].includes(typeof value)) return value;
-  if (Array.isArray(value)) return value.map((item) => cleanValue(item, depth + 1));
-  if (!isPlainObject(value)) throw new Error("Invalid payload value.");
-  const out = {};
-  for (const [key, nested] of Object.entries(value)) {
-    if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(key)) throw new Error("Invalid payload field.");
-    out[key] = cleanValue(nested, depth + 1);
-  }
-  return out;
-}
-
-function cleanData(input) {
-  if (!isPlainObject(input)) throw new Error("Invalid data.");
-  const out = cleanValue(input);
-  delete out.id;
-  delete out.created_date;
-  delete out.updated_date;
-  delete out.created_by_id;
-  return out;
-}
-
-function safeSort(value) {
-  return typeof value === "string" && /^-?[a-zA-Z][a-zA-Z0-9_]*$/.test(value) ? value : undefined;
-}
-
-function safeNumber(value, fallback, max) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return fallback;
-  return Math.max(0, Math.min(max, Math.trunc(number)));
-}
-
 function stripSensitive(entityName, value) {
   const stripOne = (row) => {
     if (!row || typeof row !== "object") return row;
     const next = { ...row };
-    if (entityName === "AppUser") {
-      delete next.pin;
-      delete next.qr_token;
-    }
     if (entityName === "AuthAudit") delete next.platform_user_id;
     if (entityName === "AppSession" || entityName === "QRAccessCredential") return null;
     return next;
   };
   if (Array.isArray(value)) return value.map(stripOne).filter(Boolean);
   return stripOne(value);
-}
-
-function readSessionToken(req, body) {
-  const cookieHeader = req.headers.get("Cookie") || "";
-  for (const part of cookieHeader.split(";")) {
-    const [k, ...v] = part.trim().split("=");
-    if (k === "pathfinder-session" && v.length) return v.join("=");
-  }
-  return body?.session_token || body?.pathfinder_session_token || null;
-}
-
-async function authenticate(base44, token) {
-  if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) return null;
-  const tokenHash = await sha256(token);
-  const sessions = await base44.asServiceRole.entities.AppSession.filter(
-    { token_hash: tokenHash, revoked: false },
-    "-expires_at",
-    3,
-  );
-  const session = (sessions || []).find((item) => {
-    const expiresAt = Date.parse(item.expires_at);
-    return Number.isFinite(expiresAt) && expiresAt > Date.now();
-  });
-  if (!session) return null;
-  const users = await base44.asServiceRole.entities.AppUser.filter({
-    id: session.app_user_id,
-    active: true,
-  });
-  return users?.[0] || null;
-}
-
-function isStaff(user) {
-  return STAFF_ROLES.has(user?.role);
-}
-
-function isAdmin(user) {
-  return ADMIN_ROLES.has(user?.role);
 }
 
 function mayWrite(policy, user) {
@@ -213,118 +78,42 @@ function owns(policy, user, record) {
   return !policy.owner || String(record?.[policy.owner] || "") === String(user.id);
 }
 
-async function hashPinIfPresent(data) {
-  if (!Object.prototype.hasOwnProperty.call(data, "pin")) return data;
-  const pin = String(data.pin || "");
-  // Plain PINs are hashed with a salted, iterated KDF. Legacy sha256: hashes
-  // are accepted as-is for backward compatibility with pre-existing records.
-  if (!/^\d{4,6}$/.test(pin) && !/^sha256:[a-f0-9]{64}$/.test(pin) && !/^pbkdf2:\d+:[a-f0-9]{32}:[a-f0-9]{64}$/.test(pin)) {
-    throw new Error("PIN must contain 4 to 6 digits.");
-  }
-  const hashed = pin.startsWith("sha256:") || pin.startsWith("pbkdf2:") ? pin : await hashPinPbkdf2(pin);
-  return { ...data, pin: hashed };
-}
-
-async function appUserOperation(base44, user, operation, args) {
+// Self-service AppUser operations only: a user can read their own profile
+// (for session verification) and update their own PIN/voice preferences (for
+// the first-login PIN change). All other account management — listing,
+// creating, deleting, resetting another user's PIN — goes through the
+// dedicated manageUsers function.
+async function selfServiceAppUser(base44, user, operation, args) {
   const entity = base44.asServiceRole.entities.AppUser;
-  const staff = isStaff(user);
-
-  if (operation === "list" || operation === "filter") {
-    if (!staff) return json({ error: "Not authorised." }, 403);
-    const query = operation === "filter" ? cleanQuery(args?.query) : {};
-    const rows = await entity.filter(
-      query,
-      safeSort(args?.sort),
-      safeNumber(args?.limit, 100, 200),
-      safeNumber(args?.skip, 0, 10000),
-    );
-    return json(stripSensitive("AppUser", rows));
-  }
 
   if (operation === "get") {
-    const target = await entity.get(String(args?.id || ""));
-    if (!staff && target?.id !== user.id) return json({ error: "Not authorised." }, 403);
-    return json(stripSensitive("AppUser", target));
+    if (String(args?.id || "") !== String(user.id)) return json({ error: "Not authorised." }, 403);
+    const target = await entity.get(String(user.id)).catch(() => null);
+    if (!target) return json({ error: "Account not found." }, 404);
+    return json({ ...target, pin: undefined, qr_token: undefined });
   }
-
-  if (operation === "create") {
-    if (!staff) return json({ error: "Not authorised." }, 403);
-    let data = cleanData(args?.data);
-    const allowedRoles = user.role === "super_admin"
-      ? new Set(["guest", "student", "tutor", "admin"])
-      : user.role === "admin"
-        ? new Set(["guest", "student", "tutor"])
-        : new Set(["guest", "student"]);
-    if (!allowedRoles.has(data.role || "student")) return json({ error: "Role not permitted." }, 403);
-    data = Object.fromEntries(Object.entries(data).filter(([key]) => APP_USER_FIELDS.has(key)));
-    // Never persist a guessable PIN. When no PIN (or the legacy "0000") is
-    // supplied, issue a random one and flag the account for a forced change at
-    // first sign-in. The plaintext is returned once so staff can share it.
-    let initialPin = null;
-    if (!data.pin || data.pin === "0000") {
-      initialPin = generateRandomPin();
-      data.pin = initialPin;
-      if (data.first_login === undefined) data.first_login = true;
-    }
-    data = await hashPinIfPresent({ ...data, role: data.role || "student", active: data.active !== false });
-    const created = await entity.create(data);
-    const response = stripSensitive("AppUser", created);
-    if (initialPin) response.initial_pin = initialPin;
-    return json(response, 201);
-  }
-
-  const target = await entity.get(String(args?.id || "")).catch(() => null);
-  if (!target) return json({ error: "Account not found." }, 404);
 
   if (operation === "update") {
-    let data = cleanData(args?.data);
-    if (target.id === user.id && !staff) {
-      const selfFields = new Set(["pin", "first_login", "ai_voice", "ai_persona"]);
-      if (Object.keys(data).some((key) => !selfFields.has(key))) return json({ error: "Not authorised." }, 403);
-      // first_login is server-derived: only a new PIN clears it. Reject any
-      // attempt to set first_login without also supplying a new PIN, which
-      // would skip the forced PIN rotation.
-      if (Object.prototype.hasOwnProperty.call(data, "first_login") && !Object.prototype.hasOwnProperty.call(data, "pin")) {
-        return json({ error: "Set a new PIN to complete the first-login change." }, 403);
-      }
-      delete data.first_login;
-      if (Object.prototype.hasOwnProperty.call(data, "pin")) data.first_login = false;
-    } else {
-      if (!staff) return json({ error: "Not authorised." }, 403);
-      if ((target.is_protected || target.role === "super_admin") && user.role !== "super_admin") {
-        return json({ error: "Protected account." }, 403);
-      }
-      if (user.role === "tutor" && !["student", "guest"].includes(target.role)) {
-        return json({ error: "Not authorised." }, 403);
-      }
-      if (Object.prototype.hasOwnProperty.call(data, "role")) {
-        const permitted = user.role === "super_admin"
-          ? ["guest", "student", "tutor", "admin"]
-          : user.role === "admin"
-            ? ["guest", "student", "tutor"]
-            : ["guest", "student"];
-        if (!permitted.includes(data.role)) return json({ error: "Role not permitted." }, 403);
-      }
-      data = Object.fromEntries(Object.entries(data).filter(([key]) => APP_USER_FIELDS.has(key)));
+    if (String(args?.id || "") !== String(user.id)) return json({ error: "Not authorised." }, 403);
+    let data = cleanData(args.data);
+    const selfFields = new Set(["pin", "first_login", "ai_voice", "ai_persona"]);
+    if (Object.keys(data).some((key) => !selfFields.has(key))) {
+      return json({ error: "Not authorised." }, 403);
     }
+    // first_login is server-derived: only a new PIN clears it. Reject any
+    // attempt to set first_login without also supplying a new PIN, which
+    // would skip the forced PIN rotation.
+    if (Object.prototype.hasOwnProperty.call(data, "first_login") && !Object.prototype.hasOwnProperty.call(data, "pin")) {
+      return json({ error: "Set a new PIN to complete the first-login change." }, 403);
+    }
+    delete data.first_login;
+    if (Object.prototype.hasOwnProperty.call(data, "pin")) data.first_login = false;
     data = await hashPinIfPresent(data);
-    return json(stripSensitive("AppUser", await entity.update(target.id, data)));
+    const updated = await entity.update(user.id, data);
+    return json({ ...updated, pin: undefined, qr_token: undefined });
   }
 
-  if (operation === "delete") {
-    if (!staff || target.id === user.id || target.is_protected || target.role === "super_admin") {
-      return json({ error: "Not authorised." }, 403);
-    }
-    if (user.role === "tutor" && !["student", "guest"].includes(target.role)) {
-      return json({ error: "Not authorised." }, 403);
-    }
-    if (user.role === "admin" && target.role === "admin") {
-      return json({ error: "Not authorised." }, 403);
-    }
-    return json(await entity.delete(target.id));
-  }
-
-  return json({ error: "Unsupported operation." }, 400);
+  return json({ error: "Account management is not available through this endpoint." }, 403);
 }
 
 export default async function(req) {
@@ -358,22 +147,24 @@ export default async function(req) {
     const entityName = String(body?.entity_name || "");
     const operation = String(body?.operation || "");
     const args = isPlainObject(body?.args) ? body.args : {};
-    const policy = POLICIES[entityName];
 
+    // AppUser is self-service only here. Staff account management goes
+    // through the manageUsers function.
+    if (entityName === "AppUser") {
+      return await selfServiceAppUser(base44, user, operation, args);
+    }
+
+    const policy = POLICIES[entityName];
     if (!policy) return json({ error: "Entity is not available through this endpoint." }, 403);
     if (!["list", "filter", "get", "create", "update", "delete"].includes(operation)) {
       return json({ error: "Unsupported operation." }, 400);
     }
 
     // First-login users must change their temporary PIN before any app data is
-    // accessible. Self AppUser read (session verification) and self update (the
-    // PIN-change flow) remain available so the user can complete the change.
-    if (user.first_login && (entityName !== "AppUser" || !["get", "update"].includes(operation))) {
+    // accessible. Self-service AppUser operations (above) remain available so
+    // the user can complete the PIN change.
+    if (user.first_login) {
       return json({ error: "Please change your temporary PIN to continue." }, 403);
-    }
-
-    if (entityName === "AppUser") {
-      return await appUserOperation(base44, user, operation, args);
     }
 
     const entity = base44.asServiceRole.entities[entityName];

@@ -57,8 +57,14 @@ async function invokeEntity(entityName, operation, args = {}) {
   if (!hasSession()) {
     return sdkClient.entities[entityName][operation](...args.fallbackArgs);
   }
+  // AppUser account management (list, create, delete) goes through the
+  // dedicated manageUsers function. Self-service operations (get, update for
+  // PIN change) stay on appData.
+  const functionName = (entityName === 'AppUser' && ['list', 'filter', 'create', 'delete'].includes(operation))
+    ? 'manageUsers'
+    : 'appData';
   try {
-    return await fetchFunction('appData', {
+    return await fetchFunction(functionName, {
       entity_name: entityName,
       operation,
       args: args.payload || {},
