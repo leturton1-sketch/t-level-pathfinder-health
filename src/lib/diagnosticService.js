@@ -158,7 +158,8 @@ export async function runDiagnostic() {
     .join("\n");
 
   try {
-    const response = await base44.integrations.Core.InvokeLLM({
+    const response = await base44.functions.invoke("aiDiagnosticScan", {
+      scan_type: "diagnostic",
       prompt: `You are the LEE diagnostic engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Analyse the captured runtime errors and produce a structured remediation report.
 
 For EACH distinct issue provide:
@@ -276,7 +277,8 @@ export async function runSecurityScan() {
   };
 
   try {
-    const response = await base44.integrations.Core.InvokeLLM({
+    const response = await base44.functions.invoke("aiDiagnosticScan", {
+      scan_type: "security",
       prompt: `You are the LEE security review engine for a React + Vite single-page app on the Base44 platform (source under src/, entities under base44/entities/, backend functions under base44/functions/). Systematically review the security manifest below and triage every finding by severity.
 
 For EACH distinct security issue return:

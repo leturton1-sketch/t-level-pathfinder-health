@@ -262,7 +262,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
         return signed_url;
       }));
       const attachmentContext = uploadedUrls.length ? `\n\nATTACHMENTS:\n${attachments.map((f, i) => `${f.name}: ${uploadedUrls[i]}`).join("\n")}` : "";
-      const result = await base44.integrations.Core.InvokeLLM({
+      const result = await base44.functions.invoke("aiEducatorChat", {
         prompt: `${systemPrompt}${contextEnabled ? wardContext : "\n\nThe user has disabled current-page context."}${attachmentContext}\n\nConversation:\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}\nuser: ${userMsg.content}\nassistant:`,
         response_json_schema: {
           type: "object",
