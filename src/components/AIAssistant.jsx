@@ -26,25 +26,20 @@ const AI_STATES = {
   offline: { label: "Offline · standby", color: "text-slate-500" },
 };
 
-// Module-scope Waveform avoids re-creating the component on every parent render.
-// `red` forces a red palette; `reactive` speeds up the bars while thinking/speaking.
-function Waveform({ state: currentState, monitoring = false, red = false, reactive = false }) {
-  const colour = red
-    ? "bg-red-500"
-    : currentState === "listening" ? "bg-red-500" : currentState === "thinking" ? "bg-amber-500" : currentState === "speaking" ? "bg-clinical-green" : "bg-clinical-teal";
-  const active = reactive && (currentState === "thinking" || currentState === "speaking" || currentState === "listening");
+// Subtle status dot — gentle colour change per state, no busy bars.
+function StatusDot({ state: currentState, monitoring = false }) {
+  const colour = currentState === "listening" ? "bg-red-400"
+    : currentState === "thinking" ? "bg-amber-400"
+    : currentState === "speaking" ? "bg-emerald-400"
+    : currentState === "complete" ? "bg-emerald-500"
+    : currentState === "offline" ? "bg-slate-400"
+    : "bg-clinical-teal";
+  const pulse = currentState === "thinking" || currentState === "speaking" || currentState === "listening";
   return (
-    <div className="flex h-5 items-center gap-0.5" aria-label={currentState === "listening" ? "Microphone listening waveform" : monitoring ? "Voice monitoring enabled" : "Assistant idle"}>
-      {Array.from({ length: 9 }).map((_, i) => (
-        <span key={i} className={`w-0.5 rounded-full ${colour} waveform-bar`}
-          style={{
-            height: `${active ? 55 + ((i * 41) % 45) : 35 + ((i * 37) % 65)}%`,
-            animationDelay: `${i * 0.07}s`,
-            animationDuration: `${active ? 0.32 + (i % 4) * 0.06 : 0.55 + (i % 4) * 0.12}s`,
-            opacity: active ? 1 : 0.6,
-          }} />
-      ))}
-    </div>
+    <span
+      className={`inline-block h-2 w-2 rounded-full ${colour} ${pulse ? "animate-pulse" : ""}`}
+      aria-label={currentState === "listening" ? "Microphone listening" : monitoring ? "Voice monitoring enabled" : "Assistant idle"}
+    />
   );
 }
 
@@ -584,7 +579,7 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
                 <div className="text-[13px] font-heading font-bold text-slate-800 leading-tight">{identity.fullName}</div>
                 <div className="text-[9px] font-semibold leading-tight text-slate-400">{identity.title}</div>
                 <div className={`text-[11px] ${AI_STATES[state].color} flex items-center gap-1`}>
-                  <Waveform state={state} monitoring={autoListen} /> {AI_STATES[state].label}
+                  <StatusDot state={state} monitoring={autoListen} /> {AI_STATES[state].label}
                   {muted && <span className="text-clinical-red">(muted)</span>}
                 </div>
               </div>

@@ -31,7 +31,7 @@
   border-radius:18px;
   background:linear-gradient(180deg,rgba(2,132,199,.18),rgba(15,23,42,.16));
   box-shadow:0 14px 34px rgba(15,23,42,.24),inset 0 0 0 1px rgba(103,232,249,.24);
-  transition:border-radius .28s ease,box-shadow .28s ease;
+  transition:border-radius .28s ease,box-shadow .4s ease;
 }
 .is-minimized .educator-companion-visual{border-radius:13px}
 .educator-companion-image{
@@ -44,197 +44,145 @@
   pointer-events:none;
   transform:scale(1.01);
   transform-origin:center bottom;
-  transition:transform .32s cubic-bezier(.2,.8,.2,1),filter .25s ease;
+  transition:filter .4s ease;
 }
-.is-minimized .educator-companion-image{transform:scale(1.015)}
+
+/* Subtle state glow — gentle colour shift, no motion */
 .educator-companion-glow{
   position:absolute;
   z-index:1;
   inset:8% -8% 2%;
   border-radius:42%;
-  background:radial-gradient(ellipse at 50% 48%,rgba(103,232,249,.36) 0,rgba(34,211,238,.18) 38%,rgba(14,165,233,.08) 58%,transparent 76%);
-  opacity:.16;
+  background:radial-gradient(ellipse at 50% 48%,rgba(103,232,249,.22) 0,rgba(34,211,238,.1) 38%,transparent 76%);
+  opacity:.12;
   pointer-events:none;
   filter:blur(8px);
-  transform:scale(.94);
-  transition:opacity .45s ease,filter .45s ease,transform .6s ease;
+  transition:opacity .5s ease,background .5s ease;
 }
-.educator-companion-scanline{
-  position:absolute;
-  left:8%;
-  right:8%;
-  top:15%;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(103,232,249,.8),transparent);
-  opacity:0;
-  pointer-events:none;
+.educator-companion.is-thinking .educator-companion-glow{
+  opacity:.3;
+  background:radial-gradient(ellipse at 50% 48%,rgba(251,191,36,.22) 0,rgba(251,191,36,.08) 38%,transparent 76%);
 }
-.educator-companion.is-thinking .educator-companion-glow,
-.educator-companion.is-listening .educator-companion-glow,
-.educator-companion.is-speaking .educator-companion-glow{opacity:.9;filter:blur(7px) drop-shadow(0 0 10px rgba(34,211,238,.78));animation:educator-widget-aura 2.8s ease-in-out infinite}
-.educator-companion:is(.is-thinking,.is-listening,.is-speaking) .educator-companion-visual{box-shadow:0 14px 34px rgba(15,23,42,.24),0 0 18px rgba(34,211,238,.32),inset 0 0 0 1px rgba(103,232,249,.5)}
-.educator-companion:is(.is-thinking,.is-listening,.is-speaking) .educator-companion-image{animation:educator-widget-working 3.4s ease-in-out infinite}
-.educator-companion.is-thinking .educator-companion-image{filter:saturate(1.08) drop-shadow(0 0 5px rgba(34,211,238,.45));animation:educator-widget-thinking 3.2s ease-in-out infinite}
-.educator-companion.is-listening .educator-companion-image{filter:saturate(1.12) drop-shadow(0 0 7px rgba(248,113,113,.45));animation:educator-widget-listening 2.4s ease-in-out infinite}
-.educator-companion.is-speaking .educator-companion-image{filter:saturate(1.1) drop-shadow(0 0 8px rgba(45,212,191,.56));animation:educator-widget-speaking 2s ease-in-out infinite}
-.educator-companion.is-listening .educator-companion-visual{box-shadow:0 14px 34px rgba(15,23,42,.24),0 0 0 2px rgba(248,113,113,.32),0 0 20px rgba(248,113,113,.24),inset 0 0 0 1px rgba(254,202,202,.6)}
-.educator-companion.is-thinking .educator-companion-scanline,
-.educator-companion.is-listening .educator-companion-scanline,
-.educator-companion.is-speaking .educator-companion-scanline{opacity:.65;animation:educator-scan 2.8s ease-in-out infinite}
+.educator-companion.is-listening .educator-companion-glow{
+  opacity:.3;
+  background:radial-gradient(ellipse at 50% 48%,rgba(248,113,113,.22) 0,rgba(248,113,113,.08) 38%,transparent 76%);
+}
+.educator-companion.is-speaking .educator-companion-glow{
+  opacity:.3;
+  background:radial-gradient(ellipse at 50% 48%,rgba(74,222,128,.22) 0,rgba(74,222,128,.08) 38%,transparent 76%);
+}
+
+/* Subtle border tint per state */
+.educator-companion.is-thinking .educator-companion-visual{
+  box-shadow:0 14px 34px rgba(15,23,42,.24),inset 0 0 0 1px rgba(251,191,36,.4);
+}
+.educator-companion.is-listening .educator-companion-visual{
+  box-shadow:0 14px 34px rgba(15,23,42,.24),inset 0 0 0 1px rgba(248,113,113,.45);
+}
+.educator-companion.is-speaking .educator-companion-visual{
+  box-shadow:0 14px 34px rgba(15,23,42,.24),inset 0 0 0 1px rgba(74,222,128,.45);
+}
+.educator-companion.is-complete .educator-companion-visual{
+  box-shadow:0 14px 34px rgba(15,23,42,.24),inset 0 0 0 1px rgba(74,222,128,.55);
+}
+
+/* Subtle image filter per state — no motion, just tone */
+.educator-companion.is-thinking .educator-companion-image{filter:saturate(.92) brightness(.97)}
+.educator-companion.is-listening .educator-companion-image{filter:saturate(.95) brightness(.98)}
+.educator-companion.is-speaking .educator-companion-image{filter:saturate(1.05) brightness(1.02)}
+.educator-companion.is-offline .educator-companion-image{filter:saturate(.38) brightness(.62)}
+.educator-companion.is-offline .educator-companion-visual{
+  background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(2,6,23,.82));
+  box-shadow:inset 0 0 0 1px rgba(100,116,139,.24);
+}
+
+/* Attention cue — single gentle pulse, then settle */
 .educator-companion-attention{
   position:absolute;
   inset:5px;
-  border:1px solid rgba(250,204,21,.8);
+  border:1px solid rgba(250,204,21,.6);
   border-radius:15px;
   pointer-events:none;
-  animation:educator-attention 1.8s ease-out both;
+  animation:educator-attention 1.2s ease-out both;
 }
-.educator-companion-attention.is-advice{border-color:rgba(248,113,113,.88)}
-.educator-feature-light{
-  position:absolute;
-  z-index:2;
-  display:block;
-  pointer-events:none;
-  opacity:0;
-  transform:translate(-50%,-50%);
-  transition:opacity .24s ease,filter .24s ease;
-}
-.educator-eye-light{
-  top:12.2%;
-  width:3px;
-  height:2px;
-  border-radius:50%;
-  background:#d9fdff;
-  box-shadow:0 0 2px #fff,0 0 4px rgba(34,211,238,.82);
-}
-.educator-eye-light-left{left:47.1%}
-.educator-eye-light-right{left:52.9%}
-.educator-rune-light{
-  top:60.5%;
-  width:11px;
-  height:18px;
-  border-radius:45%;
-  background:radial-gradient(ellipse,rgba(103,232,249,.78) 0,rgba(34,211,238,.34) 42%,transparent 76%);
-  filter:drop-shadow(0 0 3px #22d3ee);
-}
-.educator-rune-light-left{left:11.5%;transform:translate(-50%,-50%) rotate(-8deg)}
-.educator-rune-light-right{left:88.5%;transform:translate(-50%,-50%) rotate(8deg)}
-.educator-companion.is-thinking .educator-feature-light,
-.educator-companion.is-listening .educator-feature-light,
-.educator-companion.is-speaking .educator-feature-light{opacity:.92}
-.educator-companion.is-speaking .educator-eye-light{animation:educator-eye-pulse 1.4s ease-in-out infinite}
-.educator-companion.is-speaking .educator-rune-light,
-.educator-companion.is-listening .educator-rune-light{animation:educator-rune-pulse 1.8s ease-in-out infinite}
-.is-minimized .educator-eye-light{top:12.1%;width:2px;height:1px;box-shadow:0 0 2px rgba(34,211,238,.86)}
-.is-minimized .educator-rune-light{width:6px;height:10px}
-.educator-companion-echo{
-  position:absolute;
-  z-index:3;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center bottom;
-  opacity:0;
-  pointer-events:none;
-  mix-blend-mode:screen;
-  filter:hue-rotate(18deg) saturate(1.5);
-  animation:educator-widget-echo 14s steps(1,end) infinite;
-}
-.educator-companion-distortion{position:absolute;z-index:4;left:0;right:0;height:12%;opacity:0;pointer-events:none;background:rgba(103,232,249,.18);mix-blend-mode:screen;backdrop-filter:hue-rotate(28deg) contrast(1.35);animation:educator-widget-slice 14s steps(1,end) infinite}
-.educator-companion-distortion.distortion-a{top:28%}
-.educator-companion-distortion.distortion-b{top:64%;animation-delay:-.08s}
-.ai-companion-waveform{
-  position:absolute;
-  z-index:5;
-  left:50%;
-  bottom:5px;
-  width:72px;
-  height:20px;
-  transform:translateX(-50%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
-  padding:3px 7px;
-  border:1px solid rgba(103,232,249,.3);
-  border-radius:999px;
-  background:rgba(4,27,65,.72);
-  box-shadow:0 6px 18px rgba(4,27,65,.3),0 0 12px rgba(34,211,238,.16);
-  backdrop-filter:blur(7px);
-  pointer-events:none;
-}
-.ai-companion-waveform span{width:2px;height:4px;border-radius:999px;background:#67e8f9;box-shadow:0 0 5px rgba(34,211,238,.8);animation:educator-widget-wave 1.8s ease-in-out infinite;animation-play-state:paused}
-.ai-companion-waveform span:nth-child(2),.ai-companion-waveform span:nth-child(8){animation-delay:.12s}
-.ai-companion-waveform span:nth-child(3),.ai-companion-waveform span:nth-child(7){animation-delay:.24s}
-.ai-companion-waveform span:nth-child(4),.ai-companion-waveform span:nth-child(6){animation-delay:.36s}
-.ai-companion-waveform span:nth-child(5){animation-delay:.48s}
-.educator-companion:is(.is-thinking,.is-listening,.is-speaking) .ai-companion-waveform span{animation-play-state:running}
-.educator-companion.is-listening .ai-companion-waveform span{background:#f87171;box-shadow:0 0 5px rgba(248,113,113,.9)}
-.educator-companion.is-thinking .ai-companion-waveform span{background:#fbbf24;box-shadow:0 0 5px rgba(251,191,36,.82)}
-@keyframes educator-scan{0%,100%{top:14%;opacity:0}18%{opacity:.7}82%{opacity:.45}100%{top:88%;opacity:0}}
-@keyframes educator-attention{0%{opacity:0;transform:scale(.94)}18%{opacity:1;transform:scale(1)}70%{opacity:.75}100%{opacity:0}}
-@keyframes educator-eye-pulse{0%,100%{filter:brightness(.85)}50%{filter:brightness(1.45)}}
-@keyframes educator-rune-pulse{0%,100%{opacity:.55}50%{opacity:1}}
-@keyframes educator-widget-aura{0%,100%{opacity:.62;transform:scale(.95)}50%{opacity:.96;transform:scale(1.035)}}
-@keyframes educator-widget-working{0%,100%{transform:scale(1.01) translateY(0)}50%{transform:scale(1.018) translateY(-2px)}}
-@keyframes educator-widget-thinking{0%,100%{transform:scale(1.01) translateY(0) rotate(0)}45%{transform:scale(1.018) translateY(-2px) rotate(.7deg)}72%{transform:scale(1.012) translateY(-1px) rotate(-.25deg)}}
-@keyframes educator-widget-listening{0%,100%{transform:scale(1.012) translateY(0)}50%{transform:scale(1.024) translateY(-3px)}}
-@keyframes educator-widget-speaking{0%,100%{transform:scale(1.01) translateY(0)}30%{transform:scale(1.02) translateY(-3px)}60%{transform:scale(1.014) translateY(-1px)}}
-@keyframes educator-widget-wave{0%,100%{height:4px;opacity:.55}50%{height:14px;opacity:1}}
-@keyframes educator-widget-echo{
-  0%,72%,81%,100%{opacity:0;transform:translate3d(0,0,0) skewX(0);clip-path:inset(0);filter:hue-rotate(0) saturate(1)}
-  73%{opacity:.55;transform:translate3d(7px,-1px,0) skewX(-1.4deg);clip-path:inset(13% 0 61% 0);filter:hue-rotate(34deg) saturate(1.9) drop-shadow(-4px 0 1px rgba(103,232,249,.9))}
-  74%{opacity:.18;transform:translate3d(-5px,1px,0) skewX(1.6deg);clip-path:inset(42% 0 31% 0);filter:hue-rotate(-25deg) contrast(1.4) drop-shadow(4px 0 1px rgba(248,113,113,.58))}
-  76%{opacity:.46;transform:translate3d(4px,0,0) skewX(-.8deg);clip-path:inset(67% 0 10% 0);filter:hue-rotate(20deg) saturate(1.75)}
-  78%{opacity:.2;transform:translate3d(-3px,0,0);clip-path:inset(8% 0 77% 0);filter:brightness(1.35) drop-shadow(0 0 5px rgba(103,232,249,.8))}
-  80%{opacity:.08;transform:translate3d(1px,0,0);clip-path:inset(0);filter:hue-rotate(0)}
-}
-@keyframes educator-widget-slice{0%,72%,81%,100%{opacity:0;transform:translateX(0)}73%{opacity:.82;transform:translateX(7%)}74%{opacity:.12;transform:translateX(-5%)}76%{opacity:.66;transform:translateX(4%)}78%{opacity:.18;transform:translateX(-2%)}80%{opacity:0;transform:translateX(0)}}
+.educator-companion-attention.is-advice{border-color:rgba(248,113,113,.7)}
 
-/* State-driven compact effects */
-.widget-stethoscope-pulse,.widget-heartbeat,.widget-dna,.widget-complete,.widget-rest{position:absolute;z-index:6;pointer-events:none;opacity:0}
-.widget-stethoscope-pulse{left:42%;top:34%;width:12px;height:12px;border:1px solid #67e8f9;border-radius:50%}
-.widget-heartbeat{left:4%;top:38%;width:92%;height:13%}
-.widget-heartbeat polyline{fill:none;stroke:#67e8f9;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px #22d3ee);stroke-dasharray:130;stroke-dashoffset:130}
-.educator-companion.is-listening .widget-stethoscope-pulse{opacity:1;animation:widget-stethoscope-ring 1.12s ease-out infinite}
-.educator-companion.is-listening .widget-heartbeat{opacity:1}
-.educator-companion.is-listening .widget-heartbeat polyline{animation:widget-heart-line 1.12s linear infinite}
-.widget-dna{left:14%;right:5%;top:6%;height:26%;filter:drop-shadow(0 0 4px #22d3ee)}
-.widget-dna i{position:absolute;top:50%;left:calc(8% + var(--i,0) * 16%);width:2px;height:34%;background:linear-gradient(#67e8f9,#5fffb8);transform:translateY(-50%) rotate(32deg)}
-.widget-dna i:nth-child(1){--i:0;height:14%;top:34%}.widget-dna i:nth-child(2){--i:1;height:28%;top:42%}.widget-dna i:nth-child(3){--i:2;height:38%;top:50%}.widget-dna i:nth-child(4){--i:3;height:38%;top:50%}.widget-dna i:nth-child(5){--i:4;height:28%;top:58%}.widget-dna i:nth-child(6){--i:5;height:14%;top:66%}
-.widget-dna::before,.widget-dna::after{content:"";position:absolute;left:4%;right:2%;top:48%;height:2px;border-radius:50%;background:linear-gradient(90deg,#67e8f9,#5fffb8,#67e8f9);transform:rotate(12deg);box-shadow:0 0 6px #22d3ee}
-.widget-dna::after{transform:rotate(-12deg)}
-.widget-dna b{position:absolute;right:0;bottom:0;color:#c6fbff;font-size:7px;letter-spacing:.12em}
-.educator-companion.is-thinking .widget-dna{opacity:1;animation:widget-dna-float 2.8s ease-in-out infinite}
-.widget-complete{inset:0;display:grid;place-content:center;justify-items:center;color:#86efac}
-.widget-complete i{position:absolute;left:50%;top:50%;width:30px;height:30px;border:1px solid #4ade80;border-radius:50%;transform:translate(-50%,-50%)}
-.widget-complete strong{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(6,95,70,.8);border:1px solid #4ade80;font-size:18px;box-shadow:0 0 14px rgba(74,222,128,.8)}
-.widget-complete b{margin-top:5px;padding:2px 5px;border-radius:999px;background:rgba(4,27,65,.76);font-size:6px;text-transform:uppercase;letter-spacing:.06em}
-.educator-companion.is-complete .widget-complete{opacity:1;animation:widget-complete-enter 1.7s ease-out both}
-.educator-companion.is-complete .widget-complete i{animation:widget-complete-ripple 1.4s ease-out 2}
-.educator-companion.is-offline .educator-companion-visual{background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(2,6,23,.82));box-shadow:inset 0 0 0 1px rgba(100,116,139,.24)}
-.educator-companion.is-offline .educator-companion-image{filter:saturate(.38) brightness(.62)}
-.widget-rest{inset:0}
-.widget-rest i{position:absolute;width:14px;height:14px;border:1px solid rgba(125,211,252,.7);border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.5),rgba(56,189,248,.2),transparent 72%);animation:widget-rest-float 4s ease-in-out infinite}
-.widget-rest i:nth-child(1){left:12%;top:25%}.widget-rest i:nth-child(2){right:9%;top:15%;width:20px;height:20px;animation-delay:-1.3s}.widget-rest i:nth-child(3){right:22%;top:42%;width:10px;height:10px;animation-delay:-2.4s}
-.widget-rest b{position:absolute;left:7%;top:8%;color:#7dd3fc;font-size:6px;letter-spacing:.12em;text-transform:uppercase}
-.educator-companion.is-offline .widget-rest{opacity:1}
-@keyframes widget-heart-line{0%{stroke-dashoffset:130;opacity:.2}25%{opacity:1}100%{stroke-dashoffset:0;opacity:.18}}
-@keyframes widget-stethoscope-ring{0%{transform:scale(.5);opacity:1}100%{transform:scale(2.6);opacity:0}}
-@keyframes widget-dna-float{0%,100%{transform:translateY(0) rotateY(-10deg)}50%{transform:translateY(-3px) rotateY(10deg)}}
-@keyframes widget-complete-enter{0%{transform:scale(.55);opacity:0}28%{transform:scale(1.08);opacity:1}82%{opacity:1}100%{opacity:0}}
-@keyframes widget-complete-ripple{0%{transform:translate(-50%,-50%) scale(.6);opacity:1}100%{transform:translate(-50%,-50%) scale(3.6);opacity:0}}
-@keyframes widget-rest-float{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-10px);opacity:.88}}
+/* Complete indicator — simple fade, no bounce */
+.widget-complete{
+  position:absolute;
+  z-index:6;
+  inset:0;
+  display:grid;
+  place-content:center;
+  justify-items:center;
+  color:#86efac;
+  opacity:0;
+  pointer-events:none;
+}
+.widget-complete strong{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:rgba(6,95,70,.75);
+  border:1px solid rgba(74,222,128,.7);
+  font-size:16px;
+}
+.widget-complete b{
+  margin-top:5px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(4,27,65,.76);
+  font-size:6px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.educator-companion.is-complete .widget-complete{
+  opacity:1;
+  animation:widget-complete-fade 1.6s ease-out both;
+}
+
+/* Standby indicator — subtle, static */
+.widget-rest{
+  position:absolute;
+  z-index:6;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  display:grid;
+  place-content:center;
+}
+.widget-rest b{
+  color:#7dd3fc;
+  font-size:6px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.educator-companion.is-offline .widget-rest{opacity:.7}
+
+@keyframes educator-attention{
+  0%{opacity:0}
+  20%{opacity:1}
+  80%{opacity:.5}
+  100%{opacity:0}
+}
+@keyframes widget-complete-fade{
+  0%{opacity:0}
+  20%{opacity:1}
+  80%{opacity:1}
+  100%{opacity:0}
+}
 
 @media(max-width:640px){
   .ai-companion-container{right:10px;bottom:76px;width:92px;height:195px}
   .ai-companion-container.is-minimized{width:48px;height:101px}
 }
 @media(prefers-reduced-motion:reduce){
-  .ai-companion-container,.educator-companion-image,.educator-feature-light{transition:none}
-  .educator-companion-scanline,.educator-companion-attention,.educator-feature-light,.educator-companion-image,.educator-companion-glow,.educator-companion-echo,.educator-companion-distortion,.ai-companion-waveform span{animation:none}
-  .educator-companion-echo,.educator-companion-distortion{display:none}
-  .ai-companion-waveform{backdrop-filter:none}
-  .widget-stethoscope-pulse,.widget-heartbeat polyline,.widget-dna,.widget-complete,.widget-complete i,.widget-rest i{animation:none!important}
+  .ai-companion-container,.educator-companion-image,.educator-companion-visual{
+    transition:none;
+  }
+  .educator-companion-attention,.widget-complete{
+    animation:none!important;
+  }
 }
