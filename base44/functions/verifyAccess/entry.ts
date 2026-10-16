@@ -9,28 +9,42 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Verify a supplied PIN against the stored hash. Supports the current
-// salted PBKDF2 format and the legacy unsalted sha256: format for accounts
-// that have not yet rotated to a new PIN.
+// Verify a supplied PIN against the stored hash. Only the current salted
+// PBKDF2 format is accepted, with a minimum work factor of 100,000
+// iterations. Legacy unsalted sha256: hashes are rejected so that any
+// leaked hash in that format cannot be replayed to sign in.
+const MIN_PBKDF2_ITERATIONS = 100000;
+
 async function verifyPin(suppliedPin, storedPin) {
   const stored = String(storedPin || "").trim();
+  if (!stored.startsWith("pbkdf2:")) return false;
+  const parts = stored.split(":");
+  if (parts.length !== 4) return false;
+  const iterations = parseInt(parts[1], 10);
+  if (!Number.isFinite(iterations) || iterations < MIN_PBKDF2_ITERATIONS) return false;
+  const salt = new Uint8Array(parts[2].match(/.{2}/g).map((b) => parseInt(b, 16)));
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(String(suppliedPin)), { name: "PBKDF2" }, false, ["deriveBits"],
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256,
+  );
+  const actual = Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
+  return actual === parts[3];
+}
+
+// Detect accounts still on a legacy hash format (unsalted sha256: or
+// PBKDF2 below the minimum work factor) so they can be flagged for a
+// forced PIN rotation.
+function isLegacyPin(storedPin) {
+  const stored = String(storedPin || "").trim();
+  if (/^sha256:[a-f0-9]{64}$/.test(stored)) return true;
   if (stored.startsWith("pbkdf2:")) {
     const parts = stored.split(":");
-    if (parts.length !== 4) return false;
-    const iterations = parseInt(parts[1], 10);
-    if (!Number.isFinite(iterations) || iterations < 1) return false;
-    const salt = new Uint8Array(parts[2].match(/.{2}/g).map((b) => parseInt(b, 16)));
-    const keyMaterial = await crypto.subtle.importKey(
-      "raw", new TextEncoder().encode(String(suppliedPin)), { name: "PBKDF2" }, false, ["deriveBits"],
-    );
-    const bits = await crypto.subtle.deriveBits(
-      { name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256,
-    );
-    const actual = Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
-    return actual === parts[3];
-  }
-  if (/^sha256:[a-f0-9]{64}$/.test(stored)) {
-    return stored === `sha256:${await sha256(suppliedPin)}`;
+    if (parts.length === 4) {
+      const iterations = parseInt(parts[1], 10);
+      if (Number.isFinite(iterations) && iterations < MIN_PBKDF2_ITERATIONS) return true;
+    }
   }
   return false;
 }
@@ -229,8 +243,21 @@ export default async function(req) {
     const candidates = await base44.asServiceRole.entities.AppUser.filter(query);
 
     const matches = [];
+    let legacyFound = false;
     for (const candidate of candidates || []) {
       const storedPin = String(candidate.pin || "").trim();
+      if (isLegacyPin(storedPin)) {
+        legacyFound = true;
+        // Flag legacy accounts for a forced PIN rotation. The legacy hash
+        // is no longer accepted for verification, so the user must have
+        // an administrator reset their PIN to sign in again.
+        if (!candidate.first_login) {
+          try {
+            await base44.asServiceRole.entities.AppUser.update(candidate.id, { first_login: true });
+          } catch {}
+        }
+        continue;
+      }
       if (await verifyPin(suppliedPin, storedPin)) matches.push(candidate);
     }
 
@@ -242,11 +269,16 @@ export default async function(req) {
           event: "login_failed",
           method: qr ? "qr" : "pin",
           success: false,
-          detail: "No matching active account found.",
+          detail: legacyFound ? "Legacy PIN hash requires administrator reset." : "No matching active account found.",
           occurred_at: new Date().toISOString(),
         });
       } catch {}
-      return Response.json({ granted: false, reason: "No matching account found." });
+      return Response.json({
+        granted: false,
+        reason: legacyFound
+          ? "Your PIN must be reset by an administrator. Please contact your tutor or administrator."
+          : "No matching account found.",
+      });
     }
     if (matches.length > 1 && !normalizedUsername) {
       return Response.json({ granted: false, reason: "That PIN is shared by several accounts — enter your username too." });

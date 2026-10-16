@@ -45,11 +45,19 @@ export function generateRandomPin() {
 export async function hashPinIfPresent(data) {
   if (!Object.prototype.hasOwnProperty.call(data, "pin")) return data;
   const pin = String(data.pin || "");
-  if (!/^\d{4,6}$/.test(pin) && !/^sha256:[a-f0-9]{64}$/.test(pin) && !/^pbkdf2:\d+:[a-f0-9]{32}:[a-f0-9]{64}$/.test(pin)) {
-    throw new Error("PIN must contain 4 to 6 digits.");
+  // Only accept fresh plaintext PINs (re-hashed with salted PBKDF2) or
+  // pre-hashed pbkdf2 values that meet the minimum work factor. Legacy
+  // unsalted sha256: hashes are never persisted.
+  if (/^\d{4,6}$/.test(pin)) {
+    return { ...data, pin: await hashPinPbkdf2(pin) };
   }
-  const hashed = pin.startsWith("sha256:") || pin.startsWith("pbkdf2:") ? pin : await hashPinPbkdf2(pin);
-  return { ...data, pin: hashed };
+  if (/^pbkdf2:(\d+):[a-f0-9]{32}:[a-f0-9]{64}$/.test(pin)) {
+    const iterations = parseInt(pin.split(":")[1], 10);
+    if (Number.isFinite(iterations) && iterations >= PBKDF2_ITERATIONS) {
+      return { ...data, pin };
+    }
+  }
+  throw new Error("PIN must contain 4 to 6 digits.");
 }
 
 // ---- Role checks ----
