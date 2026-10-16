@@ -21,6 +21,8 @@
         "account_created",
         "account_updated",
         "account_deleted",
+        "qr_issued",
+        "qr_revoked",
         "voice_recovery",
         "qr_login"
       ]
