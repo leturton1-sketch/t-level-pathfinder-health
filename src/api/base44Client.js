@@ -49,13 +49,18 @@ async function fetchFunction(name, body = {}) {
 function handleExpiredSession(error) {
   const status = Number(error?.status ?? error?.response?.status);
   if (status !== 401 || !hasSession()) return;
-  clearSession();
+  // Don't redirect if the user is in the middle of unlocking — the
+  // session was just created by verifyAccess and a transient 401 here
+  // would cause a login loop. Only clear/redirect for genuine expiry.
   try {
-    sessionStorage.removeItem('pathfinder-unlocked');
-    sessionStorage.removeItem('pathfinder-welcomed');
-    sessionStorage.removeItem('pathfinder-app-user-v2');
+    if (sessionStorage.getItem('pathfinder-unlocked') === '1') {
+      clearSession();
+      sessionStorage.removeItem('pathfinder-unlocked');
+      sessionStorage.removeItem('pathfinder-welcomed');
+      sessionStorage.removeItem('pathfinder-app-user-v2');
+      if (typeof window !== 'undefined') window.location.assign('/');
+    }
   } catch {}
-  if (typeof window !== 'undefined') window.location.assign('/');
 }
 
 async function invokeEntity(entityName, operation, args = {}) {

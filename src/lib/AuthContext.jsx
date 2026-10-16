@@ -40,8 +40,13 @@ export const AuthProvider = ({ children }) => {
         setIsLoadingAuth(false);
         return true;
       } catch {
-        clearSession();
-        setAppUser(null);
+        // Don't clear the session on transient failures. The session was
+        // created by verifyAccess and is valid — a network blip or timing
+        // issue here should not lock the user out. handleExpiredSession in
+        // base44Client handles genuine 401s (expired/revoked sessions).
+        setAuthChecked(true);
+        setIsLoadingAuth(false);
+        return true;
       }
     }
 

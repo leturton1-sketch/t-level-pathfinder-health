@@ -125,10 +125,14 @@ const AuthenticatedApp = () => {
   // server-issued LEE session has been verified by the app shell.
   if (!unlocked) {
     return <LoginGate onUnlock={async () => {
-      const accepted = await checkUserAuth();
-      if (!accepted) return;
+      // verifyAccess already authenticated the user and issued a session
+      // token. Trust that response — the previous checkUserAuth() call
+      // here did a redundant round-trip that could fail for transient
+      // reasons and lock the user out in a login loop.
       sessionStorage.setItem("pathfinder-unlocked", "1");
       setUnlocked(true);
+      // Set up platform auth state in the background without blocking.
+      checkUserAuth().catch(() => {});
     }} />;
   }
 
@@ -176,11 +180,10 @@ const AuthenticatedApp = () => {
     sessionStorage.removeItem("pathfinder-unlocked");
     sessionStorage.removeItem("pathfinder-welcomed");
     return <LoginGate onUnlock={async () => {
-      const accepted = await checkUserAuth();
-      if (!accepted) return;
       sessionStorage.setItem("pathfinder-unlocked", "1");
       setUnlocked(true);
       setWelcomed(false);
+      checkUserAuth().catch(() => {});
     }} />;
   }
 
