@@ -363,9 +363,18 @@ Set attention_cue to "advice" for important guidance, "suggestion" for a useful 
           ? `I have a suggestion for you. ${reply}`
           : reply;
       await speak(spokenReply);
-    } catch {
+    } catch (err) {
       if (requestId !== requestIdRef.current) return;
-      setMessages((prev) => [...prev, { role: "assistant", content: "I apologise — I'm having trouble connecting right now. Please try again." }]);
+      const status = Number(err?.status ?? err?.response?.status);
+      const reason = err?.data?.error || err?.data?.reason || err?.message || "Unknown error";
+      const detail = status === 401
+        ? "Your session has expired. Please sign in again."
+        : status === 429
+          ? "AI request limit reached. Please try again later."
+          : status === 413
+            ? "The message is too large. Try shortening it."
+            : `I apologise — I'm having trouble connecting right now. (${status || "network"}: ${reason})`;
+      setMessages((prev) => [...prev, { role: "assistant", content: detail }]);
       setState("offline");
       if (listeningRef.current) { try { recognitionRef.current?.start(); } catch {} }
     }
