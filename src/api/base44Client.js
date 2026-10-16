@@ -3,6 +3,7 @@ import { appParams } from '@/lib/app-params';
 import {
   clearSession,
   hasSession,
+  getSessionToken,
 } from '@/lib/authSession';
 
 const { appId, token, functionsVersion, appBaseUrl } = appParams;
@@ -23,11 +24,15 @@ async function fetchFunction(name, body = {}) {
   const headers = { "Content-Type": "application/json", "Accept": "application/json" };
   if (appParams.token) headers["Authorization"] = `Bearer ${appParams.token}`;
   if (typeof window !== "undefined" && window.location) headers["X-Origin-URL"] = window.location.href;
+  const sessionToken = getSessionToken();
+  const payload = sessionToken && !body.pathfinder_session_token
+    ? { ...body, pathfinder_session_token: sessionToken }
+    : body;
   const res = await fetch(`/apps/${appParams.appId}/functions/${name}`, {
     method: 'POST',
     headers,
     credentials: 'include',
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
   let data;
   try { data = await res.json(); } catch { data = null; }

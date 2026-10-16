@@ -102,6 +102,7 @@ async function grantUser(base44, u, method) {
 
   return Response.json({
     granted: true,
+    session_token: session.token,
     user: {
       id: u.id,
       username: u.username,

@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { setAppUser } from "@/lib/clinicalAuth";
+import { setSessionToken } from "@/lib/authSession";
 import { decodeQrImage } from "@/lib/qrScanner";
 import TLevelLogo from "@/components/TLevelLogo";
 import "./LoginGate.css";
@@ -52,7 +53,7 @@ export default function LoginGate({ onUnlock }) {
       const data = res?.data ?? res;
       if (!mountedRef.current) return;
       setScanMessage(data?.granted ? "Access granted." : data?.reason || "Code not recognised. Try again or use PIN sign-in.");
-      if (data?.granted) grant(data.user, payload?.qr ? "qr" : "pin");
+      if (data?.granted) { setSessionToken(data.session_token); grant(data.user, payload?.qr ? "qr" : "pin"); }
       else deny(data?.reason);
     } catch (e) {
       if (mountedRef.current) deny(e?.response?.data?.reason || "Unable to verify. Please try again.");
