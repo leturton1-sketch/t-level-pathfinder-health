@@ -13,6 +13,11 @@ import {
 export default async function(req) {
   if (req.method !== "POST") return json({ error: "Method not allowed." }, 405);
 
+  const contentLength = Number(req.headers.get("content-length") || 0);
+  if (Number.isFinite(contentLength) && contentLength > 50000) {
+    return json({ error: "The request is too large." }, 413);
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const base44 = createClientFromRequest(req);

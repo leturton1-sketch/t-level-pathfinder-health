@@ -171,6 +171,10 @@ export default async function(req) {
   if (req.method !== "POST") {
     return Response.json({ granted: false, reason: "Method not allowed." }, { status: 405 });
   }
+  const contentLength = Number(req.headers.get("content-length") || 0);
+  if (Number.isFinite(contentLength) && contentLength > 10000) {
+    return Response.json({ granted: false, reason: "The request is too large." }, { status: 413 });
+  }
   try {
     const body = await req.json().catch(() => ({}));
     let { username, pin, qr } = body || {};
@@ -262,6 +266,17 @@ export default async function(req) {
     }
 
     if (matches.length === 0) {
+      // Equalize timing: perform a dummy PBKDF2 derivation so the response
+      // time doesn't reveal whether the username exists (the real
+      // derivation only runs when a candidate is found).
+      try {
+        const keyMaterial = await crypto.subtle.importKey(
+          "raw", new TextEncoder().encode(suppliedPin), { name: "PBKDF2" }, false, ["deriveBits"],
+        );
+        await crypto.subtle.deriveBits(
+          { name: "PBKDF2", salt: new Uint8Array(16), iterations: 100000, hash: "SHA-256" }, keyMaterial, 256,
+        );
+      } catch {}
       try {
         await base44.asServiceRole.entities.AuthAudit.create({
           username: normalizedUsername || null,

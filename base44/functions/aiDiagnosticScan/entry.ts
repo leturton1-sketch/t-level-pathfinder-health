@@ -48,11 +48,12 @@ export default async function(req) {
 
     const invokeArgs = { prompt };
     if (body?.response_json_schema && typeof body.response_json_schema === 'object') {
-      if (JSON.stringify(body.response_json_schema).length > 40000) {
+      const schema = body.response_json_schema;
+      if (Array.isArray(schema) || schema.type !== 'object' || JSON.stringify(schema).length > 40000) {
         await finishAiUsage(base44, usage, 'failed');
-        return Response.json({ error: 'The response schema is too large.' }, { status: 413 });
+        return Response.json({ error: 'Invalid response schema.' }, { status: 400 });
       }
-      invokeArgs.response_json_schema = body.response_json_schema;
+      invokeArgs.response_json_schema = schema;
     }
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM(invokeArgs);

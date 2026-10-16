@@ -22,6 +22,10 @@ async function authenticatedUser(base44, sessionToken) {
 
 export default async function(req) {
   if (req.method !== "POST") return Response.json({ error: "Method not allowed." }, { status: 405 });
+  const contentLength = Number(req.headers.get("content-length") || 0);
+  if (Number.isFinite(contentLength) && contentLength > 10000) {
+    return Response.json({ error: "The request is too large." }, { status: 413 });
+  }
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
