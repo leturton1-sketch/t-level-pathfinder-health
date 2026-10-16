@@ -8,6 +8,7 @@ export default function TalentCardPage() {
   const user = getCurrentUser();
   const [card, setCard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -31,12 +32,13 @@ export default function TalentCardPage() {
           });
           setCard(created);
         }
-      } catch {}
+      } catch (e) { setLoadError("Could not load your Talent Card. Please try again later."); }
       finally { setLoading(false); }
     })();
   }, [user?.id]);
 
   if (loading) return <div className="clinical-page-shell">Loading Talent Card…</div>;
+  if (loadError) return <div className="clinical-page-shell"><h1 className="text-xl font-black">Talent Card</h1><p className="mt-2 text-sm text-clinical-red">{loadError}</p></div>;
   if (!card) return <div className="clinical-page-shell"><h1 className="text-xl font-black">Talent Card</h1><p className="mt-2 text-sm text-muted-foreground">No Talent Card has been issued for this account yet.</p></div>;
 
   return <div className="clinical-page-shell clinical-page-shell--narrow min-h-screen bg-background">

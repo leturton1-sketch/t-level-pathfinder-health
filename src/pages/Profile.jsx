@@ -11,6 +11,7 @@ export default function Profile() {
   const [results, setResults] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [modulesComplete, setModulesComplete] = useState(0);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     if (!isLoggedIn()) { navigate("/login"); return; }
@@ -18,8 +19,8 @@ export default function Profile() {
   }, [navigate]);
 
   const loadData = async () => {
-    try { const r = await base44.entities.SimulationResult.filter({ student_id: user.id }); setResults(r); } catch {}
-    try { const s = await base44.entities.CarePlanSubmission.filter({ student_id: user.id }); setSubmissions(s); } catch {}
+    try { const r = await base44.entities.SimulationResult.filter({ student_id: user.id }); setResults(r); } catch (e) { setLoadError("Could not load your simulation results. Please try again later."); }
+    try { const s = await base44.entities.CarePlanSubmission.filter({ student_id: user.id }); setSubmissions(s); } catch (e) { setLoadError("Could not load your care plan submissions. Please try again later."); }
     const progress = JSON.parse(localStorage.getItem("theory_progress") || "{}");
     setModulesComplete(Object.values(progress).filter(Boolean).length);
   };
@@ -62,6 +63,8 @@ export default function Profile() {
           <LogOut className="w-4 h-4" />
         </button>
       </div>
+
+      {loadError && <div className="mb-4 rounded-xl border border-clinical-amber/30 bg-clinical-amber/5 p-3 text-xs text-clinical-amber">{loadError}</div>}
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3 mb-6">

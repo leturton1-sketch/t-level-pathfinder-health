@@ -13,11 +13,13 @@ export default function SystemHealth() {
   const [running, setRunning] = useState(false);
   const [secRunning, setSecRunning] = useState(false);
 
+  const [loadError, setLoadError] = useState("");
+
   useEffect(() => {
     if (!isAdmin()) return;
     (async () => {
-      try { setAudit((await base44.entities.AuthAudit.list("-occurred_at", 30)) || []); } catch {}
-      try { setAppUsers((await base44.entities.AppUser.list()) || []); } catch {}
+      try { setAudit((await base44.entities.AuthAudit.list("-occurred_at", 30)) || []); } catch { setLoadError("Could not load audit log."); }
+      try { setAppUsers((await base44.entities.AppUser.list()) || []); } catch { setLoadError("Could not load user accounts."); }
     })();
   }, []);
 
@@ -62,6 +64,7 @@ export default function SystemHealth() {
       </div>
     </div>
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{cards.map(([label,value,Icon,tone]) => <article key={label} className="rounded-2xl border bg-card p-4"><Icon className={`h-5 w-5 ${tone}`} /><p className="mt-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{label}</p><p className="mt-1 text-xl font-black">{value}</p></article>)}</div>
+    {loadError && <div className="mt-3 rounded-xl border border-clinical-amber/30 bg-clinical-amber/5 p-3 text-xs text-clinical-amber">{loadError}</div>}
     {report && <section className="mt-5 rounded-2xl border bg-card p-5"><h2 className="font-black">Diagnostic result · {report.overall_health}</h2><p className="mt-2 text-sm text-muted-foreground">{report.summary}</p>{report.issues?.map((i,idx)=><div key={idx} className="mt-3 rounded-xl border p-3"><div className="flex justify-between"><strong>{i.title}</strong><span className="text-xs uppercase">{i.severity}</span></div><p className="mt-1 text-xs text-muted-foreground">{i.likely_cause}</p><p className="mt-2 text-sm">{i.recommended_fix}</p></div>)}</section>}
     {secReport && <section className="mt-5 rounded-2xl border bg-card p-5"><h2 className="font-black flex items-center gap-2">Security review · <span className={secRiskTone}>{(secReport.overall_risk || "review").toUpperCase()}</span></h2><p className="mt-2 text-sm text-muted-foreground">{secReport.summary}</p>{secReport.error && <p className="mt-2 text-xs text-rose-600">{secReport.error}</p>}{secReport.issues?.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{["critical","high","medium","low","info"].map((sev)=>{const c=secReport.issues.filter((i)=>i.severity===sev).length;return c? <span key={sev} className="rounded-full border px-2.5 py-0.5 text-xs font-bold capitalize">{sev} · {c}</span>:null})}</div>}{secReport.issues?.map((i,idx)=><div key={idx} className="mt-3 rounded-xl border p-3"><div className="flex flex-wrap items-center justify-between gap-2"><strong>{i.title}</strong><span className="text-xs font-bold uppercase">{i.severity} · {i.category}</span></div>{i.affected_resource && <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{i.affected_resource}</p>}<p className="mt-1 text-xs text-muted-foreground">{i.description}</p><p className="mt-2 text-sm">{i.recommendation}</p>{i.source_fix && <pre className="mt-2 overflow-x-auto rounded-lg border bg-slate-50 p-2 text-[10px] leading-snug whitespace-pre">{`// ${i.source_fix.file}\n// ${i.source_fix.explanation}\n// FIND:\n${i.source_fix.find}\n// REPLACE WITH:\n${i.source_fix.replace}`}</pre>}</div>)}</section>}
     <section className="mt-5 rounded-2xl border bg-card p-5"><h2 className="font-black">Recent authentication events</h2><div className="mt-3 space-y-2">{audit.slice(0,15).map((a)=><div key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border px-3 py-2 text-xs"><span><strong>{a.username || "Unknown"}</strong> · {String(a.event).replaceAll("_"," ")}</span><span className={a.success ? "text-emerald-700" : "text-rose-700"}>{a.success ? "Success" : "Failed"} · {a.occurred_at ? new Date(a.occurred_at).toLocaleString("en-GB") : ""}</span></div>)}</div></section>
