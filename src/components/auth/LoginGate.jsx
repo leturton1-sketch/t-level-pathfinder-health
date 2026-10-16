@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, GraduationCap, Users, HeartPulse, ShieldCheck, ChartNoAxesColumnIncreasing } from "lucide-react";
+import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, GraduationCap, Users, HeartPulse, ShieldCheck, ChartNoAxesColumnIncreasing, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { setAppUser } from "@/lib/clinicalAuth";
-import { setSessionToken } from "@/lib/authSession";
+import { setSessionToken, clearSession } from "@/lib/authSession";
 import { decodeQrImage } from "@/lib/qrScanner";
 import TLevelLogo from "@/components/TLevelLogo";
 import "./LoginGate.css";
@@ -16,6 +16,7 @@ export default function LoginGate({ onUnlock }) {
   const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPin, setShowPin] = useState(false);
   const [scanning, setScanning] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -39,9 +40,32 @@ export default function LoginGate({ onUnlock }) {
     onUnlock?.();
   };
 
-  const deny = (reason) => {
-    toast({ title: "Access denied", description: reason || "Please check your credentials.", variant: "destructive" });
-    announce("Access denied. Please check your credentials and try again.");
+  const deny = (reason, isNetwork = false) => {
+    // Sanitize stale session state so the client isn't left broken
+    // after a failed login attempt.
+    clearSession();
+    try {
+      sessionStorage.removeItem("pathfinder-unlocked");
+      sessionStorage.removeItem("pathfinder-welcomed");
+      sessionStorage.removeItem("pathfinder-app-user-v2");
+    } catch {}
+    const message = isNetwork
+      ? "Unable to connect. Please check your internet connection and try again."
+      : reason || "No matching account found. Check your username and PIN.";
+    toast({ title: "Access denied", description: message, variant: "destructive" });
+    announce(`Access denied. ${message}`);
+  };
+
+  const emergencyReset = () => {
+    clearSession();
+    try {
+      sessionStorage.removeItem("pathfinder-unlocked");
+      sessionStorage.removeItem("pathfinder-welcomed");
+      sessionStorage.removeItem("pathfinder-app-user-v2");
+      localStorage.removeItem("pathfinder-app-user-v2");
+      Object.keys(sessionStorage).forEach(k => { if (k.startsWith("pathfinder-")) sessionStorage.removeItem(k); });
+    } catch {}
+    window.location.reload();
   };
 
   const submit = async (payload) => {
@@ -56,7 +80,10 @@ export default function LoginGate({ onUnlock }) {
       if (data?.granted) { setSessionToken(data.session_token); grant(data.user, payload?.qr ? "qr" : "pin"); }
       else deny(data?.reason);
     } catch (e) {
-      if (mountedRef.current) deny(e?.response?.data?.reason || "Unable to verify. Please try again.");
+      if (mountedRef.current) {
+        const isNetwork = !e?.status && !e?.response?.status;
+        deny(e?.data?.reason || e?.response?.data?.reason, isNetwork);
+      }
     } finally {
       busyRef.current = false;
       if (mountedRef.current) setBusy(false);
@@ -66,7 +93,7 @@ export default function LoginGate({ onUnlock }) {
   const handlePin = (e) => {
     e?.preventDefault?.();
     if (!pin.trim() || busy) return;
-    submit({ username: username.trim(), pin: pin.trim() });
+    submit({ username: username.trim().toLowerCase(), pin: pin.trim() });
   };
 
   const stopCamera = () => {
@@ -199,16 +226,20 @@ export default function LoginGate({ onUnlock }) {
             </label>
             <label>
               <span>PIN</span>
-              <input
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="PIN"
-                inputMode="numeric"
-                type="password"
-                autoComplete="current-password"
-              />
+              <div className="login-gate-pin-field">
+                <input
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.slice(0, 32))}
+                  placeholder="PIN"
+                  type={showPin ? "text" : "password"}
+                  autoComplete="current-password"
+                />
+                <button type="button" className="login-gate-pin-toggle" onClick={() => setShowPin(s => !s)} tabIndex={-1} aria-label={showPin ? "Hide PIN" : "Show PIN"}>
+                  {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </label>
-            <button type="submit" disabled={busy || !username.trim() || !/^\d{4,6}$/.test(pin.trim())} className="login-gate-unlock">
+            <button type="submit" disabled={busy || !username.trim() || !pin.trim()} className="login-gate-unlock">
               <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
             </button>
             <p className="login-gate-hint">Use your LEE username and 4–6 digit PIN. Temporary PINs must be changed after first sign-in.</p>
@@ -235,6 +266,9 @@ export default function LoginGate({ onUnlock }) {
           </div>
         )}
 
+        <button type="button" className="login-gate-emergency-reset" onClick={emergencyReset}>
+          <RotateCcw size={13} /> Emergency Login Reset
+        </button>
         <footer className="login-gate-footer">© {new Date().getFullYear()} LEE · Leading Educational Electronic Patient Record System</footer>
       </div>
     </div>

@@ -465,6 +465,57 @@
   .login-gate-header h1 { font-size: 1.08rem; }
 }
 
+.login-gate-pin-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-gate-pin-field input {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.login-gate-pin-toggle {
+  position: absolute;
+  right: .5rem;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  color: #52708f;
+  background: transparent;
+  cursor: pointer;
+  transition: color .2s, background .2s;
+}
+
+.login-gate-pin-toggle:hover {
+  color: #071d43;
+  background: rgba(25,195,235,.12);
+}
+
+.login-gate-emergency-reset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .5rem;
+  border: none;
+  color: #8399b3;
+  background: transparent;
+  font-size: .66rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color .2s, background .2s;
+}
+
+.login-gate-emergency-reset:hover {
+  color: #071d43;
+  background: rgba(25,195,235,.08);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-gate *, .login-gate *::before, .login-gate *::after { transition-duration: .01ms !important; }
 }
