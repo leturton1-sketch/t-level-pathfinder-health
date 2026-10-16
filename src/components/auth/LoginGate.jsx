@@ -220,7 +220,7 @@ export default function LoginGate({ onUnlock }) {
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. lee"
+                placeholder="e.g. username"
                 autoComplete="username"
               />
             </label>
