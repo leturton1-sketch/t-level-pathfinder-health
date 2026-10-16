@@ -142,7 +142,13 @@ export async function coreLlmChat({ messages }) {
 const ORDER = { auto: ["local", "puter", "openrouter", "core"], local: ["local"], puter: ["puter"], openrouter: ["openrouter"], core: ["core"] };
 
 export async function routeChat({ mode, prefs, messages, onStage }) {
-  const order = ORDER[mode] || ORDER.auto;
+  let order = ORDER[mode] || ORDER.auto;
+  // Skip the local provider when the app is served over HTTPS — fetching
+  // http://localhost from an HTTPS page is blocked as mixed content and
+  // surfaces as a noisy fetch_failed console error.
+  const isLocalhost = typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1", "0.0.0.0"].includes(window.location.hostname);
+  if (!isLocalhost) order = order.filter((p) => p !== "local");
   const runners = {
     local: () => localAIChat({ baseURL: prefs.localBaseURL, messages, model: prefs.localModel }),
     puter: () => puterChat({ messages, model: prefs.puterModel }),
