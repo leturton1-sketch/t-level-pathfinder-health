@@ -1,6 +1,7 @@
 import { base44 } from "@/api/base44Client";
 import { isTransientNetworkError, withExponentialBackoff } from "@/lib/networkRetry";
 import { SECURITY_ENTITIES, SECURITY_FUNCTIONS, SECURITY_RISK_AREAS, SECURITY_MANIFEST_VERSION } from "@/lib/securityManifest";
+import { matchKnownFixes } from "@/lib/knownFixes";
 
 // Diagnostic mode — collects runtime errors from the live app, asks the AI for
 // a structured remediation report, and applies safe runtime fixes. The
@@ -152,7 +153,27 @@ export async function runDiagnostic() {
     };
   }
 
-  const compact = raw
+  // Check the known-fixes library first — known patterns get instant,
+  // pre-verified source fixes without an AI round-trip.
+  const ctx = {
+    https: typeof window !== "undefined" && window.location?.protocol === "https:",
+    hostname: typeof window !== "undefined" ? window.location?.hostname || "" : "",
+    pathname: typeof window !== "undefined" ? window.location?.pathname || "" : "",
+  };
+  const { matched: knownIssues, unmatched: remaining } = matchKnownFixes(raw, ctx);
+
+  // If every error was matched by a known fix, skip the AI call entirely.
+  if (remaining.length === 0 && knownIssues.length > 0) {
+    const health = knownIssues.some((i) => i.severity === "high") ? "degraded" : "healthy";
+    return {
+      summary: `${knownIssues.length} known issue(s) detected — all matched to pre-verified fixes. No unknown errors remain.`,
+      overall_health: health,
+      issues: knownIssues,
+      rawCount: raw.length,
+    };
+  }
+
+  const compact = remaining
     .slice(-50)
     .map((e, i) => `${i + 1}. [${e.type}] ${e.message}${e.source ? " @ " + e.source : ""}`)
     .join("\n");
@@ -220,8 +241,24 @@ Be concise, British English, and aggregate duplicate errors. Prefer the most spe
     });
     const res = response?.data ?? response;
     if (res?.error) throw new Error(res.error);
-    return { ...res, rawCount: raw.length };
+    // Merge known fixes (pre-verified) with AI-diagnosed issues, deduping by title.
+    const aiIssues = res.issues || [];
+    const knownTitles = new Set(knownIssues.map((i) => i.title));
+    const merged = [...knownIssues, ...aiIssues.filter((i) => !knownTitles.has(i.title))];
+    const health = merged.some((i) => i.severity === "high") ? "degraded"
+      : merged.length > 0 ? "degraded" : "healthy";
+    return { ...res, issues: merged, overall_health: health, rawCount: raw.length };
   } catch (err) {
+    // If the AI is unreachable but known fixes matched, still return them.
+    if (knownIssues.length > 0) {
+      return {
+        summary: `${knownIssues.length} known issue(s) detected. AI scan unavailable — showing known fixes only.`,
+        overall_health: "degraded",
+        rawCount: raw.length,
+        error: err?.message || "AI service unavailable",
+        issues: knownIssues,
+      };
+    }
     return {
       summary: "Diagnostic scan could not reach the AI service. Showing raw captured errors instead.",
       overall_health: "degraded",

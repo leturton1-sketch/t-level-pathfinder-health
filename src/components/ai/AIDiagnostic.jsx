@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Stethoscope, RefreshCw, AlertTriangle, CheckCircle2, Wrench, Code2, ClipboardCopy, ChevronDown, ChevronRight, History, ShieldCheck, Bug } from "lucide-react";
+import { Stethoscope, RefreshCw, AlertTriangle, CheckCircle2, Wrench, Code2, ClipboardCopy, ChevronDown, ChevronRight, History, ShieldCheck, Bug, BadgeCheck } from "lucide-react";
 import { runDiagnostic, runSecurityScan, applyRemediation, remediationLabel, getErrors, clearErrors, getRemediationLog } from "@/lib/diagnosticService";
 
 const SEVERITY = {
@@ -205,6 +205,7 @@ export default function AIDiagnostic() {
                     {isSecurity && issue.category && <span className="text-[9px] font-bold text-slate-400">· {CATEGORY_LABEL[issue.category] || issue.category}</span>}
                     {isSecurity && <span className={`text-[9px] font-bold ${sev.color}`}>{sev.label || issue.severity}</span>}
                     {isApplied && <span className="text-[9px] font-bold text-clinical-green">✓ Fixed</span>}
+                    {issue._known_fix_id && <span className="text-[9px] font-bold text-clinical-teal flex items-center gap-0.5"><BadgeCheck className="w-2.5 h-2.5" /> Known fix</span>}
                   </div>
                   {isSecurity && issue.affected_resource && <p className="mt-0.5 text-[10px] font-semibold text-slate-500">Resource: {issue.affected_resource}</p>}
                   <p className="mt-1 text-[11px] text-slate-500"><span className="font-semibold text-slate-600">{isSecurity ? "Issue:" : "Cause:"}</span> {isSecurity ? issue.description : issue.likely_cause}</p>
