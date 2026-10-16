@@ -139,7 +139,7 @@ const sessionFunctions = new Proxy(sdkClient.functions, {
 export const base44 = new Proxy(sdkClient, {
   get(target, property, receiver) {
     if (property === 'entities' && hasSession()) return sessionEntities;
-    if (property === 'functions') return sessionFunctions;
+    if (property === 'functions' && hasSession()) return sessionFunctions;
     const value = Reflect.get(target, property, receiver);
     return typeof value === 'function' ? value.bind(target) : value;
   },
