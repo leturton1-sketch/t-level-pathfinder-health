@@ -126,13 +126,13 @@ const AuthenticatedApp = () => {
   if (!unlocked) {
     return <LoginGate onUnlock={async () => {
       // verifyAccess already authenticated the user and issued a session
-      // token. Trust that response — the previous checkUserAuth() call
-      // here did a redundant round-trip that could fail for transient
-      // reasons and lock the user out in a login loop.
+      // token. Trust that response — do NOT call checkUserAuth() here.
+      // That redundant appData round-trip can hit a transient 401, which
+      // handleExpiredSession treats as expiry, clearing the session and
+      // redirecting to "/" — a login loop. checkUserAuth() runs naturally
+      // on the next full page load via checkAppState().
       sessionStorage.setItem("pathfinder-unlocked", "1");
       setUnlocked(true);
-      // Set up platform auth state in the background without blocking.
-      checkUserAuth().catch(() => {});
     }} />;
   }
 
@@ -183,7 +183,6 @@ const AuthenticatedApp = () => {
       sessionStorage.setItem("pathfinder-unlocked", "1");
       setUnlocked(true);
       setWelcomed(false);
-      checkUserAuth().catch(() => {});
     }} />;
   }
 
