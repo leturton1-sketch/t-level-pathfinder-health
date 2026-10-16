@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { hashPinPbkdf2 } from '../../shared/userAuth.ts';
 
 // Public identification verifier. Cross-references a username and PIN or a
 // secure, revocable QR credential against the AppUser management list using
@@ -31,6 +32,18 @@ async function verifyPin(suppliedPin, storedPin) {
   );
   const actual = Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, "0")).join("");
   return actual === parts[3];
+}
+
+// Migration bridge: verify against the legacy unsalted SHA-256 format.
+// If the supplied PIN matches, the caller is legitimate and the stored
+// hash is upgraded to salted PBKDF2 on this sign-in. This lets existing
+// users keep their current PINs while the hash format is transparently
+// secured, instead of locking everyone out.
+async function verifyLegacySha256(suppliedPin, storedPin) {
+  const match = /^sha256:([a-f0-9]{64})$/.exec(String(storedPin || "").trim());
+  if (!match) return false;
+  const digest = await sha256(String(suppliedPin));
+  return digest === match[1];
 }
 
 // Detect accounts still on a legacy hash format (unsalted sha256: or
@@ -251,10 +264,19 @@ export default async function(req) {
     for (const candidate of candidates || []) {
       const storedPin = String(candidate.pin || "").trim();
       if (isLegacyPin(storedPin)) {
+        // Migration bridge: verify against the legacy SHA-256 format. If
+        // the PIN matches, upgrade the stored hash to salted PBKDF2 so
+        // the account is secured on this sign-in. If it doesn't match,
+        // flag the account for a forced PIN rotation as before.
+        if (await verifyLegacySha256(suppliedPin, storedPin)) {
+          try {
+            const upgradedHash = await hashPinPbkdf2(suppliedPin);
+            await base44.asServiceRole.entities.AppUser.update(candidate.id, { pin: upgradedHash });
+          } catch {}
+          matches.push(candidate);
+          continue;
+        }
         legacyFound = true;
-        // Flag legacy accounts for a forced PIN rotation. The legacy hash
-        // is no longer accepted for verification, so the user must have
-        // an administrator reset their PIN to sign in again.
         if (!candidate.first_login) {
           try {
             await base44.asServiceRole.entities.AppUser.update(candidate.id, { first_login: true });
