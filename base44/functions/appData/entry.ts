@@ -45,11 +45,9 @@ function constrainStudentWrite(entityName, operation, data) {
   if (!protectedFields) return data;
 
   const safe = { ...data };
-  // SimulationResult grading fields are accepted only on initial creation as
-  // immutable formative telemetry. Subsequent learner edits are prohibited.
-  if (!(entityName === "SimulationResult" && operation === "create")) {
-    for (const field of protectedFields) delete safe[field];
-  }
+  // Grading fields are always staff-controlled — learners can never set
+  // scores, decision paths or performance outcomes, even on initial creation.
+  for (const field of protectedFields) delete safe[field];
 
   if (entityName === "CarePlanSubmission" && safe.status === "reviewed") delete safe.status;
   if (entityName === "ESPPortfolio" && safe.status === "reviewed") delete safe.status;

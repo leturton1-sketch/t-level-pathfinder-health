@@ -102,6 +102,8 @@ export default async function(req) {
           : new Set(["guest", "student"]);
       if (!allowedRoles.has(data.role || "student")) return json({ error: "Role not permitted." }, 403);
       data = Object.fromEntries(Object.entries(data).filter(([key]) => APP_USER_FIELDS.has(key)));
+      // Only super_admin can grant or revoke account protection.
+      if (user.role !== "super_admin") delete data.is_protected;
       // Never persist a guessable PIN. When no PIN (or the legacy "0000") is
       // supplied, issue a random one and flag the account for a forced change
       // at first sign-in. The plaintext is returned once so staff can share it.
@@ -143,6 +145,8 @@ export default async function(req) {
         if (!permitted.includes(data.role)) return json({ error: "Role not permitted." }, 403);
       }
       data = Object.fromEntries(Object.entries(data).filter(([key]) => APP_USER_FIELDS.has(key)));
+      // Only super_admin can grant or revoke account protection.
+      if (user.role !== "super_admin") delete data.is_protected;
       data = await hashPinIfPresent(data);
       const updated = await entity.update(target.id, data);
       const changes = [];
