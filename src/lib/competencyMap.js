@@ -3,7 +3,7 @@ import { THEORY_MODULES } from "@/lib/theoryContent";
 import { LEARNING_MODULES } from "@/lib/learningData";
 
 /**
- * Unified SK/PO competency map across every learning context in LEE.
+ * Unified SK/PO competency map across every learning context in T-SIM Health.
  *
  * Aggregates skill-code and performance-outcome coverage from:
  *  - Theory modules (browser-saved completion)

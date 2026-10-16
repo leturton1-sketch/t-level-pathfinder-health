@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
           args: { id: storedUser.id },
         });
         if (!verifiedUser?.id || verifiedUser.active === false) {
-          throw new Error('LEE session is no longer valid.');
+          throw new Error('T-SIM Health session is no longer valid.');
         }
         setAppUser(verifiedUser, storedUser.auth_method || 'pin');
         setUser(verifiedUser);
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
           return true;
         }
       } catch {
-        // The custom LEE login remains available when a platform token
+        // The custom T-SIM Health login remains available when a platform token
         // is missing, expired or not accepted by the published environment.
       }
     }
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setAuthError({
         type: 'unknown',
-        message: error?.message || 'Unable to initialise LEE.',
+        message: error?.message || 'Unable to initialise T-SIM Health.',
       });
     } finally {
       setIsLoadingPublicSettings(false);

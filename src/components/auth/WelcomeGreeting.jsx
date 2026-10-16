@@ -21,7 +21,7 @@ const HELP_POINTS = [
 
 /**
  * WelcomeGreeting — shown once per session immediately after sign-in.
- * Greets the user by name and role, introduces LEE, and auto-plays a
+ * Greets the user by name and role, introduces T-SIM Health, and auto-plays a
  * spoken welcome message. The Continue button stays disabled until the
  * message has finished playing so every user hears the orientation.
  */
@@ -32,10 +32,10 @@ export default function WelcomeGreeting({ user, onContinue }) {
   const isStaff = user?.role === "tutor" || user?.role === "admin" || user?.role === "super_admin";
 
   const purposeText = isStaff
-    ? "LEE is where students learn clinical theory, practise it in a ward simulation, and build evidence for their T Level. You can review progress, feedback and readiness from My progress."
-    : "LEE is where you learn clinical theory, practise it in a ward simulation, complete care plans, reflect, and get feedback — all building towards your T Level.";
+    ? "T-SIM Health is where students learn clinical theory, practise it in a ward simulation, and build evidence for their T Level. You can review progress, feedback and readiness from My progress."
+    : "T-SIM Health is where you learn clinical theory, practise it in a ward simulation, complete care plans, reflect, and get feedback — all building towards your T Level.";
 
-  const welcomeMessage = `Hello, ${firstName}. I'm LEE — your Clinical Educator and AI companion. Welcome to T-Sim Health: The Interactive Ward & AI Clinical Preceptor. This is your interactive clinical learning environment for your T Level in Health. ${purposeText} I'm here to help at every step. You can ask me questions, have me read pages aloud, or use voice commands. Let's get started.`;
+  const welcomeMessage = `Hello, ${firstName}. I'm T-SIM Health — your Clinical Educator and AI companion. Welcome to T-Sim Health: The Interactive Ward & AI Clinical Preceptor. This is your interactive clinical learning environment for your T Level in Health. ${purposeText} I'm here to help at every step. You can ask me questions, have me read pages aloud, or use voice commands. Let's get started.`;
 
   const [hasPlayed, setHasPlayed] = useState(false);
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
@@ -98,7 +98,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
           <div className="mb-4 flex items-start gap-3 rounded-xl border border-[#0f75d8]/20 bg-[#0f75d8]/5 p-4">
             <Sparkles size={20} className="mt-0.5 shrink-0 text-[#0f75d8]" aria-hidden="true" />
             <p className="text-sm text-[#15131a]">
-              <strong>LEE:</strong> {welcomeMessage}
+              <strong>T-SIM Health:</strong> {welcomeMessage}
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
             {isSpeaking ? (
               <>
                 <Volume2 size={16} className="animate-pulse text-[#0f75d8]" />
-                <span>LEE is speaking…</span>
+                <span>T-SIM Health is speaking…</span>
               </>
             ) : !hasPlayed ? (
               <>

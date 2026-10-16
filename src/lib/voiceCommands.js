@@ -111,7 +111,7 @@ export function listVoiceCommandExamples() {
     "\"Go to my progress\"",
     "\"Open ward simulation\"",
     "\"Show care planning\"",
-    "\"Open LEE\"",
+    "\"Open T-SIM Health\"",
     "\"Read this page\"",
     "\"Stop reading\"",
     "\"Go back\"",

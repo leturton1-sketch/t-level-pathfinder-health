@@ -76,7 +76,7 @@ export default class ErrorBoundary extends React.Component {
             <h2 className="text-lg font-heading font-bold text-foreground">This screen hit an error</h2>
             <p className="mt-1 text-sm text-muted-foreground">{this.state.message}</p>
             <p className="mt-2 text-xs text-muted-foreground">
-              The LEE assistant has logged this. Try clearing corrupted state and recovering, or reload the app.
+              The T-SIM Health assistant has logged this. Try clearing corrupted state and recovering, or reload the app.
             </p>
             <div className="mt-4 flex flex-col gap-2">
               <button

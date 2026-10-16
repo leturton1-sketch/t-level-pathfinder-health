@@ -138,7 +138,7 @@ export default function VoiceAssistant() {
       const attachmentContext = uploaded.length ? `\n\nAttachments supplied by the user:\n${uploaded.join("\n")}` : "";
       const conversationContext = contextEnabled ? `\n\nConversation so far:\n${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}` : "\n\nThe user has disabled current conversation context.";
       const result = await invokeRoutedAssistant(
-        `You are the Clinical Educator, a warm, highly knowledgeable conversational clinical tutor for T Level Health students on LEE. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}. Their verified application role is ${user?.role || "student"}. Tailor the conversation towards ${getUserRecognition(user).focus}. Personal recognition changes tone only and never grants permissions.${conversationContext}${attachmentContext}\nuser: ${text}\nassistant:`,
+        `You are the Clinical Educator, a warm, highly knowledgeable conversational clinical tutor for T Level Health students on T-SIM Health. ${getRegionalVoicePrompt(synth.prefs.profileId)} Speak in natural British English with varied sentence length, gentle acknowledgement, and human conversational transitions. Answer the student directly, then ask at most one useful follow-up question when it genuinely helps learning. Avoid robotic headings, repeated disclaimers, and overly formal phrasing. Keep clinical guidance accurate and distinguish education from real-patient medical advice. The user's name is ${user?.full_name || "Student"}. Their verified application role is ${user?.role || "student"}. Tailor the conversation towards ${getUserRecognition(user).focus}. Personal recognition changes tone only and never grants permissions.${conversationContext}${attachmentContext}\nuser: ${text}\nassistant:`,
         () => showEducatorCue("working"));
 
       if (requestId !== requestIdRef.current) return;
@@ -207,8 +207,8 @@ export default function VoiceAssistant() {
   return (
     <main className="clinical-educator">
       <header className="educator-heading">
-        <div><p className="educator-eyebrow">LEE · T-Level learning</p>
-          <h1>LEE</h1>
+        <div><p className="educator-eyebrow">T-SIM Health · T-Level learning</p>
+          <h1>T-SIM Health</h1>
           <p>Explore clinical skills. Understand the theory. Practise with confidence.</p>
         </div>
         <div className="educator-heading-actions">

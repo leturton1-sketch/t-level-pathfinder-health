@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 const LABELS = {
-  first_use: "Welcome to LEE",
+  first_use: "Welcome to T-SIM Health",
   hello: "Hello — I’m listening",
   thinking: "Thinking through your question",
   working: "Preparing your clinical learning response",

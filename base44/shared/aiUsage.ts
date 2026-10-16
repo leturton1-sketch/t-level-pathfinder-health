@@ -56,7 +56,7 @@ export async function checkIpRateLimit(base44, ip) {
   }
 }
 
-// Resolve the LEE AppUser from a signed custom session token (PIN/QR gate).
+// Resolve the T-SIM Health AppUser from a signed custom session token (PIN/QR gate).
 export async function customSessionUser(base44, sessionToken) {
   if (typeof sessionToken !== "string" || !/^[a-f0-9]{64}$/.test(sessionToken)) return null;
   const tokenHash = await sha256(sessionToken);
@@ -71,7 +71,7 @@ export async function customSessionUser(base44, sessionToken) {
   return users?.[0] || null;
 }
 
-// Authenticate via the platform session first, falling back to the LEE
+// Authenticate via the platform session first, falling back to the T-SIM Health
 // custom session so PIN/QR users are covered.
 export async function authenticateUser(base44, sessionToken) {
   try {

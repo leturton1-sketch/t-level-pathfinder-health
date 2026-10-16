@@ -1,5 +1,5 @@
 {
-  "name": "LEE",
+  "name": "T-SIM Health",
   "site": {
     "installCommand": "npm install",
     "buildCommand": "npm run build",

@@ -58,7 +58,7 @@ export default async function(req) {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://t-level-pathfinder-health.base44.app',
-        'X-Title': 'LEE Simulation',
+        'X-Title': 'T-SIM Health Simulation',
       },
       body: JSON.stringify({ model, messages, max_tokens: 1200 }),
     });

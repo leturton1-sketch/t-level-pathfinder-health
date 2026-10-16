@@ -20,7 +20,7 @@ export default function GlobalVoiceControl() {
       const message = event?.detail?.message;
       if (!message) return;
       toast({
-        title: event.detail?.source || "LEE Clinical Educator",
+        title: event.detail?.source || "T-SIM Health Clinical Educator",
         description: message,
         variant: event.detail?.level === "warning" ? "destructive" : "default",
         duration: 5000,

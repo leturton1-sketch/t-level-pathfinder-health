@@ -68,7 +68,7 @@ export const KNOWN_FIXES = [
       severity: "medium",
       count: 1,
       likely_cause: "The app has accumulated too much data in localStorage, exceeding the browser's ~5MB per-origin limit.",
-      recommended_fix: "Clear non-essential localStorage keys. The session reset action clears known LEE caches and reloads.",
+      recommended_fix: "Clear non-essential localStorage keys. The session reset action clears known T-SIM Health caches and reloads.",
       remediation: { action: "reset_session", payload: {} },
       can_auto_fix: true,
       source_fix: {
