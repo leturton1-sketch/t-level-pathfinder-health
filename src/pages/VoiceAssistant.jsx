@@ -147,13 +147,14 @@ export default function VoiceAssistant() {
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
       const positiveFeedback = /well done|good work|great job|excellent|correct|you got it|nice work/i.test(reply);
       await speakCompletion(reply, positiveFeedback ? "good_work" : "task_complete");
-    } catch {
+    } catch (err) {
       if (requestId !== requestIdRef.current) return;
-      const failureMessage = "I wasn't able to complete that task because the clinical assistant service is unavailable. Please try again.";
+      const reason = err?.data?.error || err?.data?.reason || err?.message || "Unknown error";
+      const failureMessage = `I wasn't able to complete that task because the clinical assistant service is unavailable. (${reason})`;
       setMessages((p) => [...p, { role: "assistant", content: failureMessage }]);
       setStatus("offline");
       showEducatorCue("neutral");
-      await synth.speak(failureMessage);
+      await synth.speak("I wasn't able to complete that task. Please try again.");
       if (listeningRef.current) { try { recognitionRef.current?.start(); } catch {} }
     }
   };

@@ -126,7 +126,20 @@ export async function openrouterChat({ messages, model }) {
   return { content: data.content, provider: "openrouter", model: data.model || model };
 }
 
-const ORDER = { auto: ["local", "puter", "openrouter"], local: ["local"], puter: ["puter"], openrouter: ["openrouter"] };
+// Core LLM fallback — uses the same aiEducatorChat backend as the floating
+// AI widget. This is the most reliable provider because it uses the platform's
+// built-in Core InvokeLLM integration rather than a third-party API key.
+export async function coreLlmChat({ messages }) {
+  const prompt = messages.map((m) => `${m.role === "assistant" ? "Assistant" : "User"}: ${m.content}`).join("\n");
+  const res = await base44.functions.invoke("aiEducatorChat", { prompt });
+  const data = res?.data ?? res;
+  if (data?.error) throw new Error(data.error);
+  const content = typeof data === "string" ? data : (data?.reply || data?.content || "");
+  if (!content) throw new Error("Core LLM returned an empty response");
+  return { content, provider: "core_llm", model: "core" };
+}
+
+const ORDER = { auto: ["local", "puter", "openrouter", "core"], local: ["local"], puter: ["puter"], openrouter: ["openrouter"], core: ["core"] };
 
 export async function routeChat({ mode, prefs, messages, onStage }) {
   const order = ORDER[mode] || ORDER.auto;
@@ -134,6 +147,7 @@ export async function routeChat({ mode, prefs, messages, onStage }) {
     local: () => localAIChat({ baseURL: prefs.localBaseURL, messages, model: prefs.localModel }),
     puter: () => puterChat({ messages, model: prefs.puterModel }),
     openrouter: () => openrouterChat({ messages, model: prefs.openrouterModel }),
+    core: () => coreLlmChat({ messages }),
   };
   let lastErr;
   for (const p of order) {
@@ -155,5 +169,6 @@ export async function probeProvider(prefs, providerKey) {
   if (providerKey === "local") return localAIChat({ baseURL: prefs.localBaseURL, messages: ping, model: prefs.localModel });
   if (providerKey === "puter") return puterChat({ messages: ping, model: prefs.puterModel });
   if (providerKey === "openrouter") return openrouterChat({ messages: ping, model: prefs.openrouterModel });
+  if (providerKey === "core") return coreLlmChat({ messages: ping });
   throw new Error("Unknown provider");
 }
