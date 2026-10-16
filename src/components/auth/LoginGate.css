@@ -249,10 +249,10 @@
 .login-gate-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: .385rem;
-  padding: .31rem;
+  gap: .35rem;
+  padding: .28rem;
   border: 1px solid rgba(87,147,210,.18);
-  border-radius: 17.6px;
+  border-radius: 16px;
   background: rgba(206,229,251,.52);
 }
 
@@ -260,13 +260,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .44rem;
-  min-height: 46px;
-  padding: .605rem;
-  border-radius: 13.2px;
+  gap: .4rem;
+  min-height: 42px;
+  padding: .55rem;
+  border-radius: 12px;
   color: #365878;
   background: transparent;
-  font-size: .88rem;
+  font-size: .8rem;
   font-weight: 800;
   transition: all .2s ease;
 }
