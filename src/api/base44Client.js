@@ -28,7 +28,7 @@ async function fetchFunction(name, body = {}) {
   const payload = sessionToken && !body.pathfinder_session_token
     ? { ...body, pathfinder_session_token: sessionToken }
     : body;
-  const res = await fetch(`/apps/${appParams.appId}/functions/${name}`, {
+  const res = await fetch(`/api/apps/${appParams.appId}/functions/${name}`, {
     method: 'POST',
     headers,
     credentials: 'include',
