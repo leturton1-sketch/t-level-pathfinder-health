@@ -197,9 +197,9 @@ export default function LoginGate({ onUnlock }) {
 
       <div className="login-gate-card">
         <header className="login-gate-header">
-          <p className="login-gate-welcome">Leading Educational Electronic Patient Record System</p>
+          <p className="login-gate-welcome">The Interactive Ward & AI Clinical Preceptor</p>
           <TLevelLogo variant="black" size="lg" className="login-gate-logo" />
-          <p className="login-gate-tagline">T-Level Pathfinder Health · Learn | Practice | Prepare | Progress</p>
+          <p className="login-gate-tagline">T-Sim Health · Learn | Practice | Prepare | Progress</p>
           <h1>Sign in to your account</h1>
           <p>Access your personalised learning, resources and tools.</p>
         </header>
@@ -269,7 +269,7 @@ export default function LoginGate({ onUnlock }) {
         <button type="button" className="login-gate-emergency-reset" onClick={emergencyReset}>
           <RotateCcw size={13} /> Emergency Login Reset
         </button>
-        <footer className="login-gate-footer">© {new Date().getFullYear()} T-Level Pathfinder Health · Leading Educational Electronic Patient Record System</footer>
+        <footer className="login-gate-footer">© {new Date().getFullYear()} T-Sim Health · The Interactive Ward & AI Clinical Preceptor</footer>
       </div>
     </div>
   );

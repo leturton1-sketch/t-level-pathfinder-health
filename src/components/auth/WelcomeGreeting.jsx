@@ -35,7 +35,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
     ? "LEE is where students learn clinical theory, practise it in a ward simulation, and build evidence for their T Level. You can review progress, feedback and readiness from My progress."
     : "LEE is where you learn clinical theory, practise it in a ward simulation, complete care plans, reflect, and get feedback — all building towards your T Level.";
 
-  const welcomeMessage = `Hello, ${firstName}. I'm LEE — your Clinical Educator and AI companion. Welcome to T-Level Pathfinder Health, the Leading Educational Electronic Patient Record System. This is your interactive clinical learning environment for your T Level in Health. ${purposeText} I'm here to help at every step. You can ask me questions, have me read pages aloud, or use voice commands. Let's get started.`;
+  const welcomeMessage = `Hello, ${firstName}. I'm LEE — your Clinical Educator and AI companion. Welcome to T-Sim Health: The Interactive Ward & AI Clinical Preceptor. This is your interactive clinical learning environment for your T Level in Health. ${purposeText} I'm here to help at every step. You can ask me questions, have me read pages aloud, or use voice commands. Let's get started.`;
 
   const [hasPlayed, setHasPlayed] = useState(false);
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
@@ -91,7 +91,7 @@ export default function WelcomeGreeting({ user, onContinue }) {
           <TLevelLogo variant="emblem" size="xl" className="h-24 w-24 drop-shadow-md" />
           <TLevelLogo variant="black" size="sm" />
           <h1 className="mt-1 text-xl font-semibold text-[#15131a]">Welcome, {firstName}</h1>
-          <p className="text-sm text-slate-500">T-Level Pathfinder Health · Signed in as {roleTitle}</p>
+          <p className="text-sm text-slate-500">T-Sim Health · Signed in as {roleTitle}</p>
         </div>
 
         <div className="px-6 py-5">
