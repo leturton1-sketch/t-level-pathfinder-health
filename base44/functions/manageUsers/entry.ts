@@ -29,6 +29,44 @@ export default async function(req) {
     const operation = String(body?.operation || "");
     const args = isPlainObject(body?.args) ? body.args : {};
     const entity = base44.asServiceRole.entities.AppUser;
+    const audit = base44.asServiceRole.entities.AuthAudit;
+
+    // Per-user rate limit on account changes: caps how many create/update/delete
+    // operations one staff member can run per hour. A stolen staff session
+    // cannot enumerate-delete every account in seconds.
+    const WRITE_OPERATIONS = new Set(["create", "update", "delete"]);
+    if (WRITE_OPERATIONS.has(operation)) {
+      const MAX_CHANGES_PER_HOUR = 60;
+      const recent = await audit.filter(
+        { app_user_id: user.id, method: "admin", event: { $in: [
+          "account_created", "account_deleted", "pin_reset", "role_changed",
+          "account_disabled", "account_enabled",
+        ] } },
+        "-occurred_at", MAX_CHANGES_PER_HOUR + 5,
+      );
+      const since = Date.now() - 60 * 60 * 1000;
+      const count = (recent || []).filter((row) => {
+        const time = Date.parse(row.occurred_at);
+        return Number.isFinite(time) && time > since;
+      }).length;
+      if (count >= MAX_CHANGES_PER_HOUR) {
+        return json({ error: "Too many account changes this hour. Please try again later." }, 429);
+      }
+    }
+
+    async function logAudit(event, detail) {
+      try {
+        await audit.create({
+          app_user_id: user.id,
+          username: user.username,
+          event,
+          method: "admin",
+          success: true,
+          detail,
+          occurred_at: new Date().toISOString(),
+        });
+      } catch {}
+    }
 
     // ---- List / Filter ----
     if (operation === "list" || operation === "filter") {
@@ -70,6 +108,7 @@ export default async function(req) {
       }
       data = await hashPinIfPresent({ ...data, role: data.role || "student", active: data.active !== false });
       const created = await entity.create(data);
+      await logAudit("account_created", `Created ${created.username} (${created.role})`);
       const response = stripAppUserSensitive(created);
       if (initialPin) response.initial_pin = initialPin;
       return json(response, 201);
@@ -100,7 +139,13 @@ export default async function(req) {
       }
       data = Object.fromEntries(Object.entries(data).filter(([key]) => APP_USER_FIELDS.has(key)));
       data = await hashPinIfPresent(data);
-      return json(stripAppUserSensitive(await entity.update(target.id, data)));
+      const updated = await entity.update(target.id, data);
+      const changes = [];
+      if (Object.prototype.hasOwnProperty.call(data, "pin")) changes.push("pin_reset");
+      if (Object.prototype.hasOwnProperty.call(data, "role") && data.role !== target.role) changes.push(`role_changed to ${data.role}`);
+      if (Object.prototype.hasOwnProperty.call(data, "active") && data.active !== target.active) changes.push(data.active ? "account_enabled" : "account_disabled");
+      await logAudit(changes[0] || "account_updated", `${changes.join(", ") || "updated"} on ${target.username}`);
+      return json(stripAppUserSensitive(updated));
     }
 
     if (operation === "delete") {
@@ -113,6 +158,7 @@ export default async function(req) {
       if (user.role === "admin" && target.role === "admin") {
         return json({ error: "Not authorised." }, 403);
       }
+      await logAudit("account_deleted", `Deleted ${target.username} (${target.role})`);
       return json(await entity.delete(target.id));
     }
 

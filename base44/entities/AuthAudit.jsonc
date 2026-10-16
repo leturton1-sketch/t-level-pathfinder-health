@@ -18,6 +18,9 @@
         "role_changed",
         "account_disabled",
         "account_enabled",
+        "account_created",
+        "account_updated",
+        "account_deleted",
         "voice_recovery",
         "qr_login"
       ]
