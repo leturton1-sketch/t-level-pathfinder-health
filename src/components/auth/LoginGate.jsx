@@ -1,39 +1,25 @@
-import { useState, useRef, useEffect } from "react";
-import { QrCode, KeyRound, ScanLine, Camera, CameraOff, LogIn, GraduationCap, Users, HeartPulse, ShieldCheck, ChartNoAxesColumnIncreasing, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { GraduationCap, Users, HeartPulse, ShieldCheck, ChartNoAxesColumnIncreasing, RotateCcw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useVoiceSynthesis } from "@/hooks/useVoiceSynthesis";
 import { setAppUser } from "@/lib/clinicalAuth";
 import { setSessionToken, clearSession } from "@/lib/authSession";
-import { decodeQrImage } from "@/lib/qrScanner";
 import TLevelLogo from "@/components/TLevelLogo";
 import "./LoginGate.css";
 
 export default function LoginGate({ onUnlock }) {
   const { toast } = useToast();
   const synth = useVoiceSynthesis();
-  const [mode, setMode] = useState("pin");
-  const [username, setUsername] = useState("");
-  const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
-  const [showPin, setShowPin] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
-  const detectRef = useRef(false);
-  const generationRef = useRef(0);
-  const frameRef = useRef(null);
   const busyRef = useRef(false);
   const mountedRef = useRef(true);
-  const [starting, setStarting] = useState(false);
-  const [scanMessage, setScanMessage] = useState("");
-  const fileRef = useRef(null);
 
-  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; stopCamera(); }; }, []);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
   const announce = async (text) => { try { await synth.speak(text); } catch {} };
 
-  const grant = (user, method = "pin") => {
+  const grant = (user, method = "role") => {
     setAppUser(user, method);
     toast({ title: "Access granted", description: `Welcome, ${user.full_name}.` });
     // The richer personalised welcome (spoken + visual) is shown next, by WelcomeGreeting.
@@ -51,7 +37,7 @@ export default function LoginGate({ onUnlock }) {
     } catch {}
     const message = isNetwork
       ? "Unable to connect. Please check your internet connection and try again."
-      : reason || "No matching account found. Check your username and PIN.";
+      : reason || "Unable to sign in with this role. Please try again.";
     toast({ title: "Access denied", description: message, variant: "destructive" });
     announce(`Access denied. ${message}`);
   };
@@ -76,8 +62,7 @@ export default function LoginGate({ onUnlock }) {
       const res = await base44.functions.invoke("verifyAccess", payload);
       const data = res?.data ?? res;
       if (!mountedRef.current) return;
-      setScanMessage(data?.granted ? "Access granted." : data?.reason || "Code not recognised. Try again or use PIN sign-in.");
-      if (data?.granted) { setSessionToken(data.session_token); grant(data.user, payload?.qr ? "qr" : "pin"); }
+      if (data?.granted) { setSessionToken(data.session_token); grant(data.user, "role"); }
       else deny(data?.reason);
     } catch (e) {
       if (mountedRef.current) {
@@ -90,85 +75,11 @@ export default function LoginGate({ onUnlock }) {
     }
   };
 
-  const handlePin = (e) => {
-    e?.preventDefault?.();
-    if (!pin.trim() || busy) return;
-    submit({ username: username.trim().toLowerCase(), pin: pin.trim() });
-  };
-
-  const stopCamera = () => {
-    generationRef.current += 1;
-    detectRef.current = false;
-    if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    frameRef.current = null;
-    streamRef.current?.getTracks().forEach(track => track.stop());
-    streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
-    if (mountedRef.current) { setScanning(false); setStarting(false); }
-  };
-
-  const startCamera = async () => {
-    if (starting || scanning || busyRef.current) return;
-    stopCamera();
-    const generation = generationRef.current;
-    setStarting(true); setScanMessage("");
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error("Camera access needs a supported browser and a secure connection. Choose a QR image or use PIN sign-in.");
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
-      if (!mountedRef.current || generation !== generationRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
-      streamRef.current = stream;
-      videoRef.current.srcObject = stream;
-      await videoRef.current.play();
-      if (!mountedRef.current || generation !== generationRef.current) return;
-      setStarting(false); setScanning(true); detectRef.current = true;
-      setScanMessage("Hold your QR card steady in the frame.");
-      let lastScan = 0;
-      const tick = async now => {
-        if (!detectRef.current || generation !== generationRef.current) return;
-        if (now - lastScan >= 180 && videoRef.current?.readyState >= 2) {
-          lastScan = now;
-          try {
-            const value = await decodeQrImage(videoRef.current);
-            if (!detectRef.current || generation !== generationRef.current) return;
-            if (value) { stopCamera(); setScanMessage("Code detected. Verifying…"); await submit({ qr: value }); return; }
-          } catch {
-            if (generation === generationRef.current) { stopCamera(); setScanMessage("Unable to read the camera. Choose a QR image or use PIN sign-in."); }
-            return;
-          }
-        }
-        frameRef.current = requestAnimationFrame(tick);
-      };
-      frameRef.current = requestAnimationFrame(tick);
-    } catch (error) {
-      if (!mountedRef.current || generation !== generationRef.current) return;
-      stopCamera();
-      setScanMessage(error?.name === "NotAllowedError" ? "Camera permission was denied. Allow camera access, choose a QR image or use PIN sign-in." : error?.message || "Camera unavailable. Use PIN sign-in.");
-    }
-  };
-
-  const scanFile = async event => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file || busyRef.current) return;
-    stopCamera();
-    const generation = generationRef.current;
-    setStarting(true); setScanMessage("Reading QR image…");
-    let bitmap;
-    try {
-      if (file.size > 10 * 1024 * 1024) throw new Error("Choose an image smaller than 10 MB.");
-      bitmap = await createImageBitmap(file);
-      const value = await decodeQrImage(bitmap);
-      if (!mountedRef.current || generation !== generationRef.current) return;
-      if (!value) throw new Error("No QR code found. Try a clearer image or use PIN sign-in.");
-      setScanMessage("Code detected. Verifying…");
-      await submit({ qr: value });
-    } catch (error) {
-      if (mountedRef.current && generation === generationRef.current) setScanMessage(error?.message || "Unable to read this image.");
-    } finally {
-      bitmap?.close();
-      if (mountedRef.current && generation === generationRef.current) setStarting(false);
-    }
-  };
+  const ROLES = [
+    { key: "student", label: "T-Level Student Login", Icon: GraduationCap },
+    { key: "tutor", label: "T-Level Curriculum Tutor", Icon: Users },
+    { key: "admin", label: "System Administrator", Icon: ShieldCheck },
+  ];
 
   return (
     <div className="login-gate">
@@ -200,71 +111,18 @@ export default function LoginGate({ onUnlock }) {
           <p className="login-gate-welcome">The Interactive Ward & AI Clinical Preceptor</p>
           <TLevelLogo variant="black" size="lg" className="login-gate-logo" />
           <p className="login-gate-tagline">T-Sim Health · Learn | Practice | Prepare | Progress</p>
-          <h1>Sign in to your account</h1>
+          <h1>Choose how you want to sign in</h1>
           <p>Access your personalised learning, resources and tools.</p>
         </header>
 
-        <div className="login-gate-tabs" role="tablist" aria-label="Sign-in method">
-          <button type="button" role="tab" aria-selected={mode === "pin"} disabled={busy} onClick={() => { setMode("pin"); stopCamera(); }} className={mode === "pin" ? "active" : ""}>
-            <KeyRound size={16} /> PIN
-          </button>
-          <button type="button" role="tab" aria-selected={mode === "qr"} disabled={busy} onClick={() => setMode("qr")} className={mode === "qr" ? "active" : ""}>
-            <QrCode size={16} /> QR Scan
-          </button>
-        </div>
-
-        {mode === "pin" ? (
-          <form className="login-gate-form" onSubmit={handlePin}>
-            <label>
-              <span>Username</span>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. username"
-                autoComplete="username"
-              />
-            </label>
-            <label>
-              <span>PIN</span>
-              <div className="login-gate-pin-field">
-                <input
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.slice(0, 32))}
-                  placeholder="PIN"
-                  type={showPin ? "text" : "password"}
-                  autoComplete="current-password"
-                />
-                <button type="button" className="login-gate-pin-toggle" onClick={() => setShowPin(s => !s)} tabIndex={-1} aria-label={showPin ? "Hide PIN" : "Show PIN"}>
-                  {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </label>
-            <button type="submit" disabled={busy || !username.trim() || !pin.trim()} className="login-gate-unlock">
-              <LogIn size={16} /> {busy ? "Verifying…" : "Unlock"}
+        <div className="login-gate-form">
+          {ROLES.map(({ key, label, Icon }) => (
+            <button key={key} type="button" disabled={busy} onClick={() => submit({ role_login: key })} className="login-gate-unlock">
+              <Icon size={16} /> {busy ? "Signing in…" : label}
             </button>
-            <p className="login-gate-hint">Use your T-SIM Health username and 4–6 digit PIN. Temporary PINs must be changed after first sign-in.</p>
-          </form>
-        ) : (
-          <div className="login-gate-qr">
-            <div className="login-gate-qr-stage">
-              <video ref={videoRef} muted playsInline className={scanning ? "active" : ""} />
-              {!scanning && <div className="login-gate-qr-idle"><ScanLine size={28} /></div>}
-              <div className="login-gate-qr-reticle" />
-            </div>
-            {!scanning ? (
-              <button type="button" onClick={startCamera} disabled={busy || starting} className="login-gate-unlock">
-                <Camera size={16} /> {starting ? "Preparing scanner…" : busy ? "Verifying…" : "Start camera"}
-              </button>
-            ) : (
-              <button type="button" onClick={stopCamera} className="login-gate-unlock secondary">
-                <CameraOff size={16} /> Stop camera
-              </button>
-            )}
-            <input ref={fileRef} type="file" accept="image/*" hidden onChange={scanFile} />
-            <button type="button" className="login-gate-unlock secondary" disabled={busy || starting} onClick={() => fileRef.current?.click()}>Choose a QR image</button>
-            <p className="login-gate-hint" role="status" aria-live="polite">{scanMessage || "Point the camera at your personal T-SIM Health QR code. Images are read on this device."}</p>
-          </div>
-        )}
+          ))}
+          <p className="login-gate-hint">Choose your role to continue. No password is required.</p>
+        </div>
 
         <button type="button" className="login-gate-emergency-reset" onClick={emergencyReset}>
           <RotateCcw size={13} /> Emergency Login Reset
