@@ -26,7 +26,7 @@
   1. Added **8-second timeout** on all database queries (lockout check, user lookup)
   2. **Better error handling** - failures now logged instead of silently caught
   3. **Fail-open lockout** - if lockout check times out, allow login (don't block legitimate users)
-  4. **Improved logging** with `[Pathfinder]` prefix for all errors
+  4. **Improved logging** with `[T‑SIM Health]` prefix for all errors
   5. **Graceful degradation** - failed audit logs don't block successful logins
 
 ---
@@ -64,7 +64,7 @@ try {
 try {
   await audit.create(...);
 } catch (e) {
-  console.warn('[Pathfinder] Auth audit log failed:', e?.message);
+  console.warn('[T‑SIM Health] Auth audit log failed:', e?.message);
   // Log it but don't block the login
 }
 ```
@@ -110,7 +110,7 @@ After republish, your students should experience:
 ## What to Monitor
 
 After deployment, watch for:
-1. **Console logs** - should see `[Pathfinder]` messages with clear errors
+1. **Console logs** - should see `[T‑SIM Health]` messages with clear errors
 2. **No more random "access denied"** on valid credentials
 3. **Brute-force protection still works** - 5 failed attempts = lockout
 4. **Network tab** - should show successful auth responses
