@@ -130,6 +130,7 @@ async function grantUser(base44, u, method) {
 // using AuthAudit records (the IP is stored in platform_user_id so it can be
 // filtered on), so an attacker cannot simply rotate usernames.
 const MAX_ATTEMPTS = 5;
+const ROLE_LOGINS = { student: "student", tutor: "tutor", admin: "admin" };
 const WINDOW_MS = 15 * 60 * 1000;
 
 // Resolve the requesting IP for brute-force lockout. The value MUST NOT be
@@ -191,9 +192,25 @@ export default async function(req) {
   }
   try {
     const body = await req.json().catch(() => ({}));
-    let { username, pin, qr } = body || {};
+    let { username, pin, qr, role_login } = body || {};
 
     const base44 = createClientFromRequest(req);
+
+    // No-password role entry: the login screen offers three role buttons.
+    // Only the whitelisted roles below are accepted, so this path can never
+    // select a super_admin or protected account.
+    if (role_login !== undefined) {
+      const role = ROLE_LOGINS[role_login];
+      if (!role) {
+        return Response.json({ granted: false, reason: "Unknown sign-in option." }, { status: 400, headers: { "Cache-Control": "no-store" } });
+      }
+      const users = await base44.asServiceRole.entities.AppUser.filter({ role, active: true });
+      const u = (users || []).find((row) => !row.is_protected);
+      if (!u) {
+        return Response.json({ granted: false, reason: "No active account is set up for this role. Contact your administrator." }, { headers: { "Cache-Control": "no-store" } });
+      }
+      return grantUser(base44, { ...u, first_login: false }, "role");
+    }
 
     if (typeof qr === "string" && qr.startsWith("pfqr:")) {
       const match = /^pfqr:v1:([a-f0-9]{24}):([a-f0-9]{64})$/.exec(qr.trim());
