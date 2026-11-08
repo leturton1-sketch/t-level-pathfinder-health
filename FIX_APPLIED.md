@@ -1,4 +1,4 @@
-# ✅ PATHFINDER HEALTH - BUG FIX APPLIED
+# ✅ T‑SIM HEALTH - BUG FIX APPLIED
 
 ## Summary of What Was Done
 
@@ -16,10 +16,10 @@
 ### Verify the Fix
 1. Open DevTools: Press **F12**
 2. Go to **Console** tab
-3. Look for logs starting with `[Pathfinder]`:
+3. Look for logs starting with `[T‑SIM Health]`:
    - Should see one of:
-     - ✅ `[Pathfinder] App public settings loaded successfully`
-     - ✅ `[Pathfinder] User authenticated successfully`
+     - ✅ `[T‑SIM Health] App public settings loaded successfully`
+     - ✅ `[T‑SIM Health] User authenticated successfully`
      - ✅ Proper error message (NOT infinite spinner)
 
 ### Expected Behavior
@@ -40,7 +40,7 @@
 - Added **10-second timeout** on all auth API calls
 - **Always clear loading state**, even on errors
 - **Fallback logic**: try user auth if public-settings fails
-- **Better logging** with `[Pathfinder]` prefix
+- **Better logging** with `[T‑SIM Health]` prefix
 
 ### Key Changes
 ```javascript
@@ -93,7 +93,7 @@ git push
 
 ### Check Console Logs
 - DevTools → Console tab
-- Look for `[Pathfinder]` logs
+- Look for `[T‑SIM Health]` logs
 - Look for error messages
 
 ### Check Network Requests
@@ -122,7 +122,7 @@ The infinite loading spinner bug is now fixed. The app will:
 - ✅ Load within 10 seconds
 - ✅ Show proper errors (not spinner)
 - ✅ Have fallback logic if APIs are slow
-- ✅ Log everything with `[Pathfinder]` for debugging
+- ✅ Log everything with `[T‑SIM Health]` for debugging
 
 Your students will be able to access the app without seeing a hanging spinner!
 
@@ -130,4 +130,4 @@ Your students will be able to access the app without seeing a hanging spinner!
 
 ## Questions?
 
-Check the console logs — they now have `[Pathfinder]` labels for easy debugging.
+Check the console logs — they now have `[T‑SIM Health]` labels for easy debugging.
